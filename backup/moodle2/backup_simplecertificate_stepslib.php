@@ -32,17 +32,19 @@
 class backup_simplecertificate_activity_structure_step extends backup_activity_structure_step {
 
     protected function define_structure() {
+        require_once("$CFG->dirroot/mod/simplecertificate/locallib.php");
 
         // To know if we are including userinfo
         $userinfo = $this->get_setting_value('userinfo');
 
         // Define each element separated
-        $certificate = new backup_nested_element('certificate', array('id'), array(
-            'name', 'intro', 'introformat', 'emailteachers', 'emailothers',
-            'savecert', 'reportcert', 'delivery', 'certificatetype', 'orientation',
-            'borderstyle', 'bordercolor', 'printwmark', 'printdate', 'datefmt', 'printnumber',
-            'printgrade', 'gradefmt', 'printoutcome', 'printhours', 'printteacher', 'customtext',
-            'printsignature', 'printseal', 'timemodified'));
+
+
+        $certificate = new backup_nested_element('simplecertificate', array('id'), array(
+            'name', 'intro', 'introformat', 'width', 'height', 'certificateimage', 'certificatetext',
+            'certificatetextformat', 'certificatetextx', 'certificatetexty','certdate', 'certdatefmt',
+            'certgrade', 'gradefmt', 'emailfrom', 'emailothers', 'emailteachers', 'savecert', 'reportcert',
+            'delivery', 'requiredtime', 'coursehours', 'outcome', 'coursename'));
 
         $issues = new backup_nested_element('issues');
 
@@ -65,8 +67,8 @@ class backup_simplecertificate_activity_structure_step extends backup_activity_s
         $issue->annotate_ids('user', 'userid');
 
         // Define file annotations
-        $certificate->annotate_files('mod_simplecertificate', 'intro', null); // This file area hasn't itemid
-        $issue->annotate_files('mod_simplecertificate', 'issue', 'id');
+        $certificate->annotate_files('mod_simplecertificate', simplecertificate::CERTIFICATE_IMAGE_FILE_AREA, null); // This file area hasn't itemid
+        $issue->annotate_files('mod_simplecertificate', simplecertificate::CERTIFICATE_ISSUES_FILE_AREA, 'id');
 
         // Return the root element (certificate), wrapped into standard activity structure
         return $this->prepare_activity_structure($certificate);
