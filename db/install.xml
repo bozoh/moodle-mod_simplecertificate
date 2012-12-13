@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<XMLDB PATH="mod/simplecertificate/db" VERSION="20121203" COMMENT="XMLDB file for Moodle mod/simplecertificate"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
+>
+  <TABLES>
+    <TABLE NAME="simplecertificate" COMMENT="Simple Certificate" NEXT="simplecertificate_issues">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" NEXT="course"/>
+        <FIELD NAME="course" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="id" NEXT="name"/>
+        <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" PREVIOUS="course" NEXT="intro"/>
+        <FIELD NAME="intro" TYPE="text" LENGTH="small" NOTNULL="true" SEQUENCE="false" PREVIOUS="name" NEXT="introformat"/>
+        <FIELD NAME="introformat" TYPE="int" LENGTH="4" NOTNULL="false" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="intro" NEXT="timecreated"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="introformat" NEXT="timemodified"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="timecreated" NEXT="width"/>
+        <FIELD NAME="width" TYPE="int" LENGTH="4" NOTNULL="true" UNSIGNED="true" DEFAULT="297" SEQUENCE="false" PREVIOUS="timemodified" NEXT="height"/>
+        <FIELD NAME="height" TYPE="int" LENGTH="4" NOTNULL="true" UNSIGNED="true" DEFAULT="210" SEQUENCE="false" PREVIOUS="width" NEXT="certificateimage"/>
+        <FIELD NAME="certificateimage" TYPE="text" LENGTH="small" NOTNULL="true" SEQUENCE="false" PREVIOUS="height" NEXT="certificatetext"/>
+        <FIELD NAME="certificatetext" TYPE="text" LENGTH="small" NOTNULL="true" SEQUENCE="false" PREVIOUS="certificateimage" NEXT="certificatetextformat"/>
+        <FIELD NAME="certificatetextformat" TYPE="text" LENGTH="small" NOTNULL="true" SEQUENCE="false" PREVIOUS="certificatetext" NEXT="certificatetextx"/>
+        <FIELD NAME="certificatetextx" TYPE="int" LENGTH="4" NOTNULL="true" UNSIGNED="true" DEFAULT="10" SEQUENCE="false" PREVIOUS="certificatetextformat" NEXT="certificatetexty"/>
+        <FIELD NAME="certificatetexty" TYPE="int" LENGTH="4" NOTNULL="true" UNSIGNED="true" DEFAULT="50" SEQUENCE="false" PREVIOUS="certificatetextx" NEXT="printbarcode"/>
+        <FIELD NAME="printbarcode" TYPE="int" LENGTH="1" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="certificatetexty" NEXT="barcodex"/>
+        <FIELD NAME="barcodex" TYPE="int" LENGTH="4" NOTNULL="true" UNSIGNED="true" DEFAULT="30" SEQUENCE="false" PREVIOUS="printbarcode" NEXT="barcodey"/>
+        <FIELD NAME="barcodey" TYPE="int" LENGTH="4" NOTNULL="true" UNSIGNED="true" DEFAULT="175" SEQUENCE="false" PREVIOUS="barcodex" NEXT="coursename"/>
+        <FIELD NAME="coursename" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" PREVIOUS="barcodey" NEXT="coursehours"/>
+        <FIELD NAME="coursehours" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="coursename" NEXT="outcome"/>
+        <FIELD NAME="outcome" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="coursehours" NEXT="certdate"/>
+        <FIELD NAME="certdate" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="outcome" NEXT="certdatefmt"/>
+        <FIELD NAME="certdatefmt" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="certdate" NEXT="certgrade"/>
+        <FIELD NAME="certgrade" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="certdatefmt" NEXT="gradefmt"/>
+        <FIELD NAME="gradefmt" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="certgrade" NEXT="emailfrom"/>
+        <FIELD NAME="emailfrom" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" PREVIOUS="gradefmt" NEXT="emailothers"/>
+        <FIELD NAME="emailothers" TYPE="text" LENGTH="small" NOTNULL="true" SEQUENCE="false" PREVIOUS="emailfrom" NEXT="emailteachers"/>
+        <FIELD NAME="emailteachers" TYPE="int" LENGTH="1" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="emailothers" NEXT="savecert"/>
+        <FIELD NAME="savecert" TYPE="int" LENGTH="1" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="emailteachers" NEXT="reportcert"/>
+        <FIELD NAME="reportcert" TYPE="int" LENGTH="1" NOTNULL="false" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="savecert" NEXT="delivery"/>
+        <FIELD NAME="delivery" TYPE="int" LENGTH="1" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="reportcert" NEXT="requiredtime"/>
+        <FIELD NAME="requiredtime" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="delivery"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="simplecertificate_issues" COMMENT="Issues of simplecertificate module" PREVIOUS="simplecertificate">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" NEXT="certificateid"/>
+        <FIELD NAME="certificateid" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="id" NEXT="userid"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="certificateid" NEXT="timecreated"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="userid" NEXT="code"/>
+        <FIELD NAME="code" TYPE="char" LENGTH="36" NOTNULL="false" SEQUENCE="false" PREVIOUS="timecreated"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+    </TABLE>
+  </TABLES>
+</XMLDB>

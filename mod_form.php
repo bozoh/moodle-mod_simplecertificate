@@ -1,0 +1,218 @@
+<?php
+if (!defined('MOODLE_INTERNAL')) {
+    die('Direct access to this script is forbidden.');    ///  It must be included from a Moodle page
+}
+
+
+require_once($CFG->dirroot . '/course/moodleform_mod.php');
+require_once($CFG->libdir . '/filelib.php');
+
+
+class mod_simplecertificate_mod_form extends moodleform_mod {
+
+    function definition() {
+        global $CFG, $COURSE;
+
+
+        $mform =& $this->_form;
+
+        //General options
+        $mform->addElement('header', 'general', get_string('general', 'form'));
+
+        $mform->addElement('text', 'name', get_string('certificatename', 'simplecertificate'), array('size'=>'64'));
+
+        if (!empty($CFG->formatstringstriptags)) {
+            $mform->setType('name', PARAM_TEXT);
+        } else {
+            $mform->setType('name', PARAM_CLEAN);
+        }
+        $mform->addRule('name', null, 'required', null, 'client');
+        $mform->addHelpButton('name', 'certificatename', 'simplecertificate');
+
+        $this->add_intro_editor(false, get_string('intro', 'simplecertificate'));
+
+
+        //--------------------------------------- Design Options----------------------------------------------------
+        $mform->addElement('header', 'designoptions', get_string('designoptions', 'simplecertificate'));
+
+        $maxbytes = get_max_upload_file_size($CFG->maxbytes, $COURSE->maxbytes);
+
+        //Certificate image file
+        $mform->addElement('filepicker', 'certificateimage', get_string('certificateimage','simplecertificate'), null,
+                array('maxbytes' => $maxbytes, 'accepted_types' =>  array('image')));
+        $mform->addHelpButton('certificateimage', 'certificateimage', 'simplecertificate');
+        $mform->addRule('certificateimage', get_string('error'), 'required', null, 'client');
+
+
+        //Certificate Text HTML editor
+        $mform->addElement('editor', 'certificatetext', get_string('certificatetext', 'simplecertificate'),
+                simplecertificate_get_editor_options($this->context));
+        $mform->setType('certificatetext',PARAM_RAW);
+        $mform->addRule('certificatetext', get_string('error'), 'required', null, 'client');
+        $mform->addHelpButton('certificatetext', 'certificatetext', 'simplecertificate');
+
+        //Certificate Width
+        $mform->addElement('text', 'width', get_string('width', 'simplecertificate'), array('size'=>'5'));
+        $mform->setType('width', PARAM_INT);
+        $mform->setDefault('width', get_config('simplecertificate', 'width'));
+        $mform->setAdvanced('width');
+        $mform->addHelpButton('width', 'size', 'simplecertificate');
+
+
+        //Certificate Height
+        $mform->addElement('text', 'height', get_string('height', 'simplecertificate'), array('size'=>'5'));
+        $mform->setType('height', PARAM_INT);
+        $mform->setDefault('height', get_config('simplecertificate', 'height'));
+        $mform->setAdvanced('height');
+        $mform->addHelpButton('height', 'size', 'simplecertificate');
+
+        //Certificate Position X
+        $mform->addElement('text', 'certificatetextx', get_string('certificatetextx', 'simplecertificate'), array('size'=>'5'));
+        $mform->setType('certificatetextx',PARAM_INT);
+        $mform->setDefault('certificatetextx', get_config('simplecertificate', 'certificatetextx'));
+        $mform->setAdvanced('certificatetextx');
+        $mform->addHelpButton('certificatetextx', 'textposition', 'simplecertificate');
+
+        //Certificate Position Y
+        $mform->addElement('text', 'certificatetexty', get_string('certificatetexty', 'simplecertificate'), array('size'=>'5'));
+        $mform->setType('certificatetexty',PARAM_INT);
+        $mform->setDefault('certificatetexty', get_config('simplecertificate', 'certificatetexty'));
+        $mform->setAdvanced('certificatetexty');
+        $mform->addHelpButton('certificatetexty', 'textposition', 'simplecertificate');
+
+        //Certificate Alternative Course Name
+        $mform->addElement('text', 'coursename', get_string('coursename', 'simplecertificate'), array('size'=>'64'));
+        $mform->setType('coursename', PARAM_TEXT);
+        $mform->setAdvanced('coursename');
+        $mform->addHelpButton('coursename', 'coursename', 'simplecertificate');
+
+        //Certificate Course Hours
+        $mform->addElement('text', 'coursehours', get_string('coursehours', 'simplecertificate'), array('size'=>'5'));
+        $mform->setType('coursehours', PARAM_INT);
+        $mform->setAdvanced('coursehours');
+        $mform->addHelpButton('coursehours', 'coursehours', 'simplecertificate');
+
+        //Certificate Outcomes
+        $outcomeoptions = simplecertificate_get_outcomes();
+        $mform->addElement('select', 'outcome', get_string('printoutcome', 'simplecertificate'), $outcomeoptions);
+        $mform->setDefault('outcome', 0);
+        $mform->addHelpButton('outcome', 'printoutcome', 'simplecertificate');
+
+        //Certificate date options
+        $mform->addElement('select', 'certdate', get_string('printdate', 'simplecertificate'), simplecertificate_get_date_options());
+        $mform->setDefault('certdate', get_config('simplecertificate', 'certdate'));
+        $mform->addHelpButton('certdate', 'printdate', 'simplecertificate');
+
+
+        //Certificate date format
+
+        $mform->addElement('select', 'certdatefmt', get_string('datefmt', 'simplecertificate'), simplecertificate_get_date_format_options());
+        $mform->setDefault('certdatefmt', get_config('simplecertificate', 'certdatefmt'));
+        $mform->addHelpButton('certdatefmt', 'datefmt', 'simplecertificate');
+
+        //Certificare grade Options
+        $mform->addElement('select', 'certgrade', get_string('printgrade', 'simplecertificate'), simplecertificate_get_grade_options());
+        $mform->setDefault('certgrade', 0);
+        $mform->addHelpButton('certgrade', 'printgrade', 'simplecertificate');
+
+        //Certificate grade format
+        $gradeformatoptions = array( 1 => get_string('gradepercent', 'simplecertificate'), 2 => get_string('gradepoints', 'simplecertificate'),
+                3 => get_string('gradeletter', 'simplecertificate'));
+        $mform->addElement('select', 'gradefmt', get_string('gradefmt', 'simplecertificate'), $gradeformatoptions);
+        $mform->setDefault('gradefmt', 0);
+        $mform->addHelpButton('gradefmt', 'gradefmt', 'simplecertificate');
+
+        //Required Time
+        $mform->addElement('text', 'requiredtime', get_string('coursetimereq', 'simplecertificate'), array('size'=>'3'));
+        $mform->setType('requiredtime', PARAM_INT);
+        $mform->addHelpButton('requiredtime', 'coursetimereq', 'simplecertificate');
+
+
+
+        //-------------------------------Issue options----------------------------------
+
+        $mform->addElement('header', 'issueoptions', get_string('issueoptions', 'simplecertificate'));
+
+        //Email to teachers ?
+        $mform->addElement('selectyesno', 'emailteachers', get_string('emailteachers', 'simplecertificate'));
+        $mform->setDefault('emailteachers', 0);
+        $mform->addHelpButton('emailteachers', 'emailteachers', 'simplecertificate');
+
+        //Email Others
+        $mform->addElement('text', 'emailothers', get_string('emailothers', 'simplecertificate'), array('size'=>'40', 'maxsize'=>'200'));
+        $mform->setType('emailothers', PARAM_TEXT);
+        $mform->addHelpButton('emailothers', 'emailothers', 'simplecertificate');
+
+        //Email From
+        $mform->addElement('text', 'emailfrom', get_string('emailfrom', 'simplecertificate'), array('size'=>'40', 'maxsize'=>'200'));
+        $mform->setDefault('emailfrom', $CFG->supportname);
+        $mform->setType('emailfrom', PARAM_EMAIL);
+        $mform->addHelpButton('emailfrom', 'emailfrom', 'simplecertificate');
+        $mform->setAdvanced('emailfrom');
+
+        //Delivery Options (Email, Download,...)
+        $deliveryoptions = array( 0 => get_string('openbrowser', 'simplecertificate'), 1 => get_string('download', 'simplecertificate'), 2 => get_string('emailcertificate', 'simplecertificate'));
+        $mform->addElement('select', 'delivery', get_string('delivery', 'simplecertificate'), $deliveryoptions);
+        $mform->setDefault('delivery', 0);
+        $mform->addHelpButton('delivery', 'delivery', 'simplecertificate');
+
+        //Save Certificarte
+        $mform->addElement('selectyesno', 'savecert', get_string('savecert', 'simplecertificate'));
+        $mform->setDefault('savecert', get_config('simplecertificate', 'savecert'));
+        $mform->addHelpButton('savecert', 'savecert', 'simplecertificate');
+
+        //Report Cert
+        //TODO acredito que seja para verificar o certificado pelo código, se for isto pode remover.
+        $reportfile = "$CFG->dirroot/simplecertificates/index.php";
+        if (file_exists($reportfile)) {
+            $mform->addElement('selectyesno', 'reportcert', get_string('reportcert', 'simplecertificate'));
+            $mform->setDefault('reportcert', 0);
+            $mform->addHelpButton('reportcert', 'reportcert', 'simplecertificate');
+        }
+
+        $this->standard_coursemodule_elements();
+        $this->add_action_buttons();
+    }
+
+    /**
+     * Prepares the form before data are set
+     *
+     * Additional wysiwyg editor are prepared here, the introeditor is prepared automatically by core.
+     * Grade items are set here because the core modedit supports single grade item only.
+     *
+     * @param array $data to be set
+     * @return void
+     */
+    public function data_preprocessing(&$data) {
+         global $CFG;
+        require_once(dirname(__FILE__) . '/locallib.php');
+        if ($this->current->instance) {
+            // editing an existing certificate - let us prepare the added editor elements (intro done automatically), and files
+            $draftitemid = file_get_submitted_draft_itemid('certificateimage');
+            $fileinfo = simplecertificate::get_certificate_image_fileinfo($this->context);
+            file_prepare_draft_area($draftitemid, $fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'], $fileinfo['itemid']);
+            $data['certificateimage'] = $draftitemid;
+            $data['certificatetext'] = array('text' =>$data['certificatetext'], 'format'=> FORMAT_HTML);
+        }  else { //Load default
+            $data['certificatetext'] = array('text' =>'', 'format'=> FORMAT_HTML);
+        }
+    }
+
+    /**
+     * Some basic validation
+     *
+     * @param $data
+     * @param $files
+     * @return array
+     */
+    public function validation($data, $files) {
+        $errors = parent::validation($data, $files);
+
+        // Check that the required time entered is valid
+        if ((!is_number($data['requiredtime']) || $data['requiredtime'] < 0)) {
+            $errors['requiredtime'] = get_string('requiredtimenotvalid', 'simplecertificate');
+        }
+
+        return $errors;
+    }
+}
