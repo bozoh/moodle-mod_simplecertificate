@@ -9,10 +9,11 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+
 require_once(dirname(dirname(dirname(__FILE__))) . '/config.php');
-require_once('lib.php');
+require_once("$CFG->dirroot/mod/simplecertificate/lib.php");
 require_once("$CFG->libdir/pdflib.php");
-require_once(dirname(__FILE__) . '/locallib.php');
+require_once("$CFG->dirroot/mod/simplecertificate/locallib.php");
 
 $id = required_param('id', PARAM_INT);    // Course Module ID
 $action = optional_param('action', '', PARAM_ALPHA);
