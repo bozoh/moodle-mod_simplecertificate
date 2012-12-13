@@ -73,7 +73,7 @@ if ($certificate->requiredtime && !has_capability('mod/certificate:manage', $con
 }
 
 // Create new certificate record, or return existing record
-$certrecord = $simplecertificate->get_issue($course, $USER, $certificate, $cm);
+$certrecord = $simplecertificate->get_issue($USER);
 
 
 if (empty($action)) { // Not displaying PDF
@@ -86,7 +86,7 @@ if (empty($action)) { // Not displaying PDF
 
     if (has_capability('mod/simplecertificate:manage', $context)) {
         $numusers = count(simplecertificate_get_issues($certificate->id, 'ci.timecreated ASC', $groupmode, $cm));
-        $url = html_writer::tag('a', get_string('viewcertificateviews', 'certificate', $numusers),
+        $url = html_writer::tag('a', get_string('viewcertificateviews', 'simplecertificate', $numusers),
             array('href' => $CFG->wwwroot . '/mod/simplecertificate/report.php?id=' . $cm->id));
         echo html_writer::tag('div', $url, array('class' => 'reportlink'));
     }

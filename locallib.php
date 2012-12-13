@@ -169,22 +169,30 @@ class simplecertificate {
      */
     function get_issue($user) {
         global $DB;
-
-        // Check if there is an issue already, should only ever be one
-        if (!$certissue = $DB->get_record('simplecertificate_issues', array('userid' => $user->id, 'certificateid' => $this->id))) {
+        // Check if there is an issue already, should only ever be one, timedeleted must be null
+        if (!$certissue = $DB->get_record('simplecertificate_issues', array('userid' => $user->id, 'certificateid' => $this->id, 'timedeleted' => null))) {
             // Create new certificate issue record
             $certissue = new stdClass();
             $certissue->certificateid = $this->id;
             $certissue->userid = $user->id;
+            $certissue->username = fullname($user);
+            $certissue->coursename = format_string($this->coursename, true);
             $certissue->timecreated =  time();
             $certissue->code = $this->get_issue_uuid();
-            $certissue->id = $DB->insert_record('simplecertificate_issues', $certissue);
+            $certissue->certificatetext = $this->get_certificate_text($certissue);
+
+            if (!has_capability('mod/simplecertificate:manage', $this->context)) {
+                $certissue->id = $DB->insert_record('simplecertificate_issues', $certissue);
+            } else {
+                $certissue->id = rand(0,4);
+            }
+
             // Email to the teachers and anyone else
-            if ($this->emailteachers != 0)
-            $this->send_alert_email_teachers();
+            if ($this->emailteachers != 0 )
+                $this->send_alert_email_teachers();
 
             if (!empty($this->emailothers))
-            $this->send_alert_email_others();
+                $this->send_alert_email_others();
         }
         return $certissue;
     }
@@ -201,7 +209,7 @@ class simplecertificate {
         $sql = "SELECT *
                 FROM {simplecertificate_issues} i
                 WHERE certificateid = :certificateid
-                AND userid = :userid";
+                AND userid = :userid AND timedeleted IS NULL";
         if ($issues = $DB->get_records_sql($sql, array('certificateid' => $this->id, 'userid' => $USER->id))) {
             return $issues;
         }
@@ -494,7 +502,7 @@ class simplecertificate {
         $pdf->Image($temp_manager->absolutefilepath, 0, 0, $this->width, $this->height);
 
         $pdf->SetXY($this->certificatetextx, $this->certificatetexty);
-        $pdf->writeHTMLCell(0, 0, '', '', $this->get_certificate_text($issuecert), 0, 0, 0, true, 'C');
+        $pdf->writeHTMLCell(0, 0, '', '', $issuecert->certificatetext, 0, 0, 0, true, 'C');
         @remove_dir($temp_manager->path);
 
         //Add certificade code using QRcode, in a new page (to print in the back)
@@ -524,7 +532,7 @@ class simplecertificate {
      * @param int $issueid the certificate issue record id
      * @return bool return true if successful, false otherwise
      */
-    private function save_pdf($pdf, $filename,$issueid) {
+    private function save_pdf($pdf, $filename, $issueid) {
         global $DB, $USER;
 
         if (empty($issueid)) {
@@ -538,7 +546,7 @@ class simplecertificate {
         $fs = get_file_storage();
 
         // Prepare file record object
-        $fileinfo = self::get_certificate_issue_fileinfo($USER->id, $issueid,$this->context->id);
+        $fileinfo = self::get_certificate_issue_fileinfo($USER->id, $issueid, $this->context->id);
         $fileinfo['filename'] = $filename;
 
         // Check for file first
@@ -559,33 +567,35 @@ class simplecertificate {
      */
 
     private function send_certificade_email($issuecert) {
-        //function simplecertificate_email_student($course, $certificate, $certrecord, $context) {
-        global $DB, $USER;
+        global $USER;
 
         $info = new stdClass;
-        $info->username = fullname($USER);
+        $info->username = $issuecert->username;
         $info->certificate = format_string($this->name, true);
-        $info->course = format_string($this->coursename, true);
+        $info->course = $issuecert->coursename;
 
         $subject = $info->course . ': ' . $info->certificate;
-        $message = get_string('emailstudenttext', 'certificate', $info) . "\n";
+        $message = get_string('emailstudenttext', 'simplecertificate', $info) . "\n";
 
         // Make the HTML version more XHTML happy  (&amp;)
-        $messagehtml = text_to_html(get_string('emailstudenttext', 'simplecertificate', $info));
+        $messagehtml = text_to_html($message);
 
         $filename = clean_filename($this->name.'.pdf');
+
+        if (has_capability('mod/simplecertificate:manage', $this->context))
+            $this->save_pdf($this->create_pdf($issuecert), $filename, $issuecert->id);
 
         // Get generated certificate file
         $fs = get_file_storage();
         $fileinfo = self::get_certificate_issue_fileinfo($USER->id, $issuecert->id, $this->context->id);
         $file = $fs->get_file($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'],
-        $fileinfo['itemid'], $fileinfo['filepath'], $filename);
+            $fileinfo['itemid'], $fileinfo['filepath'], $filename);
 
 
         if ($file) { //put in a tmp dir, for e-mail attachament
             $temp_manager = $this->move_temp_dir($file);
         } else {
-            print_error('Arquivo não encotrado '.$filename);
+            print_error(get_string('filenotfound', 'simplecertificate', $filename));
         }
 
         $attachment = $temp_manager->relativefilepath;
@@ -593,6 +603,10 @@ class simplecertificate {
         $ret = email_to_user($USER, format_string($this->emailfrom, true), $subject, $message, $messagehtml, $attachment, $attachname);
 
         @remove_dir($temp_manager->path);
+
+        if (has_capability('mod/simplecertificate:manage', $this->context))
+            $file->delete();
+
         return $ret;
     }
 
@@ -739,7 +753,7 @@ class simplecertificate {
                 }
             }
         } else if ($this->certdate > 2) {
-            if ($modinfo = certificate_get_mod_grade($course, $certificate->printdate, $userid)) {
+            if ($modinfo = $this->get_mod_grade($this->certdate, $userid)) {
                 $date = $modinfo->dategraded;
             }
         }

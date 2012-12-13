@@ -13,6 +13,8 @@
 //-----
 $string['modulename'] = 'Simple Certificate';
 $string['modulenameplural'] = 'Simple Certificates';
+$string['pluginname'] = 'Simple Certificate';
+$string['viewcertificateviews'] = 'View {$a} issued certificates';
 $string['summaryofattempts'] = 'Summary of Previously Received Certificates';
 $string['issued'] = 'Issued';
 $string['coursegrade'] = 'Course Grade';
