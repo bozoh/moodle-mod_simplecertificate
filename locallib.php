@@ -177,9 +177,8 @@ class simplecertificate {
             $certissue->userid = $user->id;
             $certissue->username = fullname($user);
             $certissue->coursename = format_string($this->coursename, true);
-            $certissue->timecreated =  time();
+            $certissue->timecreated = time();
             $certissue->code = $this->get_issue_uuid();
-            $certissue->certificatetext = $this->get_certificate_text($certissue);
 
             if (!has_capability('mod/simplecertificate:manage', $this->context)) {
                 $certissue->id = $DB->insert_record('simplecertificate_issues', $certissue);
@@ -472,7 +471,7 @@ class simplecertificate {
     }
 
     private function create_pdf($issuecert){
-        global $DB, $USER;
+        global $DB, $USER, $CFG;
 
         //Getting certificare image
         $fs = get_file_storage();
@@ -502,7 +501,7 @@ class simplecertificate {
         $pdf->Image($temp_manager->absolutefilepath, 0, 0, $this->width, $this->height);
 
         $pdf->SetXY($this->certificatetextx, $this->certificatetexty);
-        $pdf->writeHTMLCell(0, 0, '', '', $issuecert->certificatetext, 0, 0, 0, true, 'C');
+        $pdf->writeHTMLCell(0, 0, '', '', $this->get_certificate_text($issuecert), 0, 0, 0, true, 'C');
         @remove_dir($temp_manager->path);
 
         //Add certificade code using QRcode, in a new page (to print in the back)
@@ -516,7 +515,8 @@ class simplecertificate {
             'module_width' => 1, // width of a single module in points
             'module_height' => 1 // height of a single module in points
         );
-        $pdf->write2DBarcode($issuecert->code, 'QRCODE,H', 10, 10, 50, 50, $style, 'N');
+        $codeurl = "$CFG->wwwroot/mod/simplecertificate/verify.php?code=$issuecert->code";
+        $pdf->write2DBarcode($codeurl, 'QRCODE,H', 10, 10, 50, 50, $style, 'N');
         $pdf->setFontSize(10);
         $pdf->setFontStretching(75);
         $pdf->Text(9, 60, $issuecert->code);

@@ -156,4 +156,8 @@ $string['defaultcertificatetexty'] = 'Default Vertical Text Position';
 
 //Erros
 $string['filenotfound'] = 'File not Found: {$a}';
+$string['invalidcode'] = 'Invalide certificade code';
+
+//Verify certificate page
+$string['certificateverification'] = 'Certificate Verification';
 

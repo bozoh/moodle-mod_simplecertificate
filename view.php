@@ -110,7 +110,7 @@ if (empty($action)) { // Not displaying PDF
     // Add to log, only if we are reissuing
     add_to_log($course->id, 'simplecertificate', 'view', "view.php?id=$cm->id", $certificate->id, $cm->id);
 
-    $link = new moodle_url('/mod/simplecertificate/view.php?id='.$cm->id.'&action=get');
+    $link = new moodle_url('/mod/simplecertificate/view.php', array ('id' => $cm->id, 'action' => 'get'));
     $button = new single_button($link, $linkname);
     $button->add_action(new popup_action('click', $link, 'view'.$cm->id, array('height' => 600, 'width' => 800)));
 

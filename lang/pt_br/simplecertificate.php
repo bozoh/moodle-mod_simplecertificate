@@ -46,7 +46,7 @@ $string['intro'] = 'Introdução';
 $string['printoutcome'] = 'Imprimir resultado (Outcome)';
 $string['printdate'] = 'Tipo de data do certificado';
 ////Date options
-$string['issueddate'] = 'Date de emissão';
+$string['issueddate'] = 'Data da emissão';
 $string['completiondate'] = 'Data do fim do curso';
 $string['datefmt'] = 'Formato da Data';
 

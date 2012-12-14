@@ -437,7 +437,7 @@ function simplecertificate_get_outcomes() {
  * @return array
  */
 function simplecertificate_get_view_actions() {
-    return array('view', 'view all', 'view report');
+    return array('view', 'view all', 'view report', 'verify');
 }
 
 /**
