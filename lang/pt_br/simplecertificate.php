@@ -31,6 +31,7 @@ $string['hours'] = 'horas';
 $string['keywords'] = 'cetificate, course, pdf, moodle';
 $string['pluginadministration'] = 'Administração de Certificado';
 $string['awarded'] = 'Obtido';
+$string['deletissuedcertificates'] = 'Remover os certificados emitidos';
 
 //Form
 $string['certificatename'] = 'Nome do certificado';
@@ -160,4 +161,10 @@ $string['defaultcertificatetexty'] = 'Posição Vertical padrão do texto do cer
 
 //Erros
 $string['filenotfound'] = 'Arquivo não encontrado: {$a}';
+$string['cantdeleteissue'] = 'Ocorreu um erro ao remover os certificados emitidos';
 
+
+//Settings
+$string['certlifetime'] = 'Manter os certificados emitidos por: (em Mêses)';
+$string['certlifetime_help'] = 'Está opção especifica por quanto tempo deve ser guardado um certificado emitido. Certificados emitidos mais velhos que o tempo determinado nesta opção será autmaticamente removidos.';
+$string['neverdeleteoption'] = 'Nunca remover';

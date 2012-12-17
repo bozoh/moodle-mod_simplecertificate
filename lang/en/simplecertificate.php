@@ -31,6 +31,7 @@ $string['hours'] = 'hours';
 $string['keywords'] = 'cetificate, course, pdf, moodle';
 $string['pluginadministration'] = 'Certificate administration';
 $string['awarded'] = 'Awarded';
+$string['deletissuedcertificates'] = 'Delete issued certificates';
 
 //Form
 $string['certificatename'] = 'Certificate Name';
@@ -157,7 +158,13 @@ $string['defaultcertificatetexty'] = 'Default Vertical Text Position';
 //Erros
 $string['filenotfound'] = 'File not Found: {$a}';
 $string['invalidcode'] = 'Invalide certificade code';
+$string['cantdeleteissue'] = 'Error removing issued certificates';
+
 
 //Verify certificate page
 $string['certificateverification'] = 'Certificate Verification';
 
+//Settings
+$string['certlifetime'] = 'Keep issued certificates for: (in Months)';
+$string['certlifetime_help'] = 'This specifies the length of time you want to keep issued certificates. Issed certificates that are older than this age are automatically deleted.';
+$string['neverdeleteoption'] = 'Never delete';

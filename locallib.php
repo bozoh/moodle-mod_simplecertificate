@@ -357,6 +357,14 @@ class simplecertificate {
         return false;
     }
 
+    /**
+     * Generate a version 1 UUID (time based)
+     * you can verify the generated code in:
+     * http://www.famkruithof.net/uuid/uuidgen?typeReq=-1
+     *
+     * @return string UUID_v1
+     */
+
     private function get_issue_uuid() {
         global $CFG;
         require_once (dirname(__FILE__) . '/lib.uuid.php');

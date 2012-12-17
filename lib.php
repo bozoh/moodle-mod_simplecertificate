@@ -133,7 +133,16 @@ function simplecertificate_delete_instance($id) {
     }
 
     $result = true;
-    $DB->delete_records('simplecertificate_issues', array('certificateid' => $id));
+    $timedeleted = time();
+
+    $issuecertificates = $DB->get_records('simplecertificate_issues', array('certificateid' => $certificate->id, 'timedeleted' => null));
+    foreach ($issuecertificates as $issuecertificate) {
+        $issuecertificate->timedeleted = $timedeleted;
+        if (!$DB->update_record('simplecertificate_issues', $issuecertificate)) {
+            print_erro(get_string('cantdeleteissue','simplecertificate'));
+        }
+    }
+
     if (!$DB->delete_records('simplecertificate', array('id' => $id))) {
         $result = false;
     }
@@ -163,11 +172,20 @@ function simplecertificate_reset_userdata($data) {
     $status = array();
 
     if (!empty($data->reset_certificate)) {
-        $sql = "SELECT cert.id
-                FROM {simplecertificate} cert
-                WHERE cert.course = :courseid";
-        $DB->delete_records_select('simplecertificate_issues', "certificateid IN ($sql)", array('courseid' => $data->courseid));
-        $status[] = array('component' => $componentstr, 'item' => get_string('certificateremoved', 'simplecertificate'), 'error' => false);
+        $timedeleted = time();
+        $certificates = $DB->get_records('simplecertificate', array('course' => $data->courseid));
+
+        foreach ($certificates as $certificate) {
+            $issuecertificates = $DB->get_records('simplecertificate_issues', array('certificateid' => $certificate->id, 'timedeleted' => null));
+
+            foreach ($issuecertificates as $issuecertificate) {
+                $issuecertificate->timedeleted = $timedeleted;
+                if (!$DB->update_record('simplecertificate_issues', $issuecertificate)) {
+                    print_erro(get_string('cantdeleteissue','simplecertificate'));
+                }
+            }
+        }
+        $status[] = array('component' => $componentstr, 'item' => get_string('modulenameplural', 'simplecertificate'), 'error' => false);
     }
 
     // Updating dates - shift may be negative too
@@ -188,8 +206,8 @@ function simplecertificate_reset_userdata($data) {
  * @param $mform form passed by reference
  */
 function simplecertificate_reset_course_form_definition(&$mform) {
-    $mform->addElement('header', 'certificateheader', get_string('modulenameplural', 'simplecertificate'));
-    $mform->addElement('advcheckbox', 'reset_certificate', get_string('deletissuedcertificates', 'simplecertificate'));
+    $mform->addElement('header', 'simplecertificateheader', get_string('modulenameplural', 'simplecertificate'));
+    $mform->addElement('advcheckbox', 'reset_simplecertificate', get_string('deletissuedcertificates', 'simplecertificate'));
 }
 
 /**
@@ -201,7 +219,7 @@ function simplecertificate_reset_course_form_definition(&$mform) {
  * @return array
  */
 function simplecertificate_reset_course_form_defaults($course) {
-    return array('reset_certificate' => 1);
+    return array('reset_simplecertificate' => 1);
 }
 
 /**
@@ -218,7 +236,7 @@ function simplecertificate_user_outline($course, $user, $mod, $certificate) {
     global $DB;
 
     $result = new stdClass;
-    if ($issue = $DB->get_record('simplecertificate_issues', array('certificateid' => $certificate->id, 'userid' => $user->id))) {
+    if ($issue = $DB->get_record('simplecertificate_issues', array('certificateid' => $certificate->id, 'userid' => $user->id, 'timedeleted' => null ))) {
         $result->info = get_string('issued', 'simplecertificate');
         $result->time = $issue->timecreated;
     } else {
@@ -241,7 +259,7 @@ function simplecertificate_user_outline($course, $user, $mod, $certificate) {
 function simplecertificate_user_complete($course, $user, $mod, $certificate) {
     global $DB, $OUTPUT;
 
-    if ($issue = $DB->get_record('simplecertificate_issues', array('certificateid' => $certificate->id, 'userid' => $user->id))) {
+    if ($issue = $DB->get_record('simplecertificate_issues', array('certificateid' => $certificate->id, 'userid' => $user->id, 'timedeleted' => null))) {
         echo $OUTPUT->box_start();
         echo get_string('issued', 'simplecertificate') . ": ";
         echo userdate($issue->timecreated);
@@ -266,7 +284,8 @@ function simplecertificate_get_participants($certificateid) {
     $sql = "SELECT DISTINCT u.id, u.id
             FROM {user} u, {simplecertificate_issues} a
             WHERE a.certificateid = :certificateid
-            AND u.id = a.userid";
+            AND u.id = a.userid
+            AND timedeleted IS NULL";
     return  $DB->get_records_sql($sql, array('certificateid' => $certificateid));
 }
 
@@ -296,9 +315,26 @@ function simplecertificate_supports($feature) {
 
 /**
  * Function to be run periodically according to the moodle cron
- * TODO:This needs to be done
  */
 function simplecertificate_cron () {
+    global $CFG, $DB;
+    mtrace('Removing old issed certificates... ');
+    $lifetime = get_config('simplecertificate', 'certlifetime');
+
+    if ($lifetime <= 0 ) {
+        return true;
+    }
+
+    $month = 2629744;
+    $timenow   = time();
+    $delta = $lifetime * $month;
+    $timedeleted = $timenow - $delta;
+
+
+    if (!$DB->delete_records_select('simplecertificate_issues', 'timedeleted <= ?', array($timedeleted))) {
+        return false;
+    }
+    mtrace('done');
     return true;
 }
 
@@ -336,7 +372,7 @@ function simplecertificate_pluginfile($course, $cm, $context, $filearea, $args, 
             break;
         case simplecertificate::CERTIFICATE_ISSUES_FILE_AREA:
             $certrecord = (int)array_shift($args);
-            if (!$certrecord = $DB->get_record('simplecertificate_issues', array('id' => $certrecord))) {
+            if (!$certrecord = $DB->get_record('simplecertificate_issues', array('id' => $certrecord, 'timedeleted' => null))) {
                 return false;
             }
 
@@ -375,7 +411,7 @@ function simplecertificate_print_user_files($certificate, $userid, $context) {
     $output = '';
     print_object($context);
 
-    $certrecord = $DB->get_record('simplecertificate_issues', array('userid' => $userid, 'certificateid' => $certificate->id));
+    $certrecord = $DB->get_record('simplecertificate_issues', array('userid' => $userid, 'certificateid' => $certificate->id, 'timedeleted' => null ));
     $fs = get_file_storage();
     $browser = get_file_browser();
 
@@ -635,6 +671,7 @@ function simplecertificate_get_issues($certificateid, $sort="ci.timecreated ASC"
                 ON u.id = ci.userid
                 WHERE u.deleted = 0
                 AND ci.certificateid = :certificateid
+                AND timedeleted IS NULL
                 ORDER BY {$sort} {$limitsql}", array('certificateid' => $certificateid));
 
     // now exclude all the certmanagers.
@@ -669,6 +706,3 @@ function simplecertificate_get_issues($certificateid, $sort="ci.timecreated ASC"
 
     return $users;
 }
-
-
-

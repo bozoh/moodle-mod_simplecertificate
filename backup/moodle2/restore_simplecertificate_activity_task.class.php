@@ -87,6 +87,7 @@ class restore_simplecertificate_activity_task extends restore_activity_task {
         $rules[] = new restore_log_rule('simplecertificate', 'view', 'view.php?id={course_module}', '{simplecertificate}');
         $rules[] = new restore_log_rule('simplecertificate', 'received', 'report.php?a={simplecertificate}', '{simplecertificate}');
         $rules[] = new restore_log_rule('simplecertificate', 'view report', 'report.php?id={simplecertificate}', '{simplecertificate}');
+        $rules[] = new restore_log_rule('simplecertificate', 'verifyt', 'verify.php?code={simplecertificate_isse}', '{simplecertificate}');
 
         return $rules;
     }
@@ -127,16 +128,16 @@ class restore_simplecertificate_activity_task extends restore_activity_task {
         if ($certificate = $DB->get_record_sql($sql, (array('cmid'=>$this->get_moduleid())))) {
             // A flag to check if we need to update the database or not
             $update = false;
-            if ($certificate->printdate > 2) { // If greater than 2, then it is a grade item value
-                if ($newitem = restore_dbops::get_backup_ids_record($this->get_restoreid(), 'course_module', $certificate->printdate)) {
+            if ($certificate->certdate > 2) { // If greater than 2, then it is a grade item value
+                if ($newitem = restore_dbops::get_backup_ids_record($this->get_restoreid(), 'course_module', $certificate->certdate)) {
                     $update = true;
-                    $certificate->printdate = $newitem->newitemid;
+                    $certificate->certdate = $newitem->newitemid;
                 }
             }
-            if ($certificate->printgrade > 2) {
-                if ($newitem = restore_dbops::get_backup_ids_record($this->get_restoreid(), 'course_module', $certificate->printgrade)) {
+            if ($certificate->certgrade > 2) {
+                if ($newitem = restore_dbops::get_backup_ids_record($this->get_restoreid(), 'course_module', $certificate->certgrade)) {
                     $update = true;
-                    $certificate->printgrade = $newitem->newitemid;
+                    $certificate->certgrade = $newitem->newitemid;
                 }
             }
             if ($update) {

@@ -12,7 +12,7 @@
 				<FIELD NAME="intro" TYPE="text" LENGTH="small" NOTNULL="true" SEQUENCE="false" PREVIOUS="name" NEXT="introformat" />
 				<FIELD NAME="introformat" TYPE="int" LENGTH="4" NOTNULL="false"	UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="intro" NEXT="timecreated" />
 				<FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true"	UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="introformat"	NEXT="timemodified" />
-				<FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="timecreated" NEXT="width" />
+				<FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="timecreated" NEXT="width" />
 				<FIELD NAME="width" TYPE="int" LENGTH="4" NOTNULL="true" UNSIGNED="true" DEFAULT="297" SEQUENCE="false" PREVIOUS="timemodified" NEXT="height" />
 				<FIELD NAME="height" TYPE="int" LENGTH="4" NOTNULL="true" UNSIGNED="true" DEFAULT="210" SEQUENCE="false" PREVIOUS="width" NEXT="certificateimage" />
 				<FIELD NAME="certificateimage" TYPE="text" LENGTH="small" NOTNULL="true" SEQUENCE="false" PREVIOUS="height" NEXT="certificatetext" />
