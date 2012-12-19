@@ -41,8 +41,6 @@ class simplecertificate {
     const OUTPUT_OPEN_IN_BROWSER=0;
     const OUTPUT_FORCE_DOWNLOAD=1;
     const OUTPUT_SEND_EMAIL=2;
-    const CERT_PER_PAGE = 30;
-    const CERT_MAX_PER_PAGE = 200;
 
 
     public $id;

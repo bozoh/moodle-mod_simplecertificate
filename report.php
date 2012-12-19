@@ -22,7 +22,7 @@ $sort = optional_param('sort', '', PARAM_RAW);
 $download = optional_param('download', '', PARAM_ALPHA);
 $action = optional_param('action', '', PARAM_ALPHA);
 $page = optional_param('page', 0, PARAM_INT);
-$perpage = optional_param('perpage', CERT_PER_PAGE, PARAM_INT);
+$perpage = optional_param('perpage', SIMPLECERT_PER_PAGE, PARAM_INT);
 
 
 $url = new moodle_url('/mod/simplecertificate/report.php', array('id'=>$id, 'page' => $page, 'perpage' => $perpage));

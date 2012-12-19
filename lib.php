@@ -29,8 +29,8 @@ require_once($CFG->dirroot.'/grade/lib.php');
 require_once($CFG->dirroot.'/grade/querylib.php');
 
 
-define('CERT_PER_PAGE', 30);
-define('CERT_MAX_PER_PAGE', 200);
+define('SIMPLECERT_PER_PAGE', 30);
+define('SIMPLECERT_MAX_PER_PAGE', 200);
 
 
 
@@ -656,10 +656,10 @@ function simplecertificate_get_issues($certificateid, $sort="ci.timecreated ASC"
             $page = 0;
         }
 
-        if ($perpage > CERT_MAX_PER_PAGE) {
-            $perpage = CERT_MAX_PER_PAGE;
+        if ($perpage > SIMPLECERT_MAX_PER_PAGE) {
+            $perpage = SIMPLECERT_MAX_PER_PAGE;
         } else if ($perpage < 1) {
-            $perpage = CERT_PER_PAGE;
+            $perpage = SIMPLECERT_PER_PAGE;
         }
         $limitsql = " LIMIT $perpage" . " OFFSET " . $page * $perpage ;
     }
