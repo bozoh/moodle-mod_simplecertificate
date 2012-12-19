@@ -23,13 +23,13 @@ git clone git://github.com/bozoh/moodle-mod_simplecertificate.git simplecertific
 
 Use git pull to update this branch periodically to ensure you have the latest version.
 
-==================== Download the certificate module. ====================
+==================== Download the simplecertificate module. ====================
 
 Visit https://github.com/bozoh/moodle-mod_simplecertificate.git and download the zip, 
 uncompress this zip and extract the folder. The folder will have a name similar to 
-bozoh-moodle-mod_simplecertificate-c9fbadb, you MUST rename this to certificate. 
+bozoh-moodle-mod_simplecertificate-c9fbadb, you MUST rename this to simplecertificate. 
 Place this folder in your mod folder in your Moodle directory.
 
 nb. The reason this is not the recommended method is due to the fact you have
-to over-write the contents of this folder to apply any future updates to the certificate
+to over-write the contents of this folder to apply any future updates to the simplecertificate
 module. In the above method there is a simple command to update the files.
