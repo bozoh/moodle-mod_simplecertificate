@@ -778,6 +778,10 @@ class simplecertificate {
                 return strftime('%B %Y', $date);
                 break;
             case 5:
+                return str_replace(' 0', '', strftime('%d '.get_string('of','simplecertificate').' %B '.get_string('of','simplecertificate').' %Y', $date));
+                return strftime('',$date);
+                break;
+            case 6:
                 return userdate($date, get_string('strftimedate', 'langconfig'));
                 break;
         }
@@ -810,7 +814,7 @@ class simplecertificate {
                 $outcomeoptions[$key] = $value;
             }
         } else {
-            $outcomeoptions['0'] = get_string('nooutcomes', 'certificate');
+            $outcomeoptions['0'] = get_string('nooutcomes', 'simplecertificate');
         }
 
         return $outcomeoptions;

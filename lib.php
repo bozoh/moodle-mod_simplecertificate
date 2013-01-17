@@ -613,8 +613,10 @@ function simplecertificate_get_date_options() {
  */
 
 function simplecertificate_get_date_format_options() {
-    return array( 1 => 'January 1, 2000', 2 => 'January 1st, 2000', 3 => '1 January 2000',
-                4 => 'January 2000', 5 => get_string('userdateformat', 'simplecertificate'));
+    return array( 1 => get_string('dateformat01','simplecertificate'), 2 => get_string('dateformat02','simplecertificate'),
+                3 => get_string('dateformat03','simplecertificate'), 4 => get_string('dateformat04','simplecertificate'),
+                5 => get_string('dateformat05','simplecertificate', get_string('of','simplecertificate')),
+                6 => get_string('userdateformat', 'simplecertificate'));
 }
 
 /**

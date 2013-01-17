@@ -168,3 +168,11 @@ $string['cantdeleteissue'] = 'Ocorreu um erro ao remover os certificados emitido
 $string['certlifetime'] = 'Manter os certificados emitidos por: (em Mêses)';
 $string['certlifetime_help'] = 'Está opção especifica por quanto tempo deve ser guardado um certificado emitido. Certificados emitidos mais velhos que o tempo determinado nesta opção será autmaticamente removidos.';
 $string['neverdeleteoption'] = 'Nunca remover';
+
+$string['dateformat01'] = 'Janeiro 1, 2000';
+$string['dateformat02'] = 'Janeiro 1º, 2000';
+$string['dateformat03'] = '1 Janeiro 2000';
+$string['dateformat04'] = 'Janeiro 2000';
+$string['dateformat05'] = '1 {$a} Janeiro {$a} 2000';
+$string['of'] = 'de';
+
