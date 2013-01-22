@@ -21,13 +21,17 @@ Eg. Linux command line would be as follow -
 
 git clone git://github.com/bozoh/moodle-mod_simplecertificate.git simplecertificate
 
+Once cloned, checkout the branch that is specific to your Moodle version.
+eg, MOODLE_22 is for Moodle 2.2, MOODLE_23 is for 2.3
+
 Use git pull to update this branch periodically to ensure you have the latest version.
 
 ==================== Download the simplecertificate module. ====================
 
-Visit https://github.com/bozoh/moodle-mod_simplecertificate.git and download the zip, 
-uncompress this zip and extract the folder. The folder will have a name similar to 
-bozoh-moodle-mod_simplecertificate-c9fbadb, you MUST rename this to simplecertificate. 
+Visit https://github.com/bozoh/moodle-mod_simplecertificate, choose the branch
+that matches your Moodle version (eg. MOODLE_22 is for Moodle 2.2, MOODLE_23 is for 2.3)
+and download the zip, uncompress this zip and extract the folder. The folder will have a 
+name similar to bozoh-moodle-mod_simplecertificate-c9fbadb, you MUST rename this to simplecertificate. 
 Place this folder in your mod folder in your Moodle directory.
 
 nb. The reason this is not the recommended method is due to the fact you have
