@@ -349,7 +349,7 @@ function simplecertificate_cron () {
  * @param bool $forcedownload
  * @return bool|nothing false if file not found, does not return anything if found - just send the file
  */
-function simplecertificate_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload) {
+function simplecertificate_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload, array $options=array()) {
     global $CFG, $DB, $USER;
 
 
@@ -393,7 +393,7 @@ function simplecertificate_pluginfile($course, $cm, $context, $filearea, $args, 
     if (!$file = $fs->get_file_by_hash(sha1($fullpath)) or $file->is_directory()) {
         return false;
     }
-    send_stored_file($file, 0, 0);
+    send_stored_file($file, 0, 0, $forcedownload, $options);
 }
 
 /**
