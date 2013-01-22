@@ -11,9 +11,9 @@
 
 
 //-----
-$string['modulename'] = 'Simple Certificate';
-$string['modulenameplural'] = 'Simple Certificates';
-$string['pluginname'] = 'Simple Certificate';
+$string['modulename'] = 'Certificado Simples';
+$string['modulenameplural'] = 'Certificados Simples';
+$string['pluginname'] = 'Certificado Simples';
 $string['viewcertificateviews'] = '{$a} certificados emitidos';
 $string['summaryofattempts'] = 'Resumo dos certificados emitidos';
 $string['issued'] = 'Emitidos';
