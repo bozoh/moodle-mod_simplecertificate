@@ -32,6 +32,7 @@ $string['keywords'] = 'cetificate, course, pdf, moodle';
 $string['pluginadministration'] = 'Certificate administration';
 $string['awarded'] = 'Awarded';
 $string['deletissuedcertificates'] = 'Delete issued certificates';
+$string['nocertificatesissued'] = 'There are no certificates that have been issued';
 
 //Form
 $string['certificatename'] = 'Certificate Name';

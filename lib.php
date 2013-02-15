@@ -554,11 +554,13 @@ function simplecertificate_get_mods (){
     $strsection = get_string("section");
 
     // Collect modules data
-    get_all_mods($COURSE->id, $mods, $modnames, $modnamesplural, $modnamesused);
+    $modinfo = get_fast_modinfo($COURSE);
+    $mods = $modinfo->get_cms();
 
     $modules = array();
-    $sections = get_all_sections($COURSE->id); // Sort everything the same as the course
-    for ($i = 0; $i <= $COURSE->numsections; $i++) {
+    $sections = $modinfo->get_section_info_all();
+
+    for ($i = 0; $i <= count($sections) - 1; $i++) {
         // should always be true
         if (isset($sections[$i])) {
             $section = $sections[$i];
