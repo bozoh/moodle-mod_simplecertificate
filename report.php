@@ -101,7 +101,7 @@ if ($download == "ods") {
     // Send HTTP headers
     $workbook->send($filename);
     // Creating the first worksheet
-    $myxls =& $workbook->add_worksheet($strreport);
+    $myxls = $workbook->add_worksheet($strreport);
 
     // Print names of all the fields
     $myxls->write_string(0, 0, get_string("lastname"));
@@ -150,7 +150,7 @@ if ($download == "xls") {
     // Send HTTP headers
     $workbook->send($filename);
     // Creating the first worksheet
-    $myxls =& $workbook->add_worksheet($strreport);
+    $myxls = $workbook->add_worksheet($strreport);
 
     // Print names of all the fields
     $myxls->write_string(0, 0, get_string("lastname"));
