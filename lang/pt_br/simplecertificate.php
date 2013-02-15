@@ -32,6 +32,7 @@ $string['keywords'] = 'cetificate, course, pdf, moodle';
 $string['pluginadministration'] = 'Administração de Certificado';
 $string['awarded'] = 'Obtido';
 $string['deletissuedcertificates'] = 'Remover os certificados emitidos';
+$string['nocertificatesissued'] = 'Nenhum certificado emitido';
 
 //Form
 $string['certificatename'] = 'Nome do certificado';
