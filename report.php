@@ -24,7 +24,6 @@ $action = optional_param('action', '', PARAM_ALPHA);
 $page = optional_param('page', 0, PARAM_INT);
 $perpage = optional_param('perpage', SIMPLECERT_PER_PAGE, PARAM_INT);
 
-
 $url = new moodle_url('/mod/simplecertificate/report.php', array('id'=>$id, 'page' => $page, 'perpage' => $perpage));
 if ($download) {
     $url->param('download', $download);

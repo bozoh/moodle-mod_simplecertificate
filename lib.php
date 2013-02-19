@@ -409,8 +409,6 @@ function simplecertificate_print_user_files($certificate, $userid, $context) {
     require_once(dirname(__FILE__) . '/locallib.php');
 
     $output = '';
-    print_object($context);
-
     $certrecord = $DB->get_record('simplecertificate_issues', array('userid' => $userid, 'certificateid' => $certificate->id, 'timedeleted' => null ));
     $fs = get_file_storage();
     $browser = get_file_browser();
@@ -494,7 +492,6 @@ function simplecertificate_process_form_files ($mform, stdclass $context) {
     $certimgfilename = $mform->get_new_filename('certificateimage');
     if ($certimgfilename !== false) {
         $fileinfo=simplecertificate::get_certificate_image_fileinfo($context->id);
-        print_object($fileinfo);
         $fs = get_file_storage();
         $fs->delete_area_files($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea']);
         $mform->save_stored_file('certificateimage', $fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'], $fileinfo['itemid'], $fileinfo['filepath'], $certimgfilename);
