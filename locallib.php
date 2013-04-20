@@ -502,6 +502,9 @@ class simplecertificate {
         $pdf->setPrintHeader(false);
         $pdf->setPrintFooter(false);
         $pdf->SetAutoPageBreak(false, 0);
+        //Issue #5 add suport to special char languages (russian, ...)
+        $pdf->setFontSubsetting(true);
+        
         $pdf->AddPage();
 
         $pdf->Image($temp_manager->absolutefilepath, 0, 0, $this->width, $this->height);
