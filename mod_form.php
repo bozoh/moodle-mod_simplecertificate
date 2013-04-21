@@ -126,6 +126,23 @@ class mod_simplecertificate_mod_form extends moodleform_mod {
         $mform->addElement('text', 'requiredtime', get_string('coursetimereq', 'simplecertificate'), array('size'=>'3'));
         $mform->setType('requiredtime', PARAM_INT);
         $mform->addHelpButton('requiredtime', 'coursetimereq', 'simplecertificate');
+        
+        //QR code
+        $mform->addElement('selectyesno', 'disablecode', get_string('disablecode', 'simplecertificate'));
+        $mform->setDefault('disablecode', get_config('simplecertificate', 'disablecode'));
+        $mform->addHelpButton('disablecode', 'disablecode', 'simplecertificate');
+        
+        $mform->addElement('text', 'codex', get_string('codex', 'simplecertificate'), array('size'=>'5'));
+        $mform->setType('codex',PARAM_INT);
+        $mform->setDefault('codex', get_config('simplecertificate', 'codex'));
+        $mform->setAdvanced('codex');
+        $mform->addHelpButton('codex', 'qrcodeposition', 'simplecertificate');
+        
+        $mform->addElement('text', 'codey', get_string('codey', 'simplecertificate'), array('size'=>'5'));
+        $mform->setType('codey',PARAM_INT);
+        $mform->setDefault('codey', get_config('simplecertificate', 'codey'));
+        $mform->setAdvanced('codey');
+        $mform->addHelpButton('codey', 'qrcodeposition', 'simplecertificate');
 
 
 

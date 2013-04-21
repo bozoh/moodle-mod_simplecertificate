@@ -40,6 +40,14 @@ if ($ADMIN->fulltree) {
 
     $settings->add(new admin_setting_configtext('simplecertificate/certlifetime', get_string('certlifetime', 'simplecertificate'),
         get_string('certlifetime_help', 'simplecertificate'), 60, PARAM_INT));
+    
+    //QR CODE
+    $settings->add(new admin_setting_configcheckbox('simplecertificate/disablecode',
+        get_string('disablecode', 'simplecertificate'), get_string('disablecode_help', 'simplecertificate'), 0));
+    $settings->add(new admin_setting_configtext('simplecertificate/codex', get_string('defaultcodex', 'simplecertificate'),
+        get_string('qrcodeposition_help', 'simplecertificate'), 10, PARAM_INT));
+    $settings->add(new admin_setting_configtext('simplecertificate/codey', get_string('defaultcodey', 'simplecertificate'),
+        get_string('qrcodeposition_help', 'simplecertificate'), 10, PARAM_INT));
 
 
 }

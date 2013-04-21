@@ -47,6 +47,17 @@ $string['coursename'] = 'Alternative Course Name';
 $string['intro'] = 'Introduction';
 $string['printoutcome'] = 'Print Outcome';
 $string['printdate'] = 'Print Date';
+
+//QR Code
+$string['disablecode'] = 'Disable Certificate QR Code';
+$string['disablecode_help'] = 'Disable/enable certificade QR Code generation';
+$string['codex'] = 'Certificate QR Code Horizontal Position';
+$string['codey'] = 'Certificate QR Code Vertical Position';
+$string['qrcodeposition'] = 'Certificate QR Code Position';
+$string['qrcodeposition_help'] = 'These are the XY coordinates (in millimeters) of the certificate QR Code';
+$string['defaultcodex'] = 'Default Hotizontal QR code Position';
+$string['defaultcodey'] = 'Default Vertical QR code Position';
+
 ////Date options
 $string['issueddate'] = 'Date Issued';
 $string['completiondate'] = 'Course Completion';
@@ -73,6 +84,7 @@ $string['download'] = 'Force download';
 $string['emailcertificate'] = 'Email (Must also choose save!)';
 
 
+
 ////Form options help text
 
 $string['certificatename_help'] = 'Certificate Name';
@@ -96,7 +108,7 @@ These are:
 
 The text can use basic html, basic fonts, tables,  but avoid any position definition';
 
-$string['textposition'] = 'Certificate Text Positionn';
+$string['textposition'] = 'Certificate Text Position';
 $string['textposition_help'] = 'These are the XY coordinates (in millimeters) of the certificate text';
 $string['size'] = 'Certificate Size';
 $string['size_help'] = 'These are the Width and Height size (in millimeters) of the certificate, Default size is A4 Landscape';
