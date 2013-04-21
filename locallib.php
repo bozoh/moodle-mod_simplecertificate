@@ -500,16 +500,13 @@ class simplecertificate {
         //Issue #5
 
         $pdf->setFontSubsetting(true);
-
-
         $pdf->AddPage();
 
         $pdf->Image($temp_manager->absolutefilepath, 0, 0, $this->width, $this->height);
 
         $pdf->SetXY($this->certificatetextx, $this->certificatetexty);
         $pdf->writeHTMLCell(0, 0, '', '', $this->get_certificate_text($issuecert), 0, 0, 0, true, 'C');
-        // write the text
-        //$pdf->Write(5, 'Артем Тюменцев', '', 0, '', false, 0, false, false, 0);
+       
         @remove_dir($temp_manager->path);
 
         if (empty($this->disablecode)) {
