@@ -49,7 +49,10 @@ if ($ADMIN->fulltree) {
     $settings->add(new admin_setting_configtext('simplecertificate/codey', get_string('defaultcodey', 'simplecertificate'),
         get_string('qrcodeposition_help', 'simplecertificate'), 10, PARAM_INT));
 
-
+	//Certificate back page
+    $settings->add(new admin_setting_configcheckbox('simplecertificate/enablesecondpage',
+    		get_string('enablesecondpage', 'simplecertificate'), get_string('enablesecondpage_help', 'simplecertificate'), 0));
+    
 }
 
 ?>

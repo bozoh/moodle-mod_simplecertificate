@@ -79,7 +79,46 @@ class mod_simplecertificate_mod_form extends moodleform_mod {
         $mform->setDefault('certificatetexty', get_config('simplecertificate', 'certificatetexty'));
         $mform->setAdvanced('certificatetexty');
         $mform->addHelpButton('certificatetexty', 'textposition', 'simplecertificate');
-
+        
+        //-----------------------------------------Second page
+        $mform->addElement('header', 'secondpageoptions', get_string('secondpageoptions', 'simplecertificate'));
+        //Enable back page text
+        
+        $mform->addElement('selectyesno', 'enablesecondpage', get_string('enablesecondpage', 'simplecertificate'));
+        $mform->setDefault('enablesecondpage', get_config('simplecertificate', 'enablesecondpage'));
+        $mform->addHelpButton('enablesecondpage', 'enablesecondpage', 'simplecertificate');
+        
+        //Certificate secondimage file
+        $mform->addElement('filepicker', 'secondimage', get_string('secondimage','simplecertificate'), null,
+        		array('maxbytes' => $maxbytes, 'accepted_types' =>  array('image')));
+        $mform->addHelpButton('secondimage', 'secondimage', 'simplecertificate');
+        $mform->disabledIf('secondimage', 'enablesecondpage', 'eq', 0);
+         
+        //Certificate secondText HTML editor
+        $mform->addElement('editor', 'secondpagetext', get_string('secondpagetext', 'simplecertificate'),
+        		simplecertificate_get_editor_options($this->context));
+        $mform->setType('secondpagetext',PARAM_RAW);
+        $mform->addHelpButton('secondpagetext', 'certificatetext', 'simplecertificate');
+        $mform->disabledIf('secondpagetext', 'enablesecondpage', 'eq', 0);
+        
+        //Certificate Position X
+        $mform->addElement('text', 'secondpagex', get_string('secondpagex', 'simplecertificate'), array('size'=>'5'));
+        $mform->setType('secondpagex',PARAM_INT);
+        $mform->setDefault('secondpagex', get_config('simplecertificate', 'certificatetextx'));
+        $mform->setAdvanced('secondpagex');
+        $mform->addHelpButton('secondpagex', 'secondtextposition', 'simplecertificate');
+        $mform->disabledIf('secondpagex', 'enablesecondpage', 'eq', 0);
+        
+        //Certificate Position Y
+        $mform->addElement('text', 'secondpagey', get_string('secondpagey', 'simplecertificate'), array('size'=>'5'));
+        $mform->setType('secondpagey',PARAM_INT);
+        $mform->setDefault('secondpagey', get_config('simplecertificate', 'certificatetexty'));
+        $mform->setAdvanced('secondpagey');
+        $mform->addHelpButton('secondpagey', 'secondtextposition', 'simplecertificate');
+        $mform->disabledIf('secondpagey', 'enablesecondpage', 'eq', 0);
+        
+        //--------------------Variable options
+        $mform->addElement('header', 'variablesoptions', get_string('variablesoptions', 'simplecertificate'));
         //Certificate Alternative Course Name
         $mform->addElement('text', 'coursename', get_string('coursename', 'simplecertificate'), array('size'=>'64'));
         $mform->setType('coursename', PARAM_TEXT);

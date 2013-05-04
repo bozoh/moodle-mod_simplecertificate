@@ -41,6 +41,7 @@
                 <FIELD NAME="secondpagey" TYPE="int" LENGTH="4" NOTNULL="false" DEFAULT="50" SEQUENCE="false" PREVIOUS="secondpagex" NEXT="secondpagetext"/>
                 <FIELD NAME="secondpagetext" TYPE="text" NOTNULL="false" SEQUENCE="false" PREVIOUS="secondpagey" NEXT="secondpagetextformat"/>
                 <FIELD NAME="secondpagetextformat" TYPE="text" NOTNULL="false" SEQUENCE="false" PREVIOUS="secondpagetext"/>
+                <FIELD NAME="secondimage" TYPE="text" NOTNULL="false" SEQUENCE="false" PREVIOUS="secondpagetextformat"/>
             </FIELDS>
             <KEYS>
                 <KEY NAME="primary" TYPE="primary" FIELDS="id"/>

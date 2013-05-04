@@ -79,6 +79,14 @@ function xmldb_simplecertificate_upgrade($oldversion=0) {
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }
+        
+        $field = new xmldb_field('secondimage', XMLDB_TYPE_TEXT, null, null, null, null, null, 'secondpagetextformat');
+        
+        // Conditionally launch add field secondimage
+        if (!$dbman->field_exists($table, $field)) {
+        	$dbman->add_field($table, $field);
+        }
+        
 
         // simplecertificate savepoint reached
         upgrade_mod_savepoint(true, 2013042001, 'simplecertificate');
