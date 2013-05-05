@@ -730,6 +730,36 @@ class simplecertificate {
 
 		$a = new stdClass;
 		$a->username = fullname($USER);
+		$a->idnumber = $USER->idnumber;
+		$a->firstname = $USER->firstname;
+		$a->lastname = $USER->lastname;
+		$a->email = $USER->email;
+		$a->icq = $USER->icq;
+		$a->skype = $USER->skype;
+		$a->yahoo = $USER->yahoo;
+		$a->aim = $USER->aim;
+		$a->msn = $USER->msn;
+		$a->phone1 = $USER->phone1;
+		$a->phone2 = $USER->phone2;
+		$a->institution = $USER->institution;
+		$a->department = $USER->department;
+		$a->address = $USER->address;
+		$a->city = $USER->city;
+		$a->country =  get_string($USER->country, 'countries');
+		//Formatting URL, if needed
+		$url = $USER->url;;
+		if (strpos($url, '://') === false) {
+		    $url = 'http://'. $url;
+		}
+		$a->url = $url;
+		
+		//Getting user custom profiles fields
+		$userprofilefields=$USER->profile;
+		foreach ($userprofilefields as $key => $value) {
+		    $key = 'profile_'.$key;
+		    $a->$key=$value;
+		}
+
 		$a->coursename = format_string($this->coursename, true);
 		$a->grade = $this->get_grade();
 		$a->date = $this->get_date($certissue);
