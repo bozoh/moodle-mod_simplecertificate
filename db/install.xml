@@ -40,7 +40,7 @@
                 <FIELD NAME="secondpagex" TYPE="int" LENGTH="4" NOTNULL="false" DEFAULT="10" SEQUENCE="false" PREVIOUS="enablesecondpage" NEXT="secondpagey"/>
                 <FIELD NAME="secondpagey" TYPE="int" LENGTH="4" NOTNULL="false" DEFAULT="50" SEQUENCE="false" PREVIOUS="secondpagex" NEXT="secondpagetext"/>
                 <FIELD NAME="secondpagetext" TYPE="text" NOTNULL="false" SEQUENCE="false" PREVIOUS="secondpagey" NEXT="secondpagetextformat"/>
-                <FIELD NAME="secondpagetextformat" TYPE="text" NOTNULL="false" SEQUENCE="false" PREVIOUS="secondpagetext"/>
+                <FIELD NAME="secondpagetextformat" TYPE="text" NOTNULL="false" SEQUENCE="false" PREVIOUS="secondpagetext" NEXT="secondimage"/>
                 <FIELD NAME="secondimage" TYPE="text" NOTNULL="false" SEQUENCE="false" PREVIOUS="secondpagetextformat"/>
             </FIELDS>
             <KEYS>

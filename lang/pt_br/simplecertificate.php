@@ -48,6 +48,37 @@ $string['intro'] = 'Introdução';
 $string['printoutcome'] = 'Imprimir resultado (Outcome)';
 $string['printdate'] = 'Tipo de data do certificado';
 
+//Second Page
+$string['secondpageoptions'] = 'Página de Verso do certificado';
+$string['enablesecondpage'] = 'Ativar o verso do Certificado';
+$string['enablesecondpage_help'] = 'Ativa a edição do verso do certificado, se estiver desativado, somente o código QR do certificado será impresso (se código QR estiver ativo)';
+$string['secondimage'] = 'Imagem do verso do certificate';
+$string['secondimage_help'] = 'Esta figura será usada no verso do certificado';
+$string['secondpagetext'] = 'Texto do verso do certificado';
+$string['secondpagetext_help'] = 'Este é o texto que será usado no verso certificado, algums marcadores especiais serão substituidos por variáveis do certificado, como o nome do curos, nome do estudante, notas...
+Os marcadores são:
+
+{USERNAME} -> Nome completo do aluno
+
+{COURSENAME} -> Nome compledo do curso (ou o que estiver definido em "Nome Alternativo do Curso")
+
+{GRADE} -> Nota formatada
+
+{DATE} -> Data formatada
+
+{OUTCOME} -> Resultados (Outcomes)
+
+{HOURS} -> Carga horária do curso
+
+{TEACHERS} -> Lista de professores
+
+
+O texto pode ser um HTML básico, com fontes básicas do HTLM, tabelas, mas evitar o uso de posicionamento';
+$string['secondpagex'] = 'Posição Horizontal do texto do verso';
+$string['secondpagey'] = 'Posição Vertical do texto do verso';
+$string['secondtextposition'] = 'Posição do texto do verso';
+$string['secondtextposition_help'] = 'As coordenadas XY (em milímetros) do texto do verso';
+
 //QR Code
 $string['disablecode'] = 'Desabilitar o QR Code do certificado';
 $string['disablecode_help'] = 'Habilita ou desabilita a geração do QR Code do certificado';
@@ -188,3 +219,4 @@ $string['dateformat04'] = 'Janeiro 2000';
 $string['dateformat05'] = '1 {$a} Janeiro {$a} 2000';
 $string['of'] = 'de';
 
+$string['variablesoptions'] = 'Outras Opções';

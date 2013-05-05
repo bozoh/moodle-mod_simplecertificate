@@ -48,9 +48,40 @@ $string['intro'] = 'Introduction';
 $string['printoutcome'] = 'Print Outcome';
 $string['printdate'] = 'Print Date';
 
+//Second Page
+$string['secondpageoptions'] = 'Certificate Back page';
+$string['enablesecondpage'] = 'Enable Certificate Back page';
+$string['enablesecondpage_help'] = 'Enable Certificate Back page edition, if is disabled, only certificate QR code will be printed in back page (if the QR code is enabled)';
+$string['secondimage'] = 'Certificate Back Image file';
+$string['secondimage_help'] = 'This is the picture that will be used in the back of certificate';
+$string['secondpagetext'] = 'Certificate Back Text';
+$string['secondpagetext_help'] = 'This is the text that will be used in the certificate back, some special words will be replaced with variables such as course name, student\'s name, grade ...
+These are:
+
+{USERNAME} -> Full user name
+
+{COURSENAME} -> Full course name (or a Defined alternate course name)
+
+{GRADE} -> Formated Grade
+
+{DATE} -> Formated Date
+
+{OUTCOME} -> Outcomes
+
+{HOURS} -> Defined hours in course
+
+{TEACHERS} -> Teachers List
+
+
+The text can use basic html, basic fonts, tables,  but avoid any position definition';
+$string['secondpagex'] = 'Certificate Back Text Horizontal Position';
+$string['secondpagey'] = 'Certificate Back Text Vertical Position';
+$string['secondtextposition'] = 'Certificate Back Text Position';
+$string['secondtextposition_help'] = 'These are the XY coordinates (in millimeters) of the certificate back page text';
+
 //QR Code
 $string['disablecode'] = 'Disable Certificate QR Code';
-$string['disablecode_help'] = 'Disable/enable certificade QR Code generation';
+$string['disablecode_help'] = 'Disable/enable certificate QR Code generation';
 $string['codex'] = 'Certificate QR Code Horizontal Position';
 $string['codey'] = 'Certificate QR Code Vertical Position';
 $string['qrcodeposition'] = 'Certificate QR Code Position';
@@ -170,7 +201,7 @@ $string['defaultcertificatetexty'] = 'Default Vertical Text Position';
 
 //Erros
 $string['filenotfound'] = 'File not Found: {$a}';
-$string['invalidcode'] = 'Invalide certificade code';
+$string['invalidcode'] = 'Invalid certificate code';
 $string['cantdeleteissue'] = 'Error removing issued certificates';
 
 
@@ -187,3 +218,6 @@ $string['dateformat03']='1 January 2000';
 $string['dateformat04']='January 2000';
 $string['dateformat05'] = '1 {$a} Janeiro {$a} 2000';
 $string['of'] = 'of';
+
+
+$string['variablesoptions'] = 'Others Options';
