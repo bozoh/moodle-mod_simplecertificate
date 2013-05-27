@@ -27,8 +27,8 @@
 defined('MOODLE_INTERNAL') || die();
 
 $logs = array(
-    array('module'=>'simplecertificate', 'action'=>'view', 'mtable'=>'simple_certificate', 'field'=>'name'),
-    array('module'=>'simplecertificate', 'action'=>'add', 'mtable'=>'simple_certificate', 'field'=>'name'),
-    array('module'=>'simplecertificate', 'action'=>'update', 'mtable'=>'simple_certificate', 'field'=>'name'),
-    array('module'=>'simplecertificate', 'action'=>'received', 'mtable'=>'simple_certificate', 'field'=>'name'),
+    array('module'=>'simplecertificate', 'action'=>'view', 'mtable'=>'simplecertificate', 'field'=>'name'),
+    array('module'=>'simplecertificate', 'action'=>'add', 'mtable'=>'simplecertificate', 'field'=>'name'),
+    array('module'=>'simplecertificate', 'action'=>'update', 'mtable'=>'simplecertificate', 'field'=>'name'),
+    array('module'=>'simplecertificate', 'action'=>'received', 'mtable'=>'simplecertificate', 'field'=>'name'),
 );
