@@ -220,3 +220,4 @@ $string['dateformat05'] = '1 {$a} Janeiro {$a} 2000';
 $string['of'] = 'de';
 
 $string['variablesoptions'] = 'Outras Opções';
+$string['getcertificate'] = 'Verificar Certificado';

@@ -221,3 +221,4 @@ $string['of'] = 'of';
 
 
 $string['variablesoptions'] = 'Others Options';
+$string['getcertificate'] = 'Verify Certificate';
