@@ -150,7 +150,7 @@ $string['printoutcome_help'] = 'Você pode escolher qualquer resultado (outcome)
 
 $string['printdate_help'] = 'Esta é a data que será impressa, você pose escolher entre a data que o aluno completou o curso, ou a data de emissão do certificado.
 Também pode-se escolher a data que uma certa atividade foi corrigida, se em algum dos casos o aluno não tiver a data, então a data de emissão será usada.';
-$string['datefmt_help'] = 'Escolha um formato de data.';
+$string['datefmt_help'] = 'Coloque um formato de data válido aceito pelo PHP (http://www.php.net/manual/pt_BR/function.strftime.php). ou deixe-o em branco para usar o valor de formatação padrão definido pela a configuração de idioma do usuário.';
 $string['printgrade_help'] = 'Pode-se escolher a nota que será impressa no certificado, esta pode ser a nota final do curso ou a nota em uma atividade.';
 $string['gradefmt_help'] = 'Pode-se escolher o formato da nota que são:
 
@@ -211,13 +211,6 @@ $string['cantdeleteissue'] = 'Ocorreu um erro ao remover os certificados emitido
 $string['certlifetime'] = 'Manter os certificados emitidos por: (em Mêses)';
 $string['certlifetime_help'] = 'Está opção especifica por quanto tempo deve ser guardado um certificado emitido. Certificados emitidos mais velhos que o tempo determinado nesta opção será autmaticamente removidos.';
 $string['neverdeleteoption'] = 'Nunca remover';
-
-$string['dateformat01'] = 'Janeiro 1, 2000';
-$string['dateformat02'] = 'Janeiro 1º, 2000';
-$string['dateformat03'] = '1 Janeiro 2000';
-$string['dateformat04'] = 'Janeiro 2000';
-$string['dateformat05'] = '1 {$a} Janeiro {$a} 2000';
-$string['of'] = 'de';
 
 $string['variablesoptions'] = 'Outras Opções';
 $string['getcertificate'] = 'Verificar Certificado';

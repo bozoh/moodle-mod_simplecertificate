@@ -145,9 +145,10 @@ class mod_simplecertificate_mod_form extends moodleform_mod {
 
         //Certificate date format
 
-        $mform->addElement('select', 'certdatefmt', get_string('datefmt', 'simplecertificate'), simplecertificate_get_date_format_options());
-        $mform->setDefault('certdatefmt', get_config('simplecertificate', 'certdatefmt'));
+        $mform->addElement('text', 'certdatefmt', get_string('datefmt', 'simplecertificate'));
+        $mform->setDefault('certdatefmt', '');
         $mform->addHelpButton('certdatefmt', 'datefmt', 'simplecertificate');
+        $mform->setAdvanced('certdatefmt');
 
         //Certificare grade Options
         $mform->addElement('select', 'certgrade', get_string('printgrade', 'simplecertificate'), simplecertificate_get_grade_options());

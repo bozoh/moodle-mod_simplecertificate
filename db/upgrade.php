@@ -21,7 +21,7 @@ function xmldb_simplecertificate_upgrade($oldversion=0) {
 
     global $CFG, $THEME, $DB;
     $dbman = $DB->get_manager();
-    if ($oldversion < 2013042001) {
+    if ($oldversion < 2013053102) {
         
         $table = new xmldb_table('simplecertificate');
         $field = new xmldb_field('disablecode', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'requiredtime');
@@ -87,9 +87,16 @@ function xmldb_simplecertificate_upgrade($oldversion=0) {
         	$dbman->add_field($table, $field);
         }
         
+        // Changing type of field certdatefmt on table simplecertificate to char
+        $field = new xmldb_field('certdatefmt', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null, 'certdate');
+        
+        // Launch change of type for field certdatefmt
+        $dbman->change_field_type($table, $field);
+        
+        
 
         // simplecertificate savepoint reached
-        upgrade_mod_savepoint(true, 2013042001, 'simplecertificate');
+        upgrade_mod_savepoint(true, 2013053102, 'simplecertificate');
 
     }
     return true;

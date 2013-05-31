@@ -35,8 +35,6 @@ if ($ADMIN->fulltree) {
     $settings->add(new admin_setting_configselect('simplecertificate/certdate', get_string('printdate', 'simplecertificate'),
         get_string('printdate_help', 'simplecertificate'), 2, simplecertificate_get_date_options()));
 
-    $settings->add(new admin_setting_configselect('simplecertificate/certdatefmt', get_string('datefmt', 'simplecertificate'),
-        get_string('datefmt_help', 'simplecertificate'), 6, simplecertificate_get_date_format_options()));
 
     $settings->add(new admin_setting_configtext('simplecertificate/certlifetime', get_string('certlifetime', 'simplecertificate'),
         get_string('certlifetime_help', 'simplecertificate'), 60, PARAM_INT));

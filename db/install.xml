@@ -23,7 +23,7 @@
                 <FIELD NAME="coursehours" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false" PREVIOUS="coursename" NEXT="outcome"/>
                 <FIELD NAME="outcome" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="coursehours" NEXT="certdate"/>
                 <FIELD NAME="certdate" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="outcome" NEXT="certdatefmt"/>
-                <FIELD NAME="certdatefmt" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="certdate" NEXT="certgrade"/>
+                <FIELD NAME="certdatefmt" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" PREVIOUS="certdate" NEXT="certgrade"/>
                 <FIELD NAME="certgrade" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="certdatefmt" NEXT="gradefmt"/>
                 <FIELD NAME="gradefmt" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="certgrade" NEXT="emailfrom"/>
                 <FIELD NAME="emailfrom" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" PREVIOUS="gradefmt" NEXT="emailothers"/>

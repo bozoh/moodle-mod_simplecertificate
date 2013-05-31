@@ -764,7 +764,7 @@ class simplecertificate {
 
         $a->coursename = format_string($this->coursename, true);
         $a->grade = $this->get_grade();
-        $a->date = $this->get_date($certissue);
+        $a->date = $this->get_date($certissue,$USER->id);
         $a->outcome = $this->get_outcome();
 
         if (!empty($this->coursehours))
@@ -835,29 +835,14 @@ class simplecertificate {
                 $date = $modinfo->dategraded;
             }
         }
-
-        switch ($this->certdatefmt) {
-            case 1:
-                return str_replace(' 0', ' ', strftime('%B %d, %Y', $date));
-                break;
-            case 2:
-                return date('F jS, Y', $date);
-                break;
-            case 3:
-                return str_replace(' 0', '', strftime('%d %B %Y', $date));
-                break;
-            case 4:
-                return strftime('%B %Y', $date);
-                break;
-            case 5:
-                return str_replace(' 0', '', strftime('%d ' . get_string('of', 'simplecertificate') . ' %B ' . get_string('of', 'simplecertificate') . ' %Y', $date));
-                return strftime('', $date);
-                break;
-            case 6:
-                return userdate($date, get_string('strftimedate', 'langconfig'));
-                break;
+        
+        if (empty($this->certdatefmt)){
+            $format = get_string('strftimedate', 'langconfig');
+        } else {
+            $format = $this->certdatefmt;
         }
-        return '';
+            
+        return userdate($date, $format);
     }
 
     /**

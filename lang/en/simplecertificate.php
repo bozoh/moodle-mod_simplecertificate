@@ -149,7 +149,7 @@ $string['certificateimage_help'] = 'This is the picture that will be used in the
 
 $string['printoutcome_help'] = 'You can choose any course outcome to print the name of the outcome and the user\'s received outcome on the certificate.  An example might be: Assignment Outcome: Proficient.';
 $string['printdate_help'] = 'This is the date that will be printed, if a print date is selected. If the course completion date is selected but the student has not completed the course, the date received will be printed. You can also choose to print the date based on when an activity was graded. If a certificate is issued before that activity is graded, the date received will be printed.';
-$string['datefmt_help'] = 'Choose a date format to print the date on the certificate. Or, choose the last option to have the date printed in the format of the user\'s chosen language.';
+$string['datefmt_help'] = 'Enter a valid PHP date format pattern (http://www.php.net/manual/en/function.strftime.php). Or, leave it empty to use the format of the user\'s chosen language.';
 $string['printgrade_help'] = 'You can choose any available course grade items from the gradebook to print the user\'s grade received for that item on the certificate.  The grade items are listed in the order in which they appear in the gradebook. Choose the format of the grade below.';
 $string['gradefmt_help'] = 'There are three available formats if you choose to print a grade on the certificate:
 
@@ -212,13 +212,6 @@ $string['certificateverification'] = 'Certificate Verification';
 $string['certlifetime'] = 'Keep issued certificates for: (in Months)';
 $string['certlifetime_help'] = 'This specifies the length of time you want to keep issued certificates. Issed certificates that are older than this age are automatically deleted.';
 $string['neverdeleteoption'] = 'Never delete';
-$string['dateformat01']='January 1, 2000';
-$string['dateformat02']='January 1st, 2000';
-$string['dateformat03']='1 January 2000';
-$string['dateformat04']='January 2000';
-$string['dateformat05'] = '1 {$a} Janeiro {$a} 2000';
-$string['of'] = 'of';
-
 
 $string['variablesoptions'] = 'Others Options';
 $string['getcertificate'] = 'Verify Certificate';

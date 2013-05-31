@@ -662,18 +662,6 @@ function simplecertificate_get_date_options() {
     $dateoptions['2'] = get_string('completiondate', 'simplecertificate');
     return $dateoptions + simplecertificate_get_mods();
 }
-/**
- * Retrun date fortmat options
- *
- * @return array
- */
-
-function simplecertificate_get_date_format_options() {
-    return array( 1 => get_string('dateformat01','simplecertificate'), 2 => get_string('dateformat02','simplecertificate'),
-            3 => get_string('dateformat03','simplecertificate'), 4 => get_string('dateformat04','simplecertificate'),
-            5 => get_string('dateformat05','simplecertificate', get_string('of','simplecertificate')),
-            6 => get_string('userdateformat', 'simplecertificate'));
-}
 
 /**
  * Search through all the modules for grade data for mod_form.
