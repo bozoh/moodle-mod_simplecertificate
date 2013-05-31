@@ -23,15 +23,17 @@ $PAGE->set_heading(get_string('certificateverification', 'simplecertificate'));
 $PAGE->set_pagelayout('base');
 echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('certificateverification', 'simplecertificate'));
+$verifyform = new verify_form();
 
-if (!$code) {
-    $verifyform = new verify_form();
+if (!$verifyform->get_data()) {
+    if ($code)
+        $verifyform->set_data(array('code'=>$code));
+    
     $verifyform->display();
-    //TODO put re-capctha
+    
 
 
 } else {
- 
     if (!$issuedcert = $DB->get_record("simplecertificate_issues", array('code' => $code))) {
         print_error(get_string('invalidcode','simplecertificate'));
     }
