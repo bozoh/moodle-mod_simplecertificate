@@ -961,6 +961,8 @@ class simplecertificate {
                             } else {
                                 $usercustomfields->{$field->shortname} = $formfield->display_data();
                             }
+                        } else {
+                            $usercustomfields->{$field->shortname} = '';
                         }
                     }
                 }
