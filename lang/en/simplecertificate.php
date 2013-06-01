@@ -47,6 +47,48 @@ $string['coursename'] = 'Alternative Course Name';
 $string['intro'] = 'Introduction';
 $string['printoutcome'] = 'Print Outcome';
 $string['printdate'] = 'Print Date';
+
+//Second Page
+$string['secondpageoptions'] = 'Certificate Back page';
+$string['enablesecondpage'] = 'Enable Certificate Back page';
+$string['enablesecondpage_help'] = 'Enable Certificate Back page edition, if is disabled, only certificate QR code will be printed in back page (if the QR code is enabled)';
+$string['secondimage'] = 'Certificate Back Image file';
+$string['secondimage_help'] = 'This is the picture that will be used in the back of certificate';
+$string['secondpagetext'] = 'Certificate Back Text';
+$string['secondpagetext_help'] = 'This is the text that will be used in the certificate back, some special words will be replaced with variables such as course name, student\'s name, grade ...
+These are:
+
+{USERNAME} -> Full user name
+
+{COURSENAME} -> Full course name (or a Defined alternate course name)
+
+{GRADE} -> Formated Grade
+
+{DATE} -> Formated Date
+
+{OUTCOME} -> Outcomes
+
+{HOURS} -> Defined hours in course
+
+{TEACHERS} -> Teachers List
+
+
+The text can use basic html, basic fonts, tables,  but avoid any position definition';
+$string['secondpagex'] = 'Certificate Back Text Horizontal Position';
+$string['secondpagey'] = 'Certificate Back Text Vertical Position';
+$string['secondtextposition'] = 'Certificate Back Text Position';
+$string['secondtextposition_help'] = 'These are the XY coordinates (in millimeters) of the certificate back page text';
+
+//QR Code
+$string['disablecode'] = 'Disable Certificate QR Code';
+$string['disablecode_help'] = 'Disable/enable certificate QR Code generation';
+$string['codex'] = 'Certificate QR Code Horizontal Position';
+$string['codey'] = 'Certificate QR Code Vertical Position';
+$string['qrcodeposition'] = 'Certificate QR Code Position';
+$string['qrcodeposition_help'] = 'These are the XY coordinates (in millimeters) of the certificate QR Code';
+$string['defaultcodex'] = 'Default Hotizontal QR code Position';
+$string['defaultcodey'] = 'Default Vertical QR code Position';
+
 ////Date options
 $string['issueddate'] = 'Date Issued';
 $string['completiondate'] = 'Course Completion';
@@ -73,6 +115,7 @@ $string['download'] = 'Force download';
 $string['emailcertificate'] = 'Email (Must also choose save!)';
 
 
+
 ////Form options help text
 
 $string['certificatename_help'] = 'Certificate Name';
@@ -96,7 +139,7 @@ These are:
 
 The text can use basic html, basic fonts, tables,  but avoid any position definition';
 
-$string['textposition'] = 'Certificate Text Positionn';
+$string['textposition'] = 'Certificate Text Position';
 $string['textposition_help'] = 'These are the XY coordinates (in millimeters) of the certificate text';
 $string['size'] = 'Certificate Size';
 $string['size_help'] = 'These are the Width and Height size (in millimeters) of the certificate, Default size is A4 Landscape';
@@ -106,7 +149,7 @@ $string['certificateimage_help'] = 'This is the picture that will be used in the
 
 $string['printoutcome_help'] = 'You can choose any course outcome to print the name of the outcome and the user\'s received outcome on the certificate.  An example might be: Assignment Outcome: Proficient.';
 $string['printdate_help'] = 'This is the date that will be printed, if a print date is selected. If the course completion date is selected but the student has not completed the course, the date received will be printed. You can also choose to print the date based on when an activity was graded. If a certificate is issued before that activity is graded, the date received will be printed.';
-$string['datefmt_help'] = 'Choose a date format to print the date on the certificate. Or, choose the last option to have the date printed in the format of the user\'s chosen language.';
+$string['datefmt_help'] = 'Enter a valid PHP date format pattern (http://www.php.net/manual/en/function.strftime.php). Or, leave it empty to use the format of the user\'s chosen language.';
 $string['printgrade_help'] = 'You can choose any available course grade items from the gradebook to print the user\'s grade received for that item on the certificate.  The grade items are listed in the order in which they appear in the gradebook. Choose the format of the grade below.';
 $string['gradefmt_help'] = 'There are three available formats if you choose to print a grade on the certificate:
 
@@ -158,7 +201,7 @@ $string['defaultcertificatetexty'] = 'Default Vertical Text Position';
 
 //Erros
 $string['filenotfound'] = 'File not Found: {$a}';
-$string['invalidcode'] = 'Invalide certificade code';
+$string['invalidcode'] = 'Invalid certificate code';
 $string['cantdeleteissue'] = 'Error removing issued certificates';
 
 
@@ -169,9 +212,6 @@ $string['certificateverification'] = 'Certificate Verification';
 $string['certlifetime'] = 'Keep issued certificates for: (in Months)';
 $string['certlifetime_help'] = 'This specifies the length of time you want to keep issued certificates. Issed certificates that are older than this age are automatically deleted.';
 $string['neverdeleteoption'] = 'Never delete';
-$string['dateformat01']='January 1, 2000';
-$string['dateformat02']='January 1st, 2000';
-$string['dateformat03']='1 January 2000';
-$string['dateformat04']='January 2000';
-$string['dateformat05'] = '1 {$a} Janeiro {$a} 2000';
-$string['of'] = 'of';
+
+$string['variablesoptions'] = 'Others Options';
+$string['getcertificate'] = 'Verify Certificate';
