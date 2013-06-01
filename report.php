@@ -24,7 +24,6 @@ $action = optional_param('action', '', PARAM_ALPHA);
 $page = optional_param('page', 0, PARAM_INT);
 $perpage = optional_param('perpage', SIMPLECERT_PER_PAGE, PARAM_INT);
 
-
 $url = new moodle_url('/mod/simplecertificate/report.php', array('id'=>$id, 'page' => $page, 'perpage' => $perpage));
 if ($download) {
     $url->param('download', $download);
@@ -101,7 +100,7 @@ if ($download == "ods") {
     // Send HTTP headers
     $workbook->send($filename);
     // Creating the first worksheet
-    $myxls =& $workbook->add_worksheet($strreport);
+    $myxls = $workbook->add_worksheet($strreport);
 
     // Print names of all the fields
     $myxls->write_string(0, 0, get_string("lastname"));
@@ -150,7 +149,7 @@ if ($download == "xls") {
     // Send HTTP headers
     $workbook->send($filename);
     // Creating the first worksheet
-    $myxls =& $workbook->add_worksheet($strreport);
+    $myxls = $workbook->add_worksheet($strreport);
 
     // Print names of all the fields
     $myxls->write_string(0, 0, get_string("lastname"));

@@ -80,6 +80,45 @@ class mod_simplecertificate_mod_form extends moodleform_mod {
         $mform->setAdvanced('certificatetexty');
         $mform->addHelpButton('certificatetexty', 'textposition', 'simplecertificate');
 
+        //-----------------------------------------Second page
+        $mform->addElement('header', 'secondpageoptions', get_string('secondpageoptions', 'simplecertificate'));
+        //Enable back page text
+
+        $mform->addElement('selectyesno', 'enablesecondpage', get_string('enablesecondpage', 'simplecertificate'));
+        $mform->setDefault('enablesecondpage', get_config('simplecertificate', 'enablesecondpage'));
+        $mform->addHelpButton('enablesecondpage', 'enablesecondpage', 'simplecertificate');
+
+        //Certificate secondimage file
+        $mform->addElement('filepicker', 'secondimage', get_string('secondimage','simplecertificate'), null,
+                array('maxbytes' => $maxbytes, 'accepted_types' =>  array('image')));
+        $mform->addHelpButton('secondimage', 'secondimage', 'simplecertificate');
+        $mform->disabledIf('secondimage', 'enablesecondpage', 'eq', 0);
+         
+        //Certificate secondText HTML editor
+        $mform->addElement('editor', 'secondpagetext', get_string('secondpagetext', 'simplecertificate'),
+                simplecertificate_get_editor_options($this->context));
+        $mform->setType('secondpagetext',PARAM_RAW);
+        $mform->addHelpButton('secondpagetext', 'certificatetext', 'simplecertificate');
+        $mform->disabledIf('secondpagetext', 'enablesecondpage', 'eq', 0);
+
+        //Certificate Position X
+        $mform->addElement('text', 'secondpagex', get_string('secondpagex', 'simplecertificate'), array('size'=>'5'));
+        $mform->setType('secondpagex',PARAM_INT);
+        $mform->setDefault('secondpagex', get_config('simplecertificate', 'certificatetextx'));
+        $mform->setAdvanced('secondpagex');
+        $mform->addHelpButton('secondpagex', 'secondtextposition', 'simplecertificate');
+        $mform->disabledIf('secondpagex', 'enablesecondpage', 'eq', 0);
+
+        //Certificate Position Y
+        $mform->addElement('text', 'secondpagey', get_string('secondpagey', 'simplecertificate'), array('size'=>'5'));
+        $mform->setType('secondpagey',PARAM_INT);
+        $mform->setDefault('secondpagey', get_config('simplecertificate', 'certificatetexty'));
+        $mform->setAdvanced('secondpagey');
+        $mform->addHelpButton('secondpagey', 'secondtextposition', 'simplecertificate');
+        $mform->disabledIf('secondpagey', 'enablesecondpage', 'eq', 0);
+
+        //--------------------Variable options
+        $mform->addElement('header', 'variablesoptions', get_string('variablesoptions', 'simplecertificate'));
         //Certificate Alternative Course Name
         $mform->addElement('text', 'coursename', get_string('coursename', 'simplecertificate'), array('size'=>'64'));
         $mform->setType('coursename', PARAM_TEXT);
@@ -106,9 +145,10 @@ class mod_simplecertificate_mod_form extends moodleform_mod {
 
         //Certificate date format
 
-        $mform->addElement('select', 'certdatefmt', get_string('datefmt', 'simplecertificate'), simplecertificate_get_date_format_options());
-        $mform->setDefault('certdatefmt', get_config('simplecertificate', 'certdatefmt'));
+        $mform->addElement('text', 'certdatefmt', get_string('datefmt', 'simplecertificate'));
+        $mform->setDefault('certdatefmt', '');
         $mform->addHelpButton('certdatefmt', 'datefmt', 'simplecertificate');
+        $mform->setAdvanced('certdatefmt');
 
         //Certificare grade Options
         $mform->addElement('select', 'certgrade', get_string('printgrade', 'simplecertificate'), simplecertificate_get_grade_options());
@@ -126,6 +166,23 @@ class mod_simplecertificate_mod_form extends moodleform_mod {
         $mform->addElement('text', 'requiredtime', get_string('coursetimereq', 'simplecertificate'), array('size'=>'3'));
         $mform->setType('requiredtime', PARAM_INT);
         $mform->addHelpButton('requiredtime', 'coursetimereq', 'simplecertificate');
+
+        //QR code
+        $mform->addElement('selectyesno', 'disablecode', get_string('disablecode', 'simplecertificate'));
+        $mform->setDefault('disablecode', get_config('simplecertificate', 'disablecode'));
+        $mform->addHelpButton('disablecode', 'disablecode', 'simplecertificate');
+
+        $mform->addElement('text', 'codex', get_string('codex', 'simplecertificate'), array('size'=>'5'));
+        $mform->setType('codex',PARAM_INT);
+        $mform->setDefault('codex', get_config('simplecertificate', 'codex'));
+        $mform->setAdvanced('codex');
+        $mform->addHelpButton('codex', 'qrcodeposition', 'simplecertificate');
+
+        $mform->addElement('text', 'codey', get_string('codey', 'simplecertificate'), array('size'=>'5'));
+        $mform->setType('codey',PARAM_INT);
+        $mform->setDefault('codey', get_config('simplecertificate', 'codey'));
+        $mform->setAdvanced('codey');
+        $mform->addHelpButton('codey', 'qrcodeposition', 'simplecertificate');
 
 
 
@@ -184,17 +241,30 @@ class mod_simplecertificate_mod_form extends moodleform_mod {
      * @return void
      */
     public function data_preprocessing(&$data) {
-         global $CFG;
+        global $CFG;
         require_once(dirname(__FILE__) . '/locallib.php');
         if ($this->current->instance) {
             // editing an existing certificate - let us prepare the added editor elements (intro done automatically), and files
-            $draftitemid = file_get_submitted_draft_itemid('certificateimage');
-            $fileinfo = simplecertificate::get_certificate_image_fileinfo($this->context);
-            file_prepare_draft_area($draftitemid, $fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'], $fileinfo['itemid']);
-            $data['certificateimage'] = $draftitemid;
+            $imagedraftitemid = file_get_submitted_draft_itemid('certificateimage');
+            $imagefileinfo = simplecertificate::get_certificate_image_fileinfo($this->context);
+            file_prepare_draft_area($imagedraftitemid, $imagefileinfo['contextid'], $imagefileinfo['component'], $imagefileinfo['filearea'], $imagefileinfo['itemid']);
+            $data['certificateimage'] = $imagedraftitemid;
             $data['certificatetext'] = array('text' =>$data['certificatetext'], 'format'=> FORMAT_HTML);
-        }  else { //Load default
+
+            //Second page
+            $secondimagedraftitemid = file_get_submitted_draft_itemid('secondimage');
+            $secondimagefileinfo = simplecertificate::get_certificate_secondimage_fileinfo($this->context);
+            file_prepare_draft_area($secondimagedraftitemid, $secondimagefileinfo['contextid'], $secondimagefileinfo['component'], $secondimagefileinfo['filearea'], $secondimagefileinfo['itemid']);
+            $data['secondimage'] = $secondimagedraftitemid;
+
+            if (!empty($data['secondpagetext'])) {
+                $data['secondpagetext'] = array('text' =>$data['secondpagetext'], 'format'=> FORMAT_HTML);
+            } else {
+                $data['secondpagetext'] = array('text' =>'', 'format'=> FORMAT_HTML);
+            }
+        } else { //Load default
             $data['certificatetext'] = array('text' =>'', 'format'=> FORMAT_HTML);
+            $data['secondpagetext'] = array('text' =>'', 'format'=> FORMAT_HTML);
         }
     }
 
