@@ -40,19 +40,21 @@ class backup_simplecertificate_activity_structure_step extends backup_activity_s
 
         // Define each element separated
 
-
+       
         $certificate = new backup_nested_element('simplecertificate', array('id'), array(
-            'name', 'intro', 'introformat', 'width', 'height', 'certificateimage', 'certificatetext',
-            'certificatetextformat', 'certificatetextx', 'certificatetexty','certdate', 'certdatefmt',
-            'certgrade', 'gradefmt', 'emailfrom', 'emailothers', 'emailteachers', 'savecert', 'reportcert',
-            'delivery', 'requiredtime', 'coursehours', 'outcome', 'coursename', 'timemodified'));
+                'name', 'intro', 'introformat', 'width', 'height', 'certificateimage', 'certificatetext',
+                'certificatetextformat', 'certificatetextx', 'certificatetexty','certdate', 'certdatefmt',
+                'certgrade', 'gradefmt', 'emailfrom', 'emailothers', 'emailteachers', 'savecert', 'reportcert',
+                'delivery', 'requiredtime', 'coursehours', 'outcome', 'coursename', 'timemodified','codex','codey',
+                'disablecode','enablesecondpage','secondpagex','secondpagey','secondpagetext','secondpagetextformat',
+                'secondimage'));
 
 
 
         $issues = new backup_nested_element('issues');
 
         $issue = new backup_nested_element('issue', array('id'), array(
-            'certificateid', 'userid','username','coursename', 'timecreated','timedeleted', 'code'));
+                'certificateid', 'userid','username','coursename', 'timecreated','timedeleted', 'code'));
 
         // Build the tree
         $certificate->add_child($issues);
@@ -70,7 +72,7 @@ class backup_simplecertificate_activity_structure_step extends backup_activity_s
         $issue->annotate_ids('user', 'userid');
 
         // Define file annotations
-        $certificate->annotate_files('mod_simplecertificate', simplecertificate::CERTIFICATE_IMAGE_FILE_AREA, null);
+        $certificate->annotate_files('mod_simplecertificate', simplecertificate::CERTIFICATE_IMAGE_FILE_AREA, 'id');
         $issue->annotate_files('mod_simplecertificate', simplecertificate::CERTIFICATE_ISSUES_FILE_AREA, 'id'); // This file area hasn't itemid
 
         // Return the root element (certificate), wrapped into standard activity structure

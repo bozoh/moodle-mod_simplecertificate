@@ -23,25 +23,25 @@
  * @copyright  Carlos Alexandre Fonseca <carlos.alexandre@outlook.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
-require_once($CFG->dirroot.'/mod/simplecertificate/lib.php');
-require_once($CFG->dirroot.'/course/lib.php');
-require_once($CFG->dirroot.'/grade/lib.php');
-require_once($CFG->dirroot.'/grade/querylib.php');
-require_once($CFG->libdir.'/pdflib.php');
+require_once($CFG->dirroot . '/mod/simplecertificate/lib.php');
+require_once($CFG->dirroot . '/course/lib.php');
+require_once($CFG->dirroot . '/grade/lib.php');
+require_once($CFG->dirroot . '/grade/querylib.php');
+require_once($CFG->libdir . '/pdflib.php');
+require_once($CFG->dirroot . '/user/profile/lib.php');
 
 if (!defined('MOODLE_INTERNAL')) {
     die('Direct access to this script is forbidden.');
 }
 
 class simplecertificate {
+
     const CERTIFICATE_IMAGE_FILE_AREA = 'image';
     const CERTIFICATE_ISSUES_FILE_AREA = 'issues';
     const CERTIFICATE_COMPONENT_NAME = 'mod_simplecertificate';
-    const OUTPUT_OPEN_IN_BROWSER=0;
-    const OUTPUT_FORCE_DOWNLOAD=1;
-    const OUTPUT_SEND_EMAIL=2;
-
+    const OUTPUT_OPEN_IN_BROWSER = 0;
+    const OUTPUT_FORCE_DOWNLOAD = 1;
+    const OUTPUT_SEND_EMAIL = 2;
 
     public $id;
     public $name;
@@ -70,16 +70,20 @@ class simplecertificate {
     public $requiredtime;
     public $certgrade;
     public $gradefmt;
+    public $codex;
+    public $codey;
+    public $disablecode;
+    public $enablesecondpage;
+    public $secondpagex;
+    public $secondpagey;
+    public $secondpagetext;
+    public $secondpagetextformat;
+    public $secondimage;
     public $course;
     public $coursemodule;
     public $context;
-
-
-
-    private $orientation='';
+    private $orientation = '';
     private $cm;
-
-
 
     public function __construct(stdclass $dbrecord, stdclass $context = null) {
         global $DB;
@@ -116,21 +120,39 @@ class simplecertificate {
     }
 
     public static function get_certificate_image_fileinfo($context) {
-    if (is_object($context)) {
+        if (is_object($context)) {
             $contextid = $context->id;
         } else {
             $contextid = $context;
         }
 
         $fileinfo = array(
-        		'contextid' => $contextid, // ID of context
-                'component' => self::CERTIFICATE_COMPONENT_NAME,     // usually = table name
-                'filearea' => self::CERTIFICATE_IMAGE_FILE_AREA,     // usually = table name
-                'itemid' => 0,               // usually = ID of row in table
+                'contextid' => $contextid, // ID of context
+                'component' => self::CERTIFICATE_COMPONENT_NAME, // usually = table name
+                'filearea' => self::CERTIFICATE_IMAGE_FILE_AREA, // usually = table name
+                'itemid' => 1, // usually = ID of row in table
                 'filepath' => '/'           // any path beginning and ending in /
         );
         return $fileinfo;
     }
+
+    public static function get_certificate_secondimage_fileinfo($context) {
+        if (is_object($context)) {
+            $contextid = $context->id;
+        } else {
+            $contextid = $context;
+        }
+
+        $fileinfo = array(
+                'contextid' => $contextid, // ID of context
+                'component' => self::CERTIFICATE_COMPONENT_NAME, // usually = table name
+                'filearea' => self::CERTIFICATE_IMAGE_FILE_AREA, // usually = table name
+                'itemid' => 2, // usually = ID of row in table
+                'filepath' => '/'           // any path beginning and ending in /
+        );
+        return $fileinfo;
+    }
+
 
     public static function get_certificate_issue_fileinfo($userid, $issueid, $context) {
 
@@ -141,19 +163,18 @@ class simplecertificate {
         }
 
         $fileinfo = array(
-                'contextid' => $contextid,   // ID of context
-                'component' => self::CERTIFICATE_COMPONENT_NAME,   // usually = table name
-                'filearea'  => self::CERTIFICATE_ISSUES_FILE_AREA,     // usually = table name
-                'itemid'    => $issueid,  // usually = ID of row in table
-                'filepath'  => '/',     // any path beginning and ending in /
-                'mimetype'  => 'application/pdf',    // any filename
-                'userid'    => $userid
+                'contextid' => $contextid, // ID of context
+                'component' => self::CERTIFICATE_COMPONENT_NAME, // usually = table name
+                'filearea' => self::CERTIFICATE_ISSUES_FILE_AREA, // usually = table name
+                'itemid' => $issueid, // usually = ID of row in table
+                'filepath' => '/', // any path beginning and ending in /
+                'mimetype' => 'application/pdf', // any filename
+                'userid' => $userid
         );
 
 
         return $fileinfo;
     }
-
 
     /**
      * Inserts preliminary user data when a certificate is viewed.
@@ -181,11 +202,11 @@ class simplecertificate {
             if (!has_capability('mod/simplecertificate:manage', $this->context)) {
                 $certissue->id = $DB->insert_record('simplecertificate_issues', $certissue);
             } else {
-                $certissue->id = rand(0,4);
+                $certissue->id = rand(0, 4);
             }
 
             // Email to the teachers and anyone else
-            if ($this->emailteachers != 0 )
+            if ($this->emailteachers != 0)
                 $this->send_alert_email_teachers();
 
             if (!empty($this->emailothers))
@@ -268,7 +289,7 @@ class simplecertificate {
         global $USER, $DB;
 
         if (empty($this->certgrade))
-        return '';
+            return '';
 
         if (empty($userid)) {
             $userid = $USER->id;
@@ -362,7 +383,6 @@ class simplecertificate {
      *
      * @return string UUID_v1
      */
-
     private function get_issue_uuid() {
         global $CFG;
         require_once (dirname(__FILE__) . '/lib.uuid.php');
@@ -384,7 +404,7 @@ class simplecertificate {
             $coursecontactroles = explode(',', $CFG->coursecontact);
 
             foreach ($coursecontactroles as $roleid) {
-                $role = $DB->get_record('role', array('id'=>$roleid));
+                $role = $DB->get_record('role', array('id' => $roleid));
                 $roleid = (int) $roleid;
                 if ($users = get_role_users($roleid, $this->context, true)) {
                     foreach ($users as $teacher) {
@@ -396,8 +416,7 @@ class simplecertificate {
                 }
             }
         } else {
-            $users = get_users_by_capability($this->context, 'mod/simplecertificate:manage',
-                    '', '', '', '', '', '', false, false);
+            $users = get_users_by_capability($this->context, 'mod/simplecertificate:manage', '', '', '', '', '', '', false, false);
 
             foreach ($users as $teacher) {
                 if ($teacher->id == $USER->id) {
@@ -410,7 +429,6 @@ class simplecertificate {
         return $teachers;
     }
 
-
     /**
      * Alerts teachers by email of received certificates. First checks
      * whether the option to email teachers is set for this certificate.
@@ -420,10 +438,9 @@ class simplecertificate {
         if ($teachers = $this->get_teachers()) {
             $emailteachers = array();
             foreach ($teachers as $teacher) {
-                $emailteachers[]=$teacher->email;
+                $emailteachers[] = $teacher->email;
             }
             $this->send_alert_emails($emailteachers);
-
         }
     }
 
@@ -438,10 +455,9 @@ class simplecertificate {
         if ($this->emailothers) {
             $others = explode(',', $this->emailothers);
             if ($others)
-            $this->send_alert_emails($others);
+                $this->send_alert_emails($others);
         }
     }
-
 
     private function send_alert_emails($emails) {
         global $USER, $CFG, $DB;
@@ -449,7 +465,7 @@ class simplecertificate {
         if ($emails) {
             $strawarded = get_string('awarded', 'simplecertificate');
             foreach ($emails as $email) {
-                $email=trim($email);
+                $email = trim($email);
                 if (validate_email($email)) {
                     $destination = new stdClass;
                     $destination->email = $email;
@@ -458,7 +474,7 @@ class simplecertificate {
                     $info->student = fullname($USER);
                     $info->course = format_string($this->coursename, true);
                     $info->certificate = format_string($this->name, true);
-                    $info->url = $CFG->wwwroot.'/mod/simplecertificate/report.php?id='.$this->cm->id;
+                    $info->url = $CFG->wwwroot . '/mod/simplecertificate/report.php?id=' . $this->cm->id;
                     $from = $info->student;
                     $postsubject = $strawarded . ': ' . $info->student . ' -> ' . $this->name;
 
@@ -466,7 +482,7 @@ class simplecertificate {
                     $posttext = get_string('emailteachermail', 'simplecertificate', $info) . "\n";
 
                     //Getting email body html
-                    $posthtml  = '<font face="sans-serif">';
+                    $posthtml = '<font face="sans-serif">';
                     $posthtml .= '<p>' . get_string('emailteachermailhtml', 'simplecertificate', $info) . '</p>';
                     $posthtml .= '</font>';
 
@@ -476,23 +492,22 @@ class simplecertificate {
         }
     }
 
-    private function create_pdf($issuecert){
+    private function create_pdf($issuecert) {
         global $DB, $USER, $CFG;
 
         //Getting certificare image
         $fs = get_file_storage();
 
         // Prepare file record object
-        $fileinfo = self::get_certificate_image_fileinfo($this->context->id);
+        $imagefileinfo = self::get_certificate_image_fileinfo($this->context->id);
         // Get file
-        $file = $fs->get_file($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'],
-        $fileinfo['itemid'], $fileinfo['filepath'], $this->certificateimage);
+        $imagefile = $fs->get_file($imagefileinfo['contextid'], $imagefileinfo['component'], $imagefileinfo['filearea'], $imagefileinfo['itemid'], $imagefileinfo['filepath'], $this->certificateimage);
 
         // Read contents
-        if ($file) {
-            $temp_manager = $this->move_temp_dir($file);
+        if ($imagefile) {
+            $temp_manager = $this->move_temp_dir($imagefile);
         } else {
-            print_error(get_string('filenotfound','simplecertificate',$this->certificateimage));
+            print_error(get_string('filenotfound', 'simplecertificate', $this->certificateimage));
         }
 
         $pdf = new TCPDF($this->orientation, 'mm', array($this->width, $this->height), true, 'UTF-8', true, false);
@@ -502,30 +517,64 @@ class simplecertificate {
         $pdf->setPrintHeader(false);
         $pdf->setPrintFooter(false);
         $pdf->SetAutoPageBreak(false, 0);
+        //Issue #5
+
+        $pdf->setFontSubsetting(true);
         $pdf->AddPage();
 
         $pdf->Image($temp_manager->absolutefilepath, 0, 0, $this->width, $this->height);
 
         $pdf->SetXY($this->certificatetextx, $this->certificatetexty);
-        $pdf->writeHTMLCell(0, 0, '', '', $this->get_certificate_text($issuecert), 0, 0, 0, true, 'C');
+        $pdf->writeHTMLCell(0, 0, '', '', $this->get_certificate_text($issuecert, $this->certificatetext), 0, 0, 0, true, 'C');
+         
         @remove_dir($temp_manager->path);
 
-        //Add certificade code using QRcode, in a new page (to print in the back)
-        $pdf->AddPage();
-        $style = array(
-            'border' => 2,
-            'vpadding' => 'auto',
-            'hpadding' => 'auto',
-            'fgcolor' => array(0,0,0),
-            'bgcolor' => false, //array(255,255,255)
-            'module_width' => 1, // width of a single module in points
-            'module_height' => 1 // height of a single module in points
-        );
-        $codeurl = "$CFG->wwwroot/mod/simplecertificate/verify.php?code=$issuecert->code";
-        $pdf->write2DBarcode($codeurl, 'QRCODE,H', 10, 10, 50, 50, $style, 'N');
-        $pdf->setFontSize(10);
-        $pdf->setFontStretching(75);
-        $pdf->Text(9, 60, $issuecert->code);
+        if (!empty($this->enablesecondpage)) {
+
+            $pdf->AddPage();
+
+            if (!empty($this->secondimage)) {
+                // Prepare file record object
+                $secondimagefileinfo = self::get_certificate_secondimage_fileinfo($this->context->id);
+                // Get file
+                $secondimagefile = $fs->get_file($secondimagefileinfo['contextid'], $secondimagefileinfo['component'], $secondimagefileinfo['filearea'], $secondimagefileinfo['itemid'], $secondimagefileinfo['filepath'], $this->secondimage);
+
+                // Read contents
+                if ($secondimagefile) {
+                    $temp_manager = $this->move_temp_dir($secondimagefile);
+                } else {
+                    print_error(get_string('filenotfound', 'simplecertificate', $this->secondimage));
+                }
+                $pdf->Image($temp_manager->absolutefilepath, 0, 0, $this->width, $this->height);
+                @remove_dir($temp_manager->path);
+            }
+            if (!empty($this->secondpagetext)) {
+                $pdf->SetXY($this->secondpagex, $this->secondpagey);
+                $pdf->writeHTMLCell(0, 0, '', '', $this->get_certificate_text($issuecert, $this->secondpagetext), 0, 0, 0, true, 'C');
+            }
+        }
+
+        if (empty($this->disablecode)) {
+            //Add certificade code using QRcode, in a new page (to print in the back)
+            if (empty($this->enablesecondpage)) {
+                //If secondpage is disabled, create one
+                $pdf->AddPage();
+            }
+            $style = array(
+                    'border' => 2,
+                    'vpadding' => 'auto',
+                    'hpadding' => 'auto',
+                    'fgcolor' => array(0, 0, 0),
+                    'bgcolor' => false, //array(255,255,255)
+                    'module_width' => 1, // width of a single module in points
+                    'module_height' => 1 // height of a single module in points
+            );
+            $codeurl = "$CFG->wwwroot/mod/simplecertificate/verify.php?code=$issuecert->code";
+            $pdf->write2DBarcode($codeurl, 'QRCODE,H', $this->codex, $this->codey, 50, 50, $style, 'N');
+            $pdf->setFontSize(10);
+            $pdf->setFontStretching(75);
+            $pdf->Text($this->codex - 1, $this->codey + 50, $issuecert->code);
+        }
 
         return $pdf;
     }
@@ -556,7 +605,7 @@ class simplecertificate {
         $fileinfo['filename'] = $filename;
 
         // Check for file first
-        if (!$fs->file_exists($fileinfo['contextid'], $fileinfo['component'],$fileinfo['filearea'],$fileinfo['itemid'],$fileinfo['filepath'],$fileinfo['filename'])) {
+        if (!$fs->file_exists($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'], $fileinfo['itemid'], $fileinfo['filepath'], $fileinfo['filename'])) {
             $fs->create_file_from_string($fileinfo, $pdf->Output('', 'S'));
         }
         return true;
@@ -571,7 +620,6 @@ class simplecertificate {
      * @param stdClass $certrecord
      * @param stdClass $context
      */
-
     private function send_certificade_email($issuecert) {
         global $USER;
 
@@ -586,7 +634,7 @@ class simplecertificate {
         // Make the HTML version more XHTML happy  (&amp;)
         $messagehtml = text_to_html($message);
 
-        $filename = clean_filename($this->name.'.pdf');
+        $filename = clean_filename($this->name . '.pdf');
 
         if (has_capability('mod/simplecertificate:manage', $this->context))
             $this->save_pdf($this->create_pdf($issuecert), $filename, $issuecert->id);
@@ -594,8 +642,7 @@ class simplecertificate {
         // Get generated certificate file
         $fs = get_file_storage();
         $fileinfo = self::get_certificate_issue_fileinfo($USER->id, $issuecert->id, $this->context->id);
-        $file = $fs->get_file($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'],
-            $fileinfo['itemid'], $fileinfo['filepath'], $filename);
+        $file = $fs->get_file($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'], $fileinfo['itemid'], $fileinfo['filepath'], $filename);
 
 
         if ($file) { //put in a tmp dir, for e-mail attachament
@@ -615,7 +662,6 @@ class simplecertificate {
 
         return $ret;
     }
-
 
     /**
      * Get the time the user has spent in the course
@@ -654,20 +700,18 @@ class simplecertificate {
         return 0;
     }
 
-
-
     public function output_pdf($issuecert) {
         $pdf = $this->create_pdf($issuecert);
         $filename = clean_filename($this->name . '.pdf');
 
         if ($this->savecert == 1) {
             // PDF contents are now in $file_contents as a string
-            $this->save_pdf($pdf,$filename, $issuecert->id);
+            $this->save_pdf($pdf, $filename, $issuecert->id);
             //        $file_contents = $pdf->Output('', 'S');
             //        certificate_save_pdf($file_contents, $certrecord->id, $filename, $context->id);
         }
 
-        switch($this->delivery) {
+        switch ($this->delivery) {
             case self::OUTPUT_OPEN_IN_BROWSER :
                 $pdf->Output($filename, 'I'); // open in browser
                 break;
@@ -679,42 +723,71 @@ class simplecertificate {
                 $pdf->Output($filename, 'I'); // open in browser
                 $pdf->Output('', 'S'); // send
                 break;
-
         }
     }
 
-    private function get_certificate_text ($certissue) {
+    private function get_certificate_text($certissue, $string) {
         global $USER, $DB;
 
         $a = new stdClass;
         $a->username = fullname($USER);
+        $a->idnumber = $USER->idnumber;
+        $a->firstname = $USER->firstname;
+        $a->lastname = $USER->lastname;
+        $a->email = $USER->email;
+        $a->icq = $USER->icq;
+        $a->skype = $USER->skype;
+        $a->yahoo = $USER->yahoo;
+        $a->aim = $USER->aim;
+        $a->msn = $USER->msn;
+        $a->phone1 = $USER->phone1;
+        $a->phone2 = $USER->phone2;
+        $a->institution = $USER->institution;
+        $a->department = $USER->department;
+        $a->address = $USER->address;
+        $a->city = $USER->city;
+        $a->country =  get_string($USER->country, 'countries');
+        //Formatting URL, if needed
+        $url = $USER->url;;
+        if (strpos($url, '://') === false) {
+            $url = 'http://'. $url;
+        }
+        $a->url = $url;
+
+        //Getting user custom profiles fields
+        $userprofilefields=$this->get_user_profile_fields($USER->id);
+        foreach ($userprofilefields as $key => $value) {
+            $key = 'profile_'.$key;
+            $a->$key=$value;
+        }
+
+
         $a->coursename = format_string($this->coursename, true);
         $a->grade = $this->get_grade();
-        $a->date = $this->get_date($certissue);
+        $a->date = $this->get_date($certissue,$USER->id);
         $a->outcome = $this->get_outcome();
 
         if (!empty($this->coursehours))
-        $a->hours = format_string($this->coursehours . ' ' . get_string('hours', 'simplecertificate'), true);
+            $a->hours = format_string($this->coursehours . ' ' . get_string('hours', 'simplecertificate'), true);
         else
-        $a->hours = '';
+            $a->hours = '';
 
-        if ($teachers = $this->get_teachers()){
-            $t=array();
+        if ($teachers = $this->get_teachers()) {
+            $t = array();
             foreach ($teachers as $teacher) {
-                $t[] =fullname($teacher);
+                $t[] = fullname($teacher);
             }
             $a->teachers = implode("<br>", $t);
         } else {
             $a->teachers = '';
         }
 
-        $string = $this->certificatetext;
-        $a = (array)$a;
+        $a = (array) $a;
         $search = array();
         $replace = array();
-        foreach ($a as $key=>$value) {
-            $search[]  = '{'.strtoupper($key).'}';
-            $replace[] = (string)$value;
+        foreach ($a as $key => $value) {
+            $search[] = '{' . strtoupper($key) . '}';
+            $replace[] = (string) $value;
         }
         if ($search) {
             $string = str_replace($search, $replace, $string);
@@ -762,29 +835,14 @@ class simplecertificate {
                 $date = $modinfo->dategraded;
             }
         }
-
-        switch ($this->certdatefmt) {
-            case 1:
-                return str_replace(' 0', ' ', strftime('%B %d, %Y', $date));
-                break;
-            case 2:
-                return date('F jS, Y', $date);
-                break;
-            case 3:
-                return str_replace(' 0', '', strftime('%d %B %Y', $date));
-                break;
-            case 4:
-                return strftime('%B %Y', $date);
-                break;
-            case 5:
-                return str_replace(' 0', '', strftime('%d '.get_string('of','simplecertificate').' %B '.get_string('of','simplecertificate').' %Y', $date));
-                return strftime('',$date);
-                break;
-            case 6:
-                return userdate($date, get_string('strftimedate', 'langconfig'));
-                break;
+        
+        if (empty($this->certdatefmt)){
+            $format = get_string('strftimedate', 'langconfig');
+        } else {
+            $format = $this->certdatefmt;
         }
-        return '';
+            
+        return userdate($date, $format);
     }
 
     /**
@@ -801,7 +859,7 @@ class simplecertificate {
             // list of item for menu
             $printoutcome = array();
             foreach ($grade_items as $grade_item) {
-                if (isset($grade_item->outcomeid)){
+                if (isset($grade_item->outcomeid)) {
                     $itemmodule = $grade_item->itemmodule;
                     $printoutcome[$grade_item->id] = $itemmodule . ': ' . $grade_item->get_name();
                 }
@@ -841,8 +899,6 @@ class simplecertificate {
         return '';
     }
 
-
-
     private function move_temp_dir($file) {
         global $CFG;
 
@@ -854,23 +910,52 @@ class simplecertificate {
         }
 
         do {
-            $path = $dir.$prefix.mt_rand(0, 9999999);
+            $path = $dir . $prefix . mt_rand(0, 9999999);
         } while (file_exists($path));
 
         check_dir_exists($path);
 
-        $fullfilepath = $path .'/'. $file->get_filename();
+        $fullfilepath = $path . '/' . $file->get_filename();
         $file->copy_content_to($fullfilepath);
 
         $obj = new stdClass();
         $obj->path = $path;
         $obj->absolutefilepath = $fullfilepath;
-        $obj->relativefilepath = str_replace($CFG->dataroot . '/',"",$fullfilepath);
+        $obj->relativefilepath = str_replace($CFG->dataroot . '/', "", $fullfilepath);
 
-        if (strpos($obj->relativefilepath, '/',1) === 0 )
-        $obj->relativefilepath = substr($obj->relativefilepath, 1);
+        if (strpos($obj->relativefilepath, '/', 1) === 0)
+            $obj->relativefilepath = substr($obj->relativefilepath, 1);
 
         return $obj;
     }
+
+    private function get_user_profile_fields($userid) {
+        global $CFG, $DB;
+
+        $usercustomfields = new stdClass();
+        if ($categories = $DB->get_records('user_info_category', null, 'sortorder ASC')) {
+            foreach ($categories as $category) {
+                if ($fields = $DB->get_records('user_info_field', array('categoryid'=>$category->id), 'sortorder ASC')) {
+                    foreach ($fields as $field) {
+                        require_once($CFG->dirroot.'/user/profile/field/'.$field->datatype.'/field.class.php');
+                        $newfield = 'profile_field_'.$field->datatype;
+                        $formfield = new $newfield($field->id, $userid);
+                        if ($formfield->is_visible() and !$formfield->is_empty()) {
+                            if ($field->datatype == 'checkbox'){
+                                $usercustomfields->{$field->shortname} = ( $formfield->data == 1 ? get_string('yes') : get_string('no'));
+                            } else {
+                                $usercustomfields->{$field->shortname} = $formfield->display_data();
+                            }
+                        } else {
+                            $usercustomfields->{$field->shortname} = '';
+                        }
+                    }
+                }
+            }
+        }
+        return $usercustomfields;
+    }
+
 }
+
 

@@ -47,6 +47,48 @@ $string['coursename'] = 'Nome alternativo do curso';
 $string['intro'] = 'Introdução';
 $string['printoutcome'] = 'Imprimir resultado (Outcome)';
 $string['printdate'] = 'Tipo de data do certificado';
+
+//Second Page
+$string['secondpageoptions'] = 'Página de Verso do certificado';
+$string['enablesecondpage'] = 'Ativar o verso do Certificado';
+$string['enablesecondpage_help'] = 'Ativa a edição do verso do certificado, se estiver desativado, somente o código QR do certificado será impresso (se código QR estiver ativo)';
+$string['secondimage'] = 'Imagem do verso do certificate';
+$string['secondimage_help'] = 'Esta figura será usada no verso do certificado';
+$string['secondpagetext'] = 'Texto do verso do certificado';
+$string['secondpagetext_help'] = 'Este é o texto que será usado no verso certificado, algums marcadores especiais serão substituidos por variáveis do certificado, como o nome do curos, nome do estudante, notas...
+Os marcadores são:
+
+{USERNAME} -> Nome completo do aluno
+
+{COURSENAME} -> Nome compledo do curso (ou o que estiver definido em "Nome Alternativo do Curso")
+
+{GRADE} -> Nota formatada
+
+{DATE} -> Data formatada
+
+{OUTCOME} -> Resultados (Outcomes)
+
+{HOURS} -> Carga horária do curso
+
+{TEACHERS} -> Lista de professores
+
+
+O texto pode ser um HTML básico, com fontes básicas do HTLM, tabelas, mas evitar o uso de posicionamento';
+$string['secondpagex'] = 'Posição Horizontal do texto do verso';
+$string['secondpagey'] = 'Posição Vertical do texto do verso';
+$string['secondtextposition'] = 'Posição do texto do verso';
+$string['secondtextposition_help'] = 'As coordenadas XY (em milímetros) do texto do verso';
+
+//QR Code
+$string['disablecode'] = 'Desabilitar o QR Code do certificado';
+$string['disablecode_help'] = 'Habilita ou desabilita a geração do QR Code do certificado';
+$string['codex'] = 'Posição Horizontal do QR Code do Certificado';
+$string['codey'] = 'Posição Vertical do QR Code do Certificado';
+$string['qrcodeposition'] = 'Posicionamento do QR Code do Certificado';
+$string['qrcodeposition_help'] = 'Essas são as coordenadas XY (em milímetros) do QR Code do certificado';
+$string['defaultcodex'] = 'Posição Horizontal padrão do QR code do certificado';
+$string['defaultcodey'] = 'Posição Vertical padrão do QR code do certificado';
+
 ////Date options
 $string['issueddate'] = 'Data da emissão';
 $string['completiondate'] = 'Data do fim do curso';
@@ -108,7 +150,7 @@ $string['printoutcome_help'] = 'Você pode escolher qualquer resultado (outcome)
 
 $string['printdate_help'] = 'Esta é a data que será impressa, você pose escolher entre a data que o aluno completou o curso, ou a data de emissão do certificado.
 Também pode-se escolher a data que uma certa atividade foi corrigida, se em algum dos casos o aluno não tiver a data, então a data de emissão será usada.';
-$string['datefmt_help'] = 'Escolha um formato de data.';
+$string['datefmt_help'] = 'Coloque um formato de data válido aceito pelo PHP (http://www.php.net/manual/pt_BR/function.strftime.php). ou deixe-o em branco para usar o valor de formatação padrão definido pela a configuração de idioma do usuário.';
 $string['printgrade_help'] = 'Pode-se escolher a nota que será impressa no certificado, esta pode ser a nota final do curso ou a nota em uma atividade.';
 $string['gradefmt_help'] = 'Pode-se escolher o formato da nota que são:
 
@@ -170,10 +212,5 @@ $string['certlifetime'] = 'Manter os certificados emitidos por: (em Mêses)';
 $string['certlifetime_help'] = 'Está opção especifica por quanto tempo deve ser guardado um certificado emitido. Certificados emitidos mais velhos que o tempo determinado nesta opção será autmaticamente removidos.';
 $string['neverdeleteoption'] = 'Nunca remover';
 
-$string['dateformat01'] = 'Janeiro 1, 2000';
-$string['dateformat02'] = 'Janeiro 1º, 2000';
-$string['dateformat03'] = '1 Janeiro 2000';
-$string['dateformat04'] = 'Janeiro 2000';
-$string['dateformat05'] = '1 {$a} Janeiro {$a} 2000';
-$string['of'] = 'de';
-
+$string['variablesoptions'] = 'Outras Opções';
+$string['getcertificate'] = 'Verificar Certificado';
