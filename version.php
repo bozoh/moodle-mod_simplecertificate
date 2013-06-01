@@ -15,4 +15,4 @@ $module->cron     = 4 * 3600;    // Period for cron to check this module (secs)
 $module->component = 'mod_simplecertificate';
 $module->release  = '2.0.0';       // Human-friendly version name
 //MATURITY_ALPHA, MATURITY_BETA, MATURITY_RC, MATURITY_STABLE
-$module->maturity = MATURITY_BETA;
+$module->maturity = MATURITY_STABLE;
