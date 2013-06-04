@@ -147,6 +147,7 @@ class mod_simplecertificate_mod_form extends moodleform_mod {
 
         $mform->addElement('text', 'certdatefmt', get_string('datefmt', 'simplecertificate'));
         $mform->setDefault('certdatefmt', '');
+        $mform->setType('certdatefmt', PARAM_TEXT);        
         $mform->addHelpButton('certdatefmt', 'datefmt', 'simplecertificate');
         $mform->setAdvanced('certdatefmt');
 
