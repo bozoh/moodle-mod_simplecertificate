@@ -226,4 +226,5 @@ $string['certlifetime_help'] = 'This specifies the length of time you want to ke
 $string['neverdeleteoption'] = 'Never delete';
 
 $string['variablesoptions'] = 'Others Options';
-$string['getcertificate'] = 'Verify Certificate';
+$string['getcertificate'] = 'Get Certificate';
+$string['verifycertificate'] = 'Verify Certificate';
