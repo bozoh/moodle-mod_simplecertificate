@@ -55,37 +55,7 @@ $string['enablesecondpage_help'] = 'Enable Certificate Back page edition, if is 
 $string['secondimage'] = 'Certificate Back Image file';
 $string['secondimage_help'] = 'This is the picture that will be used in the back of certificate';
 $string['secondpagetext'] = 'Certificate Back Text';
-$string['secondpagetext_help'] = 'This is the text that will be used in the certificate back, some special words will be replaced with variables such as course name, student\'s name, grade ...
-These are:
 
-{USERNAME} -> Full user name
-{COURSENAME} -> Full course name (or a Defined alternate course name)
-{GRADE} -> Formated Grade
-{DATE} -> Formated Date
-{OUTCOME} -> Outcomes
-{HOURS} -> Defined hours in course
-{TEACHERS} -> Teachers List
-{IDNUMBER} -> User id number
-{FIRSTNAME} -> User first name
-{LASTNAME} -> User last name
-{EMAIL} -> User e-mail
-{ICQ} -> User ICQ
-{SKYPE} -> User Skype
-{YAHOO} -> User yahoo messenger
-{AIM} -> User AIM
-{MSN} -> User MSN
-{PHONE1} -> User 1° Phone Number
-{PHONE2} -> User 2° Phone Number
-{INSTITUTION} -> User institution
-{DEPARTMENT} -> User department
-{ADDRESS} -> User address
-{CITY} -> User city
-{COUNTRY} -> User country
-{URL} -> User Home-page
-{PROFILE_xxxx} -> User custom profile fields
-
-In order to use custom profiles fields you must use "PORFILE_" prefix, for example: you has created a custom profile with shortname of "birthday," so the text mark used on certificate must be {PROFILE_BIRTHDAY}
-The text can use basic html, basic fonts, tables,  but avoid any position definition';
 $string['secondpagex'] = 'Certificate Back Text Horizontal Position';
 $string['secondpagey'] = 'Certificate Back Text Vertical Position';
 $string['secondtextposition'] = 'Certificate Back Text Position';
@@ -131,24 +101,36 @@ $string['emailcertificate'] = 'Email (Must also choose save!)';
 ////Form options help text
 
 $string['certificatename_help'] = 'Certificate Name';
-$string['certificatetext_help'] = 'This is the text that will be used in the certificate, some special words will be replaced with variables such as course name, student\'s name, grade ...
+$string['certificatetext_help'] = 'This is the text that will be used in the certificate back, some special words will be replaced with variables such as course name, student\'s name, grade ...
 These are:
 
 {USERNAME} -> Full user name
-
 {COURSENAME} -> Full course name (or a Defined alternate course name)
-
 {GRADE} -> Formated Grade
-
 {DATE} -> Formated Date
-
 {OUTCOME} -> Outcomes
-
 {HOURS} -> Defined hours in course
-
 {TEACHERS} -> Teachers List
+{IDNUMBER} -> User id number
+{FIRSTNAME} -> User first name        
+{LASTNAME} -> User last name        
+{EMAIL} -> User e-mail        
+{ICQ} -> User ICQ        
+{SKYPE} -> User Skype        
+{YAHOO} -> User yahoo messenger        
+{AIM} -> User AIM        
+{MSN} -> User MSN        
+{PHONE1} -> User 1° Phone Number        
+{PHONE2} -> User 2° Phone Number        
+{INSTITUTION} -> User institution        
+{DEPARTMENT} -> User department        
+{ADDRESS} -> User address
+{CITY} -> User city
+{COUNTRY} -> User country
+{URL} -> User Home-page
+{PROFILE_xxxx} -> User custom profile fields
 
-
+In order to use custom profiles fields you must use "PORFILE_" prefix, for example: you has created a custom profile with shortname of "birthday," so the text mark used on certificate must be {PROFILE_BIRTHDAY} 
 The text can use basic html, basic fonts, tables,  but avoid any position definition';
 
 $string['textposition'] = 'Certificate Text Position';
@@ -226,4 +208,5 @@ $string['certlifetime_help'] = 'This specifies the length of time you want to ke
 $string['neverdeleteoption'] = 'Never delete';
 
 $string['variablesoptions'] = 'Others Options';
-$string['getcertificate'] = 'Verify Certificate';
+$string['getcertificate'] = 'Get Certificate';
+$string['verifycertificate'] = 'Verify Certificate';
