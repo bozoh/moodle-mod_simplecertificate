@@ -55,38 +55,6 @@ $string['enablesecondpage_help'] = 'Ativa a edição do verso do certificado, se
 $string['secondimage'] = 'Imagem do verso do certificate';
 $string['secondimage_help'] = 'Esta figura será usada no verso do certificado';
 $string['secondpagetext'] = 'Texto do verso do certificado';
-$string['secondpagetext_help'] = 'Este é o texto que será usado no verso certificado, algums marcadores especiais serão substituidos por variáveis do certificado, como o nome do curos, nome do estudante, notas...
-Os marcadores são:
-
-{USERNAME} -> Nome completo do aluno
-{COURSENAME} -> Nome compledo do curso (ou o que estiver definido em "Nome Alternativo do Curso")
-{GRADE} -> Nota formatada
-{DATE} -> Data formatada
-{OUTCOME} -> Resultados (Outcomes)
-{HOURS} -> Carga horária do curso
-{TEACHERS} -> Lista de professores
-{IDNUMBER} -> id number
-{FIRSTNAME} -> Nome        
-{LASTNAME} -> Sobrenome        
-{EMAIL} -> E-mail        
-{ICQ} -> ICQ        
-{SKYPE} -> Skype        
-{YAHOO} -> Yahoo messenger        
-{AIM} -> AIM        
-{MSN} -> MSN        
-{PHONE1} -> 1° Número de telefone        
-{PHONE2} -> 2° Número de telefone        
-{INSTITUTION} -> Instituição        
-{DEPARTMENT} -> Departamento        
-{ADDRESS} -> Endereço
-{CITY} -> Cidade
-{COUNTRY} -> País
-{URL} -> Home-page
-{PROFILE_xxxx} -> Campos personalizados
-
-Para usar campos personalizados deve usar o prefixo "PROFILE_", por exemplo, se criar um campo com a abreviação (shortname) de aniversario, então deve-se usar o marcador
-"PROFILE_ANIVERSARIO"
-O texto pode ser um HTML básico, com fontes básicas do HTLM, tabelas, mas evitar o uso de posicionamento';
 $string['secondpagex'] = 'Posição Horizontal do texto do verso';
 $string['secondpagey'] = 'Posição Vertical do texto do verso';
 $string['secondtextposition'] = 'Posição do texto do verso';
@@ -131,24 +99,37 @@ $string['emailcertificate'] = 'por Email (o opção "Salvar os certificados" tem
 ////Form options help text
 
 $string['certificatename_help'] = 'Nome do certificado';
-$string['certificatetext_help'] = 'Este é o texto que será usado no certificado, algums marcadores especiais serão substituidos por variáveis do certificado, como o nome do curos, nome do estudante, notas...
+$string['certificatetext_help'] = 'Este é o texto que será usado no verso certificado, algums marcadores especiais serão substituidos por variáveis do certificado, como o nome do curos, nome do estudante, notas...
 Os marcadores são:
 
 {USERNAME} -> Nome completo do aluno
-
 {COURSENAME} -> Nome compledo do curso (ou o que estiver definido em "Nome Alternativo do Curso")
-
 {GRADE} -> Nota formatada
-
 {DATE} -> Data formatada
-
 {OUTCOME} -> Resultados (Outcomes)
-
 {HOURS} -> Carga horária do curso
-
 {TEACHERS} -> Lista de professores
+{IDNUMBER} -> id number
+{FIRSTNAME} -> Nome        
+{LASTNAME} -> Sobrenome        
+{EMAIL} -> E-mail        
+{ICQ} -> ICQ        
+{SKYPE} -> Skype        
+{YAHOO} -> Yahoo messenger        
+{AIM} -> AIM        
+{MSN} -> MSN        
+{PHONE1} -> 1° Número de telefone        
+{PHONE2} -> 2° Número de telefone        
+{INSTITUTION} -> Instituição        
+{DEPARTMENT} -> Departamento        
+{ADDRESS} -> Endereço
+{CITY} -> Cidade
+{COUNTRY} -> País
+{URL} -> Home-page
+{PROFILE_xxxx} -> Campos personalizados
 
-
+Para usar campos personalizados deve usar o prefixo "PROFILE_", por exemplo, se criar um campo com a abreviação (shortname) de aniversario, então deve-se usar o marcador
+"PROFILE_ANIVERSARIO"
 O texto pode ser um HTML básico, com fontes básicas do HTLM, tabelas, mas evitar o uso de posicionamento';
 
 $string['textposition'] = 'Posicionamento do Texto do Certificado';
@@ -226,4 +207,5 @@ $string['certlifetime_help'] = 'Está opção especifica por quanto tempo deve s
 $string['neverdeleteoption'] = 'Nunca remover';
 
 $string['variablesoptions'] = 'Outras Opções';
-$string['getcertificate'] = 'Verificar Certificado';
+$string['getcertificate'] = 'Obter o Certificado';
+$string['verifycertificate'] = 'Verificar Certificado';
