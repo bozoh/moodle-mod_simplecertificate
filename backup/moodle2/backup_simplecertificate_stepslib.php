@@ -72,8 +72,8 @@ class backup_simplecertificate_activity_structure_step extends backup_activity_s
         $issue->annotate_ids('user', 'userid');
 
         // Define file annotations
-        $certificate->annotate_files('mod_simplecertificate', simplecertificate::CERTIFICATE_IMAGE_FILE_AREA, 'id');
-        $issue->annotate_files('mod_simplecertificate', simplecertificate::CERTIFICATE_ISSUES_FILE_AREA, 'id'); // This file area hasn't itemid
+        $issue->annotate_files('mod_simplecertificate', simplecertificate::CERTIFICATE_ISSUES_FILE_AREA, 'id');
+        $certificate->annotate_files('mod_simplecertificate', simplecertificate::CERTIFICATE_IMAGE_FILE_AREA, null);
 
         // Return the root element (certificate), wrapped into standard activity structure
         return $this->prepare_activity_structure($certificate);
