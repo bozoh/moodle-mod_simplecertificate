@@ -52,7 +52,7 @@ require_course_login($course->id, false, $cm);
 
 
 // Check capabilities
-$context = get_context_instance(CONTEXT_MODULE, $cm->id);
+$context = context_module::instance($cm->id);
 require_capability('mod/simplecertificate:manage', $context);
 $simplecertificate = new simplecertificate($certificate, $context);
 

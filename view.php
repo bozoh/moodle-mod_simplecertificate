@@ -30,7 +30,8 @@ if (!$certificate = $DB->get_record('simplecertificate', array('id'=> $cm->insta
 }
 
 require_login($course->id, false, $cm);
-$context = get_context_instance(CONTEXT_MODULE, $cm->id);
+//Set thr context
+$context = context_module::instance($cm->id);
 require_capability('mod/simplecertificate:view', $context);
 
 // log update
@@ -46,9 +47,6 @@ $PAGE->set_context($context);
 $PAGE->set_cm($cm);
 $PAGE->set_title(format_string($certificate->name));
 $PAGE->set_heading(format_string($course->fullname));
-
-// Set the context
-$context = get_context_instance(CONTEXT_MODULE, $cm->id);
 
 if (($edit != -1) and $PAGE->user_allowed_editing()) {
      $USER->editing = $edit;
