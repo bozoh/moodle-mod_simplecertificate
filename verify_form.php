@@ -24,7 +24,7 @@ class verify_form extends moodleform {
         }
 
 
-        $this->add_action_buttons(false, get_string('getcertificate','simplecertificate'));
+        $this->add_action_buttons(false, get_string('verifycertificate','simplecertificate'));
     }
 
     function validation($data, $files) {

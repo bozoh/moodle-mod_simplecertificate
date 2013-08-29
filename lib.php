@@ -39,7 +39,7 @@ define('SIMPLECERT_MAX_PER_PAGE', 200);
  *
  * @param stdClass $certificate
  * @return int new certificate instance id
- */
+*/
 function simplecertificate_add_instance(stdclass $certificate, $mform=null) {
     global $CFG, $DB;
 
@@ -51,7 +51,6 @@ function simplecertificate_add_instance(stdclass $certificate, $mform=null) {
     $certificate->certificatetext = $certificate->certificatetext['text'];
     $certificate->certificatetextformat = FORMAT_HTML;
 
-
     // insert the new record so we get the id
     $certificate->id = $DB->insert_record('simplecertificate', $certificate);
 
@@ -62,11 +61,34 @@ function simplecertificate_add_instance(stdclass $certificate, $mform=null) {
 
     //process file
     if ($mform) {
-        $certificate->certificateimage = simplecertificate_process_form_files($mform, $context);
+        $images = simplecertificate_process_form_files($mform, $context);
     }
+    $certificate->certificateimage = $images[0];
 
-
-
+    
+    //Second Page
+    if (!empty($certificate->enablesecondpage)) {
+        if (!empty($certificate->secondpagetext['text'])){
+            $certificate->secondpagetext = $certificate->secondpagetext['text'];
+            $certificate->secondpagetextformat = FORMAT_HTML;
+        } else {
+            $certificate->secondpagetext = null;
+            $certificate->secondpagetextformat = FORMAT_HTML;
+        }
+    
+        if (!empty($images[1])) {
+            $certificate->secondimage = $images[1];
+        } else {
+            $certificate->secondimage = null;
+        }
+    } else {
+        $certificate->secondpagetext = null;
+        $certificate->secondpagetextformat = FORMAT_HTML;
+        $certificate->secondimage = null;
+        $certificate->secondpagex = null;
+        $certificate->secondpagey = null;
+    }
+    
     // re-save the record with the replaced URLs in editor fields
     $DB->update_record('simplecertificate', $certificate);
 
@@ -93,16 +115,41 @@ function simplecertificate_update_instance($certificate, $mform=null) {
 
     $context = get_context_instance(CONTEXT_MODULE, $certificate->coursemodule);
 
+    //process files
+    if ($mform) {
+        $images = simplecertificate_process_form_files($mform, $context);
+    }
+
     // process the custom wysiwyg editors
     $certificate->certificatetext = $certificate->certificatetext['text'];
     $certificate->certificatetextformat = FORMAT_HTML;
+    $certificate->certificateimage = $images[0];
 
-    //process file
+    //Second Page
+    if (!empty($certificate->enablesecondpage)) {
+        if (!empty($certificate->secondpagetext['text'])){
+            $certificate->secondpagetext = $certificate->secondpagetext['text'];
+            $certificate->secondpagetextformat = FORMAT_HTML;
+        } else {
+            $certificate->secondpagetext = null;
+            $certificate->secondpagetextformat = FORMAT_HTML;
+        }
 
-    if ($mform) {
-        $certificate->certificateimage = simplecertificate_process_form_files($mform, $context);
+        if (!empty($images[1])) {
+            $certificate->secondimage = $images[1];
+        } else {
+            $certificate->secondimage = null;
+        }
+    } else {
+        $certificate->secondpagetext = null;
+        $certificate->secondpagetextformat = FORMAT_HTML;
+        $certificate->secondimage = null;
+        $certificate->secondpagex = null;
+        $certificate->secondpagey = null;
     }
+
     // re-save the record with the replaced URLs in editor fields
+
     $DB->update_record('simplecertificate', $certificate);
 
     //Send event
@@ -420,8 +467,8 @@ function simplecertificate_print_user_files($certificate, $userid, $context) {
         $filename = $file->get_filename();
         $mimetype = $file->get_mimetype();
         $link = file_encode_url($CFG->wwwroot.'/pluginfile.php', '/'.
-        $fileinfo['contextid'].'/'.$fileinfo['component'].'/'.
-        $fileinfo['filearea'].'/'. $fileinfo['itemid'].'/'.$filename);
+                $fileinfo['contextid'].'/'.$fileinfo['component'].'/'.
+                $fileinfo['filearea'].'/'. $fileinfo['itemid'].'/'.$filename);
 
         $output = '<img src="'.$OUTPUT->pix_url(file_mimetype_icon($file->get_mimetype())).'" height="16" width="16" alt="'.$file->get_mimetype().'" />&nbsp;'.
                 '<a href="'.$link.'" >'.s($filename).'</a>';
@@ -489,14 +536,24 @@ function simplecertificate_get_post_actions() {
  */
 function simplecertificate_process_form_files ($mform, stdclass $context) {
     require_once(dirname(__FILE__) . '/locallib.php');
-    $certimgfilename = $mform->get_new_filename('certificateimage');
-    if ($certimgfilename !== false) {
+    $certimages=array();
+    $certimages[0] = $mform->get_new_filename('certificateimage');
+    $certimages[1] = $mform->get_new_filename('secondimage');
+
+    $fs = get_file_storage();
+    if ($certimages[0] !== false) {
         $fileinfo=simplecertificate::get_certificate_image_fileinfo($context->id);
-        $fs = get_file_storage();
-        $fs->delete_area_files($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea']);
-        $mform->save_stored_file('certificateimage', $fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'], $fileinfo['itemid'], $fileinfo['filepath'], $certimgfilename);
-    }
-    return $certimgfilename;
+        $fs->delete_area_files($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'],$fileinfo['itemid']);
+        $mform->save_stored_file('certificateimage', $fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'], $fileinfo['itemid'], $fileinfo['filepath'], $certimages[0]);
+	}
+        
+    if ($certimages[1] !== false) {
+		$fileinfo=simplecertificate::get_certificate_secondimage_fileinfo($context->id);
+		$fs = get_file_storage();
+		$fs->delete_area_files($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'],$fileinfo['itemid']);
+		$mform->save_stored_file('secondimage', $fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'], $fileinfo['itemid'], $fileinfo['filepath'], $certimages[1]);
+	}
+    return $certimages;
 }
 
 /**
@@ -528,13 +585,13 @@ function simplecertificate_send_event($certificate){
  */
 function simplecertificate_get_editor_options(stdclass $context) {
     return array(
-                'subdirs'=>0,
-                'maxbytes'=>0,
-                'maxfiles'=>0,
-                'changeformat'=>0,
-                'context'=>$context,
-                'noclean'=>0,
-                'trusttext'=>0);
+            'subdirs'=>0,
+            'maxbytes'=>0,
+            'maxfiles'=>0,
+            'changeformat'=>0,
+            'context'=>$context,
+            'noclean'=>0,
+            'trusttext'=>0);
 }
 
 
@@ -603,18 +660,6 @@ function simplecertificate_get_date_options() {
     $dateoptions['2'] = get_string('completiondate', 'simplecertificate');
     return $dateoptions + simplecertificate_get_mods();
 }
-/**
- * Retrun date fortmat options
- *
- * @return array
- */
-
-function simplecertificate_get_date_format_options() {
-    return array( 1 => get_string('dateformat01','simplecertificate'), 2 => get_string('dateformat02','simplecertificate'),
-                3 => get_string('dateformat03','simplecertificate'), 4 => get_string('dateformat04','simplecertificate'),
-                5 => get_string('dateformat05','simplecertificate', get_string('of','simplecertificate')),
-                6 => get_string('userdateformat', 'simplecertificate'));
-}
 
 /**
  * Search through all the modules for grade data for mod_form.
@@ -665,13 +710,13 @@ function simplecertificate_get_issues($certificateid, $sort="ci.timecreated ASC"
 
     // Get all the users that have certificates issued, should only be one issue per user for a certificate
     $users = $DB->get_records_sql("SELECT u.*, ci.code, ci.timecreated
-                FROM {user} u
-                INNER JOIN {simplecertificate_issues} ci
-                ON u.id = ci.userid
-                WHERE u.deleted = 0
-                AND ci.certificateid = :certificateid
-                AND timedeleted IS NULL
-                ORDER BY {$sort} {$limitsql}", array('certificateid' => $certificateid));
+            FROM {user} u
+            INNER JOIN {simplecertificate_issues} ci
+            ON u.id = ci.userid
+            WHERE u.deleted = 0
+            AND ci.certificateid = :certificateid
+            AND timedeleted IS NULL
+            ORDER BY {$sort} {$limitsql}", array('certificateid' => $certificateid));
 
     // now exclude all the certmanagers.
     foreach ($users as $id => $user) {
