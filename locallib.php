@@ -766,6 +766,7 @@ class simplecertificate {
         $a->grade = $this->get_grade();
         $a->date = $this->get_date($certissue,$USER->id);
         $a->outcome = $this->get_outcome();
+        $a->certificatecode=$certissue->code;
 
         if (!empty($this->coursehours))
             $a->hours = format_string($this->coursehours . ' ' . get_string('hours', 'simplecertificate'), true);
@@ -808,8 +809,14 @@ class simplecertificate {
     private function get_date($certissue, $userid = null) {
         global $DB, $USER;
 
+        if (empty($this->certdatefmt)){
+            $format = get_string('strftimedate', 'langconfig');
+        } else {
+            $format = $this->certdatefmt;
+        }
+
         if ($this->certdate <= 0) {
-            return '';
+            return userdate($certissue->timecreated, $format);
         }
 
         if (empty($userid)) {
@@ -835,13 +842,7 @@ class simplecertificate {
                 $date = $modinfo->dategraded;
             }
         }
-        
-        if (empty($this->certdatefmt)){
-            $format = get_string('strftimedate', 'langconfig');
-        } else {
-            $format = $this->certdatefmt;
-        }
-            
+
         return userdate($date, $format);
     }
 
