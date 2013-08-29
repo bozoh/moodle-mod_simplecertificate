@@ -128,6 +128,7 @@ These are:
 {CITY} -> User city
 {COUNTRY} -> User country
 {URL} -> User Home-page
+{CERTIFICATECODE} -> Unique certificate code text
 {PROFILE_xxxx} -> User custom profile fields
 
 In order to use custom profiles fields you must use "PORFILE_" prefix, for example: you has created a custom profile with shortname of "birthday," so the text mark used on certificate must be {PROFILE_BIRTHDAY} 

@@ -57,7 +57,7 @@ function simplecertificate_add_instance(stdclass $certificate, $mform=null) {
     // we need to use context now, so we need to make sure all needed info is already in db
     $cmid = $certificate->coursemodule;
     $DB->set_field('course_modules', 'instance', $certificate->id, array('id' => $cmid));
-    $context = get_context_instance(CONTEXT_MODULE, $cmid);
+    $context = context_module::instance($cmid);
 
     //process file
     if ($mform) {
@@ -113,7 +113,7 @@ function simplecertificate_update_instance($certificate, $mform=null) {
     $certificate->id = $certificate->instance;
     $DB->update_record('simplecertificate', $certificate);
 
-    $context = get_context_instance(CONTEXT_MODULE, $certificate->coursemodule);
+    $context = context_module::instance($certificate->coursemodule);
 
     //process files
     if ($mform) {
@@ -195,7 +195,7 @@ function simplecertificate_delete_instance($id) {
     }
 
     // Delete any files associated with the certificate
-    $context = get_context_instance(CONTEXT_MODULE, $cm->id);
+    $context = context_module::instance($cm->id);
     $fs = get_file_storage();
     $fs->delete_area_files($context->id);
 
@@ -690,7 +690,7 @@ function simplecertificate_get_issues($certificateid, $sort="ci.timecreated ASC"
     global $CFG, $DB;
 
     // get all users that can manage this certificate to exclude them from the report.
-    $context = get_context_instance(CONTEXT_MODULE, $cm->id);
+    $context = context_module::instance($cm->id);
     $certmanagers = get_users_by_capability($context, 'mod/simplecertificate:manage', 'u.id');
     $limitsql = '';
     $page = (int) $page;
