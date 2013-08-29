@@ -55,6 +55,7 @@ $string['enablesecondpage_help'] = 'Enable Certificate Back page edition, if is 
 $string['secondimage'] = 'Certificate Back Image file';
 $string['secondimage_help'] = 'This is the picture that will be used in the back of certificate';
 $string['secondpagetext'] = 'Certificate Back Text';
+
 $string['secondpagex'] = 'Certificate Back Text Horizontal Position';
 $string['secondpagey'] = 'Certificate Back Text Vertical Position';
 $string['secondtextposition'] = 'Certificate Back Text Position';
@@ -127,6 +128,7 @@ These are:
 {CITY} -> User city
 {COUNTRY} -> User country
 {URL} -> User Home-page
+{CERTIFICATECODE} -> Unique certificate code text
 {PROFILE_xxxx} -> User custom profile fields
 
 In order to use custom profiles fields you must use "PORFILE_" prefix, for example: you has created a custom profile with shortname of "birthday," so the text mark used on certificate must be {PROFILE_BIRTHDAY} 
