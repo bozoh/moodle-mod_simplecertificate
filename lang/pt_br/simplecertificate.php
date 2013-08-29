@@ -126,6 +126,7 @@ Os marcadores são:
 {CITY} -> Cidade
 {COUNTRY} -> País
 {URL} -> Home-page
+{CERTIFICATECODE} -> Texto do código do certificado
 {PROFILE_xxxx} -> Campos personalizados
 
 Para usar campos personalizados deve usar o prefixo "PROFILE_", por exemplo, se criar um campo com a abreviação (shortname) de aniversario, então deve-se usar o marcador
