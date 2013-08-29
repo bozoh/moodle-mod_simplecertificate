@@ -467,8 +467,8 @@ function simplecertificate_print_user_files($certificate, $userid, $context) {
         $filename = $file->get_filename();
         $mimetype = $file->get_mimetype();
         $link = file_encode_url($CFG->wwwroot.'/pluginfile.php', '/'.
-        $fileinfo['contextid'].'/'.$fileinfo['component'].'/'.
-        $fileinfo['filearea'].'/'. $fileinfo['itemid'].'/'.$filename);
+                $fileinfo['contextid'].'/'.$fileinfo['component'].'/'.
+                $fileinfo['filearea'].'/'. $fileinfo['itemid'].'/'.$filename);
 
         $output = '<img src="'.$OUTPUT->pix_url(file_mimetype_icon($file->get_mimetype())).'" height="16" width="16" alt="'.$file->get_mimetype().'" />&nbsp;'.
                 '<a href="'.$link.'" >'.s($filename).'</a>';
@@ -585,13 +585,13 @@ function simplecertificate_send_event($certificate){
  */
 function simplecertificate_get_editor_options(stdclass $context) {
     return array(
-                'subdirs'=>0,
-                'maxbytes'=>0,
-                'maxfiles'=>0,
-                'changeformat'=>0,
-                'context'=>$context,
-                'noclean'=>0,
-                'trusttext'=>0);
+            'subdirs'=>0,
+            'maxbytes'=>0,
+            'maxfiles'=>0,
+            'changeformat'=>0,
+            'context'=>$context,
+            'noclean'=>0,
+            'trusttext'=>0);
 }
 
 
@@ -710,13 +710,13 @@ function simplecertificate_get_issues($certificateid, $sort="ci.timecreated ASC"
 
     // Get all the users that have certificates issued, should only be one issue per user for a certificate
     $users = $DB->get_records_sql("SELECT u.*, ci.code, ci.timecreated
-                FROM {user} u
-                INNER JOIN {simplecertificate_issues} ci
-                ON u.id = ci.userid
-                WHERE u.deleted = 0
-                AND ci.certificateid = :certificateid
-                AND timedeleted IS NULL
-                ORDER BY {$sort} {$limitsql}", array('certificateid' => $certificateid));
+            FROM {user} u
+            INNER JOIN {simplecertificate_issues} ci
+            ON u.id = ci.userid
+            WHERE u.deleted = 0
+            AND ci.certificateid = :certificateid
+            AND timedeleted IS NULL
+            ORDER BY {$sort} {$limitsql}", array('certificateid' => $certificateid));
 
     // now exclude all the certmanagers.
     foreach ($users as $id => $user) {
