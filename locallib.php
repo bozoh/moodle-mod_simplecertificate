@@ -746,7 +746,13 @@ class simplecertificate {
         $a->department = $USER->department;
         $a->address = $USER->address;
         $a->city = $USER->city;
-        $a->country =  get_string($USER->country, 'countries');
+        
+        if (!empty($USER->country)) {
+            $a->country =  get_string($USER->country, 'countries');
+        } else {
+            $a->country = '';
+        }
+        
         //Formatting URL, if needed
         $url = $USER->url;;
         if (strpos($url, '://') === false) {
