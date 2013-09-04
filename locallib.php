@@ -495,21 +495,7 @@ class simplecertificate {
     private function create_pdf($issuecert) {
         global $DB, $USER, $CFG;
 
-        //Getting certificare image
-        $fs = get_file_storage();
-
-        // Prepare file record object
-        $imagefileinfo = self::get_certificate_image_fileinfo($this->context->id);
-        // Get file
-        $imagefile = $fs->get_file($imagefileinfo['contextid'], $imagefileinfo['component'], $imagefileinfo['filearea'], $imagefileinfo['itemid'], $imagefileinfo['filepath'], $this->certificateimage);
-
-        // Read contents
-        if ($imagefile) {
-            $temp_manager = $this->move_temp_dir($imagefile);
-        } else {
-            print_error(get_string('filenotfound', 'simplecertificate', $this->certificateimage));
-        }
-
+        
         $pdf = new TCPDF($this->orientation, 'mm', array($this->width, $this->height), true, 'UTF-8', true, false);
         $pdf->SetTitle($this->name);
         $pdf->SetSubject($this->name . ' - ' . $this->coursename);
@@ -518,16 +504,33 @@ class simplecertificate {
         $pdf->setPrintFooter(false);
         $pdf->SetAutoPageBreak(false, 0);
         //Issue #5
-
+        
         $pdf->setFontSubsetting(true);
         $pdf->AddPage();
+        
+        //Getting certificare image
+        $fs = get_file_storage();
 
-        $pdf->Image($temp_manager->absolutefilepath, 0, 0, $this->width, $this->height);
+        // Get first page image file
+        if (!empty($this->certificateimage)) {
+            // Prepare file record object
+            $fileinfo = self::get_certificate_image_fileinfo($this->context->id);
+            $firstpageimagefile = $fs->get_file($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'], $fileinfo['itemid'], $fileinfo['filepath'], $this->certificateimage);
+            // Read contents
+            if ($firstpageimagefile) {
+                $temp_manager = $this->move_temp_dir($firstpageimagefile);
+                $pdf->Image($temp_manager->absolutefilepath, 0, 0, $this->width, $this->height);
+                @remove_dir($temp_manager->path);
+            } else {
+                print_error(get_string('filenotfound', 'simplecertificate', $this->certificateimage));
+            }
+        }
 
+        //Writing text
         $pdf->SetXY($this->certificatetextx, $this->certificatetexty);
         $pdf->writeHTMLCell(0, 0, '', '', $this->get_certificate_text($issuecert, $this->certificatetext), 0, 0, 0, true, 'C');
          
-        @remove_dir($temp_manager->path);
+        
 
         if (!empty($this->enablesecondpage)) {
 
@@ -535,18 +538,18 @@ class simplecertificate {
 
             if (!empty($this->secondimage)) {
                 // Prepare file record object
-                $secondimagefileinfo = self::get_certificate_secondimage_fileinfo($this->context->id);
+                $fileinfo = self::get_certificate_secondimage_fileinfo($this->context->id);
                 // Get file
-                $secondimagefile = $fs->get_file($secondimagefileinfo['contextid'], $secondimagefileinfo['component'], $secondimagefileinfo['filearea'], $secondimagefileinfo['itemid'], $secondimagefileinfo['filepath'], $this->secondimage);
+                $secondimagefile = $fs->get_file($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'], $fileinfo['itemid'], $fileinfo['filepath'], $this->secondimage);
 
                 // Read contents
                 if ($secondimagefile) {
                     $temp_manager = $this->move_temp_dir($secondimagefile);
+                    $pdf->Image($temp_manager->absolutefilepath, 0, 0, $this->width, $this->height);
+                    @remove_dir($temp_manager->path);
                 } else {
                     print_error(get_string('filenotfound', 'simplecertificate', $this->secondimage));
                 }
-                $pdf->Image($temp_manager->absolutefilepath, 0, 0, $this->width, $this->height);
-                @remove_dir($temp_manager->path);
             }
             if (!empty($this->secondpagetext)) {
                 $pdf->SetXY($this->secondpagex, $this->secondpagey);
@@ -746,13 +749,13 @@ class simplecertificate {
         $a->department = $USER->department;
         $a->address = $USER->address;
         $a->city = $USER->city;
-        
+
         if (!empty($USER->country)) {
             $a->country =  get_string($USER->country, 'countries');
         } else {
             $a->country = '';
         }
-        
+
         //Formatting URL, if needed
         $url = $USER->url;;
         if (strpos($url, '://') === false) {

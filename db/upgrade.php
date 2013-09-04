@@ -99,5 +99,19 @@ function xmldb_simplecertificate_upgrade($oldversion=0) {
         upgrade_mod_savepoint(true, 2013053102, 'simplecertificate');
 
     }
+    
+    if ($oldversion < 2013090400) {
+    
+        // Changing nullability of field certificateimage on table simplecertificate to null.
+        $table = new xmldb_table('simplecertificate');
+        $field = new xmldb_field('certificateimage', XMLDB_TYPE_TEXT, null, null, null, null, null, 'height');
+            
+        // Launch change of type for field certificateimage.
+        $dbman->change_field_type($table, $field);
+    
+        // Simplecertificate savepoint reached.
+        upgrade_mod_savepoint(true, 2013090400, 'simplecertificate');
+    }
+    
     return true;
 }

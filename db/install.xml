@@ -14,7 +14,7 @@
                 <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false" PREVIOUS="timecreated" NEXT="width"/>
                 <FIELD NAME="width" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="297" SEQUENCE="false" PREVIOUS="timemodified" NEXT="height"/>
                 <FIELD NAME="height" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="210" SEQUENCE="false" PREVIOUS="width" NEXT="certificateimage"/>
-                <FIELD NAME="certificateimage" TYPE="text" NOTNULL="true" SEQUENCE="false" PREVIOUS="height" NEXT="certificatetext"/>
+                <FIELD NAME="certificateimage" TYPE="text" NOTNULL="false" SEQUENCE="false" PREVIOUS="height" NEXT="certificatetext"/>
                 <FIELD NAME="certificatetext" TYPE="text" NOTNULL="true" SEQUENCE="false" PREVIOUS="certificateimage" NEXT="certificatetextformat"/>
                 <FIELD NAME="certificatetextformat" TYPE="text" NOTNULL="true" SEQUENCE="false" PREVIOUS="certificatetext" NEXT="certificatetextx"/>
                 <FIELD NAME="certificatetextx" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="10" SEQUENCE="false" PREVIOUS="certificatetextformat" NEXT="certificatetexty"/>

@@ -61,9 +61,14 @@ function simplecertificate_add_instance(stdclass $certificate, $mform=null) {
 
     //process file
     if ($mform) {
-        $images = simplecertificate_process_form_files($mform, $context);
+        $files = simplecertificate_process_form_files($mform, $context);
     }
-    $certificate->certificateimage = $images[0];
+    
+    if (!empty($files[0])) {
+        $certificate->certificateimage = $files[0];
+    } else {
+        $certificate->certificateimage = null;
+    }
 
     
     //Second Page
@@ -76,8 +81,8 @@ function simplecertificate_add_instance(stdclass $certificate, $mform=null) {
             $certificate->secondpagetextformat = FORMAT_HTML;
         }
     
-        if (!empty($images[1])) {
-            $certificate->secondimage = $images[1];
+        if (!empty($files[1])) {
+            $certificate->secondimage = $files[1];
         } else {
             $certificate->secondimage = null;
         }
@@ -117,13 +122,20 @@ function simplecertificate_update_instance($certificate, $mform=null) {
 
     //process files
     if ($mform) {
-        $images = simplecertificate_process_form_files($mform, $context);
+        $files = simplecertificate_process_form_files($mform, $context);
     }
 
     // process the custom wysiwyg editors
     $certificate->certificatetext = $certificate->certificatetext['text'];
     $certificate->certificatetextformat = FORMAT_HTML;
-    $certificate->certificateimage = $images[0];
+    
+    
+    if (!empty($files[0])) {
+        $certificate->certificateimage = $files[0];
+    } else {
+        $certificate->certificateimage = null;
+    }
+    
 
     //Second Page
     if (!empty($certificate->enablesecondpage)) {
@@ -135,8 +147,8 @@ function simplecertificate_update_instance($certificate, $mform=null) {
             $certificate->secondpagetextformat = FORMAT_HTML;
         }
 
-        if (!empty($images[1])) {
-            $certificate->secondimage = $images[1];
+        if (!empty($files[1])) {
+            $certificate->secondimage = $files[1];
         } else {
             $certificate->secondimage = null;
         }

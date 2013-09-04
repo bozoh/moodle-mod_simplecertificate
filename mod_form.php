@@ -41,8 +41,7 @@ class mod_simplecertificate_mod_form extends moodleform_mod {
         $mform->addElement('filepicker', 'certificateimage', get_string('certificateimage','simplecertificate'), null,
                 array('maxbytes' => $maxbytes, 'accepted_types' =>  array('image')));
         $mform->addHelpButton('certificateimage', 'certificateimage', 'simplecertificate');
-        $mform->addRule('certificateimage', get_string('error'), 'required', null, 'client');
-
+        
 
         //Certificate Text HTML editor
         $mform->addElement('editor', 'certificatetext', get_string('certificatetext', 'simplecertificate'),
