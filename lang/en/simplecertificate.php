@@ -62,8 +62,8 @@ $string['secondtextposition'] = 'Certificate Back Text Position';
 $string['secondtextposition_help'] = 'These are the XY coordinates (in millimeters) of the certificate back page text';
 
 //QR Code
-$string['disablecode'] = 'Disable Certificate QR Code';
-$string['disablecode_help'] = 'Disable/enable certificate QR Code generation';
+$string['printqrcode'] = 'Print Certificate QR Code';
+$string['printqrcode_help'] = 'Print (or not) certificate QR Code';
 $string['codex'] = 'Certificate QR Code Horizontal Position';
 $string['codey'] = 'Certificate QR Code Vertical Position';
 $string['qrcodeposition'] = 'Certificate QR Code Position';
@@ -211,3 +211,6 @@ $string['neverdeleteoption'] = 'Never delete';
 $string['variablesoptions'] = 'Others Options';
 $string['getcertificate'] = 'Get Certificate';
 $string['verifycertificate'] = 'Verify Certificate';
+
+$string['qrcodefirstpage'] = 'Print QR Code in the first page';
+$string['qrcodefirstpage_help'] = 'Print QR Code in the first page'; 

@@ -168,9 +168,9 @@ class mod_simplecertificate_mod_form extends moodleform_mod {
         $mform->addHelpButton('requiredtime', 'coursetimereq', 'simplecertificate');
 
         //QR code
-        $mform->addElement('selectyesno', 'disablecode', get_string('disablecode', 'simplecertificate'));
-        $mform->setDefault('disablecode', get_config('simplecertificate', 'disablecode'));
-        $mform->addHelpButton('disablecode', 'disablecode', 'simplecertificate');
+        $mform->addElement('selectyesno', 'printqrcode', get_string('printqrcode', 'simplecertificate'));
+        $mform->setDefault('printqrcode', get_config('simplecertificate', 'printqrcode'));
+        $mform->addHelpButton('printqrcode', 'printqrcode', 'simplecertificate');
 
         $mform->addElement('text', 'codex', get_string('codex', 'simplecertificate'), array('size'=>'5'));
         $mform->setType('codex',PARAM_INT);
@@ -183,6 +183,10 @@ class mod_simplecertificate_mod_form extends moodleform_mod {
         $mform->setDefault('codey', get_config('simplecertificate', 'codey'));
         $mform->setAdvanced('codey');
         $mform->addHelpButton('codey', 'qrcodeposition', 'simplecertificate');
+        
+        $mform->addElement('selectyesno', 'qrcodefirstpage', get_string('qrcodefirstpage', 'simplecertificate'));
+        $mform->setDefault('qrcodefirstpage', get_config('simplecertificate', 'qrcodefirstpage'));
+        $mform->addHelpButton('qrcodefirstpage', 'qrcodefirstpage', 'simplecertificate');
 
 
 

@@ -61,8 +61,8 @@ $string['secondtextposition'] = 'Posição do texto do verso';
 $string['secondtextposition_help'] = 'As coordenadas XY (em milímetros) do texto do verso';
 
 //QR Code
-$string['disablecode'] = 'Desabilitar o QR Code do certificado';
-$string['disablecode_help'] = 'Habilita ou desabilita a geração do QR Code do certificado';
+$string['printqrcode'] = 'Imprimir o QR Code do certificado';
+$string['printqrcode_help'] = 'Habilita ou desabilita a impressão do QR Code do certificado';
 $string['codex'] = 'Posição Horizontal do QR Code do Certificado';
 $string['codey'] = 'Posição Vertical do QR Code do Certificado';
 $string['qrcodeposition'] = 'Posicionamento do QR Code do Certificado';
@@ -210,3 +210,6 @@ $string['neverdeleteoption'] = 'Nunca remover';
 $string['variablesoptions'] = 'Outras Opções';
 $string['getcertificate'] = 'Obter o Certificado';
 $string['verifycertificate'] = 'Verificar Certificado';
+
+$string['qrcodefirstpage'] = 'Imprimir o código QR na primeira página';
+$string['qrcodefirstpage_help'] = 'Imprime o código QR na primeira página';

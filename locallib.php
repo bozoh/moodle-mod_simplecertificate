@@ -72,7 +72,8 @@ class simplecertificate {
     public $gradefmt;
     public $codex;
     public $codey;
-    public $disablecode;
+    public $printqrcode;
+    public $qrcodefirstpage;
     public $enablesecondpage;
     public $secondpagex;
     public $secondpagey;
@@ -525,6 +526,11 @@ class simplecertificate {
                 print_error(get_string('filenotfound', 'simplecertificate', $this->certificateimage));
             }
         }
+        
+        //Print QR code in first page (if enable)
+        if ($this->printqrcode && $this->qrcodefirstpage) {
+            $this->print_qrcode($pdf, $issuecert->code);
+        }
 
         //Writing text
         $pdf->SetXY($this->certificatetextx, $this->certificatetexty);
@@ -557,30 +563,36 @@ class simplecertificate {
             }
         }
 
-        if (empty($this->disablecode)) {
+        if ($this->printqrcode && empty($this->qrcodefirstpage)) {
             //Add certificade code using QRcode, in a new page (to print in the back)
             if (empty($this->enablesecondpage)) {
                 //If secondpage is disabled, create one
                 $pdf->AddPage();
             }
-            $style = array(
-                    'border' => 2,
-                    'vpadding' => 'auto',
-                    'hpadding' => 'auto',
-                    'fgcolor' => array(0, 0, 0),
-                    'bgcolor' => false, //array(255,255,255)
-                    'module_width' => 1, // width of a single module in points
-                    'module_height' => 1 // height of a single module in points
-            );
-            $codeurl = "$CFG->wwwroot/mod/simplecertificate/verify.php?code=$issuecert->code";
-            $pdf->write2DBarcode($codeurl, 'QRCODE,H', $this->codex, $this->codey, 50, 50, $style, 'N');
-            $pdf->setFontSize(10);
-            $pdf->setFontStretching(75);
-            $pdf->Text($this->codex - 1, $this->codey + 50, $issuecert->code);
+            $this->print_qrcode($pdf, $issuecert->code);
+            
         }
 
         return $pdf;
     }
+    
+    private function print_qrcode ($pdf, $code) {
+        global $CFG;
+        $style = array(
+                'border' => 2,
+                'vpadding' => 'auto',
+                'hpadding' => 'auto',
+                'fgcolor' => array(0, 0, 0),
+                'bgcolor' => false, //array(255,255,255)
+                'module_width' => 1, // width of a single module in points
+                'module_height' => 1 // height of a single module in points
+        );
+        $codeurl = "$CFG->wwwroot/mod/simplecertificate/verify.php?code=$code";
+        $pdf->write2DBarcode($codeurl, 'QRCODE,H', $this->codex, $this->codey, 50, 50, $style, 'N');
+        $pdf->setFontSize(10);
+        $pdf->setFontStretching(75);
+        $pdf->Text($this->codex - 1, $this->codey + 50, $code);
+    } 
 
     /**
      * This function returns success or failure of file save
