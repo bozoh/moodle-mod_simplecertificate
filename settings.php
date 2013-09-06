@@ -29,9 +29,6 @@ if ($ADMIN->fulltree) {
     $settings->add(new admin_setting_configtext('simplecertificate/certificatetexty', get_string('defaultcertificatetexty', 'simplecertificate'),
         get_string('textposition_help', 'simplecertificate'), 50, PARAM_INT));
 
-    $settings->add(new admin_setting_configcheckbox('simplecertificate/savecert',
-        get_string('savecert', 'simplecertificate'), get_string('savecert_help', 'simplecertificate'), 1));
-
     $settings->add(new admin_setting_configselect('simplecertificate/certdate', get_string('printdate', 'simplecertificate'),
         get_string('printdate_help', 'simplecertificate'), 2, simplecertificate_get_date_options()));
 

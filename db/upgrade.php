@@ -159,6 +159,24 @@ function xmldb_simplecertificate_upgrade($oldversion=0) {
         $DB->execute($sql);
         upgrade_mod_savepoint(true, 2013090403, 'simplecertificate');
     }
+    
+    
+     if ($oldversion < 2013090500) {
+
+        // Define field requiredtime to be dropped from simplecertificate.
+        $table = new xmldb_table('simplecertificate');
+        $field = new xmldb_field('savecert');
+
+        // Conditionally launch drop field requiredtime.
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->drop_field($table, $field);
+        }
+
+        // Simplecertificate savepoint reached.
+        upgrade_mod_savepoint(true, 2013090500, 'simplecertificate');
+    }
+    	
+    
 
     return true;
 }

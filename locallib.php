@@ -42,6 +42,11 @@ class simplecertificate {
     const OUTPUT_OPEN_IN_BROWSER = 0;
     const OUTPUT_FORCE_DOWNLOAD = 1;
     const OUTPUT_SEND_EMAIL = 2;
+    
+    //View const
+    const  DEFAULT_VIEW = 0;
+    const  ISSUED_CERTIFCADES_VIEW = 1;
+    const  BULK_ISSUE_CERTIFCADES_VIEW = 2;
 
     public $id;
     public $name;
@@ -321,73 +326,79 @@ class simplecertificate {
         }
 
         if (!is_null($coursegrade)) {
-            switch ($this->gradefmt) {
-                case 1 :
-                    return $coursegrade->percentage;
-                    break;
-                case 2 :
-                    return $coursegrade->points;
-                    break;
-                case 3 :
-                    return $coursegrade->letter;
-                    break;
-            }
-        }
-
-        return '';
-    }
-
-    /**
-     * Prepare to print an activity grade.
-     *
-     * @param int $moduleid
-     * @param int $userid
-     * @return stdClass|bool return the mod object if it exists, false otherwise
-     */
-    private function get_mod_grade($moduleid, $userid) {
-        global $DB;
-
-        $cm = $DB->get_record('course_modules', array('id' => $moduleid));
-        $module = $DB->get_record('modules', array('id' => $cm->module));
-
-        if ($grade_item = grade_get_grades($this->course, 'mod', $module->name, $cm->instance, $userid)) {
-            $item = new grade_item();
-            $itemproperties = reset($grade_item->items);
-            foreach ($itemproperties as $key => $value) {
-                $item->$key = $value;
-            }
-            $modinfo = new stdClass;
-            $modinfo->name = utf8_decode($DB->get_field($module->name, 'name', array('id' => $cm->instance)));
-            $grade = $item->grades[$userid]->grade;
-            $item->gradetype = GRADE_TYPE_VALUE;
-            $item->courseid = $this->course;
-
-            $modinfo->points = grade_format_gradevalue($grade, $item, true, GRADE_DISPLAY_TYPE_REAL, $decimals = 2);
-            $modinfo->percentage = grade_format_gradevalue($grade, $item, true, GRADE_DISPLAY_TYPE_PERCENTAGE, $decimals = 2);
-            $modinfo->letter = grade_format_gradevalue($grade, $item, true, GRADE_DISPLAY_TYPE_LETTER, $decimals = 0);
-
-            if ($grade) {
-                $modinfo->dategraded = $item->grades[$userid]->dategraded;
-            } else {
-                $modinfo->dategraded = time();
-            }
-            return $modinfo;
-        }
-
-        return false;
-    }
-
-    /**
-     * Generate a version 1 UUID (time based)
-     * you can verify the generated code in:
-     * http://www.famkruithof.net/uuid/uuidgen?typeReq=-1
-     *
-     * @return string UUID_v1
-     */
-    private function get_issue_uuid() {
-        global $CFG;
-        require_once (dirname(__FILE__) . '/lib.uuid.php');
-        $UUID = UUID::mint(UUID::VERSION_1, self::CERTIFICATE_COMPONENT_NAME);
+			switch ($this->gradefmt) {
+				case 1 :
+					return $coursegrade->percentage;
+					break;
+				case 2 :
+					return $coursegrade->points;
+					break;
+				case 3 :
+					return $coursegrade->letter;
+					break;
+			}
+		}
+		
+		return '';
+	}
+	
+	/**
+	 * Prepare to print an activity grade.
+	 *
+	 * @param int $moduleid        	
+	 * @param int $userid        	
+	 * @return stdClass bool the mod object if it exists, false otherwise
+	 */
+	private function get_mod_grade($moduleid, $userid) {
+		global $DB;
+		
+		$cm = $DB->get_record ( 'course_modules', array (
+				'id' => $moduleid 
+		) );
+		$module = $DB->get_record ( 'modules', array (
+				'id' => $cm->module 
+		) );
+		
+		if ($grade_item = grade_get_grades ( $this->course, 'mod', $module->name, $cm->instance, $userid )) {
+			$item = new grade_item ();
+			$itemproperties = reset ( $grade_item->items );
+			foreach ( $itemproperties as $key => $value ) {
+				$item->$key = $value;
+			}
+			$modinfo = new stdClass ();
+			$modinfo->name = utf8_decode ( $DB->get_field ( $module->name, 'name', array (
+					'id' => $cm->instance 
+			) ) );
+			$grade = $item->grades [$userid]->grade;
+			$item->gradetype = GRADE_TYPE_VALUE;
+			$item->courseid = $this->course;
+			
+			$modinfo->points = grade_format_gradevalue ( $grade, $item, true, GRADE_DISPLAY_TYPE_REAL, $decimals = 2 );
+			$modinfo->percentage = grade_format_gradevalue ( $grade, $item, true, GRADE_DISPLAY_TYPE_PERCENTAGE, $decimals = 2 );
+			$modinfo->letter = grade_format_gradevalue ( $grade, $item, true, GRADE_DISPLAY_TYPE_LETTER, $decimals = 0 );
+			
+			if ($grade) {
+				$modinfo->dategraded = $item->grades [$userid]->dategraded;
+			} else {
+				$modinfo->dategraded = time ();
+			}
+			return $modinfo;
+		}
+		
+		return false;
+	}
+	
+	/**
+	 * Generate a version 1 UUID (time based)
+	 * you can verify the generated code in:
+	 * http://www.famkruithof.net/uuid/uuidgen?typeReq=-1
+	 *
+	 * @return string UUID_v1
+	 */
+	private function get_issue_uuid() {
+		global $CFG;
+		require_once (dirname ( __FILE__ ) . '/lib.uuid.php');
+		$UUID = UUID::mint ( UUID::VERSION_1, self::CERTIFICATE_COMPONENT_NAME );
         return $UUID->__toString();
     }
 
@@ -617,7 +628,7 @@ class simplecertificate {
 
         // Prepare file record object
         $fileinfo = self::get_certificate_issue_fileinfo($USER->id, $issueid, $this->context->id);
-        $fileinfo['filename'] = $filename;
+        $fileinfo['filename'] = $filename."-".$issueid;
 
         // Check for file first
         if (!$fs->file_exists($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'], $fileinfo['itemid'], $fileinfo['filepath'], $fileinfo['filename'])) {
@@ -717,27 +728,25 @@ class simplecertificate {
 
     public function output_pdf($issuecert) {
         $pdf = $this->create_pdf($issuecert);
+        
         $filename = clean_filename($this->name . '.pdf');
-
-        if ($this->savecert == 1) {
-            // PDF contents are now in $file_contents as a string
-            $this->save_pdf($pdf, $filename, $issuecert->id);
-            //        $file_contents = $pdf->Output('', 'S');
-            //        certificate_save_pdf($file_contents, $certrecord->id, $filename, $context->id);
-        }
+        $this->save_pdf($pdf, $filename, $issuecert->id);
 
         switch ($this->delivery) {
-            case self::OUTPUT_OPEN_IN_BROWSER :
-                $pdf->Output($filename, 'I'); // open in browser
-                break;
-            case self::OUTPUT_FORCE_DOWNLOAD :
+            case self::OUTPUT_FORCE_DOWNLOAD:
                 $pdf->Output($filename, 'D');
-                break;
-            case self::OUTPUT_SEND_EMAIL :
+            break;
+            
+            case self::OUTPUT_SEND_EMAIL:
                 $this->send_certificade_email($issuecert);
                 $pdf->Output($filename, 'I'); // open in browser
                 $pdf->Output('', 'S'); // send
-                break;
+            break;
+            
+            default:
+               	$pdf->Output($filename, 'I'); // open in browser
+            break;
+                
         }
     }
 
@@ -978,6 +987,350 @@ class simplecertificate {
         return $usercustomfields;
     }
 
+
+//View methods
+
+    private function show_tabs(moodle_url $url) {
+    	global $OUTPUT, $CFG;
+    	
+    	$tabs [] = new tabobject(self::DEFAULT_VIEW,
+    			$url->out(false, array('tab' => self::DEFAULT_VIEW)),
+    			get_string('standardview', 'simplecertificate'));
+    	
+    	$tabs [] = new tabobject(self::ISSUED_CERTIFCADES_VIEW,
+    			$url->out(false, array('tab' => self::ISSUED_CERTIFCADES_VIEW)),
+    			get_string ('issuedview', 'simplecertificate'));
+    	
+    	$tabs [] = new tabobject(self::BULK_ISSUE_CERTIFCADES_VIEW,
+    			$url->out(false, array('tab' => self::BULK_ISSUE_CERTIFCADES_VIEW)),
+    			get_string ('bulkview', 'simplecertificate'));
+    	
+    	if (!$url->get_param('tab')) {
+    		$tab = self::DEFAULT_VIEW;
+    	} else {
+    		$tab = $url->get_param('tab');
+    	}
+    	
+    	echo $OUTPUT->tabtree($tabs, $tab);
+    	
+    }
+    
+    
+    //Default view
+    public function default_view(moodle_url $url, $canmanage) {
+    	global $OUTPUT, $USER;
+
+    	if (!$url->get_param('action')) {
+    		
+    		echo $OUTPUT->header();
+    		
+    		if ($canmanage) {
+    			$this->show_tabs($url);
+    		}
+    	 	
+    		// Check if the user can view the certificate
+    		if ($this->requiredtime && !$canmanage) {
+    			if ($this->get_course_time() < $this->requiredtime) {
+    				$a = new stdClass;
+    				$a->requiredtime = $this->requiredtime;
+    				notice(get_string('requiredtimenotmet', 'simplecertificate', $a), $url);
+    				die;
+    			}
+    		}
+    	
+    		if (!empty($this->intro)) {
+    			echo $OUTPUT->box(format_module_intro('simplecertificate', $this, $this->cm->id), 'generalbox', 'intro');
+    		}
+    	
+    		if ($attempts = $this->get_attempts()) {
+    			echo $this->print_attempts($attempts);
+    		}
+    		
+    		if (!$canmanage) {
+    			add_to_log($this->course, 'simplecertificate', 'view', $url->out_as_local_url(false), $this->id, $this->cm->id);
+    		}
+    	
+    	
+    		if ($this->delivery != 3 || $canmanage) {
+    			// Create new certificate record, or return existing record
+    		 
+    			$certrecord = $this->get_issue($USER);
+    			switch ($this->delivery) {
+    		    	case self::OUTPUT_FORCE_DOWNLOAD:
+    		    		$str = get_string('opendownload', 'simplecertificate');
+    			    break;
+    	
+    		    	case self::OUTPUT_SEND_EMAIL:
+    		    		$str = get_string('openemail', 'simplecertificate');
+    			    break;
+    	
+    		    	default:
+    		    		$str = get_string('openwindow', 'simplecertificate');
+    			    break;
+    			}
+    	
+    			echo html_writer::tag('p', $str, array(
+    					'style' => 'text-align:center'
+    			));
+    			$linkname = get_string('getcertificate', 'simplecertificate');
+    	
+    			$link = new moodle_url('/mod/simplecertificate/view.php', array(
+    					'id' => $this->cm->id,
+    					'action' => 'get'
+    			));
+    			$button = new single_button ($link, $linkname);
+    			$button->add_action(new popup_action('click', $link, 'view' . $this->cm->id, array(
+    					'height' => 600,
+    					'width' => 800
+    			)));
+    	
+    			echo html_writer::tag ( 'div', $OUTPUT->render ( $button ), array (
+    					'style' => 'text-align:center'
+    			));
+    		}
+    		echo $OUTPUT->footer($this->course);
+    	} else { // Output to pdf
+	 		if ($this->delivery != 3 || $canmanage) {
+     			$this->output_pdf($this->get_issue($USER));
+ 			}
+    	}
+	}
+    
+     
+	//Issued certificates view
+    public function issued_certificates_view(moodle_url $url) {
+    	global $OUTPUT, $DB, $CFG;
+    	
+    	
+    	
+    	
+    	// Declare some variables
+    	$strcertificates = get_string('modulenameplural', 'simplecertificate');
+    	$strcertificate  = get_string('modulename', 'simplecertificate');
+    	$strto = get_string('awardedto', 'simplecertificate');
+    	$strdate = get_string('receiveddate', 'simplecertificate');
+    	$strgrade = get_string('grade','simplecertificate');
+    	$strcode = get_string('code', 'simplecertificate');
+    	$strreport= get_string('report', 'simplecertificate');
+    	$groupmode = groups_get_activity_groupmode($this->cm);
+    	$page = $url->get_param('page');
+    	$perpage = $url->get_param('perpage');
+    	
+    	$users = simplecertificate_get_issues($this->id, $DB->sql_fullname(), $groupmode, $this->cm, $page, $perpage);
+    	
+    	
+    	if (!$url->get_param('action')) {
+    		echo $OUTPUT->header();
+    		$this->show_tabs($url);
+    		
+    		if ($groupmode) {
+    			groups_get_activity_group($this->cm, true);
+    		}
+    		
+    		groups_print_activity_menu($this->cm, $url);
+
+    		if (!$users) {
+    			notify(get_string('nocertificatesissued', 'simplecertificate'));
+    			echo $OUTPUT->footer($this->course);
+    			exit();
+    		}
+    		
+    		$usercount = count($users);
+    		 
+    		// Create the table for the users
+    		$table = new html_table();
+    		$table->width = "95%";
+    		$table->tablealign = "center";
+    		$table->head  = array($strto, $strdate, $strgrade, $strcode);
+    		$table->align = array("left", "left", "center", "center");
+    		foreach ($users as $user) {
+    			$name = $OUTPUT->user_picture($user) . fullname($user);
+    			$date = userdate($user->timecreated) . simplecertificate_print_user_files($this, $user->id, $this->context->id);
+    			$code = $user->code;
+    			$table->data[] = array ($name, $date, $this->get_grade($user->id), $code);
+    		}
+    		 
+    		// Create table to store buttons
+    		$tablebutton = new html_table();
+    		$tablebutton->attributes['class'] = 'downloadreport';
+    		//$btndownloadods = $OUTPUT->single_button(new moodle_url("report.php", array('id'=>$this->cm->id, 'download'=>'ods')), get_string("downloadods"));
+    		$btndownloadods = $OUTPUT->single_button($url->out_as_local_url(false, array('action'=>'download', 'type'=>'ods')), get_string("downloadods"));
+    		$btndownloadxls = $OUTPUT->single_button($url->out_as_local_url(false, array('action'=>'download', 'type'=>'xls')), get_string("downloadexcel"));
+    		$btndownloadtxt = $OUTPUT->single_button($url->out_as_local_url(false, array('action'=>'download', 'type'=>'txt')), get_string("downloadtext"));
+    		$tablebutton->data[] = array($btndownloadods, $btndownloadxls, $btndownloadtxt);
+    		 
+    		
+    		
+    		//echo $OUTPUT->heading(get_string('modulenameplural', 'simplecertificate'));
+    		echo $OUTPUT->paging_bar($usercount, $page, $perpage, $url);
+    		echo '<br />';
+    		echo html_writer::table($table);
+    		echo html_writer::tag('div', html_writer::table($tablebutton), array('style' => 'margin:auto; width:50%'));
+    		
+    	} else if ($url->get_param('action') == 'download') {
+    		$page = $perpage = 0;
+    		$type=$url->get_param('type');
+    		// Calculate file name
+    		$filename = clean_filename($this->coursename.'-'.strip_tags(format_string($this->name,true)).'.'.strip_tags(format_string($type, true)));
+    		
+    		switch ($type) {
+    		    case 'ods':
+    		    	require_once("$CFG->libdir/odslib.class.php");
+
+    		    	// Creating a workbook
+    		    	$workbook = new MoodleODSWorkbook("-");
+    		    	// Send HTTP headers
+    		    	$workbook->send($filename);
+    		    	// Creating the first worksheet
+    		    	$myxls = $workbook->add_worksheet($strreport);
+    		    	 
+    		    	// Print names of all the fields
+    		    	$myxls->write_string(0, 0, get_string("fullname"));
+    		    	$myxls->write_string(0, 1, get_string("idnumber"));
+    		    	$myxls->write_string(0, 2, get_string("group"));
+    		    	$myxls->write_string(0, 3, $strdate);
+    		    	$myxls->write_string(0, 4, $strgrade);
+    		    	$myxls->write_string(0, 5, $strcode);
+    		    	 
+    		    	// Generate the data for the body of the spreadsheet
+    		    	$i = 0;
+    		    	$row = 1;
+    		    	if ($users) {
+    		    		foreach ($users as $user) {
+    		    			$myxls->write_string($row, 0, fullname($user));
+    		    			$studentid = (!empty($user->idnumber)) ? $user->idnumber : " ";
+    		    			$myxls->write_string($row, 1, $studentid);
+    		    			$ug2 = '';
+    		    			if ($usergrps = groups_get_all_groups($this->course, $user->id)) {
+    		    				foreach ($usergrps as $ug) {
+    		    					$ug2 = $ug2. $ug->name;
+    		    				}
+    		    			}
+    		    			$myxls->write_string($row, 2, $ug2);
+    		    			$myxls->write_string($row, 3, userdate($user->timecreated));
+    		    			$myxls->write_string($row, 4, $this->get_grade($user->id));
+    		    			$myxls->write_string($row, 5, $user->code);
+    		    			$row++;
+    		    		}
+    		    		$pos = 5;
+    		    	}
+    		    	// Close the workbook
+    		    	$workbook->close();
+    		    break;
+    		    
+    		    case 'xls':
+    		    	require_once("$CFG->libdir/excellib.class.php");
+    		    	 
+    		    	// Creating a workbook
+    		    	$workbook = new MoodleExcelWorkbook("-");
+    		    	// Send HTTP headers
+    		    	$workbook->send($filename);
+    		    	// Creating the first worksheet
+    		    	$myxls = $workbook->add_worksheet($strreport);
+    		    	 
+    		    	// Print names of all the fields
+    		    	$myxls->write_string(0, 0, get_string("fullname"));
+    		    	$myxls->write_string(0, 1, get_string("idnumber"));
+    		    	$myxls->write_string(0, 2, get_string("group"));
+    		    	$myxls->write_string(0, 3, $strdate);
+    		    	$myxls->write_string(0, 4, $strgrade);
+    		    	$myxls->write_string(0, 5, $strcode);
+    		    	 
+    		    	// Generate the data for the body of the spreadsheet
+    		    	$i = 0;
+    		    	$row = 1;
+    		    	if ($users) {
+    		    		foreach ($users as $user) {
+    		    			$myxls->write_string($row, 0, fullname($user));
+    		    			$studentid = (!empty($user->idnumber)) ? $user->idnumber : " ";
+    		    			$myxls->write_string($row, 1, $studentid);
+    		    			$ug2 = '';
+    		    			if ($usergrps = groups_get_all_groups($this->course, $user->id)) {
+    		    				foreach ($usergrps as $ug) {
+    		    					$ug2 = $ug2 . $ug->name;
+    		    				}
+    		    			}
+    		    			$myxls->write_string($row, 2, $ug2);
+    		    			$myxls->write_string($row, 3, userdate($user->timecreated));
+    		    			$myxls->write_string($row, 4, $this->get_grade($user->id));
+    		    			$myxls->write_string($row, 5, $user->code);
+    		    			$row++;
+    		    		}
+    		    		$pos = 5;
+    		    	}
+    		    	// Close the workbook
+    		    	$workbook->close();
+    		    break;
+    		    
+    		    case 'txt':
+
+    		    	header("Content-Type: application/download\n");
+    		    	header("Content-Disposition: attachment; filename=\"$filename\"");
+    		    	header("Expires: 0");
+    		    	header("Cache-Control: must-revalidate,post-check=0,pre-check=0");
+    		    	header("Pragma: public");
+    		    	 
+    		    	// Print names of all the fields
+    		    	echo get_string("fullname"). "\t" . get_string("idnumber") . "\t";
+    		    	echo get_string("group"). "\t";
+    		    	echo $strdate. "\t";
+    		    	echo $strgrade. "\t";
+    		    	echo $strcode. "\n";
+    		    	 
+    		    	// Generate the data for the body of the spreadsheet
+    		    	$i=0;
+    		    	$row=1;
+    		    	if ($users) foreach ($users as $user) {
+    		    		echo fullname($user);
+    		    		$studentid = " ";
+    		    		if (!empty($user->idnumber)) {
+    		    			$studentid = $user->idnumber;
+    		    		}
+    		    		echo "\t" . $studentid . "\t";
+    		    		$ug2 = '';
+    		    		if ($usergrps = groups_get_all_groups($this->course, $user->id)) {
+    		    			foreach ($usergrps as $ug) {
+    		    				$ug2 = $ug2. $ug->name;
+    		    			}
+    		    		}
+    		    		echo $ug2 . "\t";
+    		    		echo userdate($user->timecreated) . "\t";
+    		    		echo $this->get_grade($user->id). "\t";
+    		    		echo $user->code . "\n";
+    		    		$row++;
+    		    	}
+    		    break;
+    		}
+    		exit;
+    	}
+    	echo $OUTPUT->footer($this->course);
+    }
+    
+    public function bulk_certificates_view(moodle_url $url){
+    	global $OUTPUT;
+    	 
+    	
+    	$groupmode = groups_get_activity_groupmode($this->cm);
+    	$page = $url->get_param('page');
+    	$perpage = $url->get_param('perpage');
+    	 
+    	//$users = simplecertificate_get_issues($this->id, $DB->sql_fullname(), $groupmode, $this->cm, $page, $perpage);
+    	 
+    	 
+    	if (!$url->get_param('action')) {
+    		echo $OUTPUT->header();
+    		$this->show_tabs($url);
+    	
+    		if ($groupmode) {
+    			groups_get_activity_group($this->cm, true);
+    		}
+    	
+    		groups_print_activity_menu($this->cm, $url);
+    	} else {
+    		
+    	}
+    	echo $OUTPUT->footer($this->course);
+    }
 }
 
 
