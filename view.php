@@ -21,6 +21,8 @@ $type = optional_param('type', '', PARAM_ALPHA);
 $page = optional_param('page', 0, PARAM_INT);
 // TODO colocar SIMPLECERT_PER_PAGE e SIMPLECERT_MAX_PER_PAGE no settings
 $perpage = optional_param('perpage', SIMPLECERT_PER_PAGE, PARAM_INT);
+$issuelist = optional_param('issuelist', null, PARAM_ALPHA);
+
 
 if (! $cm = get_coursemodule_from_id( 'simplecertificate', $id)) {
 	print_error('Course Module ID was incorrect');
@@ -44,7 +46,7 @@ $url = new moodle_url('/mod/simplecertificate/view.php', array (
 		'id' => $cm->id,
 		'tab' => $tab,
 		'page' => $page,
-		'perpage' => $perpage
+		'perpage' => $perpage,
 ));
 
 if ($type) {
@@ -57,6 +59,10 @@ if ($sort) {
 
 if ($action) {
 	$url->param ('action', $action);
+}
+
+if ($issuelist) {
+	$url->param ('issuelist', $issuelist);
 }
 
 // log update
@@ -75,14 +81,14 @@ $PAGE->set_heading(format_string($course->fullname));
 
 switch ($tab) {
 	case $simplecertificate::ISSUED_CERTIFCADES_VIEW :
-		$simplecertificate->issued_certificates_view($url);
+		$simplecertificate->view_issued_certificates($url);
 	break;
 	
 	case $simplecertificate::BULK_ISSUE_CERTIFCADES_VIEW :
-		$simplecertificate->bulk_certificates_view($url);
+		$simplecertificate->view_bulk_certificates($url);
 	break;
 	
 	default :
-		$simplecertificate->default_view($url, $canmanage);
+		$simplecertificate->view_default($url, $canmanage);
 	break;
 }

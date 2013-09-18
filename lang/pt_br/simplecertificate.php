@@ -211,3 +211,19 @@ $string['verifycertificate'] = 'Verificar Certificado';
 
 $string['qrcodefirstpage'] = 'Imprimir o código QR na primeira página';
 $string['qrcodefirstpage_help'] = 'Imprime o código QR na primeira página';
+
+
+//Tabs String
+$string['standardview'] = 'Emitis um certificado de teste';
+$string['issuedview'] = 'Certificados emitidos';
+$string['bulkview'] = 'Operações em lote';
+
+$string['cantissue'] = 'O certificado não pode ser emitido pois o usuário não atigiu a meta do curso';
+
+$string['onepdf'] = 'Baixar todos em pdf único';
+$string['multipdf'] = 'Baixar todos em um arquivo zip';
+$string['showusers'] = 'Mostrar';
+$string['completedusers'] = 'Usuário que atigiram o objetivos definidos';
+$string['allusers'] = 'Todos os usuários';
+
+$string['issueddownload'] = 'Certificado {id: $a} baixado';

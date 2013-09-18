@@ -175,6 +175,54 @@ function xmldb_simplecertificate_upgrade($oldversion=0) {
         // Simplecertificate savepoint reached.
         upgrade_mod_savepoint(true, 2013090500, 'simplecertificate');
     }
+    
+    if ($oldversion < 2013091700) {
+    	$table = new xmldb_table('simplecertificate_issues');
+    	$field = new xmldb_field('certificatename', XMLDB_TYPE_TEXT, null, null, null, null, null, 'userid');
+    	
+    	// Conditionally launch add field certificatename.
+    	if (!$dbman->field_exists($table, $field)) {
+    		$dbman->add_field($table, $field);
+    	}
+    	
+    	$field = new xmldb_field('username');
+    	
+    	// Conditionally launch drop field username.
+    	if ($dbman->field_exists($table, $field)) {
+    		$dbman->drop_field($table, $field);
+    	}
+    	
+    	$field = new xmldb_field('coursename');
+    	
+    	// Conditionally launch drop field coursename.
+    	if ($dbman->field_exists($table, $field)) {
+    		$dbman->drop_field($table, $field);
+    	}
+    	
+    	//Populating certificatename
+    	$certs = $DB->get_records('simplecertificate');
+    	foreach ($certs as $cert) {
+    		$DB->execute('UPDATE {simplecertificate_issues} SET certificatename = ? WHERE certificateid = ?', array($cert->name, $cert->id));
+    	}
+    	
+    	// Simplecertificate savepoint reached.
+    	upgrade_mod_savepoint(true, 2013091700, 'simplecertificate');
+    }
+    
+    if ($oldversion < XXXXXXXXXX) {
+    
+    	// Define field contextid to be added to simplecertificate_issues.
+    	$table = new xmldb_table('simplecertificate_issues');
+    	$field = new xmldb_field('contextid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'userid');
+    
+    	// Conditionally launch add field contextid.
+    	if (!$dbman->field_exists($table, $field)) {
+    		$dbman->add_field($table, $field);
+    	}
+    
+    	// Simplecertificate savepoint reached.
+    	upgrade_mod_savepoint(true, XXXXXXXXXX, 'simplecertificate');
+    }
     	
     
 
