@@ -1246,24 +1246,36 @@ class simplecertificate {
 	public static function print_issue_certificate_file($issuecert, $context = null) {
 		global $CFG, $OUTPUT;
 	
-		if (!$context) {
-			$cm = get_coursemodule_from_instance('simplecertificate', $issuecert->id);
-			$context = context_module::instance($cm->id);
-		}
 		$output = '';
+		if (!$context) {
+			try {
+				if ($cm = get_coursemodule_from_instance('simplecertificate', $issuecert->certificateid)) {
+					$context = context_module::instance($cm->id);
+				}
+			} catch (Exception $e) {
+				print_object($e);
+				return $output;
+			}
+		}
+		
 		
 		$fs = get_file_storage();
 		
 		$fileinfo = simplecertificate::get_certificate_issue_fileinfo($issuecert, $context);
-		$file = $fs->get_file($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'], $fileinfo['itemid'], $fileinfo['filepath'], $fileinfo['filename']);
-	
+		if (!$file = $fs->get_file($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'], $fileinfo['itemid'], $fileinfo['filepath'], $fileinfo['filename'])){
+			return $output;
+		}
+			
 		$filename = $file->get_filename();
 		$mimetype = $file->get_mimetype();
 		
-		$link = new moodle_url($CFG->wwwroot.'/pluginfile.php/'.
-					$fileinfo['contextid'].'/'.$fileinfo['component'].'/'.
-					$fileinfo['filearea'].'/'. $fileinfo['itemid'].'/'.$filename);
-	 
+		$link = moodle_url::make_pluginfile_url($file->get_contextid(), 
+				$file->get_component(), 
+				$file->get_filearea(), 
+				$file->get_itemid(), 
+				$file->get_filepath(), 
+				$file->get_filename());
+		
 		$output = '<img src="'.$OUTPUT->pix_url(file_mimetype_icon($file->get_mimetype())).'" height="16" width="16" alt="'.$file->get_mimetype().'" />&nbsp;'.
 					'<a href="'.$link->out().'" target="_blank" >'.s($filename).'</a>';
 	
@@ -1489,6 +1501,7 @@ class simplecertificate {
     	$perpage = $url->get_param('perpage');
     	$issuelist = $url->get_param('issuelist');
     	$action = $url->get_param('action');
+    	$groupid = 0;
     	
     	$groupmode = groups_get_activity_groupmode($this->cm);
     	if ($groupmode) {

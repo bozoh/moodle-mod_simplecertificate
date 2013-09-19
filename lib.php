@@ -285,6 +285,7 @@ function simplecertificate_reset_course_form_defaults($course) {
     return array('reset_simplecertificate' => 1);
 }
 
+/*
 /**
  * Returns information about received certificate.
  * Used for user activity reports.
@@ -294,7 +295,7 @@ function simplecertificate_reset_course_form_defaults($course) {
  * @param stdClass $mod
  * @param stdClass $certificate
  * @return stdClass the user outline object
- */
+ *//*
 function simplecertificate_user_outline($course, $user, $mod, $certificate) {
     global $DB;
 
@@ -308,8 +309,9 @@ function simplecertificate_user_outline($course, $user, $mod, $certificate) {
 
     return $result;
 }
+*/
 
-/**
+/* /**
  * Returns information about received certificate.
  * Used for user activity reports.
  *
@@ -318,7 +320,7 @@ function simplecertificate_user_outline($course, $user, $mod, $certificate) {
  * @param stdClass $mod
  * @param stdClass $page
  * @return string the user complete information
- */
+ *//*
 function simplecertificate_user_complete($course, $user, $mod, $certificate) {
     global $DB, $OUTPUT;
 
@@ -332,7 +334,7 @@ function simplecertificate_user_complete($course, $user, $mod, $certificate) {
     } else {
         print_string('notissuedyet', 'simplecertificate');
     }
-}
+} */
 
 /**
  * Must return an array of user records (all data) who are participants
