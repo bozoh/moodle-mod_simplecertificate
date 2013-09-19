@@ -53,9 +53,8 @@
             <FIELDS>
                 <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" NEXT="certificateid"/>
                 <FIELD NAME="certificateid" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="id" NEXT="userid"/>
-                <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="certificateid" NEXT="contextid"/>
-                <FIELD NAME="contextid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="userid" NEXT="certificatename"/>
-                <FIELD NAME="certificatename" TYPE="text" NOTNULL="true" SEQUENCE="false" PREVIOUS="contextid" NEXT="code"/>
+                <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="certificateid" NEXT="certificatename"/>
+                <FIELD NAME="certificatename" TYPE="text" NOTNULL="true" SEQUENCE="false" PREVIOUS="userid" NEXT="code"/>
                 <FIELD NAME="code" TYPE="char" LENGTH="36" NOTNULL="true" SEQUENCE="false" PREVIOUS="certificatename" NEXT="timecreated"/>
                 <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="code" NEXT="timedeleted"/>
                 <FIELD NAME="timedeleted" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" SEQUENCE="false" PREVIOUS="timecreated"/>

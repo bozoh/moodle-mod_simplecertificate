@@ -198,6 +198,7 @@ $string['defaultcertificatetexty'] = 'Posição Vertical padrão do texto do cer
 //Erros
 $string['filenotfound'] = 'Arquivo não encontrado: {$a}';
 $string['cantdeleteissue'] = 'Ocorreu um erro ao remover os certificados emitidos';
+$string['requiredtimenotmet'] = 'Você precisa ter ao menos {$a->requiredtime} minutos nesse curso para emidir este certificado';
 
 
 //Settings
@@ -226,4 +227,4 @@ $string['showusers'] = 'Mostrar';
 $string['completedusers'] = 'Usuário que atigiram o objetivos definidos';
 $string['allusers'] = 'Todos os usuários';
 
-$string['issueddownload'] = 'Certificado {id: $a} baixado';
+$string['issueddownload'] = 'Certificado [id: {$a}] baixado';

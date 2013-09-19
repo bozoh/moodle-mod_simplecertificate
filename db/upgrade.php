@@ -209,22 +209,5 @@ function xmldb_simplecertificate_upgrade($oldversion=0) {
     	upgrade_mod_savepoint(true, 2013091700, 'simplecertificate');
     }
     
-    if ($oldversion < XXXXXXXXXX) {
-    
-    	// Define field contextid to be added to simplecertificate_issues.
-    	$table = new xmldb_table('simplecertificate_issues');
-    	$field = new xmldb_field('contextid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'userid');
-    
-    	// Conditionally launch add field contextid.
-    	if (!$dbman->field_exists($table, $field)) {
-    		$dbman->add_field($table, $field);
-    	}
-    
-    	// Simplecertificate savepoint reached.
-    	upgrade_mod_savepoint(true, XXXXXXXXXX, 'simplecertificate');
-    }
-    	
-    
-
     return true;
 }

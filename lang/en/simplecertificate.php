@@ -197,6 +197,7 @@ $string['defaultcertificatetexty'] = 'Default Vertical Text Position';
 $string['filenotfound'] = 'File not Found: {$a}';
 $string['invalidcode'] = 'Invalid certificate code';
 $string['cantdeleteissue'] = 'Error removing issued certificates';
+$string['requiredtimenotmet'] = 'You must have at least {$a->requiredtime} minutes in this course to issue this certificate';
 
 
 //Verify certificate page
@@ -228,4 +229,4 @@ $string['showusers'] = 'Show';
 $string['completedusers'] = 'Users that met the course objectives'; 
 $string['allusers'] = 'All users';
 
-$string['issueddownload'] = 'Issued certificate {id: $a} downloaded';
+$string['issueddownload'] = 'Issued certificate [id: {$a}] downloaded';

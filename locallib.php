@@ -1014,7 +1014,7 @@ class simplecertificate {
      * @return string null if user meet issued conditions, or an text with erro
      */
     private function can_issue($user = null, $chkcompletation = true) {
-    	global $DB, $USER;
+    	global $DB, $USER, $CFG;
 
     	if (empty($user)) {
     		$user = $USER;
@@ -1036,19 +1036,25 @@ class simplecertificate {
     		if (completion_info::is_enabled_for_site()) {
     			require_once("{$CFG->libdir}/completionlib.php");
     		
-    			if (!$course=$DB->get_record('course', array('id' => $this->course))) {
+    			if (!$course = $DB->get_record('course', array('id' => $this->course))) {
     				print_error('cannotfindcourse');
     			}
     			$info = new completion_info($course);
     		
-    			if ($info->is_enabled() && !$info->is_course_complete($user->id)) {
+    			if ($info->is_enabled($this->cm) && !$info->is_course_complete($user->id)) {
             		return get_string('cantissue', 'simplecertificate');
             	}
         	}
-    	}
-        
-        return null;
 
+        	if ($CFG->enableavailability) {
+        		require_once("{$CFG->libdir}/conditionlib.php");
+        		$condition_info = new condition_info($this->cm, CONDITION_MISSING_EVERYTHING);
+        		if (!$condition_info->is_available($msg, false, $user->id)) {
+        			return $msg;
+        		}
+        	}
+    	}
+        return null;
     }
     
     /**
@@ -1109,7 +1115,7 @@ class simplecertificate {
     		}
     	 	
     		// Check if the user can view the certificate
-    		if (!$canmanage && $msg = $this->can_issue($USER, !empty($this->requiredtime))) {
+    		if (!$canmanage && $msg = $this->can_issue($USER)) {
     			notice($msg, $url);
     			die;
     		}
@@ -1237,13 +1243,12 @@ class simplecertificate {
 		return $issedusers;
 	}
 	
-	public static function print_issue_certificate_file($issuecert, $context=null) {
+	public static function print_issue_certificate_file($issuecert, $context = null) {
 		global $CFG, $OUTPUT;
 	
-		print_object($context);
 		if (!$context) {
-			
-			$context = context_module::instance($issuecert->certificateid);
+			$cm = get_coursemodule_from_instance('simplecertificate', $issuecert->id);
+			$context = context_module::instance($cm->id);
 		}
 		$output = '';
 		
@@ -1484,7 +1489,7 @@ class simplecertificate {
     	$perpage = $url->get_param('perpage');
     	$issuelist = $url->get_param('issuelist');
     	$action = $url->get_param('action');
-
+    	
     	$groupmode = groups_get_activity_groupmode($this->cm);
     	if ($groupmode) {
     		$groupid = groups_get_activity_group($this->cm, true);
@@ -1510,7 +1515,7 @@ class simplecertificate {
     		$table->head  = array("fullname", "grade");
     		$table->align = array("left","center");
     		foreach ($users as $user) {
-    			$canissue = $this->can_issue($user, !empty($this->requiredtime));
+    			$canissue = $this->can_issue($user, $issuelist != 'allusers');
     			if (empty($canissue)) {
     				$name = $OUTPUT->user_picture($user) . fullname($user);
     				$table->data[] = array ($name, $this->get_grade($user->id));
@@ -1542,7 +1547,7 @@ class simplecertificate {
     		    	$pdf = $this->create_pdf_object();
     		    	
     		    	foreach ($users as $user) {
-    		    		$canissue = $this->can_issue($user, !empty($this->requiredtime));
+    		    		$canissue = $this->can_issue($user, $issuelist != 'allusers');
     					if (empty($canissue)) {
     		    			$this->create_pdf($this->get_issue($user), $pdf);
     		    		}
@@ -1557,7 +1562,7 @@ class simplecertificate {
     		    	$filesforzipping = array();
     		    	
     		    	foreach ($users as $user) {
-    		    		$canissue = $this->can_issue($user, !empty($this->requiredtime));
+    		    		$canissue = $this->can_issue($user, $issuelist != 'allusers');
     		    		if (empty($canissue)) {
     		    			
     		    			$issuecert = $this->get_issue($user);
