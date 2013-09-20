@@ -41,8 +41,7 @@ class mod_simplecertificate_mod_form extends moodleform_mod {
         $mform->addElement('filepicker', 'certificateimage', get_string('certificateimage','simplecertificate'), null,
                 array('maxbytes' => $maxbytes, 'accepted_types' =>  array('image')));
         $mform->addHelpButton('certificateimage', 'certificateimage', 'simplecertificate');
-        $mform->addRule('certificateimage', get_string('error'), 'required', null, 'client');
-
+        
 
         //Certificate Text HTML editor
         $mform->addElement('editor', 'certificatetext', get_string('certificatetext', 'simplecertificate'),
@@ -169,9 +168,9 @@ class mod_simplecertificate_mod_form extends moodleform_mod {
         $mform->addHelpButton('requiredtime', 'coursetimereq', 'simplecertificate');
 
         //QR code
-        $mform->addElement('selectyesno', 'disablecode', get_string('disablecode', 'simplecertificate'));
-        $mform->setDefault('disablecode', get_config('simplecertificate', 'disablecode'));
-        $mform->addHelpButton('disablecode', 'disablecode', 'simplecertificate');
+        $mform->addElement('selectyesno', 'printqrcode', get_string('printqrcode', 'simplecertificate'));
+        $mform->setDefault('printqrcode', get_config('simplecertificate', 'printqrcode'));
+        $mform->addHelpButton('printqrcode', 'printqrcode', 'simplecertificate');
 
         $mform->addElement('text', 'codex', get_string('codex', 'simplecertificate'), array('size'=>'5'));
         $mform->setType('codex',PARAM_INT);
@@ -184,6 +183,10 @@ class mod_simplecertificate_mod_form extends moodleform_mod {
         $mform->setDefault('codey', get_config('simplecertificate', 'codey'));
         $mform->setAdvanced('codey');
         $mform->addHelpButton('codey', 'qrcodeposition', 'simplecertificate');
+        
+        $mform->addElement('selectyesno', 'qrcodefirstpage', get_string('qrcodefirstpage', 'simplecertificate'));
+        $mform->setDefault('qrcodefirstpage', get_config('simplecertificate', 'qrcodefirstpage'));
+        $mform->addHelpButton('qrcodefirstpage', 'qrcodefirstpage', 'simplecertificate');
 
 
 
@@ -209,15 +212,10 @@ class mod_simplecertificate_mod_form extends moodleform_mod {
         $mform->setAdvanced('emailfrom');
 
         //Delivery Options (Email, Download,...)
-        $deliveryoptions = array( 0 => get_string('openbrowser', 'simplecertificate'), 1 => get_string('download', 'simplecertificate'), 2 => get_string('emailcertificate', 'simplecertificate'));
+        $deliveryoptions = array( 0 => get_string('openbrowser', 'simplecertificate'), 1 => get_string('download', 'simplecertificate'), 2 => get_string('emailcertificate', 'simplecertificate'), 3 => get_string('nodelivering','simplecertificate'));
         $mform->addElement('select', 'delivery', get_string('delivery', 'simplecertificate'), $deliveryoptions);
         $mform->setDefault('delivery', 0);
         $mform->addHelpButton('delivery', 'delivery', 'simplecertificate');
-
-        //Save Certificarte
-        $mform->addElement('selectyesno', 'savecert', get_string('savecert', 'simplecertificate'));
-        $mform->setDefault('savecert', get_config('simplecertificate', 'savecert'));
-        $mform->addHelpButton('savecert', 'savecert', 'simplecertificate');
 
         //Report Cert
         //TODO acredito que seja para verificar o certificado pelo código, se for isto pode remover.
