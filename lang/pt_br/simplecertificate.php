@@ -61,8 +61,8 @@ $string['secondtextposition'] = 'Posição do texto do verso';
 $string['secondtextposition_help'] = 'As coordenadas XY (em milímetros) do texto do verso';
 
 //QR Code
-$string['disablecode'] = 'Desabilitar o QR Code do certificado';
-$string['disablecode_help'] = 'Habilita ou desabilita a geração do QR Code do certificado';
+$string['printqrcode'] = 'Imprimir o QR Code do certificado';
+$string['printqrcode_help'] = 'Habilita ou desabilita a impressão do QR Code do certificado';
 $string['codex'] = 'Posição Horizontal do QR Code do Certificado';
 $string['codey'] = 'Posição Vertical do QR Code do Certificado';
 $string['qrcodeposition'] = 'Posicionamento do QR Code do Certificado';
@@ -88,13 +88,12 @@ $string['coursetimereq'] = 'Minutos mínimos de participação no curso';
 $string['emailteachers'] = 'Enviar email para os Professores';
 $string['emailothers'] = 'Enviar email para outros';
 $string['emailfrom'] = 'Nome alternativo do remetendo do email';
-$string['savecert'] = 'Salvar os certificados';
 $string['delivery'] = 'Envio';
 //Delivery options
 $string['openbrowser'] = 'Visualizar em uma nova janela';
 $string['download'] = 'Forçar o download';
-$string['emailcertificate'] = 'por Email (o opção "Salvar os certificados" tem que estar ativa)';
-
+$string['emailcertificate'] = 'por Email';
+$string['nodelivering'] = 'Sem envio, o usuário vai receber o certificado por outros meios';
 
 ////Form options help text
 
@@ -157,7 +156,6 @@ $string['coursetimereq_help'] = 'Coloque o tempo minimo de participação (em mi
 $string['emailteachers_help'] = 'Quando habilitado, os professores recebem os emails toda vez que um aluno emitir um certificado.';
 $string['emailothers_help'] = 'Digite os endereços de emails que vão receber o alerta de emissão de certificado.';
 $string['emailfrom_help'] = 'Nome a ser usado como remetente dos email enviados';
-$string['savecert_help'] = 'Quando habilitado, uma cópia do certificado e salva nos arquivos do curso, dentro do sistema moodle um link para o certificado salvo aparcerá no relatório de certificados.';
 $string['delivery_help'] = 'Escolha como o certificado deve ser entregue aos alunos:
 Visualizar em uma nova janela: Abre uma nova janela no navegador do aluno contendo o certificado.
 Forçar o download: Abre uma janela de download de arquivo para o aluno salvar em seu computador.
@@ -200,6 +198,7 @@ $string['defaultcertificatetexty'] = 'Posição Vertical padrão do texto do cer
 //Erros
 $string['filenotfound'] = 'Arquivo não encontrado: {$a}';
 $string['cantdeleteissue'] = 'Ocorreu um erro ao remover os certificados emitidos';
+$string['requiredtimenotmet'] = 'Você precisa ter ao menos {$a->requiredtime} minutos nesse curso para emidir este certificado';
 
 
 //Settings
@@ -210,3 +209,22 @@ $string['neverdeleteoption'] = 'Nunca remover';
 $string['variablesoptions'] = 'Outras Opções';
 $string['getcertificate'] = 'Obter o Certificado';
 $string['verifycertificate'] = 'Verificar Certificado';
+
+$string['qrcodefirstpage'] = 'Imprimir o código QR na primeira página';
+$string['qrcodefirstpage_help'] = 'Imprime o código QR na primeira página';
+
+
+//Tabs String
+$string['standardview'] = 'Emitis um certificado de teste';
+$string['issuedview'] = 'Certificados emitidos';
+$string['bulkview'] = 'Operações em lote';
+
+$string['cantissue'] = 'O certificado não pode ser emitido pois o usuário não atigiu a meta do curso';
+
+$string['onepdf'] = 'Baixar todos em pdf único';
+$string['multipdf'] = 'Baixar todos em um arquivo zip';
+$string['showusers'] = 'Mostrar';
+$string['completedusers'] = 'Usuário que atigiram o objetivos definidos';
+$string['allusers'] = 'Todos os usuários';
+
+$string['issueddownload'] = 'Certificado [id: {$a}] baixado';

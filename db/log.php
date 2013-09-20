@@ -31,4 +31,5 @@ $logs = array(
     array('module'=>'simplecertificate', 'action'=>'add', 'mtable'=>'simplecertificate', 'field'=>'name'),
     array('module'=>'simplecertificate', 'action'=>'update', 'mtable'=>'simplecertificate', 'field'=>'name'),
     array('module'=>'simplecertificate', 'action'=>'received', 'mtable'=>'simplecertificate', 'field'=>'name'),
+	array('module'=>'simplecertificate', 'action'=>'download', 'mtable'=>'simplecertificate_issues', 'field'=>'name'),
 );

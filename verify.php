@@ -11,6 +11,7 @@
 
 require_once(dirname(dirname(dirname(__FILE__))) . '/config.php');
 require_once('verify_form.php');
+require_once('locallib.php');
 
 //optional_param('id', $USER->id, PARAM_INT);
 $code = optional_param('code', null,PARAM_ALPHANUMEXT); // Issed Code
@@ -30,8 +31,6 @@ if (!$verifyform->get_data()) {
         $verifyform->set_data(array('code'=>$code));
     
     $verifyform->display();
-    
-
 
 } else {
     if (!$issuedcert = $DB->get_record("simplecertificate_issues", array('code' => $code))) {
@@ -41,21 +40,21 @@ if (!$verifyform->get_data()) {
     if ($user = $DB->get_record('user', array('id'=>$issuedcert->userid))) {
         $username = fullname($user);
     } else {
-        $username = $issuedcer->username;
+        $username = get_string('notavailable');
     }
     $strto = get_string('awardedto', 'simplecertificate');
     $strdate = get_string('issueddate', 'simplecertificate');
-    $strcourse = get_string('course');
     $strcode = get_string('code', 'simplecertificate');
+    
     //Add to log
     add_to_log($context->instanceid, 'simplecertificate', 'verify', "verify.php?code=$code", '$issuedcert->id');
 
     $table = new html_table();
     $table->width = "95%";
     $table->tablealign = "center";
-    $table->head  = array($strto, $strcourse, $strdate, $strcode);
+    $table->head  = array($strto, $strdate, $strcode);
     $table->align = array("center", "center", "center", "center");
-    $table->data[] = array ($username, $issuedcert->coursename, userdate($issuedcert->timecreated), $issuedcert->code);
+    $table->data[] = array ($username, userdate($issuedcert->timecreated).simplecertificate::print_issue_certificate_file($issuedcert), $issuedcert->code);
     echo html_writer::table($table);
 }
 echo $OUTPUT->footer();
