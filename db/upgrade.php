@@ -101,7 +101,7 @@ function xmldb_simplecertificate_upgrade($oldversion=0) {
     }
 
     //--- Unir tudo em uma versão só
-    if ($oldversion < 2013090400) {
+    if ($oldversion < 2013092000) {
 
         // Changing nullability of field certificateimage on table simplecertificate to null.
         $table = new xmldb_table('simplecertificate');
@@ -110,15 +110,25 @@ function xmldb_simplecertificate_upgrade($oldversion=0) {
         // Launch change of type for field certificateimage.
         $dbman->change_field_type($table, $field);
 
-        // Simplecertificate savepoint reached.
-        upgrade_mod_savepoint(true, 2013090400, 'simplecertificate');
-    }
-
-    if ($oldversion < 2013090401) {
-
-         
+        // Launch rename field disablecode->printqrcode.
+        
+        $objs = $DB->get_records('simplecertificate',array("disablecode"=>0),'','id');
+        $ids='';
+        
+        foreach ($objs as $obj) {
+        	$ids= $ids . $obj->id .',';
+        }
+        if (!empty($ids)) {
+        	$ids=chop($ids,',');
+        }
+        
+        $sql = 'UPDATE {simplecertificate} SET disablecode = 1 WHERE id in ('.$ids.')';
+        $DB->execute($sql);
+        
+        $sql = 'UPDATE {simplecertificate} SET disablecode = 0 WHERE id not in ('.$ids.')';
+        $DB->execute($sql);
+        
         // Changing the default of field printqrcode on table simplecertificate to 1.
-        $table = new xmldb_table('simplecertificate');
         $field = new xmldb_field('disablecode', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '1', 'requiredtime');
 
         // Launch change of default for field printqrcode.
@@ -127,8 +137,6 @@ function xmldb_simplecertificate_upgrade($oldversion=0) {
         // Launch rename field printqrcode.
         $dbman->rename_field($table, $field, 'printqrcode');
 
-
-
         $field = new xmldb_field('qrcodefirstpage', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'printqrcode');
 
         // Conditionally launch add field qrcodefirstpage.
@@ -136,47 +144,14 @@ function xmldb_simplecertificate_upgrade($oldversion=0) {
             $dbman->add_field($table, $field);
         }
 
-        // Simplecertificate savepoint reached.
-        upgrade_mod_savepoint(true, 2013090401, 'simplecertificate');
-    }
-
-    if ($oldversion < 2013090403) {
-        $objs = $DB->get_records('simplecertificate',array("printqrcode"=>0),'','id');
-
-        $ids='';
         
-        foreach ($objs as $obj) {
-            $ids= $ids . $obj->id .',';
-        }
-        if (!empty($ids)) {
-           $ids=chop($ids,','); 
-        }        
-        
-        $sql = 'UPDATE {simplecertificate} SET printqrcode = 1 WHERE id in ('.$ids.')';
-        $DB->execute($sql);
-
-        $sql = 'UPDATE {simplecertificate} SET printqrcode = 0 WHERE id not in ('.$ids.')';
-        $DB->execute($sql);
-        upgrade_mod_savepoint(true, 2013090403, 'simplecertificate');
-    }
-    
-    
-     if ($oldversion < 2013090500) {
-
-        // Define field requiredtime to be dropped from simplecertificate.
-        $table = new xmldb_table('simplecertificate');
         $field = new xmldb_field('savecert');
 
-        // Conditionally launch drop field requiredtime.
+        // Conditionally launch drop field savecert.
         if ($dbman->field_exists($table, $field)) {
             $dbman->drop_field($table, $field);
         }
 
-        // Simplecertificate savepoint reached.
-        upgrade_mod_savepoint(true, 2013090500, 'simplecertificate');
-    }
-    
-    if ($oldversion < 2013091700) {
     	$table = new xmldb_table('simplecertificate_issues');
     	$field = new xmldb_field('certificatename', XMLDB_TYPE_TEXT, null, null, null, null, null, 'userid');
     	
@@ -206,7 +181,7 @@ function xmldb_simplecertificate_upgrade($oldversion=0) {
     	}
     	
     	// Simplecertificate savepoint reached.
-    	upgrade_mod_savepoint(true, 2013091700, 'simplecertificate');
+    	upgrade_mod_savepoint(true, 2013092000, 'simplecertificate');
     }
     
     return true;
