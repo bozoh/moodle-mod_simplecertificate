@@ -14,7 +14,7 @@
                 <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false" PREVIOUS="timecreated" NEXT="width"/>
                 <FIELD NAME="width" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="297" SEQUENCE="false" PREVIOUS="timemodified" NEXT="height"/>
                 <FIELD NAME="height" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="210" SEQUENCE="false" PREVIOUS="width" NEXT="certificateimage"/>
-                <FIELD NAME="certificateimage" TYPE="text" NOTNULL="true" SEQUENCE="false" PREVIOUS="height" NEXT="certificatetext"/>
+                <FIELD NAME="certificateimage" TYPE="text" NOTNULL="false" SEQUENCE="false" PREVIOUS="height" NEXT="certificatetext"/>
                 <FIELD NAME="certificatetext" TYPE="text" NOTNULL="true" SEQUENCE="false" PREVIOUS="certificateimage" NEXT="certificatetextformat"/>
                 <FIELD NAME="certificatetextformat" TYPE="text" NOTNULL="true" SEQUENCE="false" PREVIOUS="certificatetext" NEXT="certificatetextx"/>
                 <FIELD NAME="certificatetextx" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="10" SEQUENCE="false" PREVIOUS="certificatetextformat" NEXT="certificatetexty"/>
@@ -28,13 +28,13 @@
                 <FIELD NAME="gradefmt" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="certgrade" NEXT="emailfrom"/>
                 <FIELD NAME="emailfrom" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" PREVIOUS="gradefmt" NEXT="emailothers"/>
                 <FIELD NAME="emailothers" TYPE="text" NOTNULL="true" SEQUENCE="false" PREVIOUS="emailfrom" NEXT="emailteachers"/>
-                <FIELD NAME="emailteachers" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="emailothers" NEXT="savecert"/>
-                <FIELD NAME="savecert" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="emailteachers" NEXT="reportcert"/>
-                <FIELD NAME="reportcert" TYPE="int" LENGTH="1" NOTNULL="false" DEFAULT="0" SEQUENCE="false" PREVIOUS="savecert" NEXT="delivery"/>
+                <FIELD NAME="emailteachers" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="emailothers" NEXT="reportcert"/>
+                <FIELD NAME="reportcert" TYPE="int" LENGTH="1" NOTNULL="false" DEFAULT="0" SEQUENCE="false" PREVIOUS="emailteachers" NEXT="delivery"/>
                 <FIELD NAME="delivery" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="reportcert" NEXT="requiredtime"/>
                 <FIELD NAME="requiredtime" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="delivery" NEXT="disablecode"/>
-                <FIELD NAME="disablecode" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="requiredtime" NEXT="codex"/>
-                <FIELD NAME="codex" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="10" SEQUENCE="false" PREVIOUS="disablecode" NEXT="codey"/>
+                <FIELD NAME="printqrcode" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false" PREVIOUS="requiredtime" NEXT="qrcodefirstpage"/>
+                <FIELD NAME="qrcodefirstpage" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="printqrcode" NEXT="codex"/>
+                <FIELD NAME="codex" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="10" SEQUENCE="false" PREVIOUS="qrcodefirstpage" NEXT="codey"/>
                 <FIELD NAME="codey" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="10" SEQUENCE="false" PREVIOUS="codex" NEXT="enablesecondpage"/>
                 <FIELD NAME="enablesecondpage" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="codey" NEXT="secondpagex"/>
                 <FIELD NAME="secondpagex" TYPE="int" LENGTH="4" NOTNULL="false" DEFAULT="10" SEQUENCE="false" PREVIOUS="enablesecondpage" NEXT="secondpagey"/>
@@ -53,10 +53,9 @@
             <FIELDS>
                 <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" NEXT="certificateid"/>
                 <FIELD NAME="certificateid" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="id" NEXT="userid"/>
-                <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="certificateid" NEXT="username"/>
-                <FIELD NAME="username" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" PREVIOUS="userid" NEXT="coursename"/>
-                <FIELD NAME="coursename" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" PREVIOUS="username" NEXT="code"/>
-                <FIELD NAME="code" TYPE="char" LENGTH="36" NOTNULL="true" SEQUENCE="false" PREVIOUS="coursename" NEXT="timecreated"/>
+                <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="certificateid" NEXT="certificatename"/>
+                <FIELD NAME="certificatename" TYPE="text" NOTNULL="true" SEQUENCE="false" PREVIOUS="userid" NEXT="code"/>
+                <FIELD NAME="code" TYPE="char" LENGTH="36" NOTNULL="true" SEQUENCE="false" PREVIOUS="certificatename" NEXT="timecreated"/>
                 <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="code" NEXT="timedeleted"/>
                 <FIELD NAME="timedeleted" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" SEQUENCE="false" PREVIOUS="timecreated"/>
             </FIELDS>

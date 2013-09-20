@@ -61,9 +61,14 @@ function simplecertificate_add_instance(stdclass $certificate, $mform=null) {
 
     //process file
     if ($mform) {
-        $images = simplecertificate_process_form_files($mform, $context);
+        $files = simplecertificate_process_form_files($mform, $context);
     }
-    $certificate->certificateimage = $images[0];
+    
+    if (!empty($files[0])) {
+        $certificate->certificateimage = $files[0];
+    } else {
+        $certificate->certificateimage = null;
+    }
 
     
     //Second Page
@@ -76,8 +81,8 @@ function simplecertificate_add_instance(stdclass $certificate, $mform=null) {
             $certificate->secondpagetextformat = FORMAT_HTML;
         }
     
-        if (!empty($images[1])) {
-            $certificate->secondimage = $images[1];
+        if (!empty($files[1])) {
+            $certificate->secondimage = $files[1];
         } else {
             $certificate->secondimage = null;
         }
@@ -117,13 +122,20 @@ function simplecertificate_update_instance($certificate, $mform=null) {
 
     //process files
     if ($mform) {
-        $images = simplecertificate_process_form_files($mform, $context);
+        $files = simplecertificate_process_form_files($mform, $context);
     }
 
     // process the custom wysiwyg editors
     $certificate->certificatetext = $certificate->certificatetext['text'];
     $certificate->certificatetextformat = FORMAT_HTML;
-    $certificate->certificateimage = $images[0];
+    
+    
+    if (!empty($files[0])) {
+        $certificate->certificateimage = $files[0];
+    } else {
+        $certificate->certificateimage = null;
+    }
+    
 
     //Second Page
     if (!empty($certificate->enablesecondpage)) {
@@ -135,8 +147,8 @@ function simplecertificate_update_instance($certificate, $mform=null) {
             $certificate->secondpagetextformat = FORMAT_HTML;
         }
 
-        if (!empty($images[1])) {
-            $certificate->secondimage = $images[1];
+        if (!empty($files[1])) {
+            $certificate->secondimage = $files[1];
         } else {
             $certificate->secondimage = null;
         }
@@ -167,8 +179,9 @@ function simplecertificate_update_instance($certificate, $mform=null) {
  * @return bool true if successful
  */
 function simplecertificate_delete_instance($id) {
-    global $DB;
+    global $DB, $CFG;
 
+    require_once 'locallib.php';
     // Ensure the certificate exists
     if (!$certificate = $DB->get_record('simplecertificate', array('id' => $id))) {
         return false;
@@ -197,7 +210,9 @@ function simplecertificate_delete_instance($id) {
     // Delete any files associated with the certificate
     $context = get_context_instance(CONTEXT_MODULE, $cm->id);
     $fs = get_file_storage();
-    $fs->delete_area_files($context->id);
+    $fileinfo = simplecertificate::get_certificate_image_fileinfo($context);
+    $fs->delete_area_files($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea']);
+    
 
     return $result;
 }
@@ -269,6 +284,7 @@ function simplecertificate_reset_course_form_defaults($course) {
     return array('reset_simplecertificate' => 1);
 }
 
+/*
 /**
  * Returns information about received certificate.
  * Used for user activity reports.
@@ -278,7 +294,7 @@ function simplecertificate_reset_course_form_defaults($course) {
  * @param stdClass $mod
  * @param stdClass $certificate
  * @return stdClass the user outline object
- */
+ *//*
 function simplecertificate_user_outline($course, $user, $mod, $certificate) {
     global $DB;
 
@@ -292,8 +308,9 @@ function simplecertificate_user_outline($course, $user, $mod, $certificate) {
 
     return $result;
 }
+*/
 
-/**
+/* /**
  * Returns information about received certificate.
  * Used for user activity reports.
  *
@@ -302,7 +319,7 @@ function simplecertificate_user_outline($course, $user, $mod, $certificate) {
  * @param stdClass $mod
  * @param stdClass $page
  * @return string the user complete information
- */
+ *//*
 function simplecertificate_user_complete($course, $user, $mod, $certificate) {
     global $DB, $OUTPUT;
 
@@ -316,7 +333,7 @@ function simplecertificate_user_complete($course, $user, $mod, $certificate) {
     } else {
         print_string('notissuedyet', 'simplecertificate');
     }
-}
+} */
 
 /**
  * Must return an array of user records (all data) who are participants
@@ -399,85 +416,38 @@ function simplecertificate_cron () {
 function simplecertificate_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload, array $options=array()) {
     global $CFG, $DB, $USER;
 
+    require_login(null, false);
+    require_once(dirname(__FILE__) . '/locallib.php');
+    require_once($CFG->libdir.'/filelib.php');
+    
 
     if ($context->contextlevel != CONTEXT_MODULE) {
         return false;
     }
 
-    if (!$certificate = $DB->get_record('simplecertificate', array('id' => $cm->instance))) {
-        return false;
-    }
-
-    require_login($course, false, $cm);
-
-    require_once(dirname(__FILE__) . '/locallib.php');
-    require_once($CFG->libdir.'/filelib.php');
-
-    switch ($filearea) {
-        case simplecertificate::CERTIFICATE_IMAGE_FILE_AREA:
-            $fileinfo = simplecertificate::get_certificate_image_fileinfo($context);
-            break;
-        case simplecertificate::CERTIFICATE_ISSUES_FILE_AREA:
-            $certrecord = (int)array_shift($args);
-            if (!$certrecord = $DB->get_record('simplecertificate_issues', array('id' => $certrecord, 'timedeleted' => null))) {
-                return false;
-            }
-
-            if ($USER->id != $certrecord->userid and !has_capability('mod/simplecertificate:manage', $context)) {
-                return false;
-            }
-
-            $fileinfo = simplecertificate::get_certificate_issue_fileinfo($USER->id, $certrecord->id, $context);
-            break;
-        default:
-            return false;
-            break;
+    if ($filearea == simplecertificate::CERTIFICATE_ISSUES_FILE_AREA) {
+    	$issuedcertid = (int)array_shift($args);
+    	if (!$issuedcert = $DB->get_record('simplecertificate_issues', array('id' => $issuedcertid))) {
+    		return false;
+    	}
+    	$fileinfo = simplecertificate::get_certificate_issue_fileinfo($issuedcert, $context);
+    } else {
+    	return false;
     }
 
     $relativepath = implode('/', $args);
     $fullpath = "/". $fileinfo['contextid']. "/" . $fileinfo['component'] . "/" . $fileinfo['filearea'] . "/" . $fileinfo['itemid'] . "/" . $relativepath;
+    
     $fs = get_file_storage();
     if (!$file = $fs->get_file_by_hash(sha1($fullpath)) or $file->is_directory()) {
         return false;
     }
+    
+    $url = new moodle_url($CFG->wwwroot.'/pluginfile.php'.$fullpath);	
+    		
+    add_to_log($course->id, 'simplecertificate', 'download', $url->out_as_local_url(false), get_string('issueddownload', 'simplecertificate', $issuedcert->id), $cm->id, $USER->id);
+    
     send_stored_file($file, 0, 0, $forcedownload, $options);
-}
-
-/**
- * Produces a list of links to the issued certificates.  Used for report.
- *
- * @param stdClass $certificate
- * @param int $userid
- * @param stdClass $context
- * @return string return the user files
- */
-function simplecertificate_print_user_files($certificate, $userid, $context) {
-    global $CFG, $DB, $OUTPUT;
-    require_once(dirname(__FILE__) . '/locallib.php');
-
-    $output = '';
-    $certrecord = $DB->get_record('simplecertificate_issues', array('userid' => $userid, 'certificateid' => $certificate->id, 'timedeleted' => null ));
-    $fs = get_file_storage();
-    $browser = get_file_browser();
-
-    $fileinfo=simplecertificate::get_certificate_issue_fileinfo($userid, $certrecord->id, $context);
-
-    $files = $fs->get_area_files($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'], $fileinfo['itemid']);
-    foreach ($files as $file) {
-        $filename = $file->get_filename();
-        $mimetype = $file->get_mimetype();
-        $link = file_encode_url($CFG->wwwroot.'/pluginfile.php', '/'.
-                $fileinfo['contextid'].'/'.$fileinfo['component'].'/'.
-                $fileinfo['filearea'].'/'. $fileinfo['itemid'].'/'.$filename);
-
-        $output = '<img src="'.$OUTPUT->pix_url(file_mimetype_icon($file->get_mimetype())).'" height="16" width="16" alt="'.$file->get_mimetype().'" />&nbsp;'.
-                '<a href="'.$link.'" >'.s($filename).'</a>';
-
-    }
-    $output .= '<br />';
-    $output = '<div class="files">'.$output.'</div>';
-
-    return $output;
 }
 
 /**
@@ -675,80 +645,3 @@ function simplecertificate_get_grade_options() {
     return $gradeoptions + simplecertificate_get_mods();
 }
 
-/**
- * Returns a list of issued certificates - sorted for report.
- *
- * @param int $certificateid
- * @param string $sort the sort order
- * @param bool $groupmode are we in group mode ?
- * @param stdClass $cm the course module
- * @param int $page offset
- * @param int $perpage total per page
- * @return stdClass the users
- */
-function simplecertificate_get_issues($certificateid, $sort="ci.timecreated ASC", $groupmode, $cm, $page = 0, $perpage = 0) {
-    global $CFG, $DB;
-
-    // get all users that can manage this certificate to exclude them from the report.
-    $context = get_context_instance(CONTEXT_MODULE, $cm->id);
-    $certmanagers = get_users_by_capability($context, 'mod/simplecertificate:manage', 'u.id');
-    $limitsql = '';
-    $page = (int) $page;
-    $perpage = (int) $perpage;
-
-    // Setup pagination - when both $page and $perpage = 0, get all results
-    if ($page || $perpage) {
-        if ($page < 0) {
-            $page = 0;
-        }
-
-        if ($perpage > SIMPLECERT_MAX_PER_PAGE) {
-            $perpage = SIMPLECERT_MAX_PER_PAGE;
-        } else if ($perpage < 1) {
-            $perpage = SIMPLECERT_PER_PAGE;
-        }
-        $limitsql = " LIMIT $perpage" . " OFFSET " . $page * $perpage ;
-    }
-
-    // Get all the users that have certificates issued, should only be one issue per user for a certificate
-    $users = $DB->get_records_sql("SELECT u.*, ci.code, ci.timecreated
-            FROM {user} u
-            INNER JOIN {simplecertificate_issues} ci
-            ON u.id = ci.userid
-            WHERE u.deleted = 0
-            AND ci.certificateid = :certificateid
-            AND timedeleted IS NULL
-            ORDER BY {$sort} {$limitsql}", array('certificateid' => $certificateid));
-
-    // now exclude all the certmanagers.
-    foreach ($users as $id => $user) {
-        if (isset($certmanagers[$id])) { //exclude certmanagers.
-            unset($users[$id]);
-        }
-    }
-
-    // if groupmembersonly used, remove users who are not in any group
-    if (!empty($users) and !empty($CFG->enablegroupings) and $cm->groupmembersonly) {
-        if ($groupingusers = groups_get_grouping_members($cm->groupingid, 'u.id', 'u.id')) {
-            $users = array_intersect($users, array_keys($groupingusers));
-        }
-    }
-
-    if ($groupmode) {
-        $currentgroup = groups_get_activity_group($cm);
-        if ($currentgroup) {
-            $groupusers = groups_get_members($currentgroup, 'u.*');
-            if (empty($groupusers)) {
-                return array();
-            }
-            foreach($users as $id => $unused) {
-                if (!isset($groupusers[$id])) {
-                    // remove this user as it isn't in the group!
-                    unset($users[$id]);
-                }
-            }
-        }
-    }
-
-    return $users;
-}
