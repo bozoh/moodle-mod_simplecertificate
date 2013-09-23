@@ -215,7 +215,7 @@ $string['qrcodefirstpage_help'] = 'Imprime o código QR na primeira página';
 
 
 //Tabs String
-$string['standardview'] = 'Emitis um certificado de teste';
+$string['standardview'] = 'Emitir um certificado de teste';
 $string['issuedview'] = 'Certificados emitidos';
 $string['bulkview'] = 'Operações em lote';
 
