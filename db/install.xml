@@ -31,7 +31,7 @@
                 <FIELD NAME="emailteachers" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="emailothers" NEXT="reportcert"/>
                 <FIELD NAME="reportcert" TYPE="int" LENGTH="1" NOTNULL="false" DEFAULT="0" SEQUENCE="false" PREVIOUS="emailteachers" NEXT="delivery"/>
                 <FIELD NAME="delivery" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="reportcert" NEXT="requiredtime"/>
-                <FIELD NAME="requiredtime" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="delivery" NEXT="disablecode"/>
+                <FIELD NAME="requiredtime" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="delivery" NEXT="printqrcode"/>
                 <FIELD NAME="printqrcode" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false" PREVIOUS="requiredtime" NEXT="qrcodefirstpage"/>
                 <FIELD NAME="qrcodefirstpage" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="printqrcode" NEXT="codex"/>
                 <FIELD NAME="codex" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="10" SEQUENCE="false" PREVIOUS="qrcodefirstpage" NEXT="codey"/>
