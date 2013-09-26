@@ -112,30 +112,35 @@ function xmldb_simplecertificate_upgrade($oldversion=0) {
 
         // Launch rename field disablecode->printqrcode.
         
-        $objs = $DB->get_records('simplecertificate',array("disablecode"=>0),'','id');
-        $ids='';
-        
-        foreach ($objs as $obj) {
-        	$ids= $ids . $obj->id .',';
-        }
-        if (!empty($ids)) {
-        	$ids=chop($ids,',');
-        }
-        
-        $sql = 'UPDATE {simplecertificate} SET disablecode = 1 WHERE id in ('.$ids.')';
-        $DB->execute($sql);
-        
-        $sql = 'UPDATE {simplecertificate} SET disablecode = 0 WHERE id not in ('.$ids.')';
-        $DB->execute($sql);
-        
-        // Changing the default of field printqrcode on table simplecertificate to 1.
         $field = new xmldb_field('disablecode', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '1', 'requiredtime');
 
-        // Launch change of default for field printqrcode.
-        $dbman->change_field_default($table, $field);
+        if ($dbman->field_exists($table, $field)) {
+        	$objs = $DB->get_records('simplecertificate',array("disablecode"=>0),'','id');
+        	$ids='';
+        	
+        	foreach ($objs as $obj) {
+        		$ids= $ids . $obj->id .',';
+        	}
+        	if (!empty($ids)) {
+        		$ids=chop($ids,',');
+        	}
+        	
+        	$sql = 'UPDATE {simplecertificate} SET disablecode = 1 WHERE id in ('.$ids.')';
+        	$DB->execute($sql);
+        	
+        	$sql = 'UPDATE {simplecertificate} SET disablecode = 0 WHERE id not in ('.$ids.')';
+        	$DB->execute($sql);
 
-        // Launch rename field printqrcode.
-        $dbman->rename_field($table, $field, 'printqrcode');
+	        // 	Launch change of default for field.
+        	$dbman->change_field_default($table, $field);
+	        // Launch rename field printqrcode.
+    	    $dbman->rename_field($table, $field, 'printqrcode');
+        } else {
+        	$field = new xmldb_field('printqrcode', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '1', 'requiredtime');
+        	if (!$dbman->field_exists($table, $field)) {
+        		$dbman->add_field($table, $field);
+        	}
+        }
 
         $field = new xmldb_field('qrcodefirstpage', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'printqrcode');
 

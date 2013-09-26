@@ -1492,8 +1492,8 @@ class simplecertificate {
     	echo $OUTPUT->footer($this->course);
     }
     
-    public function view_bulk_certificates(moodle_url $url){
-    	global $OUTPUT, $CFG;
+    public function view_bulk_certificates(moodle_url $url, array $selectedusers = null){
+    	global $OUTPUT, $CFG, $DB;
 
     	$course_context = context_course::instance($this->course);
     	
@@ -1502,13 +1502,18 @@ class simplecertificate {
     	$issuelist = $url->get_param('issuelist');
     	$action = $url->get_param('action');
     	$groupid = 0;
-    	
     	$groupmode = groups_get_activity_groupmode($this->cm);
     	if ($groupmode) {
     		$groupid = groups_get_activity_group($this->cm, true);
     	}
 
-    	$users = get_enrolled_users($course_context, '', $groupid);
+    	if (!$selectedusers) {
+    		$users = get_enrolled_users($course_context, '', $groupid);
+    	} else {
+    		list($sqluserids, $params) = $DB->get_in_or_equal($selectedusers);
+    		$sql = "SELECT * FROM {user} WHERE id $sqluserids";
+    		$users = $DB->get_records_sql($sql, $params);
+    	}
     	
     	if (!$action) {
     		$usercount = count($users);
@@ -1520,33 +1525,36 @@ class simplecertificate {
     		$select = new single_select($url, 'issuelist', array('completed' => get_string('completedusers','simplecertificate'), 'allusers' => get_string('allusers','simplecertificate')), $issuelist);
     		$select->label = get_string('showusers','simplecertificate');
     		echo $OUTPUT->render($select);
+    		echo '<br>';
+    		echo '<form id="bulkissue" name="bulkissue" method="post" action="view.php">';
     		
+    		echo html_writer::label(get_string('fileformat','simplecertificate'), 'menutype', true);
+    		echo '&nbsp;';
+    		echo html_writer::select(array('pdf' => get_string('onepdf','simplecertificate'), 'zip'=> get_string('multipdf','simplecertificate')),'type','pdf');
     		$table = new html_table();
     		$table->width = "95%";
     		$table->tablealign = "center";
     		//strgrade
-    		$table->head  = array("fullname", "grade");
-    		$table->align = array("left","center");
+    		
+    		$table->head  = array(' ', get_string('fullname'), get_string('grade'));
+    		$table->align = array("left", "left", "center");
+    		$table->size = array ('1%','89%','10%');
     		foreach ($users as $user) {
     			$canissue = $this->can_issue($user, $issuelist != 'allusers');
     			if (empty($canissue)) {
+    				$chkbox = html_writer::checkbox('selectedusers[]', $user->id, false); 
     				$name = $OUTPUT->user_picture($user) . fullname($user);
-    				$table->data[] = array ($name, $this->get_grade($user->id));
+    				$table->data[] = array ($chkbox ,$name, $this->get_grade($user->id));
     			}
     		}
     		
-    		// Create table to store buttons
-    		$tablebutton = new html_table();
-    		$tablebutton->attributes['class'] = 'downloadreport';
-    		$btndownloadonepdf = $OUTPUT->single_button($url->out_as_local_url(false, array('action'=>'download', 'type'=>'pdf')), get_string('onepdf','simplecertificate'));
-    		$btndownloadmultipdf = $OUTPUT->single_button($url->out_as_local_url(false, array('action'=>'download', 'type'=>'zip')), get_string('multipdf','simplecertificate'));
-    		$tablebutton->data[] = array($btndownloadonepdf, $btndownloadmultipdf);
-
+    		$downloadbutton=$OUTPUT->single_button($url->out_as_local_url(false, array('action'=>'download')), get_string('download'));
 
     		echo $OUTPUT->paging_bar($usercount, $page, $perpage, $url);
     		echo '<br />';
     		echo html_writer::table($table);
-    		echo html_writer::tag('div', html_writer::table($tablebutton), array('style' => 'margin:auto; width:50%'));
+    		echo html_writer::tag('div', $downloadbutton, array('style' => 'text-align: center'));
+    		echo '</form>';
     		    		
     	} else if ($action == 'download') {
     		$type = $url->get_param('type');
@@ -1573,7 +1581,6 @@ class simplecertificate {
     		    //One zip with all certificates in separated files
     		    case 'zip':
     		    	$filesforzipping = array();
-    		    	
     		    	foreach ($users as $user) {
     		    		$canissue = $this->can_issue($user, $issuelist != 'allusers');
     		    		if (empty($canissue)) {
