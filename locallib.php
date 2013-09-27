@@ -47,6 +47,9 @@ class simplecertificate {
     const  DEFAULT_VIEW = 0;
     const  ISSUED_CERTIFCADES_VIEW = 1;
     const  BULK_ISSUE_CERTIFCADES_VIEW = 2;
+    
+    //pagination
+    const SIMPLECERT_MAX_PER_PAGE = 200;
 
     public $id;
     public $name;
@@ -1178,7 +1181,7 @@ class simplecertificate {
     	}
 	}
     
-	private function get_issued_certificate_users ($sort="ci.timecreated ASC", $groupmode=0, $page = 0, $perpage = SIMPLECERT_MAX_PER_PAGE) {
+	private function get_issued_certificate_users ($sort="ci.timecreated ASC", $groupmode=0, $page = 0, $perpage = self::SIMPLECERT_MAX_PER_PAGE) {
 		global $CFG, $DB;
 		 
 		// get all users that can manage this certificate to exclude them from the report.
@@ -1193,10 +1196,10 @@ class simplecertificate {
 				$page = 0;
 			}
 			 
-			if ($perpage > SIMPLECERT_MAX_PER_PAGE) {
-				$perpage = SIMPLECERT_MAX_PER_PAGE;
-			} else if ($perpage < 1) {
-				$perpage = SIMPLECERT_PER_PAGE;
+			if ($perpage > self::SIMPLECERT_MAX_PER_PAGE) {
+				$perpage = self::SIMPLECERT_MAX_PER_PAGE;
+			} else {
+				$perpage = get_config('simplecertificate', 'perpage');
 			}
 			$limitsql = " LIMIT $perpage" . " OFFSET " . $page * $perpage ;
 		}

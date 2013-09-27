@@ -29,10 +29,6 @@ require_once($CFG->dirroot.'/grade/lib.php');
 require_once($CFG->dirroot.'/grade/querylib.php');
 
 
-define('SIMPLECERT_PER_PAGE', 30);
-define('SIMPLECERT_MAX_PER_PAGE', 200);
-
-
 
 /**
  * Add certificate instance.
