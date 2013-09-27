@@ -234,4 +234,4 @@ $string['fileformat'] = 'Tipo de arquivo de download';
 
 $string['issueddownload'] = 'Certificado [id: {$a}] baixado';
 $string['defaultperpage'] = 'Por página';
-$string['defaultmaxperpage_help'] = 'Quantidade de certificados exibidos por página (Max. 200)';
+$string['defaultperpage_help'] = 'Quantidade de certificados exibidos por página (Max. 200)';

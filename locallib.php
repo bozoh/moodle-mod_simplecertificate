@@ -202,7 +202,9 @@ class simplecertificate {
             $issuecert = new stdClass();
             $issuecert->certificateid = $this->id;
             $issuecert->userid = $user->id;
-            $issuecert->certificatename = format_string($this->name, true);
+            $formated_certificatename = str_replace('-', '_',$this->name);
+            $formated_coursename = str_replace('-', '_',$this->coursename);
+            $issuecert->certificatename = format_string($formated_coursename.'-'.$formated_certificatename, true);
             $issuecert->timecreated = time();
             $issuecert->code = $this->get_issue_uuid();
 
@@ -548,9 +550,9 @@ class simplecertificate {
             $firstpageimagefile = $fs->get_file($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'], $fileinfo['itemid'], $fileinfo['filepath'], $this->certificateimage);
             // Read contents
             if ($firstpageimagefile) {
-                $temp_manager = $this->move_temp_dir($firstpageimagefile);
-                $pdf->Image($temp_manager->absolutefilepath, 0, 0, $this->width, $this->height);
-                @remove_dir($temp_manager->path);
+                $temp_filename = $firstpageimagefile->copy_content_to_temp(self::CERTIFICATE_COMPONENT_NAME, 'first_image_');
+                $pdf->Image($temp_filename, 0, 0, $this->width, $this->height);
+                @unlink($temp_filename);
             } else {
                 print_error(get_string('filenotfound', 'simplecertificate', $this->certificateimage));
             }
@@ -577,9 +579,9 @@ class simplecertificate {
 
                 // Read contents
                 if ($secondimagefile) {
-                    $temp_manager = $this->move_temp_dir($secondimagefile);
-                    $pdf->Image($temp_manager->absolutefilepath, 0, 0, $this->width, $this->height);
-                    @remove_dir($temp_manager->path);
+                    $temp_filename = $secondimagefile->copy_content_to_temp(self::CERTIFICATE_COMPONENT_NAME, 'second_image_');
+                    $pdf->Image($temp_filename, 0, 0, $this->width, $this->height);
+                    @unlink($temp_filename);
                 } else {
                     print_error(get_string('filenotfound', 'simplecertificate', $this->secondimage));
                 }
@@ -953,34 +955,11 @@ class simplecertificate {
         return '';
     }
 
-    private function move_temp_dir($file) {
-        global $CFG;
-
-        $dir = $CFG->tempdir;
-        $prefix = self::CERTIFICATE_COMPONENT_NAME;
-
-        if (substr($dir, -1) != '/') {
-            $dir .= '/';
-        }
-
-        do {
-            $path = $dir . $prefix . mt_rand(0, 9999999);
-        } while (file_exists($path));
-
-        check_dir_exists($path);
-
-        $fullfilepath = $path . '/' . $file->get_filename();
-        $file->copy_content_to($fullfilepath);
-
-        $obj = new stdClass();
-        $obj->path = $path;
-        $obj->absolutefilepath = $fullfilepath;
-        $obj->relativefilepath = str_replace($CFG->dataroot . '/', "", $fullfilepath);
-
-        if (strpos($obj->relativefilepath, '/', 1) === 0)
-            $obj->relativefilepath = substr($obj->relativefilepath, 1);
-
-        return $obj;
+    private function create_temp_file($file) {
+    	global $CFG;
+    	
+        $path = make_temp_directory(self::CERTIFICATE_COMPONENT_NAME);
+        return tempnam($path, $file);
     }
 
     private function get_user_profile_fields($userid) {
@@ -1256,7 +1235,6 @@ class simplecertificate {
 					$context = context_module::instance($cm->id);
 				}
 			} catch (Exception $e) {
-				print_object($e);
 				return $output;
 			}
 		}
@@ -1602,7 +1580,7 @@ class simplecertificate {
     		    	}
 
     		    	
-    		    	$tempzip = tempnam($CFG->tempdir.'/', 'issuedcertificate_');
+    		    	$tempzip = $this->create_temp_file('issuedcertificate_');
 
     		    	//zipping files
     		    	$zipper = new zip_packer();
@@ -1610,7 +1588,6 @@ class simplecertificate {
     		    		//send file and delete after sending.
     		    		send_temp_file($tempzip, $filename);
     		    	} 
-    		    	
     		    break;
     		}
     		exit;

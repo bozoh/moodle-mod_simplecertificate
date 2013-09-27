@@ -233,4 +233,4 @@ $string['fileformat'] = 'Download file format';
 $string['issueddownload'] = 'Issued certificate [id: {$a}] downloaded';
 
 $string['defaultperpage'] = 'Per page';
-$string['defaultmaxperpage_help'] = 'Number of certificate to show per page (Max. 200)';
+$string['defaultperpage_help'] = 'Number of certificate to show per page (Max. 200)';
