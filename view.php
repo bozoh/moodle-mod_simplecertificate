@@ -19,9 +19,9 @@ $tab = optional_param('tab', simplecertificate::DEFAULT_VIEW, PARAM_INT);
 $sort = optional_param('sort', '', PARAM_RAW);
 $type = optional_param('type', '', PARAM_ALPHA);
 $page = optional_param('page', 0, PARAM_INT);
-// TODO colocar SIMPLECERT_PER_PAGE e SIMPLECERT_MAX_PER_PAGE no settings
-$perpage = optional_param('perpage', SIMPLECERT_PER_PAGE, PARAM_INT);
+$perpage = optional_param('perpage', get_config('simplecertificate', 'perpage'), PARAM_INT);
 $issuelist = optional_param('issuelist', null, PARAM_ALPHA);
+$selectedusers = optional_param_array('selectedusers', null, PARAM_INT);
 
 
 if (! $cm = get_coursemodule_from_id( 'simplecertificate', $id)) {

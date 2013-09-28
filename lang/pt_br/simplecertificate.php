@@ -215,16 +215,23 @@ $string['qrcodefirstpage_help'] = 'Imprime o código QR na primeira página';
 
 
 //Tabs String
-$string['standardview'] = 'Emitis um certificado de teste';
+$string['standardview'] = 'Emitir um certificado de teste';
 $string['issuedview'] = 'Certificados emitidos';
 $string['bulkview'] = 'Operações em lote';
 
 $string['cantissue'] = 'O certificado não pode ser emitido pois o usuário não atigiu a meta do curso';
+
+
+$string['onepdf'] = 'Um único arquivo pdf';
+$string['multipdf'] = 'Um arquivo zip com os pdfs';
 
 $string['onepdf'] = 'Baixar todos em pdf único';
 $string['multipdf'] = 'Baixar todos em um arquivo zip';
 $string['showusers'] = 'Mostrar';
 $string['completedusers'] = 'Usuário que atigiram o objetivos definidos';
 $string['allusers'] = 'Todos os usuários';
+$string['fileformat'] = 'Tipo de arquivo de download';
 
 $string['issueddownload'] = 'Certificado [id: {$a}] baixado';
+$string['defaultperpage'] = 'Por página';
+$string['defaultperpage_help'] = 'Quantidade de certificados exibidos por página (Max. 200)';

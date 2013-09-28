@@ -42,6 +42,20 @@ if (!$verifyform->get_data()) {
     } else {
         $username = get_string('notavailable');
     }
+    
+    //Getting course name (it's in filenema <COURSE NAME>-<CERTIFICATE NAME>_<ISSUEID>.pdf
+    
+    //COntext it's not important here, i wanna only filename
+    $fileinfo = simplecertificate::get_certificate_issue_fileinfo($issuedcert, 0);
+    $tmparray = explode('-', $fileinfo['filename'], 2);
+    if (count($tmparray) > 1) {
+    	$coursename = str_replace('_', ' ', $tmparray[0]);
+    } else {
+    	$coursename = null;
+    }
+    
+    
+    
     $strto = get_string('awardedto', 'simplecertificate');
     $strdate = get_string('issueddate', 'simplecertificate');
     $strcode = get_string('code', 'simplecertificate');
@@ -52,9 +66,15 @@ if (!$verifyform->get_data()) {
     $table = new html_table();
     $table->width = "95%";
     $table->tablealign = "center";
-    $table->head  = array($strto, $strdate, $strcode);
-    $table->align = array("center", "center", "center", "center");
-    $table->data[] = array ($username, userdate($issuedcert->timecreated).simplecertificate::print_issue_certificate_file($issuedcert), $issuedcert->code);
+    if ($coursename) {
+    	$table->head  = array(get_string('course'), $strto, $strdate, $strcode);
+    	$table->align = array("left", "left", "center", "center");
+    	$table->data[] = array ($coursename, $username, userdate($issuedcert->timecreated).simplecertificate::print_issue_certificate_file($issuedcert), $issuedcert->code);
+    } else {
+    	$table->head  = array($strto, $strdate, $strcode);
+    	$table->align = array("left", "center", "center");
+    	$table->data[] = array ($username, userdate($issuedcert->timecreated).simplecertificate::print_issue_certificate_file($issuedcert), $issuedcert->code);
+    }
     echo html_writer::table($table);
 }
 echo $OUTPUT->footer();
