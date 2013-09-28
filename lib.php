@@ -66,28 +66,28 @@ function simplecertificate_add_instance(stdclass $certificate, $mform=null) {
         $certificate->certificateimage = null;
     }
 
-
+    
     //Second Page
     if (!empty($certificate->enablesecondpage)) {
-    	if (!empty($certificate->secondpagetext['text'])){
-    		$certificate->secondpagetext = $certificate->secondpagetext['text'];
-    		$certificate->secondpagetextformat = FORMAT_HTML;
-    	} else {
-    		$certificate->secondpagetext = null;
-    		$certificate->secondpagetextformat = FORMAT_HTML;
-    	}
+        if (!empty($certificate->secondpagetext['text'])){
+            $certificate->secondpagetext = $certificate->secondpagetext['text'];
+            $certificate->secondpagetextformat = FORMAT_HTML;
+        } else {
+            $certificate->secondpagetext = null;
+            $certificate->secondpagetextformat = FORMAT_HTML;
+        }
     
-    	if (!empty($files[1])) {
-    		$certificate->secondimage = $files[1];
-    	} else {
-    		$certificate->secondimage = null;
-    	}
+        if (!empty($files[1])) {
+            $certificate->secondimage = $files[1];
+        } else {
+            $certificate->secondimage = null;
+        }
     } else {
-    	$certificate->secondpagetext = null;
-    	$certificate->secondpagetextformat = FORMAT_HTML;
-    	$certificate->secondimage = null;
-    	$certificate->secondpagex = null;
-    	$certificate->secondpagey = null;
+        $certificate->secondpagetext = null;
+        $certificate->secondpagetextformat = FORMAT_HTML;
+        $certificate->secondimage = null;
+        $certificate->secondpagex = null;
+        $certificate->secondpagey = null;
     }
     
     // re-save the record with the replaced URLs in editor fields
@@ -118,8 +118,8 @@ function simplecertificate_update_instance($certificate, $mform=null) {
     
     //process files
     if ($mform) {
-    	$files = simplecertificate_process_form_files($mform, $context);
-    }    
+        $files = simplecertificate_process_form_files($mform, $context);
+    }
 
     // process the custom wysiwyg editors
     $certificate->certificatetext = $certificate->certificatetext['text'];
@@ -438,15 +438,14 @@ function simplecertificate_pluginfile($course, $cm, $context, $filearea, $args, 
     if (!$file = $fs->get_file_by_hash(sha1($fullpath)) or $file->is_directory()) {
         return false;
     }
-
     
-    $url = new moodle_url($CFG->wwwroot.'/pluginfile.php'.$fullpath);
-    
+    $url = new moodle_url($CFG->wwwroot.'/pluginfile.php'.$fullpath);	
+    		
     add_to_log($course->id, 'simplecertificate', 'download', $url->out_as_local_url(false), get_string('issueddownload', 'simplecertificate', $issuedcert->id), $cm->id, $USER->id);
+    
 
     send_stored_file($file, 0, 0);
 }
-
 
 /**
  * Get the course outcomes for for mod_form print outcome.

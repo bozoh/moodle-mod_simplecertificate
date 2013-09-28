@@ -594,7 +594,7 @@ class simplecertificate {
             }
         }
 
- 		if ($this->printqrcode && empty($this->qrcodefirstpage)) {
+        if ($this->printqrcode && empty($this->qrcodefirstpage)) {
             //Add certificade code using QRcode, in a new page (to print in the back)
             if (empty($this->enablesecondpage)) {
                 //If secondpage is disabled, create one
@@ -604,7 +604,7 @@ class simplecertificate {
             
         }
 
-            return $pdf;
+        return $pdf;
     }
     
     private function print_qrcode ($pdf, $code) {
@@ -1162,7 +1162,7 @@ class simplecertificate {
     	}
 	}
     
-	private function get_issued_certificate_users ($sort="ci.timecreated ASC", $groupmode=0, $page = 0, $perpage = SIMPLECERT_MAX_PER_PAGE) {
+	private function get_issued_certificate_users ($sort="ci.timecreated ASC", $groupmode=0, $page = 0, $perpage = self::SIMPLECERT_MAX_PER_PAGE) {
 		global $CFG, $DB;
 		 
 		// get all users that can manage this certificate to exclude them from the report.
@@ -1177,10 +1177,10 @@ class simplecertificate {
 				$page = 0;
 			}
 			 
-			if ($perpage > SIMPLECERT_MAX_PER_PAGE) {
-				$perpage = SIMPLECERT_MAX_PER_PAGE;
-			} else if ($perpage < 1) {
-				$perpage = SIMPLECERT_PER_PAGE;
+			if ($perpage > self::SIMPLECERT_MAX_PER_PAGE) {
+				$perpage = self::SIMPLECERT_MAX_PER_PAGE;
+			} else {
+				$perpage = get_config('simplecertificate', 'perpage');
 			}
 			$limitsql = " LIMIT $perpage" . " OFFSET " . $page * $perpage ;
 		}
@@ -1237,7 +1237,6 @@ class simplecertificate {
 					$context = context_module::instance($cm->id);
 				}
 			} catch (Exception $e) {
-				print_object($e);
 				return $output;
 			}
 		}
@@ -1477,7 +1476,7 @@ class simplecertificate {
     }
     
     public function view_bulk_certificates(moodle_url $url, array $selectedusers = null){
-    	global $OUTPUT, $CFG;
+    	global $OUTPUT, $CFG, $DB;
 
     	$course_context = context_course::instance($this->course);
     	
@@ -1486,7 +1485,6 @@ class simplecertificate {
     	$issuelist = $url->get_param('issuelist');
     	$action = $url->get_param('action');
     	$groupid = 0;
-    	
     	$groupmode = groups_get_activity_groupmode($this->cm);
     	if ($groupmode) {
     		$groupid = groups_get_activity_group($this->cm, true);
@@ -1540,7 +1538,7 @@ class simplecertificate {
     		echo html_writer::table($table);
     		echo html_writer::tag('div', $downloadbutton, array('style' => 'text-align: center'));
     		echo '</form>';
-    		
+    		    		
     	} else if ($action == 'download') {
     		$type = $url->get_param('type');
     		
@@ -1566,7 +1564,6 @@ class simplecertificate {
     		    //One zip with all certificates in separated files
     		    case 'zip':
     		    	$filesforzipping = array();
-    		    	
     		    	foreach ($users as $user) {
     		    		$canissue = $this->can_issue($user, $issuelist != 'allusers');
     		    		if (empty($canissue)) {
@@ -1593,7 +1590,6 @@ class simplecertificate {
     		    		//send file and delete after sending.
     		    		send_temp_file($tempzip, $filename);
     		    	} 
-    		    	
     		    break;
     		}
     		exit;

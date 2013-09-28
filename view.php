@@ -84,7 +84,7 @@ switch ($tab) {
 	break;
 	
 	case $simplecertificate::BULK_ISSUE_CERTIFCADES_VIEW :
-		$simplecertificate->view_bulk_certificates($url);
+		$simplecertificate->view_bulk_certificates($url, $selectedusers);
 	break;
 	
 	default :
