@@ -78,7 +78,6 @@ $PAGE->set_title(format_string($certificate->name));
 $PAGE->set_heading(format_string($course->fullname));
 
 
-
 switch ($tab) {
 	case $simplecertificate::ISSUED_CERTIFCADES_VIEW :
 		$simplecertificate->view_issued_certificates($url);

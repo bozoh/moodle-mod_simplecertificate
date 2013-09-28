@@ -225,8 +225,6 @@ $string['cantissue'] = 'O certificado não pode ser emitido pois o usuário não
 $string['onepdf'] = 'Um único arquivo pdf';
 $string['multipdf'] = 'Um arquivo zip com os pdfs';
 
-$string['onepdf'] = 'Baixar todos em pdf único';
-$string['multipdf'] = 'Baixar todos em um arquivo zip';
 $string['showusers'] = 'Mostrar';
 $string['completedusers'] = 'Usuário que atigiram o objetivos definidos';
 $string['allusers'] = 'Todos os usuários';
