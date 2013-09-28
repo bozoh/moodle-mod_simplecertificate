@@ -223,10 +223,14 @@ $string['bulkview'] = 'Bulk operations';
 
 $string['cantissue'] = 'The certificate can\'t be issued, because the user hasn\'t reached the course objectives';
 
-$string['onepdf'] = 'Download all in one pdf';
-$string['multipdf'] = 'Dowload all in a zip file';
+$string['onepdf'] = 'In a one pdf file';
+$string['multipdf'] = 'In a zip file with pdfs files';
 $string['showusers'] = 'Show';
 $string['completedusers'] = 'Users that met the course objectives'; 
 $string['allusers'] = 'All users';
+$string['fileformat'] = 'Download file format';
 
 $string['issueddownload'] = 'Issued certificate [id: {$a}] downloaded';
+
+$string['defaultperpage'] = 'Per page';
+$string['defaultperpage_help'] = 'Number of certificate to show per page (Max. 200)';

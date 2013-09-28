@@ -47,6 +47,9 @@ class simplecertificate {
     const  DEFAULT_VIEW = 0;
     const  ISSUED_CERTIFCADES_VIEW = 1;
     const  BULK_ISSUE_CERTIFCADES_VIEW = 2;
+    
+    //pagination
+    const SIMPLECERT_MAX_PER_PAGE = 200;
 
     public $id;
     public $name;
@@ -199,7 +202,9 @@ class simplecertificate {
             $issuecert = new stdClass();
             $issuecert->certificateid = $this->id;
             $issuecert->userid = $user->id;
-            $issuecert->certificatename = format_string($this->name, true);
+            $formated_certificatename = str_replace('-', '_',$this->name);
+            $formated_coursename = str_replace('-', '_',$this->coursename);
+            $issuecert->certificatename = format_string($formated_coursename.'-'.$formated_certificatename, true);
             $issuecert->timecreated = time();
             $issuecert->code = $this->get_issue_uuid();
 
@@ -545,9 +550,9 @@ class simplecertificate {
             $firstpageimagefile = $fs->get_file($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'], $fileinfo['itemid'], $fileinfo['filepath'], $this->certificateimage);
             // Read contents
             if ($firstpageimagefile) {
-                $temp_manager = $this->move_temp_dir($firstpageimagefile);
-                $pdf->Image($temp_manager->absolutefilepath, 0, 0, $this->width, $this->height);
-                @remove_dir($temp_manager->path);
+                $temp_filename = $firstpageimagefile->copy_content_to_temp(self::CERTIFICATE_COMPONENT_NAME, 'first_image_');
+                $pdf->Image($temp_filename, 0, 0, $this->width, $this->height);
+                @unlink($temp_filename);
             } else {
                 print_error(get_string('filenotfound', 'simplecertificate', $this->certificateimage));
             }
@@ -574,9 +579,9 @@ class simplecertificate {
 
                 // Read contents
                 if ($secondimagefile) {
-                    $temp_manager = $this->move_temp_dir($secondimagefile);
-                    $pdf->Image($temp_manager->absolutefilepath, 0, 0, $this->width, $this->height);
-                    @remove_dir($temp_manager->path);
+                    $temp_filename = $secondimagefile->copy_content_to_temp(self::CERTIFICATE_COMPONENT_NAME, 'second_image_');
+                    $pdf->Image($temp_filename, 0, 0, $this->width, $this->height);
+                    @unlink($temp_filename);
                 } else {
                     print_error(get_string('filenotfound', 'simplecertificate', $this->secondimage));
                 }
@@ -950,34 +955,11 @@ class simplecertificate {
         return '';
     }
 
-    private function move_temp_dir($file) {
-        global $CFG;
-
-        $dir = $CFG->tempdir;
-        $prefix = self::CERTIFICATE_COMPONENT_NAME;
-
-        if (substr($dir, -1) != '/') {
-            $dir .= '/';
-        }
-
-        do {
-            $path = $dir . $prefix . mt_rand(0, 9999999);
-        } while (file_exists($path));
-
-        check_dir_exists($path);
-
-        $fullfilepath = $path . '/' . $file->get_filename();
-        $file->copy_content_to($fullfilepath);
-
-        $obj = new stdClass();
-        $obj->path = $path;
-        $obj->absolutefilepath = $fullfilepath;
-        $obj->relativefilepath = str_replace($CFG->dataroot . '/', "", $fullfilepath);
-
-        if (strpos($obj->relativefilepath, '/', 1) === 0)
-            $obj->relativefilepath = substr($obj->relativefilepath, 1);
-
-        return $obj;
+    private function create_temp_file($file) {
+    	global $CFG;
+    	
+        $path = make_temp_directory(self::CERTIFICATE_COMPONENT_NAME);
+        return tempnam($path, $file);
     }
 
     private function get_user_profile_fields($userid) {
@@ -1178,7 +1160,7 @@ class simplecertificate {
     	}
 	}
     
-	private function get_issued_certificate_users ($sort="ci.timecreated ASC", $groupmode=0, $page = 0, $perpage = SIMPLECERT_MAX_PER_PAGE) {
+	private function get_issued_certificate_users ($sort="ci.timecreated ASC", $groupmode=0, $page = 0, $perpage = self::SIMPLECERT_MAX_PER_PAGE) {
 		global $CFG, $DB;
 		 
 		// get all users that can manage this certificate to exclude them from the report.
@@ -1193,10 +1175,10 @@ class simplecertificate {
 				$page = 0;
 			}
 			 
-			if ($perpage > SIMPLECERT_MAX_PER_PAGE) {
-				$perpage = SIMPLECERT_MAX_PER_PAGE;
-			} else if ($perpage < 1) {
-				$perpage = SIMPLECERT_PER_PAGE;
+			if ($perpage > self::SIMPLECERT_MAX_PER_PAGE) {
+				$perpage = self::SIMPLECERT_MAX_PER_PAGE;
+			} else {
+				$perpage = get_config('simplecertificate', 'perpage');
 			}
 			$limitsql = " LIMIT $perpage" . " OFFSET " . $page * $perpage ;
 		}
@@ -1253,7 +1235,6 @@ class simplecertificate {
 					$context = context_module::instance($cm->id);
 				}
 			} catch (Exception $e) {
-				print_object($e);
 				return $output;
 			}
 		}
@@ -1492,8 +1473,8 @@ class simplecertificate {
     	echo $OUTPUT->footer($this->course);
     }
     
-    public function view_bulk_certificates(moodle_url $url){
-    	global $OUTPUT, $CFG;
+    public function view_bulk_certificates(moodle_url $url, array $selectedusers = null){
+    	global $OUTPUT, $CFG, $DB;
 
     	$course_context = context_course::instance($this->course);
     	
@@ -1502,13 +1483,18 @@ class simplecertificate {
     	$issuelist = $url->get_param('issuelist');
     	$action = $url->get_param('action');
     	$groupid = 0;
-    	
     	$groupmode = groups_get_activity_groupmode($this->cm);
     	if ($groupmode) {
     		$groupid = groups_get_activity_group($this->cm, true);
     	}
 
-    	$users = get_enrolled_users($course_context, '', $groupid);
+    	if (!$selectedusers) {
+    		$users = get_enrolled_users($course_context, '', $groupid);
+    	} else {
+    		list($sqluserids, $params) = $DB->get_in_or_equal($selectedusers);
+    		$sql = "SELECT * FROM {user} WHERE id $sqluserids";
+    		$users = $DB->get_records_sql($sql, $params);
+    	}
     	
     	if (!$action) {
     		$usercount = count($users);
@@ -1520,33 +1506,36 @@ class simplecertificate {
     		$select = new single_select($url, 'issuelist', array('completed' => get_string('completedusers','simplecertificate'), 'allusers' => get_string('allusers','simplecertificate')), $issuelist);
     		$select->label = get_string('showusers','simplecertificate');
     		echo $OUTPUT->render($select);
+    		echo '<br>';
+    		echo '<form id="bulkissue" name="bulkissue" method="post" action="view.php">';
     		
+    		echo html_writer::label(get_string('fileformat','simplecertificate'), 'menutype', true);
+    		echo '&nbsp;';
+    		echo html_writer::select(array('pdf' => get_string('onepdf','simplecertificate'), 'zip'=> get_string('multipdf','simplecertificate')),'type','pdf');
     		$table = new html_table();
     		$table->width = "95%";
     		$table->tablealign = "center";
     		//strgrade
-    		$table->head  = array("fullname", "grade");
-    		$table->align = array("left","center");
+    		
+    		$table->head  = array(' ', get_string('fullname'), get_string('grade'));
+    		$table->align = array("left", "left", "center");
+    		$table->size = array ('1%','89%','10%');
     		foreach ($users as $user) {
     			$canissue = $this->can_issue($user, $issuelist != 'allusers');
     			if (empty($canissue)) {
+    				$chkbox = html_writer::checkbox('selectedusers[]', $user->id, false); 
     				$name = $OUTPUT->user_picture($user) . fullname($user);
-    				$table->data[] = array ($name, $this->get_grade($user->id));
+    				$table->data[] = array ($chkbox ,$name, $this->get_grade($user->id));
     			}
     		}
     		
-    		// Create table to store buttons
-    		$tablebutton = new html_table();
-    		$tablebutton->attributes['class'] = 'downloadreport';
-    		$btndownloadonepdf = $OUTPUT->single_button($url->out_as_local_url(false, array('action'=>'download', 'type'=>'pdf')), get_string('onepdf','simplecertificate'));
-    		$btndownloadmultipdf = $OUTPUT->single_button($url->out_as_local_url(false, array('action'=>'download', 'type'=>'zip')), get_string('multipdf','simplecertificate'));
-    		$tablebutton->data[] = array($btndownloadonepdf, $btndownloadmultipdf);
-
+    		$downloadbutton=$OUTPUT->single_button($url->out_as_local_url(false, array('action'=>'download')), get_string('download'));
 
     		echo $OUTPUT->paging_bar($usercount, $page, $perpage, $url);
     		echo '<br />';
     		echo html_writer::table($table);
-    		echo html_writer::tag('div', html_writer::table($tablebutton), array('style' => 'margin:auto; width:50%'));
+    		echo html_writer::tag('div', $downloadbutton, array('style' => 'text-align: center'));
+    		echo '</form>';
     		    		
     	} else if ($action == 'download') {
     		$type = $url->get_param('type');
@@ -1573,7 +1562,6 @@ class simplecertificate {
     		    //One zip with all certificates in separated files
     		    case 'zip':
     		    	$filesforzipping = array();
-    		    	
     		    	foreach ($users as $user) {
     		    		$canissue = $this->can_issue($user, $issuelist != 'allusers');
     		    		if (empty($canissue)) {
@@ -1592,7 +1580,7 @@ class simplecertificate {
     		    	}
 
     		    	
-    		    	$tempzip = tempnam($CFG->tempdir.'/', 'issuedcertificate_');
+    		    	$tempzip = $this->create_temp_file('issuedcertificate_');
 
     		    	//zipping files
     		    	$zipper = new zip_packer();
@@ -1600,7 +1588,6 @@ class simplecertificate {
     		    		//send file and delete after sending.
     		    		send_temp_file($tempzip, $filename);
     		    	} 
-    		    	
     		    break;
     		}
     		exit;

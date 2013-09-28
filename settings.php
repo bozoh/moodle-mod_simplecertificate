@@ -50,6 +50,11 @@ if ($ADMIN->fulltree) {
     $settings->add(new admin_setting_configcheckbox('simplecertificate/enablesecondpage',
     		get_string('enablesecondpage', 'simplecertificate'), get_string('enablesecondpage_help', 'simplecertificate'), 0));
     
+    //Pagination
+    $settings->add(new admin_setting_configtext('simplecertificate/perpage', get_string('defaultperpage', 'simplecertificate'),
+    		get_string('defaultperpage_help', 'simplecertificate'), 30, PARAM_INT));
+    
+       
 }
 
 ?>
