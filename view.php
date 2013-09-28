@@ -37,7 +37,6 @@ if (! $certificate = $DB->get_record('simplecertificate', array('id' => $cm->ins
 }
 
 require_login($course->id, false, $cm);
-// Set thr context
 $context = get_context_instance(CONTEXT_MODULE, $cm->id);
 require_capability('mod/simplecertificate:view', $context);
 $canmanage = has_capability('mod/simplecertificate:manage', $context);
@@ -85,7 +84,7 @@ switch ($tab) {
 	break;
 	
 	case $simplecertificate::BULK_ISSUE_CERTIFCADES_VIEW :
-		$simplecertificate->view_bulk_certificates($url);
+		$simplecertificate->view_bulk_certificates($url, $selectedusers);
 	break;
 	
 	default :
