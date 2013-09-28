@@ -35,21 +35,26 @@ if ($ADMIN->fulltree) {
 
     $settings->add(new admin_setting_configtext('simplecertificate/certlifetime', get_string('certlifetime', 'simplecertificate'),
         get_string('certlifetime_help', 'simplecertificate'), 60, PARAM_INT));
-
+    
     //QR CODE
     $settings->add(new admin_setting_configcheckbox('simplecertificate/printqrcode',
-    		get_string('printqrcode', 'simplecertificate'), get_string('printqrcode_help', 'simplecertificate'), 1));
+        get_string('printqrcode', 'simplecertificate'), get_string('printqrcode_help', 'simplecertificate'), 1));
     $settings->add(new admin_setting_configtext('simplecertificate/codex', get_string('defaultcodex', 'simplecertificate'),
-    		get_string('qrcodeposition_help', 'simplecertificate'), 10, PARAM_INT));
+        get_string('qrcodeposition_help', 'simplecertificate'), 10, PARAM_INT));
     $settings->add(new admin_setting_configtext('simplecertificate/codey', get_string('defaultcodey', 'simplecertificate'),
-    		get_string('qrcodeposition_help', 'simplecertificate'), 10, PARAM_INT));
+        get_string('qrcodeposition_help', 'simplecertificate'), 10, PARAM_INT));
     $settings->add(new admin_setting_configcheckbox('simplecertificate/qrcodefirstpage',
-    		get_string('qrcodefirstpage', 'simplecertificate'), get_string('qrcodefirstpage_help', 'simplecertificate'), 0));
+            get_string('qrcodefirstpage', 'simplecertificate'), get_string('qrcodefirstpage_help', 'simplecertificate'), 0));
 
 	//Certificate back page
     $settings->add(new admin_setting_configcheckbox('simplecertificate/enablesecondpage',
     		get_string('enablesecondpage', 'simplecertificate'), get_string('enablesecondpage_help', 'simplecertificate'), 0));
     
+    //Pagination
+    $settings->add(new admin_setting_configtext('simplecertificate/perpage', get_string('defaultperpage', 'simplecertificate'),
+    		get_string('defaultperpage_help', 'simplecertificate'), 30, PARAM_INT));
+    
+       
 }
 
 ?>

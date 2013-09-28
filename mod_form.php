@@ -188,8 +188,8 @@ class mod_simplecertificate_mod_form extends moodleform_mod {
         $mform->setDefault('qrcodefirstpage', get_config('simplecertificate', 'qrcodefirstpage'));
         $mform->addHelpButton('qrcodefirstpage', 'qrcodefirstpage', 'simplecertificate');
 
-        
-        
+
+
         //-------------------------------Issue options----------------------------------
 
         $mform->addElement('header', 'issueoptions', get_string('issueoptions', 'simplecertificate'));
