@@ -415,8 +415,7 @@ function simplecertificate_pluginfile($course, $cm, $context, $filearea, $args, 
     require_login(null, false);
     require_once(dirname(__FILE__) . '/locallib.php');
     require_once($CFG->libdir.'/filelib.php');
-    
-
+  	
     if ($context->contextlevel != CONTEXT_MODULE) {
         return false;
     }
@@ -428,21 +427,28 @@ function simplecertificate_pluginfile($course, $cm, $context, $filearea, $args, 
     	}
     	$fileinfo = simplecertificate::get_certificate_issue_fileinfo($issuedcert, $context);
     } else {
+    	print_error('filenotfound');
     	return false;
     }
-
-    $relativepath = implode('/', $args);
-    $fullpath = "/". $fileinfo['contextid']. "/" . $fileinfo['component'] . "/" . $fileinfo['filearea'] . "/" . $fileinfo['itemid'] . "/" . $relativepath;
     
+    unset($fileinfo['mimetype']);
+    unset($fileinfo['userid']);
+    
+    if ($fileinfo['filepath'] == "/")
+    	unset($fileinfo['filepath']);
+    
+    
+    $fullpath = "/".implode("/", $fileinfo);
+       
     $fs = get_file_storage();
     if (!$file = $fs->get_file_by_hash(sha1($fullpath)) or $file->is_directory()) {
+    	print_error('filenotfound');
         return false;
     }
-    
+        
     $url = new moodle_url($CFG->wwwroot.'/pluginfile.php'.$fullpath);	
     		
-    add_to_log($course->id, 'simplecertificate', 'download', $url->out_as_local_url(false), get_string('issueddownload', 'simplecertificate', $issuedcert->id), $cm->id, $USER->id);
-    
+    add_to_log($course->id, 'simplecertificate', 'download', $url->out(false), get_string('issueddownload', 'simplecertificate', $issuedcert->id), $cm->id, $USER->id);
 
     send_stored_file($file, 0, 0);
 }
@@ -503,22 +509,24 @@ function simplecertificate_get_post_actions() {
  */
 function simplecertificate_process_form_files ($mform, stdclass $context) {
     require_once(dirname(__FILE__) . '/locallib.php');
+    
     $certimages=array();
+    
     $certimages[0] = $mform->get_new_filename('certificateimage');
     $certimages[1] = $mform->get_new_filename('secondimage');
 
     $fs = get_file_storage();
     if ($certimages[0] !== false) {
-        $fileinfo=simplecertificate::get_certificate_image_fileinfo($context->id);
-        $fs->delete_area_files($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'],$fileinfo['itemid']);
-        $mform->save_stored_file('certificateimage', $fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'], $fileinfo['itemid'], $fileinfo['filepath'], $certimages[0]);
+       	$fileinfo=simplecertificate::get_certificate_image_fileinfo($context->id);
+       	$fs->delete_area_files($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'],$fileinfo['itemid']);
+       	$mform->save_stored_file('certificateimage', $fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'], $fileinfo['itemid'], $fileinfo['filepath'], $certimages[0]);
     }
 
     if ($certimages[1] !== false) {
-        $fileinfo=simplecertificate::get_certificate_secondimage_fileinfo($context->id);
-        $fs = get_file_storage();
-        $fs->delete_area_files($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'],$fileinfo['itemid']);
-        $mform->save_stored_file('secondimage', $fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'], $fileinfo['itemid'], $fileinfo['filepath'], $certimages[1]);
+       	$fileinfo=simplecertificate::get_certificate_secondimage_fileinfo($context->id);
+       	$fs = get_file_storage();
+       	$fs->delete_area_files($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'],$fileinfo['itemid']);
+       	$mform->save_stored_file('secondimage', $fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'], $fileinfo['itemid'], $fileinfo['filepath'], $certimages[1]);
     }
     return $certimages;
 }

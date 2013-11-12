@@ -640,6 +640,7 @@ class simplecertificate {
 
         $fileinfo = self::get_certificate_issue_fileinfo($issuecert, $this->context->id);
         
+        // Check for file first
         if ($this->issue_file_exists($issuecert)) {
         	return $fileinfo['filename'];
         }
@@ -647,12 +648,8 @@ class simplecertificate {
         $fs = get_file_storage();
 
         // Prepare file record object
+        $fs->create_file_from_string($fileinfo, $pdf->Output('', 'S'));
         
-        
-        // Check for file first
-        if (!$fs->file_exists($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'], $fileinfo['itemid'], $fileinfo['filepath'], $fileinfo['filename'])) {
-            $fs->create_file_from_string($fileinfo, $pdf->Output('', 'S'));
-        }
         return $fileinfo['filename'];
     }
 
@@ -1076,21 +1073,23 @@ class simplecertificate {
     			$url->out(false, array('tab' => self::BULK_ISSUE_CERTIFCADES_VIEW)),
     			get_string ('bulkview', 'simplecertificate'));
     	
-    	if (!$url->get_param('tab')) {
+    	if (!$this->get_param($url,'tab')) {
     		$tab = self::DEFAULT_VIEW;
     	} else {
-    		$tab = $url->get_param('tab');
+    		$tab = $this->get_param($url,'tab');
     	}
     	
-    	echo $OUTPUT->tabtree($tabs, $tab);
-    	
+    	$tabrows = array();
+    	$tabrows[]=$tabs;
+    	print_tabs($tabrows, $tab);
+
     }
     
     //Default view
     public function view_default(moodle_url $url, $canmanage) {
     	global $OUTPUT, $USER;
 
-    	if (!$url->get_param('action')) {
+    	if (!$this->get_param($url, 'action')) {
     		
     		echo $OUTPUT->header();
     		
@@ -1113,7 +1112,7 @@ class simplecertificate {
     		}
     		
     		if (!$canmanage) {
-    			add_to_log($this->course, 'simplecertificate', 'view', $url->out_as_local_url(false), $this->id, $this->cm->id);
+    			add_to_log($this->course, 'simplecertificate', 'view', $url->out(false), $this->id, $this->cm->id);
     		}
     	
     	
@@ -1241,26 +1240,24 @@ class simplecertificate {
 			}
 		}
 		
-		
 		$fs = get_file_storage();
-		
 		$fileinfo = simplecertificate::get_certificate_issue_fileinfo($issuecert, $context);
-		if (!$file = $fs->get_file($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'], $fileinfo['itemid'], $fileinfo['filepath'], $fileinfo['filename'])){
+		if (!$fs->file_exists($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'], $fileinfo['itemid'], $fileinfo['filepath'], $fileinfo['filename'])) {
 			return $output;
 		}
-			
-		$filename = $file->get_filename();
-		$mimetype = $file->get_mimetype();
+				
+		$link = moodle_url::make_pluginfile_url(
+				$fileinfo['contextid'], 
+				$fileinfo['component'], 
+				$fileinfo['filearea'], 
+				$fileinfo['itemid'], 
+				$fileinfo['filepath'], 
+				$fileinfo['filename'],
+				true);
 		
-		$link = moodle_url::make_pluginfile_url($file->get_contextid(), 
-				$file->get_component(), 
-				$file->get_filearea(), 
-				$file->get_itemid(), 
-				$file->get_filepath(), 
-				$file->get_filename());
-		
-		$output = '<img src="'.$OUTPUT->pix_url(file_mimetype_icon($file->get_mimetype())).'" height="16" width="16" alt="'.$file->get_mimetype().'" />&nbsp;'.
-					'<a href="'.$link->out().'" target="_blank" >'.s($filename).'</a>';
+		$mimetype = $fileinfo['mimetype'];
+		$output = '<img src="'.$OUTPUT->pix_url(file_mimetype_icon($mimetype)).'" height="16" width="16" alt="'.mimetype.'" />&nbsp;'.
+					'<a href="'.$link->out(false).'" target="_blank" >'.s($fileinfo['filename']).'</a>';
 	
 		$output .= '<br />';
 		$output = '<div class="files">'.$output.'</div>';
@@ -1282,13 +1279,13 @@ class simplecertificate {
     	$strcode = get_string('code', 'simplecertificate');
     	$strreport= get_string('report', 'simplecertificate');
     	$groupmode = groups_get_activity_groupmode($this->cm);
-    	$page = $url->get_param('page');
-    	$perpage = $url->get_param('perpage');
+    	$page = $this->get_param($url,'page');
+    	$perpage = $this->get_param($url,'perpage');
     	
     	$users = $this->get_issued_certificate_users($DB->sql_fullname(), $groupmode, $page, $perpage);
     	
     	
-    	if (!$url->get_param('action')) {
+    	if (!$this->get_param($url,'action')) {
     		echo $OUTPUT->header();
     		$this->show_tabs($url);
     		
@@ -1323,9 +1320,9 @@ class simplecertificate {
     		$tablebutton = new html_table();
     		$tablebutton->attributes['class'] = 'downloadreport';
     		//$btndownloadods = $OUTPUT->single_button(new moodle_url("report.php", array('id'=>$this->cm->id, 'download'=>'ods')), get_string("downloadods"));
-    		$btndownloadods = $OUTPUT->single_button($url->out_as_local_url(false, array('action'=>'download', 'type'=>'ods')), get_string("downloadods"));
-    		$btndownloadxls = $OUTPUT->single_button($url->out_as_local_url(false, array('action'=>'download', 'type'=>'xls')), get_string("downloadexcel"));
-    		$btndownloadtxt = $OUTPUT->single_button($url->out_as_local_url(false, array('action'=>'download', 'type'=>'txt')), get_string("downloadtext"));
+    		$btndownloadods = $OUTPUT->single_button($url->out(false, array('action'=>'download', 'type'=>'ods')), get_string("downloadods"));
+    		$btndownloadxls = $OUTPUT->single_button($url->out(false, array('action'=>'download', 'type'=>'xls')), get_string("downloadexcel"));
+    		$btndownloadtxt = $OUTPUT->single_button($url->out(false, array('action'=>'download', 'type'=>'txt')), get_string("downloadtext"));
     		$tablebutton->data[] = array($btndownloadods, $btndownloadxls, $btndownloadtxt);
     		 
     		
@@ -1336,9 +1333,9 @@ class simplecertificate {
     		echo html_writer::table($table);
     		echo html_writer::tag('div', html_writer::table($tablebutton), array('style' => 'margin:auto; width:50%'));
     		
-    	} else if ($url->get_param('action') == 'download') {
+    	} else if ($this->get_param($url,'action') == 'download') {
     		$page = $perpage = 0;
-    		$type=$url->get_param('type');
+    		$type=$this->get_param($url,'type');
     		// Calculate file name
     		$filename = clean_filename($this->coursename.'-'.strip_tags(format_string($this->name,true)).'.'.strip_tags(format_string($type, true)));
     		
@@ -1480,10 +1477,10 @@ class simplecertificate {
 
     	$course_context = context_course::instance($this->course);
     	
-    	$page = $url->get_param('page');
-    	$perpage = $url->get_param('perpage');
-    	$issuelist = $url->get_param('issuelist');
-    	$action = $url->get_param('action');
+    	$page = $this->get_param($url,'page');
+    	$perpage = $this->get_param($url,'perpage');
+    	$issuelist = $this->get_param($url,'issuelist');
+    	$action = $this->get_param($url,'action');
     	$groupid = 0;
     	$groupmode = groups_get_activity_groupmode($this->cm);
     	if ($groupmode) {
@@ -1530,8 +1527,9 @@ class simplecertificate {
     				$table->data[] = array ($chkbox ,$name, $this->get_grade($user->id));
     			}
     		}
+
     		
-    		$downloadbutton=$OUTPUT->single_button($url->out_as_local_url(false, array('action'=>'download')), get_string('download'));
+    		$downloadbutton=$OUTPUT->single_button($url->out(false, array('action'=>'download')), get_string('download'));
 
     		echo $OUTPUT->paging_bar($usercount, $page, $perpage, $url);
     		echo '<br />';
@@ -1540,7 +1538,7 @@ class simplecertificate {
     		echo '</form>';
     		    		
     	} else if ($action == 'download') {
-    		$type = $url->get_param('type');
+    		$type = $this->get_param($url,'type');
     		
     		// Calculate file name
     		$filename = str_replace(' ', '_', clean_filename($this->coursename.' '.get_string('modulenameplural','simplecertificate').' '.strip_tags(format_string($this->name,true)).'.'.strip_tags(format_string($type, true))));
@@ -1595,6 +1593,19 @@ class simplecertificate {
     		exit;
     	}
     	echo $OUTPUT->footer($this->course);
+    }
+    
+    private function get_param(moodle_url $url, $param) {
+    	
+    	if (empty($url) || empty($param)) {
+    		return null;
+    	} 
+    	parse_str($url->get_query_string(false),$params);
+
+    	if (array_key_exists($param,$params))
+    		return $params[$param];
+    	
+    	return null;
     }
 }
 
