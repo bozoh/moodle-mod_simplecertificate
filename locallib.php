@@ -638,6 +638,7 @@ class simplecertificate {
 
         $fileinfo = self::get_certificate_issue_fileinfo($issuecert, $this->context->id);
         
+        // Check for file first
         if ($this->issue_file_exists($issuecert)) {
         	return $fileinfo['filename'];
         }
@@ -645,12 +646,8 @@ class simplecertificate {
         $fs = get_file_storage();
 
         // Prepare file record object
+        $fs->create_file_from_string($fileinfo, $pdf->Output('', 'S'));
         
-        
-        // Check for file first
-        if (!$fs->file_exists($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'], $fileinfo['itemid'], $fileinfo['filepath'], $fileinfo['filename'])) {
-            $fs->create_file_from_string($fileinfo, $pdf->Output('', 'S'));
-        }
         return $fileinfo['filename'];
     }
 
@@ -1080,8 +1077,10 @@ class simplecertificate {
     		$tab = $url->get_param('tab');
     	}
     	
-    	echo $OUTPUT->tabtree($tabs, $tab);
-    	
+    	$tabrows = array();
+    	$tabrows[]=$tabs;
+    	print_tabs($tabrows, $tab);
+
     }
     
     //Default view
@@ -1241,24 +1240,24 @@ class simplecertificate {
 		
 		
 		$fs = get_file_storage();
-		
 		$fileinfo = simplecertificate::get_certificate_issue_fileinfo($issuecert, $context);
-		if (!$file = $fs->get_file($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'], $fileinfo['itemid'], $fileinfo['filepath'], $fileinfo['filename'])){
+		
+		if (!$fs->file_exists($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'], $fileinfo['itemid'], $fileinfo['filepath'], $fileinfo['filename'])) {
 			return $output;
 		}
-			
-		$filename = $file->get_filename();
-		$mimetype = $file->get_mimetype();
+				
+		$link = moodle_url::make_pluginfile_url(
+				$fileinfo['contextid'], 
+				$fileinfo['component'], 
+				$fileinfo['filearea'], 
+				$fileinfo['itemid'], 
+				$fileinfo['filepath'], 
+				$fileinfo['filename'],
+				true);
 		
-		$link = moodle_url::make_pluginfile_url($file->get_contextid(), 
-				$file->get_component(), 
-				$file->get_filearea(), 
-				$file->get_itemid(), 
-				$file->get_filepath(), 
-				$file->get_filename());
-		
-		$output = '<img src="'.$OUTPUT->pix_url(file_mimetype_icon($file->get_mimetype())).'" height="16" width="16" alt="'.$file->get_mimetype().'" />&nbsp;'.
-					'<a href="'.$link->out().'" target="_blank" >'.s($filename).'</a>';
+		$mimetype = $fileinfo['mimetype'];		
+		$output = '<img src="'.$OUTPUT->pix_url(file_mimetype_icon($mimetype)).'" height="16" width="16" alt="'.$mimetype.'" />&nbsp;'.
+					'<a href="'.$link->out().'" target="_blank" >'.s($fileinfo['filename']).'</a>';
 	
 		$output .= '<br />';
 		$output = '<div class="files">'.$output.'</div>';
@@ -1528,6 +1527,7 @@ class simplecertificate {
     				$table->data[] = array ($chkbox ,$name, $this->get_grade($user->id));
     			}
     		}
+
     		
     		$downloadbutton=$OUTPUT->single_button($url->out_as_local_url(false, array('action'=>'download')), get_string('download'));
 
