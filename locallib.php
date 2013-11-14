@@ -828,9 +828,9 @@ class simplecertificate {
 
 
         $a->coursename = format_string($this->coursename, true);
-        $a->grade = $this->get_grade();
+        $a->grade = $this->get_grade($user->id);
         $a->date = $this->get_date($issuecert,$user->id);
-        $a->outcome = $this->get_outcome();
+        $a->outcome = $this->get_outcome($user->id);
         $a->certificatecode=$issuecert->code;
 
         if (!empty($this->coursehours))
@@ -949,14 +949,17 @@ class simplecertificate {
      *
      * @return string the outcome
      */
-    private function get_outcome() {
+    private function get_outcome($userid) {
         global $USER, $DB;
 
+        if (empty($userid)) {
+        	$userid = $USER->id;
+        }
         if ($this->outcome > 0) {
             if ($grade_item = new grade_item(array('id' => $this->outcome))) {
                 $outcomeinfo = new stdClass;
                 $outcomeinfo->name = $grade_item->get_name();
-                $outcome = new grade_grade(array('itemid' => $grade_item->id, 'userid' => $USER->id));
+                $outcome = new grade_grade(array('itemid' => $grade_item->id, 'userid' => $userid));
                 $outcomeinfo->grade = grade_format_gradevalue($outcome->finalgrade, $grade_item, true, GRADE_DISPLAY_TYPE_REAL);
 
                 return $outcomeinfo->name . ': ' . $outcomeinfo->grade;
