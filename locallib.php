@@ -436,24 +436,11 @@ class simplecertificate {
 					}
 					$manager = new stdClass();
 					$manager->user = $teacher;
-					$manager->rolename = empty($teacher->rolecoursealias) ? empty($role->name) ? $role->shortname : $role->name : $teacher->rolecoursealias;
 					$manager->username = fullname($teacher);
 					$teachers[$teacher->id] = $manager;
 				}
 			}
 		}
-        /* } else {
-            $users = get_users_by_capability($this->context, 'mod/simplecertificate:manage', '', '', '', '', '', '', false, false);
-			
-            foreach ($users as $teacher) {
-                if ($teacher->id == $USER->id) {
-                    continue; // do not send self
-                }
-                get_user_roles_in_course($userid, $courseid)
-                $teachers[$teacher->id] = $teacher;
-            }
-        }
- */
         return $teachers;
     }
 
@@ -781,7 +768,7 @@ class simplecertificate {
     }
 
     private function get_certificate_text($issuecert) {
-        global $DB;
+        global $DB, $CFG;
 
         
         if (!$user = get_complete_user_data('id', $issuecert->userid)) {
@@ -837,15 +824,25 @@ class simplecertificate {
             $a->hours = format_string($this->coursehours . ' ' . get_string('hours', 'simplecertificate'), true);
         else
             $a->hours = '';
-
-        if ($teachers = $this->get_teachers()) {
-            $t = array();
-            foreach ($teachers as $teacher) {
-                $t[] = $teacher->rolename .': '.$teacher->username;
-            }
-            $a->teachers = implode("<br>", $t);
-        } else {
-            $a->teachers = '';
+        
+        try {
+        	if($course = get_course($this->course)) {
+        		require_once($CFG->libdir. '/coursecatlib.php');
+ 	        	$courseinlist = new course_in_list($course);
+    	    	if ($courseinlist->has_course_contacts()) {
+        			$t = array();
+        			foreach ($courseinlist->get_course_contacts() as $userid => $coursecontact) {
+        				$t[] = $coursecontact['rolename'] .': '.$coursecontact['username'];
+        			}
+        			$a->teachers = implode("<br>", $t);
+        		} else {
+            		$a->teachers = '';
+        		}
+        	} else {
+        		$a->teachers = '';
+        	}
+        } catch (Exception $e) {
+        	$a->teachers = '';
         }
 
         $a = (array) $a;
