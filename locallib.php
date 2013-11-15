@@ -565,7 +565,7 @@ class simplecertificate {
 
         //Writing text
         $pdf->SetXY($this->certificatetextx, $this->certificatetexty);
-        $pdf->writeHTMLCell(0, 0, '', '', $this->get_certificate_text($issuecert), 0, 0, 0, true, 'C');
+        $pdf->writeHTMLCell(0, 0, '', '', $this->get_certificate_text($issuecert, $this->certificatetext), 0, 0, 0, true, 'C');
          
         if (!empty($this->enablesecondpage)) {
 
@@ -767,12 +767,16 @@ class simplecertificate {
         }
     }
 
-    private function get_certificate_text($issuecert) {
+    private function get_certificate_text($issuecert, $certtext = null) {
         global $DB, $CFG;
 
         
         if (!$user = get_complete_user_data('id', $issuecert->userid)) {
         	print_error('nousersfound', 'moodle');
+        }
+        
+        if(empty($certtext)) {
+        	$certtext = $this->certificatetext;
         }
         
         $a = new stdClass;
@@ -854,7 +858,7 @@ class simplecertificate {
         }
         
         if ($search) {
-            return str_replace($search, $replace, $this->certificatetext);
+            return str_replace($search, $replace, $certtext);
         }
 
         return $this->certificatetext;
