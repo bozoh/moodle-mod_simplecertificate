@@ -804,7 +804,7 @@ class simplecertificate {
         }
 
         //Formatting URL, if needed
-        $url = $user->url;;
+        $url = $user->url;
         if (strpos($url, '://') === false) {
             $url = 'http://'. $url;
         }
@@ -1270,7 +1270,7 @@ class simplecertificate {
 				true);
 		
 		$mimetype = $fileinfo['mimetype'];
-		$output = '<img src="'.$OUTPUT->pix_url(file_mimetype_icon($mimetype)).'" height="16" width="16" alt="'.mimetype.'" />&nbsp;'.
+		$output = '<img src="'.$OUTPUT->pix_url(file_mimetype_icon($mimetype)).'" height="16" width="16" alt="'.$mimetype.'" />&nbsp;'.
 					'<a href="'.$link->out(false).'" target="_blank" >'.s($fileinfo['filename']).'</a>';
 	
 		$output .= '<br />';
