@@ -123,7 +123,7 @@ function xmldb_simplecertificate_upgrade($oldversion=0) {
         	}
         	if (!empty($ids)) {
         		$ids=chop($ids,',');
-        		
+        	
 				$sql = 'UPDATE {simplecertificate} SET disablecode = 1 WHERE id in (' . $ids . ')';
 				$DB->execute ( $sql );
 				

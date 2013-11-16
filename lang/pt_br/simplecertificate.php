@@ -169,7 +169,15 @@ $string['issueoptions'] = 'Opcões de Emissão';
 $string['designoptions'] = 'Opções de Design';
 
 //Emails text
-$string['emailstudenttext'] = 'Segue em anexo o certificado do curso: {$a->course}.';
+$string['emailstudentsubject'] = 'Seu certificado do curso {$a->course}';
+$string['emailstudenttext'] = '
+Olá {$a->username}, 
+		
+	Segue em anexo o certificado do curso: {$a->course}.
+		
+		
+ESTA É UMA MENSAGEM AUTOMÁTICA, NÃO RESPONDA POR FAVOR';
+
 $string['emailteachermail'] = '
 {$a->student} recebeu o certificado: \'{$a->certificate}\' para o curso
 {$a->course}.
@@ -221,15 +229,19 @@ $string['bulkview'] = 'Operações em lote';
 
 $string['cantissue'] = 'O certificado não pode ser emitido pois o usuário não atigiu a meta do curso';
 
+//Bulk Texts
 
-$string['onepdf'] = 'Um único arquivo pdf';
-$string['multipdf'] = 'Um arquivo zip com os pdfs';
-
+$string['onepdf'] = 'Download de um único arquivo pdf com todos os certificados';
+$string['multipdf'] = 'Download de um arquivo zip com os pdfs dos certidicados';
+$string['sendtoemail'] = 'Enviar os certificados para o email do usuário';
 $string['showusers'] = 'Mostrar';
 $string['completedusers'] = 'Usuário que atigiram o objetivos definidos';
 $string['allusers'] = 'Todos os usuários';
-$string['fileformat'] = 'Tipo de arquivo de download';
+$string['bulkaction'] = 'Escolha a operação em lote';
+$string['bulkbuttonlabel'] = 'Enviar';
+$string['emailsent'] = 'Os emails foram enviados';
 
 $string['issueddownload'] = 'Certificado [id: {$a}] baixado';
 $string['defaultperpage'] = 'Por página';
 $string['defaultperpage_help'] = 'Quantidade de certificados exibidos por página (Max. 200)';
+
