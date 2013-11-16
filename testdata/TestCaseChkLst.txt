@@ -47,7 +47,7 @@ If reach here all basics are good
 ---Can change Grade format
 
 --Issue Coditions
----Can issue if don't match requiremend:
+---Can't issue if don't match requiremend:
 ---Minutes in course?
 ---Access Restrictions?
 ---Copletation options?
@@ -75,6 +75,9 @@ If reach here all basics are good
 --Report
 ---Can view all issued certificate?
 ---Can download all issued certificate?
+---Can download as ODS file?
+---Can download as XLS file?
+---Can download as Text files?
 
 
 --backup & restore
