@@ -804,7 +804,7 @@ class simplecertificate {
         }
 
         //Formatting URL, if needed
-        $url = $user->url;;
+        $url = $user->url;
         if (strpos($url, '://') === false) {
             $url = 'http://'. $url;
         }

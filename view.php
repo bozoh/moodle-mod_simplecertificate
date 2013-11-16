@@ -37,7 +37,6 @@ if (! $certificate = $DB->get_record('simplecertificate', array('id' => $cm->ins
 }
 
 require_login( $course->id, false, $cm);
-// Set thr context
 $context = context_module::instance ( $cm->id );
 require_capability('mod/simplecertificate:view', $context);
 $canmanage = has_capability('mod/simplecertificate:manage', $context);
