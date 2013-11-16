@@ -612,7 +612,7 @@ class simplecertificate {
                 'vpadding' => 'auto',
                 'hpadding' => 'auto',
                 'fgcolor' => array(0, 0, 0),
-                'bgcolor' => false, //array(255,255,255)
+                'bgcolor' => array(255,255,255), //false
                 'module_width' => 1, // width of a single module in points
                 'module_height' => 1 // height of a single module in points
         );
