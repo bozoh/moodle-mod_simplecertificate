@@ -445,7 +445,7 @@ function simplecertificate_pluginfile($course, $cm, $context, $filearea, $args, 
     	print_error('filenotfound');
         return false;
     }
-        
+    
     $url = new moodle_url($CFG->wwwroot.'/pluginfile.php'.$fullpath);	
     		
     add_to_log($course->id, 'simplecertificate', 'download', $url->out(false), get_string('issueddownload', 'simplecertificate', $issuedcert->id), $cm->id, $USER->id);

@@ -167,7 +167,15 @@ $string['issueoptions'] = 'Issue Options';
 $string['designoptions'] = 'Design Options';
 
 //Emails text
-$string['emailstudenttext'] = 'Attached is your certificate for {$a->course}.';
+$string['emailstudentsubject'] = 'Your certificate for {$a->course}';
+$string['emailstudenttext'] = '
+Hello {$a->username}, 
+		
+		Attached is your certificate for {$a->course}.
+		
+
+THIS IS AN AUTOMATED MESSAGE - PLEASE DO NOT REPLY';
+
 $string['emailteachermail'] = '
 {$a->student} has received their certificate: \'{$a->certificate}\'
 for {$a->course}.
@@ -223,12 +231,16 @@ $string['bulkview'] = 'Bulk operations';
 
 $string['cantissue'] = 'The certificate can\'t be issued, because the user hasn\'t reached the course objectives';
 
-$string['onepdf'] = 'In a one pdf file';
-$string['multipdf'] = 'In a zip file with pdfs files';
+//Bulk texts
+$string['onepdf'] = 'Download certificates in a one pdf file';
+$string['multipdf'] = 'Download certificates in a zip file';
+$string['sendtoemail'] = 'Send to user\'s email';
 $string['showusers'] = 'Show';
 $string['completedusers'] = 'Users that met the course objectives'; 
 $string['allusers'] = 'All users';
-$string['fileformat'] = 'Download file format';
+$string['bulkaction'] = 'Choose a Bulk Operation';
+$string['bulkbuttonlabel'] = 'Send';
+$string['emailsent'] = 'The emails have been sent';
 
 $string['issueddownload'] = 'Issued certificate [id: {$a}] downloaded';
 
