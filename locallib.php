@@ -164,14 +164,20 @@ class simplecertificate {
 
 
     public static function get_certificate_issue_fileinfo($issuecert, $context) {
-
+		global $DB;
+    		
         if (is_object($context)) {
             $contextid = $context->id;
         } else {
             $contextid = $context;
         }
+        if ($user=$DB->get_record("user", array('id'=>$issuecert->userid))) {
+        	$filename = str_replace(' ', '_', clean_filename($issuecert->certificatename .' '. fullname($user) .' '. $issuecert->id . '.pdf'));
+        } else {
+        	$filename = str_replace(' ', '_', clean_filename($issuecert->certificatename . ' '. $issuecert->id . '.pdf'));
+        }
         
-        $filename = str_replace(' ', '_', clean_filename($issuecert->certificatename . ' '. $issuecert->id . '.pdf'));
+        
 
         $fileinfo = array(
                 'contextid' => $contextid, // ID of context
@@ -417,30 +423,24 @@ class simplecertificate {
 
         if (!empty($CFG->coursecontact)) {
             $coursecontactroles = explode(',', $CFG->coursecontact);
-
-            foreach ($coursecontactroles as $roleid) {
-                $role = $DB->get_record('role', array('id' => $roleid));
-                $roleid = (int) $roleid;
-                if ($users = get_role_users($roleid, $this->context, true)) {
-                    foreach ($users as $teacher) {
-                        if ($teacher->id == $USER->id) {
-                            continue; // do not send self
-                        }
-                        $teachers[$teacher->id] = $teacher;
-                    }
-                }
-            }
         } else {
-            $users = get_users_by_capability($this->context, 'mod/simplecertificate:manage', '', '', '', '', '', '', false, false);
-
-            foreach ($users as $teacher) {
-                if ($teacher->id == $USER->id) {
-                    continue; // do not send self
-                }
-                $teachers[$teacher->id] = $teacher;
-            }
+        	list($coursecontactroles, $trash) = get_roles_with_cap_in_context($this->context, 'mod/simplecertificate:manage');
         }
-
+        foreach ($coursecontactroles as $roleid) {
+			$role = $DB->get_record('role', array('id' => $roleid));
+			$roleid = (int) $roleid;
+			if ($users = get_role_users($roleid, $this->context, true)) {
+				foreach ($users as $teacher) {
+					if ($teacher->id == $USER->id) {
+						continue; // do not send self
+					}
+					$manager = new stdClass();
+					$manager->user = $teacher;
+					$manager->username = fullname($teacher);
+					$teachers[$teacher->id] = $manager;
+				}
+			}
+		}
         return $teachers;
     }
 
@@ -453,7 +453,7 @@ class simplecertificate {
         if ($teachers = $this->get_teachers()) {
             $emailteachers = array();
             foreach ($teachers as $teacher) {
-                $emailteachers[] = $teacher->email;
+                $emailteachers[] = $teacher->user->email;
             }
             $this->send_alert_emails($emailteachers);
         }
@@ -565,7 +565,7 @@ class simplecertificate {
 
         //Writing text
         $pdf->SetXY($this->certificatetextx, $this->certificatetexty);
-        $pdf->writeHTMLCell(0, 0, '', '', $this->get_certificate_text($issuecert), 0, 0, 0, true, 'C');
+        $pdf->writeHTMLCell(0, 0, '', '', $this->get_certificate_text($issuecert, $this->certificatetext), 0, 0, 0, true, 'C');
          
         if (!empty($this->enablesecondpage)) {
 
@@ -661,18 +661,18 @@ class simplecertificate {
      * @param stdClass $context
      */
     private function send_certificade_email($issuecert) {
-        global $DB;
+        global $DB, $CFG;
         
-		if (!$user = $DB->get_record('user', array('id' => $issucert->userid))) {
+		if (!$user = $DB->get_record('user', array('id' => $issuecert->userid))) {
 			print_error('nousersfound', 'moodle');
 		} 
     	
         $info = new stdClass;
-        $info->username = fullname($user);
+        $info->username = format_string(fullname($user), true);
         $info->certificate = format_string($issuecert->certificatename, true);
         $info->course = format_string($this->coursename, true);
 
-        $subject = $info->course . ': ' . $info->certificate;
+        $subject = get_string('emailstudentsubject', 'simplecertificate', $info);
         $message = get_string('emailstudenttext', 'simplecertificate', $info) . "\n";
 
         // Make the HTML version more XHTML happy  (&amp;)
@@ -685,23 +685,24 @@ class simplecertificate {
         $filename = $fileinfo['filename'];
         $file = $fs->get_file($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'], $fileinfo['itemid'], $fileinfo['filepath'], $fileinfo['filename']);
 
-
         if ($file) { //put in a tmp dir, for e-mail attachament
-            $temp_manager = $this->move_temp_dir($file);
+        	$fullfilepath = $this->create_temp_file($file->get_filename());
+        	$file->copy_content_to($fullfilepath);
+        	$relativefilepath = str_replace($CFG->dataroot . '/', "", $fullfilepath);
+        	
+        	if (strpos($relativefilepath, '/', 1) === 0)
+        		$relativefilepath = substr($relativefilepath, 1);
+        
+        	$ret = email_to_user($user, format_string($this->emailfrom, true), $subject, $message, $messagehtml, $relativefilepath, $filename);
+
+        	if (has_capability('mod/simplecertificate:manage', $this->context, $user))
+            	$file->delete();
+
+        	@unlink($attachment);
+        	return $ret;
         } else {
-            print_error(get_string('filenotfound', 'simplecertificate', $filename));
+        	print_error(get_string('filenotfound', 'simplecertificate', $filename));
         }
-
-        $attachment = $temp_manager->relativefilepath;
-        $attachname = $filename;
-        $ret = email_to_user($user, format_string($this->emailfrom, true), $subject, $message, $messagehtml, $attachment, $attachname);
-
-        @remove_dir($temp_manager->path);
-
-        if (has_capability('mod/simplecertificate:manage', $this->context, $user))
-            $file->delete();
-
-        return $ret;
     }
 
     /**
@@ -766,12 +767,16 @@ class simplecertificate {
         }
     }
 
-    private function get_certificate_text($issuecert) {
-        global $DB;
+    private function get_certificate_text($issuecert, $certtext = null) {
+        global $DB, $CFG;
 
         
         if (!$user = get_complete_user_data('id', $issuecert->userid)) {
         	print_error('nousersfound', 'moodle');
+        }
+        
+        if(empty($certtext)) {
+        	$certtext = $this->certificatetext;
         }
         
         $a = new stdClass;
@@ -814,24 +819,34 @@ class simplecertificate {
 
 
         $a->coursename = format_string($this->coursename, true);
-        $a->grade = $this->get_grade();
+        $a->grade = $this->get_grade($user->id);
         $a->date = $this->get_date($issuecert,$user->id);
-        $a->outcome = $this->get_outcome();
+        $a->outcome = $this->get_outcome($user->id);
         $a->certificatecode=$issuecert->code;
 
         if (!empty($this->coursehours))
             $a->hours = format_string($this->coursehours . ' ' . get_string('hours', 'simplecertificate'), true);
         else
             $a->hours = '';
-
-        if ($teachers = $this->get_teachers()) {
-            $t = array();
-            foreach ($teachers as $teacher) {
-                $t[] = fullname($teacher);
-            }
-            $a->teachers = implode("<br>", $t);
-        } else {
-            $a->teachers = '';
+        
+        try {
+        	if($course = get_course($this->course)) {
+        		require_once($CFG->libdir. '/coursecatlib.php');
+ 	        	$courseinlist = new course_in_list($course);
+    	    	if ($courseinlist->has_course_contacts()) {
+        			$t = array();
+        			foreach ($courseinlist->get_course_contacts() as $userid => $coursecontact) {
+        				$t[] = $coursecontact['rolename'] .': '.$coursecontact['username'];
+        			}
+        			$a->teachers = implode("<br>", $t);
+        		} else {
+            		$a->teachers = '';
+        		}
+        	} else {
+        		$a->teachers = '';
+        	}
+        } catch (Exception $e) {
+        	$a->teachers = '';
         }
 
         $a = (array) $a;
@@ -843,7 +858,7 @@ class simplecertificate {
         }
         
         if ($search) {
-            return str_replace($search, $replace, $this->certificatetext);
+            return str_replace($search, $replace, $certtext);
         }
 
         return $this->certificatetext;
@@ -935,14 +950,17 @@ class simplecertificate {
      *
      * @return string the outcome
      */
-    private function get_outcome() {
+    private function get_outcome($userid) {
         global $USER, $DB;
 
+        if (empty($userid)) {
+        	$userid = $USER->id;
+        }
         if ($this->outcome > 0) {
             if ($grade_item = new grade_item(array('id' => $this->outcome))) {
                 $outcomeinfo = new stdClass;
                 $outcomeinfo->name = $grade_item->get_name();
-                $outcome = new grade_grade(array('itemid' => $grade_item->id, 'userid' => $USER->id));
+                $outcome = new grade_grade(array('itemid' => $grade_item->id, 'userid' => $userid));
                 $outcomeinfo->grade = grade_format_gradevalue($outcome->finalgrade, $grade_item, true, GRADE_DISPLAY_TYPE_REAL);
 
                 return $outcomeinfo->name . ': ' . $outcomeinfo->grade;
@@ -1504,9 +1522,9 @@ class simplecertificate {
     		echo '<br>';
     		echo '<form id="bulkissue" name="bulkissue" method="post" action="view.php">';
     		
-    		echo html_writer::label(get_string('fileformat','simplecertificate'), 'menutype', true);
+    		echo html_writer::label(get_string('bulkaction','simplecertificate'), 'menutype', true);
     		echo '&nbsp;';
-    		echo html_writer::select(array('pdf' => get_string('onepdf','simplecertificate'), 'zip'=> get_string('multipdf','simplecertificate')),'type','pdf');
+    		echo html_writer::select(array('pdf' => get_string('onepdf','simplecertificate'), 'zip'=> get_string('multipdf','simplecertificate'), 'email'=>get_string('sendtoemail','simplecertificate')),'type','pdf');
     		$table = new html_table();
     		$table->width = "95%";
     		$table->tablealign = "center";
@@ -1524,8 +1542,8 @@ class simplecertificate {
     			}
     		}
 
-    		
-    		$downloadbutton=$OUTPUT->single_button($url->out_as_local_url(false, array('action'=>'download')), get_string('download'));
+
+    		$downloadbutton = $OUTPUT->single_button($url->out_as_local_url(false, array('action'=>'download')), get_string('bulkbuttonlabel','simplecertificate'));
 
     		echo $OUTPUT->paging_bar($usercount, $page, $perpage, $url);
     		echo '<br />';
@@ -1584,6 +1602,21 @@ class simplecertificate {
     		    		//send file and delete after sending.
     		    		send_temp_file($tempzip, $filename);
     		    	} 
+    		    break;
+    		    
+    		    case 'email':
+    		    	foreach ($users as $user) {
+    		    		$canissue = $this->can_issue($user, $issuelist != 'allusers');
+    		    		if (empty($canissue)) {
+    		    			$issuecert = $this->get_issue($user);
+    		    			if(!$this->issue_file_exists($issuecert)) {
+    		    				$this->save_pdf($this->create_pdf($issuecert), $issuecert);
+    		    			}
+    		    			$this->send_certificade_email($issuecert);
+    		    		}
+    		    	}
+    		    	$url->remove_params('action','type');
+    		    	redirect($url,get_string('emailsent','simplecertificate'),5);
     		    break;
     		}
     		exit;
