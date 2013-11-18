@@ -618,11 +618,12 @@ class simplecertificate {
                 'module_width' => 1, // width of a single module in points
                 'module_height' => 1 // height of a single module in points
         );
+        
         $codeurl = "$CFG->wwwroot/mod/simplecertificate/verify.php?code=$code";
         $pdf->write2DBarcode($codeurl, 'QRCODE,H', $this->codex, $this->codey, 50, 50, $style, 'N');
-        $pdf->setFontSize(10);
-        $pdf->setFontStretching(75);
-        $pdf->Text($this->codex - 1, $this->codey + 50, $code);
+        $pdf->SetXY($this->codex,  $this->codey + 48);
+        $pdf->Cell(50,10,$code,0,0,'C',false,'',2);
+        
     } 
 
     /**
