@@ -189,5 +189,39 @@ function xmldb_simplecertificate_upgrade($oldversion=0) {
     	upgrade_mod_savepoint(true, 2013092000, 'simplecertificate');
     }
     
+    if ($oldversion < 2013111900) {
+    	
+    	//Certdate update
+    	$objs = $DB->get_records('simplecertificate',array("certdate"=>1),'','id');
+    	$objs = $objs + $DB->get_records('simplecertificate',array("certdate"=>2),'','id');
+        $ids='';
+		        	
+        foreach ($objs as $obj) {
+        	$ids= $ids . $obj->id .',';
+        }
+        if (!empty($ids)) {
+        	$ids = chop($ids,',');
+        	$sql = 'UPDATE {simplecertificate} SET certdate = -1 * certdate where id in (' . $ids . ')';
+    		$DB->execute ($sql);
+    	
+        }
+        
+        //Certgrade update
+        $objs = $DB->get_records('simplecertificate',array("certgrade"=>1),'','id');
+        $ids='';
+         
+        foreach ($objs as $obj) {
+        	$ids= $ids . $obj->id .',';
+        }
+        if (!empty($ids)) {
+        	$ids = chop($ids,',');
+        	$sql = 'UPDATE {simplecertificate} SET certdate = -1 * certgrade where id in (' . $ids . ')';
+        	$DB->execute ($sql);
+        }
+        
+    	// Simplecertificate savepoint reached.
+    	upgrade_mod_savepoint(true, 2013111900, 'simplecertificate');
+    }
+    
     return true;
 }

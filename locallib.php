@@ -23,6 +23,9 @@
  * @copyright  Carlos Alexandre Fonseca <carlos.alexandre@outlook.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
+defined('MOODLE_INTERNAL') || die();
+
 require_once($CFG->dirroot . '/mod/simplecertificate/lib.php');
 require_once($CFG->dirroot . '/course/lib.php');
 require_once($CFG->dirroot . '/grade/lib.php');
@@ -30,9 +33,7 @@ require_once($CFG->dirroot . '/grade/querylib.php');
 require_once($CFG->libdir . '/pdflib.php');
 require_once($CFG->dirroot . '/user/profile/lib.php');
 
-if (!defined('MOODLE_INTERNAL')) {
-    die('Direct access to this script is forbidden.');
-}
+
 
 class simplecertificate {
 
@@ -42,6 +43,14 @@ class simplecertificate {
     const OUTPUT_OPEN_IN_BROWSER = 0;
     const OUTPUT_FORCE_DOWNLOAD = 1;
     const OUTPUT_SEND_EMAIL = 2;
+    
+    //Date Options Const
+    const CERT_ISSUE_DATE = -1;
+    const COURSE_COMPLETATION_DATE = -2;
+    
+    //Grade Option Const
+    const NO_GRADE = 0;
+    const COURSE_GRADE = -1;
     
     //View const
     const  DEFAULT_VIEW = 0;
@@ -303,7 +312,8 @@ class simplecertificate {
     public function get_grade($userid = null) {
         global $USER, $DB;
 
-        if (empty($this->certgrade))
+        //If certgrade = 0 return nothing
+        if (empty($this->certgrade)) //No grade
             return '';
 
         if (empty($userid)) {
@@ -311,7 +321,7 @@ class simplecertificate {
         }
 
         switch ($this->certgrade) {
-            case 1 :  //Course grade
+            case $this::COURSE_GRADE :  //Course grade
                 if ($course_item = grade_item::fetch_course_item($this->course)) {
                     $grade = new grade_grade(array('itemid' => $course_item->id, 'userid' => $userid));
                     $course_item->gradetype = GRADE_TYPE_VALUE;
@@ -361,12 +371,8 @@ class simplecertificate {
 	private function get_mod_grade($moduleid, $userid) {
 		global $DB;
 		
-		$cm = $DB->get_record ( 'course_modules', array (
-				'id' => $moduleid 
-		) );
-		$module = $DB->get_record ( 'modules', array (
-				'id' => $cm->module 
-		) );
+		$cm = $DB->get_record ('course_modules', array('id' => $moduleid));
+		$module = $DB->get_record ('modules', array('id' => $cm->module));
 		
 		if ($grade_item = grade_get_grades ( $this->course, 'mod', $module->name, $cm->instance, $userid )) {
 			$item = new grade_item ();
@@ -378,7 +384,7 @@ class simplecertificate {
 			$modinfo->name = utf8_decode ( $DB->get_field ( $module->name, 'name', array (
 					'id' => $cm->instance 
 			) ) );
-			$grade = $item->grades [$userid]->grade;
+			$grade = $item->grades[$userid]->grade;
 			$item->gradetype = GRADE_TYPE_VALUE;
 			$item->courseid = $this->course;
 			
@@ -387,9 +393,9 @@ class simplecertificate {
 			$modinfo->letter = grade_format_gradevalue ( $grade, $item, true, GRADE_DISPLAY_TYPE_LETTER, $decimals = 0 );
 			
 			if ($grade) {
-				$modinfo->dategraded = $item->grades [$userid]->dategraded;
+				$modinfo->dategraded = $item->grades[$userid]->dategraded;
 			} else {
-				$modinfo->dategraded = time ();
+				$modinfo->dategraded = time();
 			}
 			return $modinfo;
 		}
@@ -883,7 +889,8 @@ class simplecertificate {
             $format = $this->certdatefmt;
         }
 
-        if ($this->certdate <= 0) {
+        //Certificate Issued date
+        if ($this->certdate == $this::CERT_ISSUE_DATE) {
             return userdate($certissue->timecreated, $format);
         }
 
@@ -894,7 +901,7 @@ class simplecertificate {
         // Set certificate date to current time, can be overwritten later
         $date = $certissue->timecreated;
 
-        if ($this->certdate == '2') {
+        if ($this->certdate == $this::COURSE_COMPLETATION_DATE) {
             // Get the enrolment end date
             $sql = "SELECT MAX(c.timecompleted) as timecompleted
                     FROM {course_completions} c
@@ -905,7 +912,7 @@ class simplecertificate {
                     $date = $timecompleted->timecompleted;
                 }
             }
-        } else if ($this->certdate > 2) {
+        } else if ($this->certdate > 0) {
             if ($modinfo = $this->get_mod_grade($this->certdate, $userid)) {
                 $date = $modinfo->dategraded;
             }

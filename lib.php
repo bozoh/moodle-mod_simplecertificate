@@ -281,7 +281,7 @@ function simplecertificate_reset_course_form_defaults($course) {
     return array('reset_simplecertificate' => 1);
 }
 
-/*
+
 /**
  * Returns information about received certificate.
  * Used for user activity reports.
@@ -291,7 +291,7 @@ function simplecertificate_reset_course_form_defaults($course) {
  * @param stdClass $mod
  * @param stdClass $certificate
  * @return stdClass the user outline object
- *//*
+ */
 function simplecertificate_user_outline($course, $user, $mod, $certificate) {
     global $DB;
 
@@ -305,32 +305,8 @@ function simplecertificate_user_outline($course, $user, $mod, $certificate) {
 
     return $result;
 }
-*/
 
-/* /**
- * Returns information about received certificate.
- * Used for user activity reports.
- *
- * @param stdClass $course
- * @param stdClass $user
- * @param stdClass $mod
- * @param stdClass $page
- * @return string the user complete information
- *//*
-function simplecertificate_user_complete($course, $user, $mod, $certificate) {
-    global $DB, $OUTPUT;
 
-    if ($issue = $DB->get_record('simplecertificate_issues', array('certificateid' => $certificate->id, 'userid' => $user->id, 'timedeleted' => null))) {
-        echo $OUTPUT->box_start();
-        echo get_string('issued', 'simplecertificate') . ": ";
-        echo userdate($issue->timecreated);
-        simplecertificate_print_user_files($certificate->id, $user->id);
-        echo '<br />';
-        echo $OUTPUT->box_end();
-    } else {
-        print_string('notissuedyet', 'simplecertificate');
-    }
-} */
 
 /**
  * Must return an array of user records (all data) who are participants
@@ -536,10 +512,12 @@ function simplecertificate_process_form_files ($mform, stdclass $context) {
  * Update the event if it exists, else create
  */
 function simplecertificate_send_event($certificate){
-    global $DB;
+    global $DB, $CFG;
+    require_once($CFG->dirroot.'/calendar/lib.php');
     if ($event= $DB->get_record('event', array('modulename'=>'simplecertificate', 'instance'=>$certificate->id))) {
-        $event->name = $certificate->name;
-        update_event($event);
+    	$calendarevent = calendar_event::load($event->id);
+        $calendarevent->name = $certificate->name;
+        $calendarevent->update($calendarevent);
     } else {
         $event = new stdClass;
         $event->name = $certificate->name;
@@ -549,7 +527,7 @@ function simplecertificate_send_event($certificate){
         $event->userid = 0;
         $event->modulename  = 'simplecertificate';
         $event->instance = $certificate->id;
-        add_event($event);
+        calendar_event::create($event);
     }
 }
 
@@ -575,57 +553,22 @@ function simplecertificate_get_editor_options(stdclass $context) {
  * Get all the modules
  *
  * @return array
- */
+*/ 
 function simplecertificate_get_mods (){
     global $COURSE, $CFG, $DB;
 
-    $strtopic = get_string("topic");
-    $strweek = get_string("week");
-    $strsection = get_string("section");
-
-    // Collect modules data
-    $modinfo = get_fast_modinfo($COURSE);
-    $mods = $modinfo->get_cms();
-
-    $modules = array();
-    $sections = $modinfo->get_section_info_all();
-
-    for ($i = 0; $i <= count($sections) - 1; $i++) {
-        // should always be true
-        if (isset($sections[$i])) {
-            $section = $sections[$i];
-            if ($section->sequence) {
-                switch ($COURSE->format) {
-                    case "topics":
-                        $sectionlabel = $strtopic;
-                        break;
-                    case "weeks":
-                        $sectionlabel = $strweek;
-                        break;
-                    default:
-                        $sectionlabel = $strsection;
-                }
-
-                $sectionmods = explode(",", $section->sequence);
-                foreach ($sectionmods as $sectionmod) {
-                    if (empty($mods[$sectionmod])) {
-                        continue;
-                    }
-                    $mod = $mods[$sectionmod];
-                    $mod->courseid = $COURSE->id;
-                    $instance = $DB->get_record($mod->modname, array('id' => $mod->instance));
-                    if ($grade_items = grade_get_grade_items_for_activity($mod)) {
-                        $mod_item = grade_get_grades($COURSE->id, 'mod', $mod->modname, $mod->instance);
-                        $item = reset($mod_item->items);
-                        if (isset($item->grademax)){
-                            $modules[$mod->id] = $sectionlabel . ' ' . $section->section . ' : ' . $instance->name;
-                        }
-                    }
-                }
-            }
-        }
+    $grademodules = array();
+    $items = grade_item::fetch_all(array('courseid'=>$COURSE->id));
+    $items = $items ? $items : array();
+    foreach($items as $id=>$item) {
+    	// Do not include grades for course itens
+    	if ($item->itemtype == 'course') {
+    		continue;
+    	}
+    	$grademodules[$item->iteminstance] = $item->get_name();
     }
-    return $modules;
+    asort($grademodules);
+    return $grademodules;
 }
 
 /**
@@ -634,9 +577,11 @@ function simplecertificate_get_mods (){
  * @return array
  */
 function simplecertificate_get_date_options() {
-    $dateoptions['1'] = get_string('issueddate', 'simplecertificate');
-    $dateoptions['2'] = get_string('completiondate', 'simplecertificate');
-    return $dateoptions + simplecertificate_get_mods();
+	global $CFG;
+	require_once(dirname(__FILE__) . '/locallib.php');
+	$dateoptions[simplecertificate::CERT_ISSUE_DATE] = get_string('issueddate', 'simplecertificate');
+    $dateoptions[simplecertificate::COURSE_COMPLETATION_DATE] = get_string('completiondate', 'simplecertificate');
+    return $dateoptions + simplecertificate_get_mods();  
 }
 
 /**
@@ -645,9 +590,9 @@ function simplecertificate_get_date_options() {
  * @return array
  */
 function simplecertificate_get_grade_options() {
-    $gradeoptions['0'] = get_string('nograde');
-    $gradeoptions['1'] = get_string('coursegrade', 'simplecertificate');
-
+	require_once(dirname(__FILE__) . '/locallib.php');
+    $gradeoptions[simplecertificate::NO_GRADE] = get_string('nograde');
+    $gradeoptions[simplecertificate::COURSE_GRADE] = get_string('coursegrade', 'simplecertificate');
     return $gradeoptions + simplecertificate_get_mods();
 }
 

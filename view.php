@@ -36,10 +36,7 @@ if (! $certificate = $DB->get_record('simplecertificate', array('id' => $cm->ins
 	print_error('course module is incorrect');
 }
 
-require_login( $course->id, false, $cm);
 $context = context_module::instance ( $cm->id );
-require_capability('mod/simplecertificate:view', $context);
-$canmanage = has_capability('mod/simplecertificate:manage', $context);
 
 $url = new moodle_url('/mod/simplecertificate/view.php', array (
 		'id' => $cm->id,
@@ -64,19 +61,25 @@ if ($issuelist) {
 	$url->param ('issuelist', $issuelist);
 }
 
+// Initialize $PAGE, compute blocks
+$PAGE->set_url($url);
+$PAGE->set_context($context);
+$PAGE->set_cm($cm);
+
+require_login( $course->id, false, $cm);
+require_capability('mod/simplecertificate:view', $context);
+$canmanage = has_capability('mod/simplecertificate:manage', $context);
+
+
+
 // log update
 $simplecertificate = new simplecertificate($certificate, $context);
 
 $completion = new completion_info($course);
 $completion->set_module_viewed($cm);
 
-// Initialize $PAGE, compute blocks
-$PAGE->set_url($url);
-$PAGE->set_context($context);
-$PAGE->set_cm($cm);
 $PAGE->set_title(format_string($certificate->name));
 $PAGE->set_heading(format_string($course->fullname));
-
 
 switch ($tab) {
 	case $simplecertificate::ISSUED_CERTIFCADES_VIEW :
