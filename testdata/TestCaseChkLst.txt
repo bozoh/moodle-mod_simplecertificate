@@ -1,12 +1,12 @@
 
---Instalation (MUST WORK)
+--Installation (MUST WORK)
 1- Upgrade plugin is work ?
 2- Create plugin is work ?
 
---Basic fuctions (MUST WORK)
+--Basic functions (MUST WORK)
 3- Can Create a simple certificate ?
 4- Can Update ?
-5- Can Retrive (Issue):    
+5- Can Retrieve (Issue):    
 	5.1 - As manager account?
 	5.2 - As student account?
 6- Can delete ?
@@ -16,15 +16,16 @@
 	7.1- Second page is enable and is in certificate? 
 8- Is all texts in certificate:
 	8.1- Front text is correct ?
-	8.2- Back text is enable and is correct ?
-	8.3- All variables is correct?
+	8.2- Back text is enable and correct ?
+	8.3- All variables are correct?
+	8.4- All custom profile variables are correct?
 9- Is all image in certificate:
 	9.1- Front Image is correct?
-	9.2- Back Image is enable and is correct?
+	9.2- Back Image is enable and correct?
 10- Is QR enable an in certificate?
 	10.1- In second page ?
 	10.2- In first page ?
-11- Is certficate verification page works?
+11- Is certificate verification page works?
 	11.1- Captcha is work if enabled ?
 	11.2- User can download the certificate only if is logged in?
 	11.3- QR code has the correct verification page URL?
@@ -33,28 +34,28 @@
 If reach here all basics are good
 ====
 
---Addional functions
+--Additional functions
 --- Can change page size ?
 
 --Positions
 --- Can change text position:
 --- Front page text?
 --- Back page text?
---- Can chage QR code position?
+--- Can change QR code position?
 
---Text fortation
----Can chage date format?
----Can change Grade format
+--Text formation
+---Can change date format?
+---Can change Grade format?
 
---Issue Coditions
----Can't issue if don't match requiremend:
+--Issue Conditions
+---Can't issue if don't match requirements:
 ---Minutes in course?
 ---Access Restrictions?
----Copletation options?
+---Completion options?
 
 --Delivery Methods:
 ---Can Open in browser?
----Can Downlaod ?
+---Can Download ?
 ---Can send to e-mail?
 ----Can change email sender (from name)?
 
@@ -70,7 +71,7 @@ If reach here all basics are good
 ---Can create one zip file with all listed certificates?
 ---Can create one zip file with only selected certificates?
 ---Can send certificates to all listed  user's ?
----Can send certificates to all selectef  user's ?
+---Can send certificates to all селецтед  user's ?
 
 --Report
 ---Can view all issued certificate?
@@ -84,7 +85,7 @@ If reach here all basics are good
 -Can backup ?
 --Backup file is correct?
 -Can restore ?
---Certificate files is restoted correctly?
+--Certificate files is restored correctly?
 --issued certificate is restored correctly?
 
 	
@@ -134,6 +135,9 @@ First Name: {FIRSTNAME}</td>
 <td>Url: {URL}</td>
 <td>Certificate Code: {CERTIFICATECODE}</td>
 </tr>
+<tr>
+<td>Birthday: {PROFILE_BIRTHDAY}</td>
+</tr>
 </tbody>
 </table>
 
@@ -180,6 +184,8 @@ First Name: {FIRSTNAME}</td>
 <td>Url: {URL}</td>
 <td>Certificate Code: {CERTIFICATECODE}</td>
 </tr>
+<tr>
+<td>Birthday: {PROFILE_BIRTHDAY}</td>
+</tr>
 </tbody>
 </table>
-	
