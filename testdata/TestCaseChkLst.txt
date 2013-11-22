@@ -136,7 +136,7 @@ First Name: {FIRSTNAME}</td>
 <td>Certificate Code: {CERTIFICATECODE}</td>
 </tr>
 <tr>
-<td>Birthday: {PROFILE_BIRTHDAY}</td>
+<td style="text-align: center;" colspan="5">Birthday: {PROFILE_BIRTHDAY}</td>
 </tr>
 </tbody>
 </table>
@@ -185,7 +185,7 @@ First Name: {FIRSTNAME}</td>
 <td>Certificate Code: {CERTIFICATECODE}</td>
 </tr>
 <tr>
-<td>Birthday: {PROFILE_BIRTHDAY}</td>
+<td style="text-align: center;" colspan="5">Birthday: {PROFILE_BIRTHDAY}</td>
 </tr>
 </tbody>
 </table>
