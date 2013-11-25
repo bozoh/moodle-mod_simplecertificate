@@ -35,152 +35,114 @@ defined('MOODLE_INTERNAL') || die();
  */
 class mod_simplecertificate_generator extends testing_module_generator {
 
-    /**
-     * @var int keep track of how many chapters have been created.
-     */
-    protected $chaptercount = 0;
-
-    /**
+        /**
      * To be called from data reset code only,
      * do not use in tests.
      * @return void
      */
     public function reset() {
-        $this->chaptercount = 0;
         parent::reset();
     }
+    
 
     public function create_instance($record = null, array $options = null) {
-        $record = (object)(array)$record;
+    	
+    	$record = (object)(array)$record;
+    	
+    	if (!isset($record->name)) {
+    		$record->name = 'Unit Case Test Certificate';
+    	}
+    	    	
+    	if (!isset($record->intro)) {
+    		$record->intro = '<h1>Unit Case Test Certificate</h1>';
+    	}
+    	if (!isset($record->introformat)) {
+    		$record->introformat = FORMAT_HTML;
+    	}
+    	
+    	if (!isset($record->certificatetext['text'])) {
+    		//TODO Load from a file
+    		$record->certificatetext['text'] = '';
+    		$record->certificatetextformat = FORMAT_HTML;
+    		$record->certificatetextx = 50;
+    		$record->certificatetexty = 0;
+    		$record->enablesecondpage = 1;
+    		$record->secondpagex = 50;
+    		$record->secondpagey = 0;
+    		$record->secondpagetext['text'] = '';
+    		$record->secondpagetextformat = FORMAT_HTML;
+    	}
+    	
+    	if (!isset($record->certificatetextformat)){
+    		$record->certificatetextformat = FORMAT_HTML;
+    	}
+    	
+    	//For test delivery option can't be equal 0  
+    	if (!isset($record->delivery) || $record->delivery = 0) {
+    		$record->delivery = 1;
+    	}
+    	
+    	
+    	//TODO See how i can test files upload
+    	//if (!isset($record->certificateimage));
 
-        if (!isset($record->certificatetext)) {
-            $record->certificatetext['text'] = '
-<h1>FRIST PAGE</h1>
-<p> </p>
-<table border="5" cellpadding="1" align="center">
-<tbody>
-<tr>
-<td>Username: {USERNAME}</td>
-<td>Coursename: {COURSENAME}</td>
-<td>Grade:{GRADE}</td>
-<td>Date: {DATE}</td>
-<td>Outcome: {OUTCOME}</td>
-</tr>
-<tr>
-<td>Hours: {HOURS}</td>
-<td>Teachers: {TEACHERS}</td>
-<td>Idnumber: {IDNUMBER}</td>
-<td>
-<p> </p>
-First Name: {FIRSTNAME}</td>
-<td>Last Name: {LASTNAME}</td>
-</tr>
-<tr>
-<td>Email: {EMAIL}</td>
-<td>ICQ: {ICQ}</td>
-<td>Skype: {SKYPE}</td>
-<td>Yahoo: {YAHOO}</td>
-<td>AIM: {AIM}</td>
-</tr>
-<tr>
-<td><br />Msn: {MSN}</td>
-<td>Phone 1: {PHONE1}</td>
-<td>Phone 2: {PHONE2}</td>
-<td>Institution: {INSTITUTION}</td>
-<td>Department: {DEPARTMENT}</td>
-</tr>
-<tr>
-<td>Address: {ADDRESS}</td>
-<td>City: {CITY}</td>
-<td>Country: {COUNTRY}</td>
-<td>Url: {URL}</td>
-<td>Certificate Code: {CERTIFICATECODE}</td>
-</tr>
-</tbody>
-</table>';
-			$record->certificatetextformat = FORMAT_HTML;
-			$record->certificatetextx = 50;
-			$record->certificatetexty = 0;
-        }
-        
-        if (!isset($record->enablesecondpage)) {
-        	$record->enablesecondpage = 1;
-        }
-        
-        if (!isset($record->secondpagetext)) {
-            $record->secondpagetext['text'] = '<h1>SECOND PAGE</h1>
-<p> </p>
-<table border="5" cellpadding="1" align="center">
-<tbody>
-<tr>
-<td>Username: {USERNAME}</td>
-<td>Coursename: {COURSENAME}</td>
-<td>Grade:{GRADE}</td>
-<td>Date: {DATE}</td>
-<td>Outcome: {OUTCOME}</td>
-</tr>
-<tr>
-<td>Hours: {HOURS}</td>
-<td>Teachers: {TEACHERS}</td>
-<td>Idnumber: {IDNUMBER}</td>
-<td>
-<p> </p>
-First Name: {FIRSTNAME}</td>
-<td>Last Name: {LASTNAME}</td>
-</tr>
-<tr>
-<td>Email: {EMAIL}</td>
-<td>ICQ: {ICQ}</td>
-<td>Skype: {SKYPE}</td>
-<td>Yahoo: {YAHOO}</td>
-<td>AIM: {AIM}</td>
-</tr>
-<tr>
-<td><br />Msn: {MSN}</td>
-<td>Phone 1: {PHONE1}</td>
-<td>Phone 2: {PHONE2}</td>
-<td>Institution: {INSTITUTION}</td>
-<td>Department: {DEPARTMENT}</td>
-</tr>
-<tr>
-<td>Address: {ADDRESS}</td>
-<td>City: {CITY}</td>
-<td>Country: {COUNTRY}</td>
-<td>Url: {URL}</td>
-<td>Certificate Code: {CERTIFICATECODE}</td>
-</tr>
-<tr>
-<td style="text-align: center;" colspan="5">Birthday: {PROFILE_BIRTHDAY}</td>
-</tr>
-</tbody>
-</table>';
-            $record->secondpagetextformat = FORMAT_HTML;
-            $record->secondpagex = 50;
-            $record->secondpagey = 0;
-        }
-
-        if (!isset($record->certdatefmt)) {
-        	$record->certdatefmt = 'Rio de Janeiro, %d de %B de %Y ';
-        }
-        
-        if (!isset($record->printqrcode)) {
-        	$record->printqrcode = 1;
-        } 
-        $record->qrcodefirstpage = 1;
-        $record->codex = 30;
-        $record->codey = 130;
-        
-        $record->requiredtime = 3;
-        $record->coursehours = 4;
-        $record->emailothers = 'bozohhot@hotmail.com';
-        if (!isset($record->name)){ 
-        	$record->name= 'Tests unit certificate';
-        }
-        $record->intro['text'] = 'Tests unit certificate';
-        $record->introformat = FORMAT_HTML;
-        
-        
+    	/*Using default (in settings)
+    	if (!isset($record->width));
+    	if (!isset($record->height));
+    	
+    	if (!isset($record->certificatetextx));
+    	if (!isset($record->certificatetexty));
+    	if (!isset($record->coursename));
+    	if (!isset($record->coursehours));
+    	if (!isset($record->outcome));
+    	if (!isset($record->certdate));
+    	if (!isset($record->certdatefmt));
+    	if (!isset($record->certgrade));
+    	if (!isset($record->gradefmt));
+    	if (!isset($record->emailfrom));
+    	if (!isset($record->emailothers));
+    	if (!isset($record->emailteachers));
+    	if (!isset($record->reportcert));
+    	
+    	if (!isset($record->requiredtime))
+    	if (!isset($record->printqrcode));
+    	if (!isset($record->qrcodefirstpage));
+    	if (!isset($record->codex));
+    	if (!isset($record->codey));
+    	if (!isset($record->enablesecondpage));
+    	if (!isset($record->secondpagex));
+    	if (!isset($record->secondpagey));
+    	if (!isset($record->secondpagetext));
+    	if (!isset($record->secondpagetextformat));
+    	if (!isset($record->secondimage));*/
+    	
+    	//Issue
+    	if (!isset($record->id));
+		if (!isset($record->certificateid));
+		if (!isset($record->userid));
+    	if (!isset($record->certificatename));
+    	if (!isset($record->code));
+    	if (!isset($record->timecreated));
+    	if (!isset($record->timedeleted));
         
         return parent::create_instance($record, (array)$options);
+    }
+    public function create_issue($record = null, array $options = null) {
+    	global $CFG, $DB;
+    	
+    	$record = (object)(array)$record;
+    	
+    	if (!isset($record->certificate)) { 
+    		throw new coding_exception("No Certificate is set");
+    	}
+    	
+    	if (!isset($record->user)) {
+    		throw new coding_exception("No user is set");
+    	}
+    	
+    	require_once("$CFG->dirroot/mod/simplecertificate/locallib.php");
+    	$simplecerticiate = new simplecertificate($record->certificate);
+    	return $simplecerticiate->get_issue($record->user);
+    	
     }
 }
