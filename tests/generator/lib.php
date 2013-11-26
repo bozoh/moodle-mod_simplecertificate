@@ -46,7 +46,7 @@ class mod_simplecertificate_generator extends testing_module_generator {
     
 
     public function create_instance($record = null, array $options = null) {
-    	
+    	global $CFG;
     	$record = (object)(array)$record;
     	
     	if (!isset($record->name)) {
@@ -61,15 +61,14 @@ class mod_simplecertificate_generator extends testing_module_generator {
     	}
     	
     	if (!isset($record->certificatetext['text'])) {
-    		//TODO Load from a file
-    		$record->certificatetext['text'] = '';
+    		$record->certificatetext['text'] = file_get_contents("$CFG->dirroot/mod/simplecertificate/tests/fixtures/firstpage.html");
     		$record->certificatetextformat = FORMAT_HTML;
     		$record->certificatetextx = 50;
     		$record->certificatetexty = 0;
     		$record->enablesecondpage = 1;
     		$record->secondpagex = 50;
     		$record->secondpagey = 0;
-    		$record->secondpagetext['text'] = '';
+    		$record->secondpagetext['text'] = file_get_contents("$CFG->dirroot/mod/simplecertificate/tests/fixtures/firstpage.html");
     		$record->secondpagetextformat = FORMAT_HTML;
     	}
     	
@@ -77,13 +76,13 @@ class mod_simplecertificate_generator extends testing_module_generator {
     		$record->certificatetextformat = FORMAT_HTML;
     	}
     	
-    	//For test delivery option can't be equal 0  
-    	if (!isset($record->delivery) || $record->delivery = 0) {
-    		$record->delivery = 1;
-    	}
-    	
+    	//For test, delivery option must be 2 or 3
+    	 if (!isset($record->delivery) || $record->delivery < 2) {
+    		$record->delivery = 3;
+    	} 
     	
     	//TODO See how i can test files upload
+    	
     	//if (!isset($record->certificateimage));
 
     	/*Using default (in settings)
@@ -116,19 +115,11 @@ class mod_simplecertificate_generator extends testing_module_generator {
     	if (!isset($record->secondpagetextformat));
     	if (!isset($record->secondimage));*/
     	
-    	//Issue
-    	if (!isset($record->id));
-		if (!isset($record->certificateid));
-		if (!isset($record->userid));
-    	if (!isset($record->certificatename));
-    	if (!isset($record->code));
-    	if (!isset($record->timecreated));
-    	if (!isset($record->timedeleted));
-        
         return parent::create_instance($record, (array)$options);
     }
+    
     public function create_issue($record = null, array $options = null) {
-    	global $CFG, $DB;
+    	global $CFG, $DB, $USER;
     	
     	$record = (object)(array)$record;
     	
@@ -136,13 +127,12 @@ class mod_simplecertificate_generator extends testing_module_generator {
     		throw new coding_exception("No Certificate is set");
     	}
     	
-    	if (!isset($record->user)) {
-    		throw new coding_exception("No user is set");
-    	}
-    	
     	require_once("$CFG->dirroot/mod/simplecertificate/locallib.php");
     	$simplecerticiate = new simplecertificate($record->certificate);
-    	return $simplecerticiate->get_issue($record->user);
+    	if (isset($record->user)) {
+    		return $simplecerticiate->get_issue($record->user);
+    	}
+    	return $simplecerticiate->get_issue();
     	
     }
 }
