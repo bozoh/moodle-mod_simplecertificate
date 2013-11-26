@@ -92,8 +92,23 @@ function xmldb_simplecertificate_upgrade($oldversion=0) {
 
         // Launch change of type for field certdatefmt
         $dbman->change_field_type($table, $field);
-
-
+        
+        
+        // Updating old values  (thanks hqhoang for reporting and fix it)
+        $sql = 'UPDATE {simplecertificate} SET certdatefmt = :dateformat WHERE certdatefmt = :old_1';
+        $DB->execute ( $sql, array('dateformat' => '%B %d, %Y', 'old_1' => '1') );
+        
+        $sql = 'UPDATE {simplecertificate} SET certdatefmt = :dateformat WHERE certdatefmt = :old_2';
+        $DB->execute ( $sql, array('dateformat' => 'F jS, Y', 'old_2' => '2') );
+        
+        $sql = 'UPDATE {simplecertificate} SET certdatefmt = :dateformat WHERE certdatefmt = :old_3';
+        $DB->execute ( $sql, array('dateformat' => '%d %B %Y', 'old_3' => '3') );
+        
+        $sql = 'UPDATE {simplecertificate} SET certdatefmt = :dateformat WHERE certdatefmt = :old_4';
+        $DB->execute ( $sql, array('dateformat' => '%B %Y', 'old_4' => '4') );
+        
+        $sql = 'UPDATE {simplecertificate} SET certdatefmt = \'\' WHERE certdatefmt = :old_5 OR certdatefmt = :old_6';
+        $DB->execute ( $sql, array('old_5' => '5', 'old_6' => '6') );
 
         // simplecertificate savepoint reached
         upgrade_mod_savepoint(true, 2013053102, 'simplecertificate');
@@ -221,6 +236,22 @@ function xmldb_simplecertificate_upgrade($oldversion=0) {
         
     	// Simplecertificate savepoint reached.
     	upgrade_mod_savepoint(true, 2013111900, 'simplecertificate');
+    }
+    if ($oldversion < 2013112500) {
+	    // Changing the default of field certdate on table simplecertificate to -2.
+    	$table = new xmldb_table('simplecertificate');
+    	$field = new xmldb_field('certdate', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '-2', 'outcome');
+    
+	    // Launch change of default for field certdate.
+    	$dbman->change_field_default($table, $field);
+    	
+    	$field = new xmldb_field('emailothers', XMLDB_TYPE_TEXT, null, null, null, null, null, 'emailfrom');
+    	
+    	// Launch change of nullability for field emailothers.
+    	$dbman->change_field_notnull($table, $field);
+    
+	    // Simplecertificate savepoint reached.
+    	upgrade_mod_savepoint(true, 2013112500, 'simplecertificate');
     }
     
     return true;
