@@ -200,6 +200,4 @@ class mod_simplecertificate_basic_testcase extends advanced_testcase {
 			$this->assertContains($msg->to, $testemails);
 		}
 	}
-    	
-    
 }

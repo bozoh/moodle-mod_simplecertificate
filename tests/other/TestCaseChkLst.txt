@@ -4,12 +4,12 @@
 2- Create plugin is work ?
 
 --Basic functions (MUST WORK)
-3- Can Create a simple certificate ?
-4- Can Update ?
+3- Can Create a simple certificate ? In php unit testcase
+4- Can Update ? In php unit testcase
 5- Can Retrieve (Issue):    
-	5.1 - As manager account?
-	5.2 - As student account?
-6- Can delete ?
+	5.1 - As manager account? In php unit testcase
+	5.2 - As student account?In php unit testcase
+6- Can delete ?In php unit testcase
 
 --Certificate informations basic (MUST WORK)
 7- Is all pages in certificate:
@@ -22,7 +22,7 @@
 9- Is all image in certificate:
 	9.1- Front Image is correct?
 	9.2- Back Image is enable and correct?
-10- Is QR enable an in certificate?
+10- Is QR enable an in certificate? 
 	10.1- In second page ?
 	10.2- In first page ?
 11- Is certificate verification page works?
@@ -56,12 +56,12 @@ If reach here all basics are good
 --Delivery Methods:
 ---Can Open in browser?
 ---Can Download ?
----Can send to e-mail?
-----Can change email sender (from name)?
+---Can send to e-mail? In php unit testcase
+----Can change email sender (from name)? In php unit testcase
 
 --Notifications
----Can notify Teacher, when a certificate is issued?
----Can notify others, when a certificate is issued?
+---Can notify Teacher, when a certificate is issued? In php unit testcase
+---Can notify others, when a certificate is issued? In php unit testcase
 
 --Bulk Operations
 ---Can list only students that match course objectives?
@@ -71,7 +71,7 @@ If reach here all basics are good
 ---Can create one zip file with all listed certificates?
 ---Can create one zip file with only selected certificates?
 ---Can send certificates to all listed  user's ?
----Can send certificates to all селецтед  user's ?
+---Can send certificates to all selected user's ?
 
 --Report
 ---Can view all issued certificate?
@@ -87,5 +87,4 @@ If reach here all basics are good
 -Can restore ?
 --Certificate files is restored correctly?
 --issued certificate is restored correctly?
-
 	
