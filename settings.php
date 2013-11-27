@@ -16,9 +16,6 @@ if ($ADMIN->fulltree) {
 
     //--- general settings -----------------------------------------------------------------------------------
 
-
-
-
     $settings->add(new admin_setting_configtext('simplecertificate/width', get_string('defaultwidth', 'simplecertificate'),
         get_string('size_help', 'simplecertificate'), 297, PARAM_INT));
     $settings->add(new admin_setting_configtext('simplecertificate/height', get_string('defaultheight', 'simplecertificate'),
@@ -30,7 +27,7 @@ if ($ADMIN->fulltree) {
         get_string('textposition_help', 'simplecertificate'), 50, PARAM_INT));
 
     $settings->add(new admin_setting_configselect('simplecertificate/certdate', get_string('printdate', 'simplecertificate'),
-        get_string('printdate_help', 'simplecertificate'), 2, simplecertificate_get_date_options()));
+        get_string('printdate_help', 'simplecertificate'), -2, simplecertificate_get_date_options()));
 
 
     $settings->add(new admin_setting_configtext('simplecertificate/certlifetime', get_string('certlifetime', 'simplecertificate'),
