@@ -773,11 +773,12 @@ class simplecertificate {
         
         if(!$file = $this->get_issue_file($issuecert)) {
         	print_error(get_string('filenotfound', 'simplecertificate', $filename));
+        	die;
         }
         
         switch ($this->delivery) {
             case self::OUTPUT_FORCE_DOWNLOAD:
-            	send_stored_file($file, 10, 0, true, array('filename'=>$filename)); //force download
+            	send_stored_file($file, 10, 0, true, array('filename'=>$filename, 'dontdie'=>true)); //force download
             break;
             
             case self::OUTPUT_SEND_EMAIL:
@@ -785,12 +786,11 @@ class simplecertificate {
             break;
             
             case self::OUTPUT_OPEN_IN_BROWSER:
-            	send_stored_file($file, 10, 0, false); // open in browser
+            	send_stored_file($file, 10, 0, false, array('dontdie'=>true)); // open in browser
             break;
         }
         
         if (has_capability('mod/simplecertificate:manage', $this->context, $issuecert->userid)) {
-        	$file = $this->get_issue_file($issuecert);
         	$file->delete();
         }
         
