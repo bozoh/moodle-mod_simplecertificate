@@ -111,7 +111,9 @@ class mod_simplecertificate_basic_testcase extends advanced_testcase {
     	global $DB, $CFG;
     	require_once("$CFG->dirroot/mod/simplecertificate/locallib.php");
     	
-    	
+    	if (moodle_major_version() < 2.6) {
+    		$this->markTestSkipped("Needs moodle 2.6 or grater");
+    	}
     	$this->resetAfterTest();
     	$this->setAdminUser();
     	$cert = $this->getDataGenerator()->create_module('simplecertificate', array('course' => $this->course->id ));
@@ -155,6 +157,10 @@ class mod_simplecertificate_basic_testcase extends advanced_testcase {
     public function test_delivery_email() {
     	global $DB, $CFG;
     	require_once("$CFG->dirroot/mod/simplecertificate/locallib.php");
+    	
+    	if (moodle_major_version() < 2.6) {
+    		$this->markTestSkipped("Needs moodle 2.6 or grater");
+    	}
     	    	 
     	$this->resetAfterTest();
     	$this->setAdminUser();
@@ -186,6 +192,9 @@ class mod_simplecertificate_basic_testcase extends advanced_testcase {
 	public function test_email_notifications() {
 		global $DB, $CFG;
 		
+		if (moodle_major_version() < 2.6) {
+			$this->markTestSkipped("Needs moodle 2.6 or grater");
+		}
 		$this->resetAfterTest();
 		$this->setAdminUser();
 				
