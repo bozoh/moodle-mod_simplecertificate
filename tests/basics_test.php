@@ -107,7 +107,7 @@ class mod_simplecertificate_basic_testcase extends advanced_testcase {
     	$this->assertEquals($issuecert->id, $DB->get_record('simplecertificate_issues', array('code'=>$issuecert->code),"id")->id);    	
     }
     
-    public function  test_create_pdf_file() {
+    public function  test_pdf_file() {
     	global $DB, $CFG;
     	require_once("$CFG->dirroot/mod/simplecertificate/locallib.php");
     	
@@ -132,6 +132,22 @@ class mod_simplecertificate_basic_testcase extends advanced_testcase {
     	$this->redirectEmails();
     	$simplecerticate->output_pdf($issuecert);
     	$this->assertTrue($fs->file_exists($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'], $fileinfo['itemid'], $fileinfo['filepath'], $fileinfo['filename']));
+    	
+    	//Issue as admin
+    	$this->setAdminUser();
+    	$issuecert= $simplecertgen->create_issue(array('certificate'=>$cert));
+    	//Verify if file DON´T EXISTS
+    	$fileinfo = simplecertificate::get_certificate_issue_fileinfo($issuecert, null);
+    	$fs = get_file_storage();
+    	$this->assertFalse($fs->file_exists($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'], $fileinfo['itemid'], $fileinfo['filepath'], $fileinfo['filename']));
+    	 
+    	//Creating file
+    	$this->redirectEmails();
+    	$simplecerticate->output_pdf($issuecert);
+    	//Must not exixst, no file is storage
+    	$this->assertFalse($fs->file_exists($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'], $fileinfo['itemid'], $fileinfo['filepath'], $fileinfo['filename']));
+    	
+    	
     	
     }
     
