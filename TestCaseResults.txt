@@ -1,10 +1,10 @@
----moodle2.4 --v.2.1.2
+---moodle2.4 --v.2.1.3-beta1
 --Instalation (MUST WORK)
 1- Upgrade plugin is work ? ok
-2- Create plugin is work ? ok
+2- Create plugin is work ? not tested
 
 --Basic fuctions (MUST WORK)
-3- Can Create a simple certificate ?ok
+3- Can Create a simple certificate ? ok
 4- Can Update ?ok
 5- Can Retrive (Issue):    
 	5.1 - As manager account?ok
@@ -12,13 +12,13 @@
 6- Can delete ?ok
 
 --Certificate informations basic (MUST WORK)
-7- Is all pages in certificate:
-	7.1- Second page is enable and is in certificate? ok
-8- Is all texts in certificate:
+7- Is all pages in certificate:ok
+	7.1- Second page is enable and is in certificate?ok 
+8- Is all texts in certificate:ok
 	8.1- Front text is correct ?ok
 	8.2- Back text is enable and is correct ?ok
 	8.3- All variables is correct?ok
-9- Is all image in certificate:
+9- Is all image in certificate:ok
 	9.1- Front Image is correct?ok
 	9.2- Back Image is enable and is correct?ok
 10- Is QR enable an in certificate?ok
@@ -48,15 +48,15 @@ If reach here all basics are good
 
 --Issue Coditions
 ---Can't issue if don't match requiremend:
----Minutes in course?ok
----Access Restrictions?ok
----Copletation options?ok
+---Minutes in course?
+---Access Restrictions?
+---Copletation options?
 
 --Delivery Methods:
 ---Can Open in browser?ok
----Can Downlaod ?ok
+---Can Download ?ok
 ---Can send to e-mail?ok
-----Can change email sender (from name)?not tested
+----Can change email sender (from name)? DON'T WORK in MOODLE 2.4
 
 --Notifications
 ---Can notify Teacher, when a certificate is issued?not tested
