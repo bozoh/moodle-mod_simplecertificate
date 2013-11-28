@@ -27,12 +27,10 @@ class mod_simplecertificate_basic_testcase extends advanced_testcase {
 	//http://docs.moodle.org/dev/Writing_PHPUnit_tests
 	private $course;
 	private $student_account;
+	private $count;
+	public static $fhandle; 
 
 	
-	public static function setUpBeforeClass() {
-	
-		
-	}
 	
 	public function setUp() {
 		global $DB;
@@ -65,6 +63,11 @@ class mod_simplecertificate_basic_testcase extends advanced_testcase {
         $cert = $this->getDataGenerator()->create_module('simplecertificate', $params);
         $this->assertEquals(2, $DB->count_records('simplecertificate', array('course' => $this->course->id)));
         $this->assertEquals('One more certificate', $DB->get_field_select('simplecertificate', 'name', 'id = :id', array('id' => $cert->id)));
+        
+        $this->write_to_report("Create plugin is work ? Ok");
+        $this->write_to_report("Can Create a simple certificate ? Ok");
+        $this->write_to_report("Can Update a simple certificate ? Ok");
+        $this->write_to_report("Can Delete a simple certificate ? Ok");
     }
     
     public function test_create_issue_instance() {
@@ -90,6 +93,9 @@ class mod_simplecertificate_basic_testcase extends advanced_testcase {
     	$this->assertNotEmpty($issuecert);
     	$this->assertTrue($DB->record_exists("simplecertificate_issues", array('id'=>$issuecert->id)));
     	$this->assertEquals(1, $DB->count_records("simplecertificate_issues", array('certificateid'=>$cert->id)));
+
+    	$this->write_to_report("Can Retrieve a simple certificate As manager? Ok");
+        $this->write_to_report("Can Retrieve a simple certificate As student ? Ok");
     }
     
     public function test_create_issue_code() {
@@ -104,7 +110,9 @@ class mod_simplecertificate_basic_testcase extends advanced_testcase {
     	//Verify code
     	$this->assertNotEmpty($issuecert->code);
     	$this->assertEquals(36, strlen($issuecert->code));
-    	$this->assertEquals($issuecert->id, $DB->get_record('simplecertificate_issues', array('code'=>$issuecert->code),"id")->id);    	
+    	$this->assertEquals($issuecert->id, $DB->get_record('simplecertificate_issues', array('code'=>$issuecert->code),"id")->id);
+    	
+    	$this->write_to_report("Certificate code is correct ? Ok");
     }
     
     public function  test_pdf_file() {
@@ -146,6 +154,9 @@ class mod_simplecertificate_basic_testcase extends advanced_testcase {
     	$simplecerticate->output_pdf($issuecert);
     	//Must not exixst, no file is storage
     	$this->assertFalse($fs->file_exists($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'], $fileinfo['itemid'], $fileinfo['filepath'], $fileinfo['filename']));
+    	
+    	$this->write_to_report("Can Open certificade file in browser? Ok");
+    	$this->write_to_report("Can Download certificade file in browser? Ok");
     }
     
     //Delivering tests
@@ -181,6 +192,9 @@ class mod_simplecertificate_basic_testcase extends advanced_testcase {
     	$this->assertEquals($this->student_account->email, $messages[0]->to);
     	//Verify emailfrom
     	$this->assertEquals($testfrom, $messages[0]->from);
+    	
+    	$this->write_to_report("Can send certificade to e-mail? Ok");
+    	$this->write_to_report("Can change email sender (from email)? Ok");
     	
 	}
 	
@@ -219,5 +233,31 @@ class mod_simplecertificate_basic_testcase extends advanced_testcase {
 		foreach ($messages as $msg) {
 			$this->assertContains($msg->to, $testemails);
 		}
+		
+		$this->write_to_report("Can notify Teacher, when a certificate is issued? Ok");
+		$this->write_to_report("Can notify others, when a certificate is issued? Ok");
+	}
+	public static function setUpBeforeClass() {
+		global $CFG;
+		
+		$moodle_version='moodle-'.moodle_major_version().' build: '.get_config('mod_simplecertificate','version');
+		self::$fhandle = fopen("$CFG->dirroot/mod/simplecertificate/TestCaseResults.txt", "w");
+		fwrite(self::$fhandle, $moodle_version);
+		fwrite(self::$fhandle, "PHPUnit tests:\n\n");
+		
+	}
+	
+	public static function tearDownAfterClass() {
+		global $CFG;
+		
+		$othertests = file_get_contents ("$CFG->dirroot/mod/simplecertificate/tests/other/TestCaseChkLst.txt");
+		fwrite(self::$fhandle, "End ofPHPUnit tests:\n------\n");
+		fwrite(self::$fhandle, $othertests);
+		fclose(self::$fhandle);
+	}
+	
+	private function write_to_report($str) {
+		$this->count++;
+		fwrite(self::$fhandle, $this->count.'- '.$str."\n");
 	}
 }

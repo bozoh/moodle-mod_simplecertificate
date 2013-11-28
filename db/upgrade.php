@@ -254,5 +254,37 @@ function xmldb_simplecertificate_upgrade($oldversion=0) {
     	upgrade_mod_savepoint(true, 2013112500, 'simplecertificate');
     }
     
+    if ($oldversion < 2013112901) {
+    
+    	// Define field coursename to be added to simplecertificate_issues.
+    	$table = new xmldb_table('simplecertificate_issues');
+    	$field = new xmldb_field('coursename', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null, 'timedeleted');
+    
+    	// Conditionally launch add field coursename.
+    	if (!$dbman->field_exists($table, $field)) {
+    		$dbman->add_field($table, $field);
+    	}
+    	$sql= 'UPDATE {simplecertificate_issues} set coursename = (select fullname from {course} where id = (select course from {simplecertificate} where id = certificateid)) where timedeleted is null';
+    	$DB->execute($sql);
+    	 
+    
+    	// Simplecertificate savepoint reached.
+    	$field = new xmldb_field('haschange', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'coursename');
+    
+    	// Conditionally launch add field haschange.
+    	if (!$dbman->field_exists($table, $field)) {
+    		$dbman->add_field($table, $field);
+    	}
+    	
+    	$sql = 'UPDATE {simplecertificate_issues} SET haschange = 1';
+    	$DB->execute($sql);
+    	
+    
+    	// Simplecertificate savepoint reached.
+    	upgrade_mod_savepoint(true, 2013112901, 'simplecertificate');
+    }
+    
+    
+    
     return true;
 }

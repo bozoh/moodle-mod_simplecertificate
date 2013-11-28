@@ -1,15 +1,5 @@
-
 --Installation (MUST WORK)
 1- Upgrade plugin is work ?
-2- Create plugin is work ?
-
---Basic functions (MUST WORK)
-3- Can Create a simple certificate ? In php unit testcase
-4- Can Update ? In php unit testcase
-5- Can Retrieve (Issue):    
-	5.1 - As manager account? In php unit testcase
-	5.2 - As student account?In php unit testcase
-6- Can delete ?In php unit testcase
 
 --Certificate informations basic (MUST WORK)
 7- Is all pages in certificate:
@@ -52,16 +42,6 @@ If reach here all basics are good
 ---Minutes in course?
 ---Access Restrictions?
 ---Completion options?
-
---Delivery Methods:
----Can Open in browser?
----Can Download ?
----Can send to e-mail? In php unit testcase
-----Can change email sender (from name)? In php unit testcase
-
---Notifications
----Can notify Teacher, when a certificate is issued? In php unit testcase
----Can notify others, when a certificate is issued? In php unit testcase
 
 --Bulk Operations
 ---Can list only students that match course objectives?
