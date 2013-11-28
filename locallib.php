@@ -698,13 +698,13 @@ class simplecertificate {
         if ($file = $this->get_issue_file($issuecert)) { //put in a tmp dir, for e-mail attachament
         	$fullfilepath = $this->create_temp_file($file->get_filename());
         	$file->copy_content_to($fullfilepath);
-        	$relativefilepath = str_replace($CFG->dataroot . '/', "", $fullfilepath);
+        	$relativefilepath = str_replace($CFG->dataroot . DIRECTORY_SEPARATOR, "", $fullfilepath);
         	
-        	if (strpos($relativefilepath, '/', 1) === 0)
+        	if (strpos($relativefilepath, DIRECTORY_SEPARATOR, 1) === 0)
         		$relativefilepath = substr($relativefilepath, 1);
         	
 			if (!empty($this->emailfrom)){
-        	 	$from = generate_email_supportuser();
+        	 	$from = core_user::get_support_user();
         	 	$from->email = format_string($this->emailfrom, true);
         	} else {
         		$from = format_string($this->emailfrom, true);
@@ -1138,7 +1138,7 @@ class simplecertificate {
     
     //Default view
     public function view_default(moodle_url $url, $canmanage) {
-    	global $OUTPUT, $USER;
+    	global $CFG, $OUTPUT, $USER;
 
     	if (!$url->get_param('action')) {
     		
@@ -1150,7 +1150,7 @@ class simplecertificate {
     	 	
     		// Check if the user can view the certificate
     		if (!$canmanage && $msg = $this->can_issue($USER)) {
-    			notice($msg, $url);
+    			notice($msg, $CFG->wwwroot.'/course/view.php?id='.$this->course);
     			die;
     		}
     	
