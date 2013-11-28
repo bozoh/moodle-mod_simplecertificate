@@ -770,6 +770,8 @@ class simplecertificate {
     }
 
     public function output_pdf($issuecert) {
+    	global $OUTPUT;
+    	
         $pdf = $this->create_pdf($issuecert);
         $filename = $this->save_pdf($pdf, $issuecert);
         
