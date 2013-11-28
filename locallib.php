@@ -701,9 +701,8 @@ class simplecertificate {
         		$relativefilepath = substr($relativefilepath, 1);
         	
         	if (!empty($this->emailfrom)){
-        		$from = new stdClass;
-        		$from->email = format_string($this->emailfrom, true);
-        		$from->maildisplay = true;
+        	 	$from = generate_email_supportuser();
+        	 	$from->email = format_string($this->emailfrom, true);
         	} else {
         		$from = format_string($this->emailfrom, true);
         	}
@@ -783,6 +782,9 @@ class simplecertificate {
             
             case self::OUTPUT_SEND_EMAIL:
                 $this->send_certificade_email($issuecert);
+                echo $OUTPUT->header();
+                echo $OUTPUT->box(get_string('emailsent','simplecertificate').'<br>'.$OUTPUT->close_window_button(), 'generalbox', 'notice');
+                echo $OUTPUT->footer();
             break;
             
             case self::OUTPUT_OPEN_IN_BROWSER:
