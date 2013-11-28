@@ -700,12 +700,14 @@ class simplecertificate {
         	if (strpos($relativefilepath, '/', 1) === 0)
         		$relativefilepath = substr($relativefilepath, 1);
         	
-        	///$this->emailfrom DON'T WORK FOR MOODLE 2.4
-        	 if (!empty($this->emailfrom)){
-        	 	$this->emailfrom = null;
-        	}        
+			if (!empty($this->emailfrom)){
+        	 	$from = generate_email_supportuser();
+        	 	$from->email = format_string($this->emailfrom, true);
+        	} else {
+        		$from = format_string($this->emailfrom, true);
+        	}
         	
-        	$ret = email_to_user($user, format_string($this->emailfrom, true), $subject, $message, $messagehtml, $relativefilepath, $file->get_filename());
+        	$ret = email_to_user($user, $from, $subject, $message, $messagehtml, $relativefilepath, $file->get_filename());
         	@unlink($attachment);
         	
         	return $ret;
@@ -780,6 +782,9 @@ class simplecertificate {
             
             case self::OUTPUT_SEND_EMAIL:
                 $this->send_certificade_email($issuecert);
+                echo $OUTPUT->header();
+                echo $OUTPUT->box(get_string('emailsent','simplecertificate').'<br>'.$OUTPUT->close_window_button(), 'generalbox', 'notice');
+                echo $OUTPUT->footer();
             break;
             
             case self::OUTPUT_OPEN_IN_BROWSER:

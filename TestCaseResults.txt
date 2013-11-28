@@ -56,7 +56,7 @@ If reach here all basics are good
 ---Can Open in browser?ok
 ---Can Download ?ok
 ---Can send to e-mail?ok
-----Can change email sender (from name)? DON'T WORK in MOODLE 2.4
+----Can change email sender (from name)? ok
 
 --Notifications
 ---Can notify Teacher, when a certificate is issued?not tested
