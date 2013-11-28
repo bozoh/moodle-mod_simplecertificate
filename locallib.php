@@ -695,9 +695,9 @@ class simplecertificate {
         if ($file = $this->get_issue_file($issuecert)) { //put in a tmp dir, for e-mail attachament
         	$fullfilepath = $this->create_temp_file($file->get_filename());
         	$file->copy_content_to($fullfilepath);
-        	$relativefilepath = str_replace($CFG->dataroot . '/', "", $fullfilepath);
+        	$relativefilepath = str_replace($CFG->dataroot . DIRECTORY_SEPARATOR, "", $fullfilepath);
         	
-        	if (strpos($relativefilepath, '/', 1) === 0)
+        	if (strpos($relativefilepath, DIRECTORY_SEPARATOR, 1) === 0)
         		$relativefilepath = substr($relativefilepath, 1);
         	
         	if (!empty($this->emailfrom)){
