@@ -131,7 +131,6 @@ class mod_simplecertificate_basic_testcase extends advanced_testcase {
     	$this->assertFalse($fs->file_exists($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'], $fileinfo['itemid'], $fileinfo['filepath'], $fileinfo['filename']));
     	
     	//Creating file
-    	$this->redirectEmails();
     	$simplecerticate->output_pdf($issuecert);
     	$this->assertTrue($fs->file_exists($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'], $fileinfo['itemid'], $fileinfo['filepath'], $fileinfo['filename']));
     	
@@ -142,15 +141,11 @@ class mod_simplecertificate_basic_testcase extends advanced_testcase {
     	$fileinfo = simplecertificate::get_certificate_issue_fileinfo($issuecert, null);
     	$fs = get_file_storage();
     	$this->assertFalse($fs->file_exists($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'], $fileinfo['itemid'], $fileinfo['filepath'], $fileinfo['filename']));
-    	 
+
     	//Creating file
-    	$this->redirectEmails();
     	$simplecerticate->output_pdf($issuecert);
     	//Must not exixst, no file is storage
     	$this->assertFalse($fs->file_exists($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'], $fileinfo['itemid'], $fileinfo['filepath'], $fileinfo['filename']));
-    	
-    	
-    	
     }
     
     //Delivering tests
