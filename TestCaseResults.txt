@@ -1,183 +1,91 @@
----moodle2.3 v.2.1.2
---Instalation (MUST WORK)
-1- Upgrade plugin is work ? ok
-2- Create plugin is work ? ok
+moodle2.3-v.2.1.3-beta1
 
---Basic fuctions (MUST WORK)
-3- Can Create a simple certificate ?ok
+--Installation (MUST WORK)
+1- Upgrade plugin is work ? ok
+2- Create plugin is work ? not tested
+
+--Basic functions (MUST WORK)
+3- Can Create a simple certificate ? ok
 4- Can Update ? ok
-5- Can Retrive (Issue):    
-	5.1 - As manager account?ok
-	5.2 - As student account?ok
-6- Can delete ?ok
+5- Can Retrieve (Issue):    
+	5.1 - As manager account? ok
+	5.2 - As student account? ok
+6- Can delete ? ok
 
 --Certificate informations basic (MUST WORK)
-7- Is all pages in certificate:
-	7.1- Second page is enable and is in certificate? ok
-8- Is all texts in certificate:
-	8.1- Front text is correct ?ok
-	8.2- Back text is enable and is correct ?ok
-	8.3- All variables is correct?ok
-9- Is all image in certificate:
-	9.1- Front Image is correct?ok
-	9.2- Back Image is enable and is correct?ok
-10- Is QR enable an in certificate?ok
-	10.1- In second page ?ok
-	10.2- In first page ?ok
-11- Is certficate verification page works? ok
+7- Is all pages in certificate: ok
+	7.1- Second page is enable and is in certificate? ok 
+8- Is all texts in certificate: ok
+	8.1- Front text is correct ? ok
+	8.2- Back text is enable and correct ? ok
+	8.3- All variables are correct? ok
+	8.4- All custom profile variables are correct? ok
+9- Is all image in certificate: ok
+	9.1- Front Image is correct? ok
+	9.2- Back Image is enable and correct? ok
+10- Is QR enable an in certificate?  ok
+	10.1- In second page ? ok
+	10.2- In first page ? ok
+11- Is certificate verification page works? ok
 	11.1- Captcha is work if enabled ? not tested
 	11.2- User can download the certificate only if is logged in? ok
-	11.3- QR code has the correct verification page URL? ok
+	11.3- QR code has the correct verification page URL? not tested
 	
 =====
 If reach here all basics are good
 ====
 
---Addional functions
---- Can change page size ?ok
+--Additional functions
+--- Can change page size ? ok
 
 --Positions
---- Can change text position:
---- Front page text?ok
---- Back page text?ok
---- Can chage QR code position?ok
+--- Can change text position: ok
+--- Front page text? ok
+--- Back page text? ok
+--- Can change QR code position? ok
 
---Text fortation
----Can chage date format?ok
+--Text formation
+---Can change date format? ok
 ---Can change Grade format? ok
 
---Issue Coditions
----Can't issue if don't match requiremend: ok
----Minutes in course?ok
----Access Restrictions?ok
----Copletation options?ok
+--Issue Conditions
+---Can't issue if don't match requirements: ok
+---Minutes in course? ok
+---Access Restrictions? ok
+---Completion options? ok
 
 --Delivery Methods:
----Can Open in browser?ok
----Can Downlaod ?ok
----Can send to e-mail?ok
-----Can change email sender (from name)?not tested
+---Can Open in browser? ok
+---Can Download ? ok
+---Can send to e-mail? ok
+----Can change email sender (from email)? ok 
 
 --Notifications
----Can notify Teacher, when a certificate is issued?not tested
----Can notify others, when a certificate is issued?not tested
+---Can notify Teacher, when a certificate is issued? not tested 
+---Can notify others, when a certificate is issued? not tested
 
 --Bulk Operations
----Can list only students that match course objectives?ok
----Can list all users ?ok
----Can create one PDF files with all listed certificates?ok
----Can create one PDF files with only selected certificates?ok
----Can create one zip file with all listed certificates?ok
----Can create one zip file with only selected certificates?ok
----Can send certificates to all listed  user's ?ok
----Can send certificates to all selectef  user's ?ok
+---Can list only students that match course objectives? ok
+---Can list all users ? ok
+---Can create one PDF files with all listed certificates? ok
+---Can create one PDF files with only selected certificates? ok
+---Can create one zip file with all listed certificates? ok
+---Can create one zip file with only selected certificates? ok
+---Can send certificates to all listed  user's ? ok
+---Can send certificates to all selected user's ? ok
 
 --Report
----Can view all issued certificate?ok
----Can download all issued certificate?ok
-
+---Can view all issued certificate? ok
+---Can download all issued certificate? ok
+---Can download as ODS file? ok
+---Can download as XLS file? ok
+---Can download as Text files? ok
 
 
 --backup & restore
--Can backup ?ok
---Backup file is correct?ok
--Can restore ?ok
---Certificate files is restoted correctly?ok
---issued certificate is restored correctly?not tested
-
-	
-	
-	
-	
---Test Certificate Data
---First page (all variables)
-<h1>FRIST PAGE</h1>
-<p> </p>
-<table border="5" cellpadding="1" align="center">
-<tbody>
-<tr>
-<td>Username: {USERNAME}</td>
-<td>Coursename: {COURSENAME}</td>
-<td>Grade:{GRADE}</td>
-<td>Date: {DATE}</td>
-<td>Outcome: {OUTCOME}</td>
-</tr>
-<tr>
-<td>Hours: {HOURS}</td>
-<td>Teachers: {TEACHERS}</td>
-<td>Idnumber: {IDNUMBER}</td>
-<td>
-<p> </p>
-First Name: {FIRSTNAME}</td>
-<td>Last Name: {LASTNAME}</td>
-</tr>
-<tr>
-<td>Email: {EMAIL}</td>
-<td>ICQ: {ICQ}</td>
-<td>Skype: {SKYPE}</td>
-<td>Yahoo: {YAHOO}</td>
-<td>AIM: {AIM}</td>
-</tr>
-<tr>
-<td><br />Msn: {MSN}</td>
-<td>Phone 1: {PHONE1}</td>
-<td>Phone 2: {PHONE2}</td>
-<td>Institution: {INSTITUTION}</td>
-<td>Department: {DEPARTMENT}</td>
-</tr>
-<tr>
-<td>Address: {ADDRESS}</td>
-<td>City: {CITY}</td>
-<td>Country: {COUNTRY}</td>
-<td>Url: {URL}</td>
-<td>Certificate Code: {CERTIFICATECODE}</td>
-</tr>
-</tbody>
-</table>
-
---Second Page (all variables)
-
-<h1>SECOND PAGE</h1>
-<p> </p>
-<table border="5" cellpadding="1" align="center">
-<tbody>
-<tr>
-<td>Username: {USERNAME}</td>
-<td>Coursename: {COURSENAME}</td>
-<td>Grade:{GRADE}</td>
-<td>Date: {DATE}</td>
-<td>Outcome: {OUTCOME}</td>
-</tr>
-<tr>
-<td>Hours: {HOURS}</td>
-<td>Teachers: {TEACHERS}</td>
-<td>Idnumber: {IDNUMBER}</td>
-<td>
-<p> </p>
-First Name: {FIRSTNAME}</td>
-<td>Last Name: {LASTNAME}</td>
-</tr>
-<tr>
-<td>Email: {EMAIL}</td>
-<td>ICQ: {ICQ}</td>
-<td>Skype: {SKYPE}</td>
-<td>Yahoo: {YAHOO}</td>
-<td>AIM: {AIM}</td>
-</tr>
-<tr>
-<td><br />Msn: {MSN}</td>
-<td>Phone 1: {PHONE1}</td>
-<td>Phone 2: {PHONE2}</td>
-<td>Institution: {INSTITUTION}</td>
-<td>Department: {DEPARTMENT}</td>
-</tr>
-<tr>
-<td>Address: {ADDRESS}</td>
-<td>City: {CITY}</td>
-<td>Country: {COUNTRY}</td>
-<td>Url: {URL}</td>
-<td>Certificate Code: {CERTIFICATECODE}</td>
-</tr>
-</tbody>
-</table>
+-Can backup ? ok
+--Backup file is correct? ok
+-Can restore ? ok
+--Certificate files is restored correctly?  ok
+--issued certificate is restored correctly? not tested
 	
