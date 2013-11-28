@@ -115,7 +115,7 @@ function simplecertificate_update_instance($certificate, $mform=null) {
     $DB->update_record('simplecertificate', $certificate);
 
     $context = get_context_instance(CONTEXT_MODULE, $certificate->coursemodule);
-    
+
     //process files
     if ($mform) {
         $files = simplecertificate_process_form_files($mform, $context);
@@ -205,6 +205,7 @@ function simplecertificate_delete_instance($id) {
 
     // Delete any files associated with the certificate
     $context = get_context_instance(CONTEXT_MODULE, $cm->id);
+    
     $fs = get_file_storage();
     $fileinfo = simplecertificate::get_certificate_image_fileinfo($context);
     $fs->delete_area_files($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea']);
@@ -280,7 +281,7 @@ function simplecertificate_reset_course_form_defaults($course) {
     return array('reset_simplecertificate' => 1);
 }
 
-/*
+
 /**
  * Returns information about received certificate.
  * Used for user activity reports.
@@ -290,7 +291,7 @@ function simplecertificate_reset_course_form_defaults($course) {
  * @param stdClass $mod
  * @param stdClass $certificate
  * @return stdClass the user outline object
- *//*
+ */
 function simplecertificate_user_outline($course, $user, $mod, $certificate) {
     global $DB;
 
@@ -304,32 +305,8 @@ function simplecertificate_user_outline($course, $user, $mod, $certificate) {
 
     return $result;
 }
-*/
 
-/* /**
- * Returns information about received certificate.
- * Used for user activity reports.
- *
- * @param stdClass $course
- * @param stdClass $user
- * @param stdClass $mod
- * @param stdClass $page
- * @return string the user complete information
- *//*
-function simplecertificate_user_complete($course, $user, $mod, $certificate) {
-    global $DB, $OUTPUT;
 
-    if ($issue = $DB->get_record('simplecertificate_issues', array('certificateid' => $certificate->id, 'userid' => $user->id, 'timedeleted' => null))) {
-        echo $OUTPUT->box_start();
-        echo get_string('issued', 'simplecertificate') . ": ";
-        echo userdate($issue->timecreated);
-        simplecertificate_print_user_files($certificate->id, $user->id);
-        echo '<br />';
-        echo $OUTPUT->box_end();
-    } else {
-        print_string('notissuedyet', 'simplecertificate');
-    }
-} */
 
 /**
  * Must return an array of user records (all data) who are participants
@@ -574,7 +551,7 @@ function simplecertificate_get_editor_options(stdclass $context) {
  * Get all the modules
  *
  * @return array
- */
+*/ 
 function simplecertificate_get_mods (){
     global $COURSE, $CFG, $DB;
 
@@ -631,9 +608,11 @@ function simplecertificate_get_mods (){
  * @return array
  */
 function simplecertificate_get_date_options() {
-    $dateoptions['1'] = get_string('issueddate', 'simplecertificate');
-    $dateoptions['2'] = get_string('completiondate', 'simplecertificate');
-    return $dateoptions + simplecertificate_get_mods();
+	global $CFG;
+	require_once(dirname(__FILE__) . '/locallib.php');
+	$dateoptions[simplecertificate::CERT_ISSUE_DATE] = get_string('issueddate', 'simplecertificate');
+    $dateoptions[simplecertificate::COURSE_COMPLETATION_DATE] = get_string('completiondate', 'simplecertificate');
+    return $dateoptions + simplecertificate_get_mods();  
 }
 
 /**
@@ -642,9 +621,9 @@ function simplecertificate_get_date_options() {
  * @return array
  */
 function simplecertificate_get_grade_options() {
-    $gradeoptions['0'] = get_string('nograde');
-    $gradeoptions['1'] = get_string('coursegrade', 'simplecertificate');
-
+	require_once(dirname(__FILE__) . '/locallib.php');
+    $gradeoptions[simplecertificate::NO_GRADE] = get_string('nograde');
+    $gradeoptions[simplecertificate::COURSE_GRADE] = get_string('coursegrade', 'simplecertificate');
     return $gradeoptions + simplecertificate_get_mods();
 }
 
