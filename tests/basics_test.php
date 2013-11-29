@@ -27,7 +27,7 @@ class mod_simplecertificate_basic_testcase extends advanced_testcase {
 	//http://docs.moodle.org/dev/Writing_PHPUnit_tests
 	private $course;
 	private $student_account;
-	private $count;
+	public static $count;
 	public static $fhandle; 
 
 	
@@ -64,15 +64,15 @@ class mod_simplecertificate_basic_testcase extends advanced_testcase {
         $this->assertEquals(2, $DB->count_records('simplecertificate', array('course' => $this->course->id)));
         $this->assertEquals('One more certificate', $DB->get_field_select('simplecertificate', 'name', 'id = :id', array('id' => $cert->id)));
         
-        $this->write_to_report("Create plugin is work ? Ok");
+        $this->write_to_report("Creating plugin is working ? Ok");
         $this->write_to_report("Can Create a simple certificate ? Ok");
         $this->write_to_report("Can Update a simple certificate ? Ok");
         $this->write_to_report("Can Delete a simple certificate ? Ok");
     }
     
     public function test_create_issue_instance() {
-    	global $DB, $CFG;
-    	require_once("$CFG->dirroot/mod/simplecertificate/locallib.php");
+    	global $DB;
+    	
     	
     	$this->resetAfterTest();
     	$this->setAdminUser();
@@ -81,26 +81,44 @@ class mod_simplecertificate_basic_testcase extends advanced_testcase {
     	//No certificate is issued
     	$this->assertFalse($DB->record_exists("simplecertificate_issues", array('certificateid'=>$cert->id)));
     	$issuecert= $simplecertgen->create_issue(array('certificate'=>$cert, 'user'=>$this->student_account));
-    	//Has issued
+    	//Issued a student certificate as manager
     	$this->assertNotEmpty($issuecert);
     	$this->assertTrue($DB->record_exists("simplecertificate_issues", array('id'=>$issuecert->id)));
-    	$this->assertEquals(1, $DB->count_records("simplecertificate_issues", array('certificateid'=>$cert->id)));
+    	$this->assertTrue(!empty($issuecert->haschange));
+    	$this->assertEquals($this->course->fullname, $issuecert->coursename);
+    	$this->assertEquals($this->student_account->id, $issuecert->userid);
+    	$this->write_to_report("Can Retrieve a student simple certificate As manager? Ok");
     	
-    	//Issuing using $USER
+    	//Issuing a manager certificate as manager (do not save)
+    	$issuecert= $simplecertgen->create_issue(array('certificate'=>$cert));
+    	$this->assertNotEmpty($issuecert);
+    	$this->assertFalse($DB->record_exists("simplecertificate_issues", array('id'=>$issuecert->id)));
+    	$this->assertTrue(!empty($issuecert->haschange));
+    	$this->assertEquals($this->course->fullname, $issuecert->coursename);
+    	$this->assertNotEquals($this->student_account->id, $issuecert->userid);
+    	$this->write_to_report("Can Retrieve a simple certificate As manager? Ok");
+    	 
+    	
+    	//Issuing using as student
     	$this->setUser($this->student_account);
     	$issuecert= $simplecertgen->create_issue(array('certificate'=>$cert));
     	//Has issued
     	$this->assertNotEmpty($issuecert);
     	$this->assertTrue($DB->record_exists("simplecertificate_issues", array('id'=>$issuecert->id)));
     	$this->assertEquals(1, $DB->count_records("simplecertificate_issues", array('certificateid'=>$cert->id)));
-
-    	$this->write_to_report("Can Retrieve a simple certificate As manager? Ok");
-        $this->write_to_report("Can Retrieve a simple certificate As student ? Ok");
+    	$this->assertTrue(!empty($issuecert->haschange));
+    	$this->assertEquals($this->course->fullname, $issuecert->coursename);
+    	$this->assertEquals($this->student_account->id, $issuecert->userid);
+    	$this->write_to_report("Can Retrieve a simple certificate As student ? Ok");
+    	
+    	$this->assertEquals(1, $DB->count_records("simplecertificate_issues", array('certificateid'=>$cert->id)));
+    	
+    	        
     }
     
     public function test_create_issue_code() {
-    	global $DB, $CFG;
-    	require_once("$CFG->dirroot/mod/simplecertificate/locallib.php");
+    	global $DB;
+    	
     	$this->resetAfterTest();
     	$this->setAdminUser();
     	$cert = $this->getDataGenerator()->create_module('simplecertificate', array('course' => $this->course->id));
@@ -117,7 +135,7 @@ class mod_simplecertificate_basic_testcase extends advanced_testcase {
     
     public function  test_pdf_file() {
     	global $DB, $CFG;
-    	require_once("$CFG->dirroot/mod/simplecertificate/locallib.php");
+    	require_once("$CFG->dirroot/mod/simplecertificate/tests/fixtures/locallibwarp.php");
     	
     	if (moodle_major_version() < 2.6) {
     		$this->markTestSkipped("Needs moodle 2.6 or grater");
@@ -125,44 +143,54 @@ class mod_simplecertificate_basic_testcase extends advanced_testcase {
     	$this->resetAfterTest();
     	$this->setAdminUser();
     	$cert = $this->getDataGenerator()->create_module('simplecertificate', array('course' => $this->course->id ));
-    	    	
-   		 if ($cert->delivery != 3 ) {
-    		$this->markTestSkipped("Certificate delivery option must be 3");
-    	} 
-    	$simplecerticate = new simplecertificate($cert);
+
+    	//Deplivery option must be 3 for this test
+   		$cert->delivery = 3; 
+    	$simplecerticate = new simplecertificateWarperClass($cert);
     		
-    	$simplecertgen = $this->getDataGenerator()->get_plugin_generator('mod_simplecertificate');
-    	$issuecert= $simplecertgen->create_issue(array('certificate'=>$cert, 'user'=>$this->student_account));
+    	$issuecert= $simplecerticate->get_issue($this->student_account);
+
     	//Verify if file DON´T EXISTS
-    	$fileinfo = simplecertificate::get_certificate_issue_fileinfo($issuecert, null);
-    	$fs = get_file_storage();
-    	$this->assertFalse($fs->file_exists($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'], $fileinfo['itemid'], $fileinfo['filepath'], $fileinfo['filename']));
+    	$this->assertFalse($simplecerticate->issue_file_exists($issuecert));
+    	$this->assertTrue(!empty($issuecert->haschange));
     	
     	//Creating file
     	$simplecerticate->output_pdf($issuecert);
-    	$this->assertTrue($fs->file_exists($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'], $fileinfo['itemid'], $fileinfo['filepath'], $fileinfo['filename']));
+    	$this->assertTrue(empty($issuecert->haschange));
+    	$this->assertTrue($simplecerticate->issue_file_exists($issuecert));
+    	$this->write_to_report("Can Open certificade file in browser? Ok");
+    	$this->write_to_report("Can Download certificade file in browser? Ok");
+    	
+    	//Verify if only re-create a pdf file if certificate changes
+    	$issuecert= $simplecerticate->get_issue($this->student_account);
+    	$this->assertTrue(empty($issuecert->haschange));
+    	$this->assertFalse($simplecerticate->create_pdf($issuecert));
+    	$fileinfo=$simplecerticate::get_certificate_issue_fileinfo($issuecert);
+    	$this->assertEquals($fileinfo['filename'], $simplecerticate->save_pdf(null, $issuecert));
+    	$this->assertTrue(empty($issuecert->haschange));
+    	//TODO how to test simplecertificate_update_instance function
+    	$this->write_to_report("Only re-create a pdf file if certificate changes? Ok");
     	
     	//Issue as admin
     	$this->setAdminUser();
-    	$issuecert= $simplecertgen->create_issue(array('certificate'=>$cert));
+    	$issuecert= $simplecerticate->get_issue();
+    	
     	//Verify if file DON´T EXISTS
-    	$fileinfo = simplecertificate::get_certificate_issue_fileinfo($issuecert, null);
-    	$fs = get_file_storage();
-    	$this->assertFalse($fs->file_exists($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'], $fileinfo['itemid'], $fileinfo['filepath'], $fileinfo['filename']));
+    	$this->assertFalse($simplecerticate->issue_file_exists($issuecert));
+    	$this->assertTrue(!empty($issuecert->haschange));
 
     	//Creating file
     	$simplecerticate->output_pdf($issuecert);
     	//Must not exixst, no file is storage
-    	$this->assertFalse($fs->file_exists($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'], $fileinfo['itemid'], $fileinfo['filepath'], $fileinfo['filename']));
-    	
-    	$this->write_to_report("Can Open certificade file in browser? Ok");
-    	$this->write_to_report("Can Download certificade file in browser? Ok");
+    	$this->assertFalse($simplecerticate->issue_file_exists($issuecert));
+    	$this->assertTrue(empty($issuecert->haschange));
+    	$this->write_to_report("Managers certificates are not save? Ok");
     }
     
     //Delivering tests
     public function test_delivery_email() {
     	global $DB, $CFG;
-    	require_once("$CFG->dirroot/mod/simplecertificate/locallib.php");
+    	require_once("$CFG->dirroot/mod/simplecertificate/tests/fixtures/locallibwarp.php");
     	
     	if (moodle_major_version() < 2.6) {
     		$this->markTestSkipped("Needs moodle 2.6 or grater");
@@ -172,19 +200,16 @@ class mod_simplecertificate_basic_testcase extends advanced_testcase {
     	$this->setAdminUser();
     	$testfrom = 'fromtest@test.com';
     	$cert = $this->getDataGenerator()->create_module('simplecertificate', array('course' => $this->course->id, 'delivery'=> 2, 'emailfrom' => $testfrom ));
-
-    	if ($cert->delivery != 2 ) {
-    		$this->markTestSkipped("Certificate delivery option must be 2");
-    	}
-    	$simplecerticate = new simplecertificate($cert);
     	
-    	$simplecertgen = $this->getDataGenerator()->get_plugin_generator('mod_simplecertificate');
-    	$issuecert= $simplecertgen->create_issue(array('certificate'=>$cert, 'user'=>$this->student_account));
+    	$simplecerticate = new simplecertificateWarperClass($cert);
+    	$issuecert= $simplecerticate->get_issue($this->student_account);
+    	$pdfcert = $simplecerticate->create_pdf($issuecert);
+    	@$simplecerticate->save_pdf($pdfcert, $issuecert);
     	
     	//E-mail send to user test
     	unset_config('noemailever');
     	$sink = $this->redirectEmails();
-    	$simplecerticate->output_pdf($issuecert);
+    	$simplecerticate->send_certificade_email($issuecert);
     	$messages = $sink->get_messages();
     	
     	//Verify email
@@ -199,7 +224,7 @@ class mod_simplecertificate_basic_testcase extends advanced_testcase {
 	}
 	
 	public function test_email_notifications() {
-		global $DB, $CFG;
+		global $DB;
 		
 		if (moodle_major_version() < 2.6) {
 			$this->markTestSkipped("Needs moodle 2.6 or grater");
@@ -237,27 +262,34 @@ class mod_simplecertificate_basic_testcase extends advanced_testcase {
 		$this->write_to_report("Can notify Teacher, when a certificate is issued? Ok");
 		$this->write_to_report("Can notify others, when a certificate is issued? Ok");
 	}
+	
 	public static function setUpBeforeClass() {
 		global $CFG;
+		require_once("$CFG->dirroot/mod/simplecertificate/tests/fixtures/locallibwarp.php");
 		
-		$moodle_version='moodle-'.moodle_major_version().' build: '.get_config('mod_simplecertificate','version');
+		$moodle_version='moodle-'.moodle_major_version();
+		$moodle_version.=' '.simplecertificateWarperClass::PLUGIN_VERSION;
+		$moodle_version.=' build: '.get_config('mod_simplecertificate','version')."\n";
+		
 		self::$fhandle = fopen("$CFG->dirroot/mod/simplecertificate/TestCaseResults.txt", "w");
 		fwrite(self::$fhandle, $moodle_version);
-		fwrite(self::$fhandle, "PHPUnit tests:\n\n");
+		fwrite(self::$fhandle, 'Runned at: '.date('Y-m-d H:i')."\n\n");
+		fwrite(self::$fhandle, "\n------\nPHPUnit tests:\n\n");
+		self::$count = 0;
 		
 	}
 	
 	public static function tearDownAfterClass() {
 		global $CFG;
 		
+		fwrite(self::$fhandle, "\nEnd ofPHPUnit tests.\n------\n\n");
 		$othertests = file_get_contents ("$CFG->dirroot/mod/simplecertificate/tests/other/TestCaseChkLst.txt");
-		fwrite(self::$fhandle, "End ofPHPUnit tests:\n------\n");
 		fwrite(self::$fhandle, $othertests);
 		fclose(self::$fhandle);
 	}
 	
 	private function write_to_report($str) {
-		$this->count++;
-		fwrite(self::$fhandle, $this->count.'- '.$str."\n");
+		self::$count++;
+		fwrite(self::$fhandle, self::$count.'- '.$str."\n");
 	}
 }

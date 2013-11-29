@@ -159,6 +159,8 @@ function simplecertificate_update_instance($certificate, $mform=null) {
     // re-save the record with the replaced URLs in editor fields
 
     $DB->update_record('simplecertificate', $certificate);
+    $DB->execute('UPDATE {simplecertificate_issues} SET haschange = 1 WHERE timedeleted is NULL AND certificateid = :certid', 
+    		array('certid'=>$certificate->id));
 
     //Send event
     simplecertificate_send_event($certificate);

@@ -118,6 +118,7 @@ class mod_simplecertificate_generator extends testing_module_generator {
         return parent::create_instance($record, (array)$options);
     }
     
+    
     public function create_issue($record = null, array $options = null) {
     	global $CFG, $DB, $USER;
     	
@@ -127,8 +128,8 @@ class mod_simplecertificate_generator extends testing_module_generator {
     		throw new coding_exception("No Certificate is set");
     	}
     	
-    	require_once("$CFG->dirroot/mod/simplecertificate/locallib.php");
-    	$simplecerticiate = new simplecertificate($record->certificate);
+    	require_once("$CFG->dirroot/mod/simplecertificate/tests/fixtures/locallibwarp.php");
+    	$simplecerticiate = new simplecertificateWarperClass($record->certificate);
     	if (isset($record->user)) {
     		return $simplecerticiate->get_issue($record->user);
     	}

@@ -1,0 +1,97 @@
+moodle-2.6 2.2.0-alpha build: 2013112901
+Runned at: 2013-11-29 17:32
+
+
+------
+PHPUnit tests:
+
+1- Creating plugin is working ? Ok
+2- Can Create a simple certificate ? Ok
+3- Can Update a simple certificate ? Ok
+4- Can Delete a simple certificate ? Ok
+5- Can Retrieve a student simple certificate As manager? Ok
+6- Can Retrieve a simple certificate As manager? Ok
+7- Can Retrieve a simple certificate As student ? Ok
+8- Certificate code is correct ? Ok
+9- Can Open certificade file in browser? Ok
+10- Can Download certificade file in browser? Ok
+11- Only re-create a pdf file if certificate changes? Ok
+12- Managers certificates are not save? Ok
+13- Can send certificade to e-mail? Ok
+14- Can change email sender (from email)? Ok
+15- Can notify Teacher, when a certificate is issued? Ok
+16- Can notify others, when a certificate is issued? Ok
+
+End ofPHPUnit tests.
+------
+
+--Installation (MUST WORK)
+1- Upgrade plugin is work ?
+
+--Certificate informations basic (MUST WORK)
+7- Is all pages in certificate:
+	7.1- Second page is enable and is in certificate? 
+8- Is all texts in certificate:
+	8.1- Front text is correct ?
+	8.2- Back text is enable and correct ?
+	8.3- All variables are correct?
+	8.4- All custom profile variables are correct?
+9- Is all image in certificate:
+	9.1- Front Image is correct?
+	9.2- Back Image is enable and correct?
+10- Is QR enable an in certificate? 
+	10.1- In second page ?
+	10.2- In first page ?
+11- Is certificate verification page works?
+	11.1- Captcha is work if enabled ?
+	11.2- User can download the certificate only if is logged in?
+	11.3- QR code has the correct verification page URL?
+	
+=====
+If reach here all basics are good
+====
+
+--Additional functions
+--- Can change page size ?
+
+--Positions
+--- Can change text position:
+--- Front page text?
+--- Back page text?
+--- Can change QR code position?
+
+--Text formation
+---Can change date format?
+---Can change Grade format?
+
+--Issue Conditions
+---Can't issue if don't match requirements:
+---Minutes in course?
+---Access Restrictions?
+---Completion options?
+
+--Bulk Operations
+---Can list only students that match course objectives?
+---Can list all users ?
+---Can create one PDF files with all listed certificates?
+---Can create one PDF files with only selected certificates?
+---Can create one zip file with all listed certificates?
+---Can create one zip file with only selected certificates?
+---Can send certificates to all listed  user's ?
+---Can send certificates to all selected user's ?
+
+--Report
+---Can view all issued certificate?
+---Can download all issued certificate?
+---Can download as ODS file?
+---Can download as XLS file?
+---Can download as Text files?
+
+
+--backup & restore
+-Can backup ?
+--Backup file is correct?
+-Can restore ?
+--Certificate files is restored correctly?
+--issued certificate is restored correctly?
+	

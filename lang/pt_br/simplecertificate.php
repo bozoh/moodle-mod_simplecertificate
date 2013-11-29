@@ -245,3 +245,6 @@ $string['issueddownload'] = 'Certificado [id: {$a}] baixado';
 $string['defaultperpage'] = 'Por página';
 $string['defaultperpage_help'] = 'Quantidade de certificados exibidos por página (Max. 200)';
 
+$string['usercontextnotfound'] = 'User context not found';
+$string['usernotfound'] = 'User not found';
+$string['coursenotfound'] = 'Course not found';

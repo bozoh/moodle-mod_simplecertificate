@@ -38,7 +38,7 @@ require_once($CFG->dirroot . '/user/profile/lib.php');
 class simplecertificate {
 
     const CERTIFICATE_IMAGE_FILE_AREA = 'image';
-    const CERTIFICATE_ISSUES_FILE_AREA = 'issues';
+    const CERTIFICATE_ISSUES_FILE_AREA = 'draft'; //issues';
     const CERTIFICATE_COMPONENT_NAME = 'mod_simplecertificate';
     const OUTPUT_OPEN_IN_BROWSER = 0;
     const OUTPUT_FORCE_DOWNLOAD = 1;
@@ -100,8 +100,9 @@ class simplecertificate {
     public $course;
     public $coursemodule;
     public $context;
-    private $orientation = '';
-    private $cm;
+    protected $orientation = '';
+    protected $cm;
+    
 
     public function __construct(stdclass $dbrecord, stdclass $context = null) {
         global $DB;
@@ -172,30 +173,44 @@ class simplecertificate {
     }
 
 
-    public static function get_certificate_issue_fileinfo($issuecert, $context) {
+    public static function get_certificate_issue_fileinfo($issuecert) {
 		global $DB;
+		
+		if (empty($issuecert->coursename)) {
+			//Try to cacth course
+			if ($cert=$DB->get_record('simplecertificate', array('id'=>$issuecert->certificateid))) {
+				$course = get_course($cert->course);
+			}
+			if (empty($course)) {
+				error_log(get_string('coursenotfound','simplecertificate'));
+				print_error('coursenotfound','simplecertificate');
+			}
+			$issuecert->coursename = $course->fullname;
+			$DB->update_record('simplecertificate_issues', $issuecert);
+		}
     		
-        if (is_object($context)) {
-            $contextid = $context->id;
-        } else {
-            $contextid = $context;
-        }
+		if ($user=$DB->get_record("user", array('id'=>$issuecert->userid))) {
+			$filename = str_replace(' ', '_', clean_filename($issuecert->certificatename .' '. fullname($user) .' '. $issuecert->id . '.pdf'));
+		} else {
+			error_log(get_string('usernotfound','simplecertificate'));
+			print_error('usernotfound','simplecertificate');
+			die;
+		}
+		
+		try {
+			$context = context_user::instance($issuecert->userid);
+		} catch (Exception $e) {
+			erro_log(get_string('usercontextnotfound','simplecertificate'));
+			print_error('usercontextnotfound','simplecertificate');
+			die;
+		}
         
-        $context = context_system::instance();
-        $contextid = $context->id;
-        
-        if ($user=$DB->get_record("user", array('id'=>$issuecert->userid))) {
-        	$filename = str_replace(' ', '_', clean_filename($issuecert->certificatename .' '. fullname($user) .' '. $issuecert->id . '.pdf'));
-        } else {
-        	$filename = str_replace(' ', '_', clean_filename($issuecert->certificatename . ' '. $issuecert->id . '.pdf'));
-        }
-
         $fileinfo = array(
-                'contextid' => $contextid, // ID of context
-                'component' => self::CERTIFICATE_COMPONENT_NAME, // usually = table name
+                'contextid' => $context->id, // ID of context
+                'component' => 'user',
                 'filearea' => self::CERTIFICATE_ISSUES_FILE_AREA, // usually = table name
                 'itemid' => $issuecert->id, // usually = ID of row in table
-                'filepath' => '/', // any path beginning and ending in /
+                'filepath' => '/certificates/'.$issuecert->coursename.'/', // any path beginning and ending in /
                 'mimetype' => 'application/pdf', // any filename
                 'userid' => $issuecert->userid, 
         		'filename' => $filename
@@ -211,7 +226,7 @@ class simplecertificate {
      * @param stdClass $user
      * @return stdClass the newly created certificate issue
      */
-    function get_issue($user = null) {
+    public function get_issue($user = null) {
         global $DB, $USER;
         
         if (!isset($user)) {
@@ -225,22 +240,24 @@ class simplecertificate {
             $issuecert->userid = $user->id;
             $formated_certificatename = str_replace('-', '_',$this->name);
             $formated_coursename = str_replace('-', '_',$this->coursename);
+            $issuecert->coursename = $this->coursename;
+            $issuecert->haschange = 1;
             $issuecert->certificatename = format_string($formated_coursename.'-'.$formated_certificatename, true);
             $issuecert->timecreated = time();
             $issuecert->code = $this->get_issue_uuid();
 
-            if (!has_capability('mod/simplecertificate:manage', $this->context, $user)) {
-                $issuecert->id = $DB->insert_record('simplecertificate_issues', $issuecert);
+            if (has_capability('mod/simplecertificate:manage', $this->context, $user)) {
+            	$issuecert->id = 0;
             } else {
-                $issuecert->id = rand(0, 4);
+            	$issuecert->id = $DB->insert_record('simplecertificate_issues', $issuecert);
+
+            	// Email to the teachers and anyone else
+            	if ($this->emailteachers != 0)
+                	$this->send_alert_email_teachers();
+
+            	if (!empty($this->emailothers))
+                	$this->send_alert_email_others();
             }
-
-            // Email to the teachers and anyone else
-            if ($this->emailteachers != 0)
-                $this->send_alert_email_teachers();
-
-            if (!empty($this->emailothers))
-                $this->send_alert_email_others();
         }
         return $issuecert;
     }
@@ -374,7 +391,7 @@ class simplecertificate {
 	 * @param int $userid        	
 	 * @return stdClass bool the mod object if it exists, false otherwise
 	 */
-	private function get_mod_grade($moduleid, $userid) {
+	protected function get_mod_grade($moduleid, $userid) {
 		global $DB;
 		
 		$cm = $DB->get_record ('course_modules', array('id' => $moduleid));
@@ -416,7 +433,7 @@ class simplecertificate {
 	 *
 	 * @return string UUID_v1
 	 */
-	private function get_issue_uuid() {
+	protected function get_issue_uuid() {
 		global $CFG;
 		require_once (dirname ( __FILE__ ) . '/lib.uuid.php');
 		$UUID = UUID::mint ( UUID::VERSION_1, self::CERTIFICATE_COMPONENT_NAME );
@@ -429,7 +446,7 @@ class simplecertificate {
      *
      * @return array the teacher array
      */
-    private function get_teachers() {
+    protected function get_teachers() {
         global $CFG, $USER, $DB;
         $teachers = array();
 
@@ -461,7 +478,7 @@ class simplecertificate {
      * whether the option to email teachers is set for this certificate.
      *
      */
-    private function send_alert_email_teachers() {
+    protected function send_alert_email_teachers() {
         if ($teachers = $this->get_teachers()) {
             $emailteachers = array();
             foreach ($teachers as $teacher) {
@@ -478,7 +495,7 @@ class simplecertificate {
      * Code suggested by Eloy Lafuente
      *
      */
-    private function send_alert_email_others() {
+    protected function send_alert_email_others() {
         if ($this->emailothers) {
             $others = explode(',', $this->emailothers);
             if ($others)
@@ -486,7 +503,7 @@ class simplecertificate {
         }
     }
 
-    private function send_alert_emails($emails) {
+    protected function send_alert_emails($emails) {
         global $USER, $CFG, $DB;
 
         if (!empty($emails)) {
@@ -526,7 +543,7 @@ class simplecertificate {
      * Create TCPDF object using parameters
      * @return TCPDF
      */
-    private function create_pdf_object() {
+    protected function create_pdf_object() {
     	$pdf = new pdf($this->orientation, 'mm', array($this->width, $this->height), true, 'UTF-8');
     	$pdf->SetTitle($this->name);
     	$pdf->SetSubject($this->name . ' - ' . $this->coursename);
@@ -546,8 +563,12 @@ class simplecertificate {
      * @param string $pdf
      * @return mixed  TCPDF object or error 
      */
-    private function create_pdf($issuecert, $pdf = null) {
+    protected function create_pdf($issuecert, $pdf = null, $isbulk = false) {
         global $DB, $CFG;
+        
+        if (!$isbulk && empty($issuecert->haschange) && $this->issue_file_exists($issuecert)) {
+        	return false;
+        }
         
         if (empty($pdf)) {
         	$pdf = $this->create_pdf_object();
@@ -620,7 +641,7 @@ class simplecertificate {
         return $pdf;
     }
     
-    private function print_qrcode ($pdf, $code) {
+    protected function print_qrcode ($pdf, $code) {
         global $CFG;
         $style = array(
                 'border' => 2,
@@ -646,13 +667,24 @@ class simplecertificate {
      * @param stdClass $issuecert the certificate issue record
      * @return mixed return string with filename if successful, null otherwise
      */
-    private function save_pdf($pdf, $issuecert) {
+    protected function save_pdf($pdf, $issuecert) {
+    	global $DB;
 
+    	$fileinfo = self::get_certificate_issue_fileinfo($issuecert);
+    	
+    	if (empty($issuecert->haschange)) {
+    		if ($file = $this->get_issue_file($issuecert)){
+    			return $file->get_filename();
+    		} else {
+				error_log(get_string('filenotfound', 'simplecertificate', $fileinfo['filename']));
+				print_error(get_string('filenotfound', 'simplecertificate', $fileinfo['filename']));
+				return false;    			
+    		}
+    	}
+    	
     	if (empty($pdf)) {
             return false;
         }
-
-        $fileinfo = self::get_certificate_issue_fileinfo($issuecert, $this->context->id);
         
         // Check for file first
         if ($this->issue_file_exists($issuecert)) {
@@ -663,6 +695,13 @@ class simplecertificate {
 
         // Prepare file record object
         $fs->create_file_from_string($fileinfo, $pdf->Output('', 'S'));
+        
+        if (!empty($issuecert->haschange)) {
+        	$issuecert->haschange = 0;
+        	if (!has_capability('mod/simplecertificate:manage', $this->context, $issuecert->userid)) {
+        		$DB->update_record('simplecertificate_issues', $issuecert);
+        	}
+        }
         
         return $fileinfo['filename'];
     }
@@ -676,7 +715,7 @@ class simplecertificate {
      * @param stdClass $certrecord
      * @param stdClass $context
      */
-    private function send_certificade_email($issuecert) {
+    protected function send_certificade_email($issuecert) {
         global $DB, $CFG;
         
 		if (!$user = $DB->get_record('user', array('id' => $issuecert->userid))) {
@@ -715,17 +754,22 @@ class simplecertificate {
         	
         	return $ret;
         } else {
-        	$fileinfo = self::get_certificate_issue_fileinfo($issuecert, null);
+        	$fileinfo = self::get_certificate_issue_fileinfo($issuecert);
+        	error_log(get_string('filenotfound', 'simplecertificate', $fileinfo['filename']));
         	print_error(get_string('filenotfound', 'simplecertificate', $fileinfo['filename']));
         }
     }
 
-    private function get_issue_file ($issuecert) {
+    protected function get_issue_file ($issuecert) {
+    	if (!empty($issuecert->haschange)) {
+    		$this->save_pdf($this->create_pdf($issuecert), $issuecert);
+    	}
+    	
     	if (!$this->issue_file_exists($issuecert))
     		return false; 
     	
     	$fs = get_file_storage();
-    	$fileinfo = self::get_certificate_issue_fileinfo($issuecert, $this->context);
+    	$fileinfo = self::get_certificate_issue_fileinfo($issuecert);
     	return $fs->get_file($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'], $fileinfo['itemid'], $fileinfo['filepath'], $fileinfo['filename']);
     }
     
@@ -771,39 +815,37 @@ class simplecertificate {
 
     public function output_pdf($issuecert) {
     	global $OUTPUT;
-    	
-        $pdf = $this->create_pdf($issuecert);
-        $filename = $this->save_pdf($pdf, $issuecert);
-        
-        if(!$file = $this->get_issue_file($issuecert)) {
-        	print_error(get_string('filenotfound', 'simplecertificate', $filename));
+
+        if($file = $this->get_issue_file($issuecert)) {
+        	switch ($this->delivery) {
+        	    case self::OUTPUT_FORCE_DOWNLOAD:
+        	    	send_stored_file($file, 10, 0, true, array('filename'=>$filename, 'dontdie'=>true)); //force download
+        	    	break;
+        	
+        	    case self::OUTPUT_SEND_EMAIL:
+        	    	$this->send_certificade_email($issuecert);
+        	    	echo $OUTPUT->header();
+        	    	echo $OUTPUT->box(get_string('emailsent','simplecertificate').'<br>'.$OUTPUT->close_window_button(), 'generalbox', 'notice');
+        	    	echo $OUTPUT->footer();
+        	    	break;
+        	
+        	    case self::OUTPUT_OPEN_IN_BROWSER:
+        	    	send_stored_file($file, 10, 0, false, array('dontdie'=>true)); // open in browser
+        	    	break;
+        	}
+        	
+        	if (has_capability('mod/simplecertificate:manage', $this->context, $issuecert->userid)) {
+        		$file = $this->get_issue_file($issuecert);
+        		$file->delete();
+        	}
+        } else {
+        	$fileinfo = self::get_certificate_issue_fileinfo($issuecert);
+        	error_log(get_string('filenotfound', 'simplecertificate', $fileinfo['filename']));
+        	print_error(get_string('filenotfound', 'simplecertificate', $fileinfo['filename']));
         }
-        
-        switch ($this->delivery) {
-            case self::OUTPUT_FORCE_DOWNLOAD:
-            	send_stored_file($file, 10, 0, true, array('filename'=>$filename, 'dontdie'=>true)); //force download
-            break;
-            
-            case self::OUTPUT_SEND_EMAIL:
-                $this->send_certificade_email($issuecert);
-                echo $OUTPUT->header();
-                echo $OUTPUT->box(get_string('emailsent','simplecertificate').'<br>'.$OUTPUT->close_window_button(), 'generalbox', 'notice');
-                echo $OUTPUT->footer();
-            break;
-            
-            case self::OUTPUT_OPEN_IN_BROWSER:
-            	send_stored_file($file, 10, 0, false, array('dontdie'=>true)); // open in browser
-            break;
-        }
-        
-        if (has_capability('mod/simplecertificate:manage', $this->context, $issuecert->userid)) {
-        	$file = $this->get_issue_file($issuecert);
-        	$file->delete();
-        }
-        
     }
 
-    private function get_certificate_text($issuecert, $certtext = null) {
+    protected function get_certificate_text($issuecert, $certtext = null) {
         global $DB, $CFG;
 
         
@@ -909,7 +951,7 @@ class simplecertificate {
      * @param int $userid
      * @return string the date
      */
-    private function get_date($certissue, $userid = null) {
+    protected function get_date($certissue, $userid = null) {
         global $DB, $USER;
 
         if (empty($this->certdatefmt)){
@@ -955,7 +997,7 @@ class simplecertificate {
      *
      * @return array
      */
-    private function get_outcomes() {
+    protected function get_outcomes() {
         global $COURSE, $DB;
 
         // get all outcomes in course
@@ -987,7 +1029,7 @@ class simplecertificate {
      *
      * @return string the outcome
      */
-    private function get_outcome($userid) {
+    protected function get_outcome($userid) {
         global $USER, $DB;
 
         if (empty($userid)) {
@@ -1007,14 +1049,14 @@ class simplecertificate {
         return '';
     }
 
-    private function create_temp_file($file) {
+    protected function create_temp_file($file) {
     	global $CFG;
     	
         $path = make_temp_directory(self::CERTIFICATE_COMPONENT_NAME);
         return tempnam($path, $file);
     }
 
-    private function get_user_profile_fields($userid) {
+    protected function get_user_profile_fields($userid) {
         global $CFG, $DB;
 
         $usercustomfields = new stdClass();
@@ -1047,7 +1089,7 @@ class simplecertificate {
      * @param int $userid User id
      * @return string null if user meet issued conditions, or an text with erro
      */
-    private function can_issue($user = null, $chkcompletation = true) {
+    protected function can_issue($user = null, $chkcompletation = true) {
     	global $DB, $USER, $CFG;
 
     	if (empty($user)) {
@@ -1098,12 +1140,12 @@ class simplecertificate {
      * @return true if exist 
      * 
      */
-    private function issue_file_exists($issuecert) {
+    protected function issue_file_exists($issuecert) {
 
     	$fs = get_file_storage();
     	
     	// Prepare file record object
-    	$fileinfo = self::get_certificate_issue_fileinfo($issuecert, $this->context->id);
+    	$fileinfo = self::get_certificate_issue_fileinfo($issuecert);
     	
     	// Check for file first
     	return $fs->file_exists($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'], $fileinfo['itemid'], $fileinfo['filepath'], $fileinfo['filename']); 
@@ -1111,7 +1153,7 @@ class simplecertificate {
 
 //View methods
 
-    private function show_tabs(moodle_url $url) {
+    protected function show_tabs(moodle_url $url) {
     	global $OUTPUT, $CFG;
     	
     	$tabs [] = new tabobject(self::DEFAULT_VIEW,
@@ -1212,7 +1254,7 @@ class simplecertificate {
     	}
 	}
     
-	private function get_issued_certificate_users ($sort="ci.timecreated ASC", $groupmode=0, $page = 0, $perpage = self::SIMPLECERT_MAX_PER_PAGE) {
+	protected function get_issued_certificate_users ($sort="ci.timecreated ASC", $groupmode=0, $page = 0, $perpage = self::SIMPLECERT_MAX_PER_PAGE) {
 		global $CFG, $DB;
 		 
 		// get all users that can manage this certificate to exclude them from the report.
@@ -1277,22 +1319,13 @@ class simplecertificate {
 		return $issedusers;
 	}
 	
-	public static function print_issue_certificate_file($issuecert, $context = null) {
+	public static function print_issue_certificate_file($issuecert) {
 		global $CFG, $OUTPUT;
 	
 		$output = '';
-		if (!$context) {
-			try {
-				if ($cm = get_coursemodule_from_instance('simplecertificate', $issuecert->certificateid)) {
-					$context = context_module::instance($cm->id);
-				}
-			} catch (Exception $e) {
-				return $output;
-			}
-		}
-		
+				
 		$fs = get_file_storage();
-		$fileinfo = simplecertificate::get_certificate_issue_fileinfo($issuecert, $context);
+		$fileinfo = simplecertificate::get_certificate_issue_fileinfo($issuecert);
 		if (!$fs->file_exists($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'], $fileinfo['itemid'], $fileinfo['filepath'], $fileinfo['filename'])) {
 			return $output;
 		}
@@ -1602,7 +1635,7 @@ class simplecertificate {
     		    	foreach ($users as $user) {
     		    		$canissue = $this->can_issue($user, $issuelist != 'allusers');
     					if (empty($canissue)) {
-    		    			$this->create_pdf($this->get_issue($user), $pdf);
+    		    			$this->create_pdf($this->get_issue($user), $pdf, true);
     		    		}
     		    	}
     		    	$pdf->Output($filename, 'D');
@@ -1616,20 +1649,17 @@ class simplecertificate {
     		    	foreach ($users as $user) {
     		    		$canissue = $this->can_issue($user, $issuelist != 'allusers');
     		    		if (empty($canissue)) {
-    		    			
     		    			$issuecert = $this->get_issue($user);
-    		    			if(!$this->issue_file_exists($issuecert)) {
-    		    				$this->save_pdf($this->create_pdf($issuecert), $issuecert);
+    		    			if ($file = $this->get_issue_file($issuecert)) {
+    		    				$fileforzipname = $file->get_filename();
+    		    				$filesforzipping[$fileforzipname] = $file;
+    		    			} else {
+    		    				$fileinfo = self::get_certificate_issue_fileinfo($issuecert);
+    		    				error_log(get_string('filenotfound', 'simplecertificate', $fileinfo['filename']));
+    		    				print_error(get_string('filenotfound', 'simplecertificate', $fileinfo['filename']));
     		    			}
-    		    			$fs = get_file_storage();
-    		    			 
-    		    			$fileinfo = self::get_certificate_issue_fileinfo($issuecert, $this->context);
-    		    			$file = $fs->get_file($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'], $fileinfo['itemid'], $fileinfo['filepath'], $fileinfo['filename']);
-    		    			$fileforzipname = $file->get_filename();
-    		    			$filesforzipping[$fileforzipname] = $file;
     		    		}
     		    	}
-
     		    	
     		    	$tempzip = $this->create_temp_file('issuedcertificate_');
 
@@ -1646,10 +1676,13 @@ class simplecertificate {
     		    		$canissue = $this->can_issue($user, $issuelist != 'allusers');
     		    		if (empty($canissue)) {
     		    			$issuecert = $this->get_issue($user);
-    		    			if(!$this->issue_file_exists($issuecert)) {
-    		    				$this->save_pdf($this->create_pdf($issuecert), $issuecert);
+    		    			if($this->get_issue_file($issuecert)) {
+    		    				$this->send_certificade_email($issuecert);
+    		    			} else {
+    		    				$fileinfo = self::get_certificate_issue_fileinfo($issuecert);
+    		    				error_log(get_string('filenotfound', 'simplecertificate', $fileinfo['filename']));
+    		    				print_error(get_string('filenotfound', 'simplecertificate', $fileinfo['filename']));
     		    			}
-    		    			$this->send_certificade_email($issuecert);
     		    		}
     		    	}
     		    	$url->remove_params('action','type');
