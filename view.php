@@ -24,19 +24,19 @@ $issuelist = optional_param('issuelist', null, PARAM_ALPHA);
 $selectedusers = optional_param_array('selectedusers', null, PARAM_INT);
 
 
-if (! $cm = get_coursemodule_from_id( 'simplecertificate', $id)) {
+if (!$cm = get_coursemodule_from_id( 'simplecertificate', $id)) {
 	print_error('Course Module ID was incorrect');
 }
 
-if (! $course = $DB->get_record('course', array('id' => $cm->course))) {
+if (!$course = $DB->get_record('course', array('id' => $cm->course))) {
 	print_error('course is misconfigured');
 }
 
-if (! $certificate = $DB->get_record('simplecertificate', array('id' => $cm->instance))) {
+if (!$certificate = $DB->get_record('simplecertificate', array('id' => $cm->instance))) {
 	print_error('course module is incorrect');
 }
 
-$context = context_module::instance ( $cm->id );
+$context = context_module::instance ($cm->id);
 
 $url = new moodle_url('/mod/simplecertificate/view.php', array (
 		'id' => $cm->id,
@@ -73,7 +73,8 @@ $canmanage = has_capability('mod/simplecertificate:manage', $context);
 
 
 // log update
-$simplecertificate = new simplecertificate($certificate, $context);
+$simplecertificate = new simplecertificate($context, $cm, $course);
+$simplecertificate->set_instance($certificate);
 
 $completion = new completion_info($course);
 $completion->set_module_viewed($cm);

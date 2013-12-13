@@ -31,72 +31,21 @@ require_once($CFG->dirroot.'/grade/querylib.php');
 
 
 /**
- * Add certificate instance.
+ * Adds a simplecertificate instance
  *
- * @param stdClass $certificate
- * @return int new certificate instance id
-*/
-function simplecertificate_add_instance(stdclass $certificate, $mform=null) {
-    global $CFG, $DB;
-
-
-    $certificate->timecreated          = time();
-    $certificate->timemodified         = $certificate->timecreated;
-
-    // process the wysiwyg editors
-    $certificate->certificatetext = $certificate->certificatetext['text'];
-    $certificate->certificatetextformat = FORMAT_HTML;
-
-    // insert the new record so we get the id
-    $certificate->id = $DB->insert_record('simplecertificate', $certificate);
-
-    // we need to use context now, so we need to make sure all needed info is already in db
-    $cmid = $certificate->coursemodule;
-    $DB->set_field('course_modules', 'instance', $certificate->id, array('id' => $cmid));
-    $context = context_module::instance($cmid);
-
-    //process file
-    if ($mform) {
-        $files = simplecertificate_process_form_files($mform, $context);
-    }
+ * This is done by calling the add_instance() method of the assignment type class
+ * @param stdClass $data
+ * @param mod_assign_mod_form $form
+ * @return int The instance id of the new simplecertificate
+ */
+function simplecertificate_add_instance(stdclass $data, mod_simplecertificate_mod_form $mform=null) {
+    global $CFG;
+    require_once($CFG->dirroot . '/mod/simplecertificate/locallib.php');
     
-    if (!empty($files[0])) {
-        $certificate->certificateimage = $files[0];
-    } else {
-        $certificate->certificateimage = null;
-    }
+    $context = context_module::instance($data->coursemodule);
+    $simplecertificate = new simplecertificate($context, null, null);
+    return $simplecertificate->add_instance($data, $mform);
 
-    
-    //Second Page
-    if (!empty($certificate->enablesecondpage)) {
-        if (!empty($certificate->secondpagetext['text'])){
-            $certificate->secondpagetext = $certificate->secondpagetext['text'];
-            $certificate->secondpagetextformat = FORMAT_HTML;
-        } else {
-            $certificate->secondpagetext = null;
-            $certificate->secondpagetextformat = FORMAT_HTML;
-        }
-    
-        if (!empty($files[1])) {
-            $certificate->secondimage = $files[1];
-        } else {
-            $certificate->secondimage = null;
-        }
-    } else {
-        $certificate->secondpagetext = null;
-        $certificate->secondpagetextformat = FORMAT_HTML;
-        $certificate->secondimage = null;
-        $certificate->secondpagex = null;
-        $certificate->secondpagey = null;
-    }
-    
-    // re-save the record with the replaced URLs in editor fields
-    $DB->update_record('simplecertificate', $certificate);
-
-    //Send event
-    simplecertificate_send_event($certificate);
-
-    return $certificate->id;
 }
 
 /**
@@ -105,67 +54,14 @@ function simplecertificate_add_instance(stdclass $certificate, $mform=null) {
  * @param stdClass $certificate
  * @return bool true
  */
-function simplecertificate_update_instance($certificate, $mform=null) {
+function simplecertificate_update_instance(stdclass $data, mod_simplecertificate_mod_form $mform=null) {
     global $DB, $CFG;
-    require_once(dirname(__FILE__) . '/locallib.php');
+    require_once($CFG->dirroot . '/mod/simplecertificate/locallib.php');
 
-    // Update the certificate
-    $certificate->timemodified = time();
-    $certificate->id = $certificate->instance;
-    $DB->update_record('simplecertificate', $certificate);
+    $context = context_module::instance($data->coursemodule);
+    $simplecertificate = new simplecertificate($context, null, null);
+    return $simplecertificate->update_instance($data, $mform);
 
-    $context = context_module::instance($certificate->coursemodule);
-
-    //process files
-    if ($mform) {
-        $files = simplecertificate_process_form_files($mform, $context);
-    }
-
-    // process the custom wysiwyg editors
-    $certificate->certificatetext = $certificate->certificatetext['text'];
-    $certificate->certificatetextformat = FORMAT_HTML;
-    
-    
-    if (!empty($files[0])) {
-        $certificate->certificateimage = $files[0];
-    } else {
-        $certificate->certificateimage = null;
-    }
-    
-
-    //Second Page
-    if (!empty($certificate->enablesecondpage)) {
-        if (!empty($certificate->secondpagetext['text'])){
-            $certificate->secondpagetext = $certificate->secondpagetext['text'];
-            $certificate->secondpagetextformat = FORMAT_HTML;
-        } else {
-            $certificate->secondpagetext = null;
-            $certificate->secondpagetextformat = FORMAT_HTML;
-        }
-
-        if (!empty($files[1])) {
-            $certificate->secondimage = $files[1];
-        } else {
-            $certificate->secondimage = null;
-        }
-    } else {
-        $certificate->secondpagetext = null;
-        $certificate->secondpagetextformat = FORMAT_HTML;
-        $certificate->secondimage = null;
-        $certificate->secondpagex = null;
-        $certificate->secondpagey = null;
-    }
-
-    // re-save the record with the replaced URLs in editor fields
-
-    $DB->update_record('simplecertificate', $certificate);
-    $DB->execute('UPDATE {simplecertificate_issues} SET haschange = 1 WHERE timedeleted is NULL AND certificateid = :certid', 
-    		array('certid'=>$certificate->id));
-
-    //Send event
-    simplecertificate_send_event($certificate);
-
-    return true;
 }
 
 /**
@@ -179,41 +75,13 @@ function simplecertificate_update_instance($certificate, $mform=null) {
 function simplecertificate_delete_instance($id) {
     global $DB, $CFG;
 
-    require_once 'locallib.php';
-    // Ensure the certificate exists
-    if (!$certificate = $DB->get_record('simplecertificate', array('id' => $id))) {
-        return false;
-    }
-
-    // Prepare file record object
-    if (!$cm = get_coursemodule_from_instance('simplecertificate', $id)) {
-        return false;
-    }
-
-    $result = true;
-    $timedeleted = time();
-
-    $issuecertificates = $DB->get_records('simplecertificate_issues', array('certificateid' => $certificate->id, 'timedeleted' => null));
-    foreach ($issuecertificates as $issuecertificate) {
-        $issuecertificate->timedeleted = $timedeleted;
-        if (!$DB->update_record('simplecertificate_issues', $issuecertificate)) {
-            print_erro(get_string('cantdeleteissue','simplecertificate'));
-        }
-    }
-
-    if (!$DB->delete_records('simplecertificate', array('id' => $id))) {
-        $result = false;
-    }
-
-    // Delete any files associated with the certificate
+    global $CFG;
+    require_once($CFG->dirroot . '/mod/simplecertificate/locallib.php');
+    $cm = get_coursemodule_from_instance('simplecertificate', $id, 0, false, MUST_EXIST);
     $context = context_module::instance($cm->id);
     
-    $fs = get_file_storage();
-    $fileinfo = simplecertificate::get_certificate_image_fileinfo($context);
-    $fs->delete_area_files($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea']);
-    
-
-    return $result;
+    $simplecertificate = new simplecertificate($context, null, null);
+    return $simplecertificate->delete_instance();
 }
 
 /**
@@ -283,7 +151,6 @@ function simplecertificate_reset_course_form_defaults($course) {
     return array('reset_simplecertificate' => 1);
 }
 
-
 /**
  * Returns information about received certificate.
  * Used for user activity reports.
@@ -307,8 +174,6 @@ function simplecertificate_user_outline($course, $user, $mod, $certificate) {
 
     return $result;
 }
-
-
 
 /**
  * Must return an array of user records (all data) who are participants
@@ -378,7 +243,7 @@ function simplecertificate_cron () {
 }
 
 /**
- * Serves certificate issues and other files.
+ * Serves certificate issues files, only in admin page.
  *
  * @param stdClass $course
  * @param stdClass $cm
@@ -391,45 +256,39 @@ function simplecertificate_cron () {
 function simplecertificate_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload, array $options=array()) {
     global $CFG, $DB, $USER;
 
-    require_login(null, false);
-    require_once(dirname(__FILE__) . '/locallib.php');
+   // require_login(null, false);
+    require_once($CFG->dirroot . '/mod/simplecertificate/locallib.php');
     require_once($CFG->libdir.'/filelib.php');
-  	
+        
     if ($context->contextlevel != CONTEXT_MODULE) {
         return false;
     }
-
-    if ($filearea == simplecertificate::CERTIFICATE_ISSUES_FILE_AREA) {
-    	$issuedcertid = (int)array_shift($args);
-    	if (!$issuedcert = $DB->get_record('simplecertificate_issues', array('id' => $issuedcertid))) {
-    		return false;
-    	}
-    	$fileinfo = simplecertificate::get_certificate_issue_fileinfo($issuedcert, $context);
-    } else {
-    	print_error('filenotfound');
-    	return false;
-    }
     
-    unset($fileinfo['mimetype']);
-    unset($fileinfo['userid']);
-    
-    if ($fileinfo['filepath'] == "/")
-    	unset($fileinfo['filepath']);
-    
-    
-    $fullpath = "/".implode("/", $fileinfo);
-       
-    $fs = get_file_storage();
-    if (!$file = $fs->get_file_by_hash(sha1($fullpath)) or $file->is_directory()) {
-    	print_error('filenotfound');
+    //Get issued certificate
+    $issuedcertid = (int)array_shift($args);
+    if (!$issuedcert = $DB->get_record('simplecertificate_issues', array('id' => $issuedcertid))){
+        print_error('issuedcertificatenotfound','simplecertificate');
         return false;
     }
     
-    $url = new moodle_url($CFG->wwwroot.'/pluginfile.php'.$fullpath);	
-    		
+    $fileinfo = simplecertificate::get_certificate_issue_fileinfo($issuedcert);
+    $fs = get_file_storage();
+    
+    //Verify if file exists
+    if (!$fs->file_exists($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'], $fileinfo['itemid'],
+        $fileinfo['filepath'], $fileinfo['filename'])){
+        print_error(get_string('filenotfound', 'simplecertificate', $fileinfo['filename']));
+        return false;
+    }
+    
+    $file = $fs->get_file($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'], $fileinfo['itemid'],
+                          $fileinfo['filepath'], $fileinfo['filename']);
+    
+    $url = moodle_url::make_pluginfile_url($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'],
+                                           $fileinfo['itemid'], $fileinfo['filepath'], $fileinfo['filename'], true);
     add_to_log($course->id, 'simplecertificate', 'download', $url->out_as_local_url(false), get_string('issueddownload', 'simplecertificate', $issuedcert->id), $cm->id, $USER->id);
     
-    send_stored_file($file, 0, 0, $forcedownload, $options);
+    send_stored_file($file, 0, 0, true, $options);
 }
 
 /**
@@ -482,34 +341,6 @@ function simplecertificate_get_post_actions() {
     return array('received');
 }
 
-
-/**
- * Process uploaded file
- */
-function simplecertificate_process_form_files ($mform, stdclass $context) {
-    require_once(dirname(__FILE__) . '/locallib.php');
-    
-    $certimages=array();
-    
-    $certimages[0] = $mform->get_new_filename('certificateimage');
-    $certimages[1] = $mform->get_new_filename('secondimage');
-
-    $fs = get_file_storage();
-    if ($certimages[0] !== false) {
-       	$fileinfo=simplecertificate::get_certificate_image_fileinfo($context->id);
-       	$fs->delete_area_files($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'],$fileinfo['itemid']);
-       	$mform->save_stored_file('certificateimage', $fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'], $fileinfo['itemid'], $fileinfo['filepath'], $certimages[0]);
-    }
-
-    if ($certimages[1] !== false) {
-       	$fileinfo=simplecertificate::get_certificate_secondimage_fileinfo($context->id);
-       	$fs = get_file_storage();
-       	$fs->delete_area_files($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'],$fileinfo['itemid']);
-       	$mform->save_stored_file('secondimage', $fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'], $fileinfo['itemid'], $fileinfo['filepath'], $certimages[1]);
-    }
-    return $certimages;
-}
-
 /**
  * Update the event if it exists, else create
  */
@@ -550,7 +381,6 @@ function simplecertificate_get_editor_options(stdclass $context) {
             'trusttext'=>0);
 }
 
-
 /**
  * Get all the modules
  *
@@ -562,12 +392,14 @@ function simplecertificate_get_mods (){
     $grademodules = array();
     $items = grade_item::fetch_all(array('courseid'=>$COURSE->id));
     $items = $items ? $items : array();
+
     foreach($items as $id=>$item) {
     	// Do not include grades for course itens
-    	if ($item->itemtype == 'course') {
+    	if ($item->itemtype != 'mod') {
     		continue;
     	}
-    	$grademodules[$item->iteminstance] = $item->get_name();
+    	$cm = get_coursemodule_from_instance($item->itemmodule, $item->iteminstance);
+    	$grademodules[$cm->id] = $item->get_name();
     }
     asort($grademodules);
     return $grademodules;
@@ -598,3 +430,34 @@ function simplecertificate_get_grade_options() {
     return $gradeoptions + simplecertificate_get_mods();
 }
 
+
+/**
+ * Print issed file certificate link
+ * @param stdClass $issuecert The issued certificate object
+ * @return string file link url
+ */
+function simplecertificate_print_issue_certificate_file(stdClass $issuecert) {
+    global $CFG, $OUTPUT;
+    require_once($CFG->dirroot . '/mod/simplecertificate/locallib.php');
+
+    $output = '';
+
+    $fs = get_file_storage();
+    $fileinfo = simplecertificate::get_certificate_issue_fileinfo($issuecert);
+    if (!$fs->file_exists($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'], $fileinfo['itemid'],
+    $fileinfo['filepath'], $fileinfo['filename'])) {
+        return $output;
+    }
+
+    $link = moodle_url::make_pluginfile_url($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'],
+                                            null, $fileinfo['filepath'], $fileinfo['filename'], true);
+
+    $mimetype = $fileinfo['mimetype'];
+    $output = '<img src="' . $OUTPUT->pix_url(file_mimetype_icon($mimetype)) . '" height="16" width="16" alt="' . $mimetype .
+            '" />&nbsp;' . '<a href="' . $link->out(false) . '" target="_blank" >' . s($fileinfo['filename']) . '</a>';
+
+    $output .= '<br />';
+    $output = '<div class="files">' . $output . '</div>';
+
+    return $output;
+}

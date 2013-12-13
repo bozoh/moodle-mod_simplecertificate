@@ -30,7 +30,6 @@ $string['openwindow'] = 'Click the button below to open your certificate in a ne
 $string['hours'] = 'hours';
 $string['keywords'] = 'cetificate, course, pdf, moodle';
 $string['pluginadministration'] = 'Certificate administration';
-$string['awarded'] = 'Awarded';
 $string['deletissuedcertificates'] = 'Delete issued certificates';
 $string['nocertificatesissued'] = 'There are no certificates that have been issued';
 
@@ -247,6 +246,10 @@ $string['issueddownload'] = 'Issued certificate [id: {$a}] downloaded';
 $string['defaultperpage'] = 'Per page';
 $string['defaultperpage_help'] = 'Number of certificate to show per page (Max. 200)';
 
+//----
+
 $string['usercontextnotfound'] = 'User context not found';
 $string['usernotfound'] = 'User not found';
 $string['coursenotfound'] = 'Course not found';
+$string['issuedcertificatenotfound'] = 'Issued certificate not found';
+$string['awardedsubject'] = 'Awarded certificate notification: {$a->certificate} issued to {$a->student}';

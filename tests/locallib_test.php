@@ -15,54 +15,47 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Genarator tests class.
+ * Unit tests for (some of) mod/simplecertificate/locallib.php.
  *
  * @package    mod_simplecertificate
- * @copyright  2013 Carlos Alexandre S. da Fonseca
+ * @category   phpunit
+ * @copyright  2013 onwards Carlos Alexandre S. da Fonseca 
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- * @author	   Carlos Alexandre S. da Fonseca
- * @group	   simplecertificate_basics	
  */
-class mod_simplecertificate_basic_testcase extends advanced_testcase {
-	//http://docs.moodle.org/dev/Writing_PHPUnit_tests
-	private $course;
-	private $student_account;
-	public static $count;
-	public static $fhandle; 
 
-	
-	
-	public function setUp() {
-		global $DB;
-		
-		$this->resetDebugging();
-		$this->setAdminUser();
-		$this->course = $this->getDataGenerator()->create_course();
-		$this->student_account = $this->getDataGenerator()->create_user();
-		if($student_role=$DB->get_record('role', array('shortname'=>'student'))){
-			$this->getDataGenerator()->enrol_user($this->student_account->id, $this->course->id,$student_role->id);
-		} else {
-			throw new coding_exception("No student role");
-		} 
-			
-	
-		
-	}
-	
+
+defined('MOODLE_INTERNAL') || die();
+
+global $CFG;
+require_once($CFG->dirroot . '/mod/simplecertificate/locallib.php');
+//require_once($CFG->dirroot . '/mod/simplecertificate/upgradelib.php');
+require_once($CFG->dirroot . '/mod/simplecertificate/tests/base_test.php');
+
+/**
+ * Unit tests for (some of) mod/simplecertificate/locallib.php.
+ *
+ * @copyright  2013 onwards Carlos Alexandre S. da Fonseca 
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @group	   simplecertificate_basics	 
+ * */
+class mod_simplecertificate_locallib_testcase extends mod_simplecertificate_base_testcase {
+    public static $count;
+    public static $fhandle;
+
     public function test_create_certificate_instance() {
         global $DB;
         $this->resetAfterTest();
 
         //Basic CRUD test
         $this->assertFalse($DB->record_exists('simplecertificate', array('course' => $this->course->id)));
-        $cert = $this->getDataGenerator()->create_module('simplecertificate', array('course' => $this->course->id));
+        $cert = $this->create_instance();
         $this->assertEquals(1, $DB->count_records('simplecertificate', array('course' => $this->course->id)));
-        $this->assertTrue($DB->record_exists('simplecertificate', array('course' => $this->course->id, 'id' => $cert->id)));
+        $this->assertTrue($DB->record_exists('simplecertificate', array('course' => $this->course->id, 'id' => $cert->get_instance()->id)));
 
         $params = array('course' => $this->course->id, 'name' => 'One more certificate');
-        $cert = $this->getDataGenerator()->create_module('simplecertificate', $params);
+        $cert = $this->create_instance($params);
         $this->assertEquals(2, $DB->count_records('simplecertificate', array('course' => $this->course->id)));
-        $this->assertEquals('One more certificate', $DB->get_field_select('simplecertificate', 'name', 'id = :id', array('id' => $cert->id)));
+        $this->assertEquals('One more certificate', $DB->get_field_select('simplecertificate', 'name', 'id = :id', array('id' => $cert->get_instance()->id)));
         
         $this->write_to_report("Creating plugin is working ? Ok");
         $this->write_to_report("Can Create a simple certificate ? Ok");
@@ -265,10 +258,9 @@ class mod_simplecertificate_basic_testcase extends advanced_testcase {
 	
 	public static function setUpBeforeClass() {
 		global $CFG;
-		require_once("$CFG->dirroot/mod/simplecertificate/tests/fixtures/locallibwarp.php");
 		
 		$moodle_version='moodle-'.moodle_major_version();
-		$moodle_version.=' '.simplecertificateWarperClass::PLUGIN_VERSION;
+		$moodle_version.=' '.testable_simplecertificate::PLUGIN_VERSION;
 		$moodle_version.=' build: '.get_config('mod_simplecertificate','version')."\n";
 		
 		self::$fhandle = fopen("$CFG->dirroot/mod/simplecertificate/TestCaseResults.txt", "w");
@@ -293,3 +285,4 @@ class mod_simplecertificate_basic_testcase extends advanced_testcase {
 		fwrite(self::$fhandle, self::$count.'- '.$str."\n");
 	}
 }
+

@@ -30,7 +30,6 @@ $string['openwindow'] = 'Pressione o botão abaixo para visualizar o seu certifi
 $string['hours'] = 'horas';
 $string['keywords'] = 'cetificate, course, pdf, moodle';
 $string['pluginadministration'] = 'Administração de Certificado';
-$string['awarded'] = 'Obtido';
 $string['deletissuedcertificates'] = 'Remover os certificados emitidos';
 $string['nocertificatesissued'] = 'Nenhum certificado emitido';
 
@@ -245,6 +244,10 @@ $string['issueddownload'] = 'Certificado [id: {$a}] baixado';
 $string['defaultperpage'] = 'Por página';
 $string['defaultperpage_help'] = 'Quantidade de certificados exibidos por página (Max. 200)';
 
-$string['usercontextnotfound'] = 'User context not found';
-$string['usernotfound'] = 'User not found';
-$string['coursenotfound'] = 'Course not found';
+//----
+
+$string['usercontextnotfound'] = 'Contexto de usuário não encontrado';
+$string['usernotfound'] = 'Usuário não encontrado';
+$string['coursenotfound'] = 'Curso não encontrado';
+$string['issuedcertificatenotfound'] = 'Certificado não encontrado';
+$string['awardedsubject'] = 'Notificão de obtenção de certificado: {$a->certificate} emitido para {$a->student}';
