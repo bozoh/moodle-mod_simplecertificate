@@ -21,6 +21,7 @@
  * @category   phpunit
  * @copyright  2013 onwards Carlos Alexandre S. da Fonseca 
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @group simplecertificate_tests
  */
 
 
@@ -43,6 +44,7 @@ class mod_simplecertificate_locallib_testcase extends mod_simplecertificate_base
     public static $fhandle;
 
     public function test_create_certificate_instance() {
+        echo __METHOD__."\n";
         global $DB;
         $this->resetAfterTest();
 
@@ -59,131 +61,227 @@ class mod_simplecertificate_locallib_testcase extends mod_simplecertificate_base
         
         $this->write_to_report("Creating plugin is working ? Ok");
         $this->write_to_report("Can Create a simple certificate ? Ok");
+        
+    }
+    
+    public function test_update_instance() {
+        echo __METHOD__."\n";
+        global $DB;
+        $this->resetAfterTest();
+        
+        //Basic CRUD test
+        $cert = $this->create_instance();
+        $instance=$cert->get_instance();
+        $this->assertEquals($this->course->fullname, $instance->coursename);
+        $instance->coursename='teste';
+        $instanceoldtime=$instance->timemodified;
+        $cert->update_instance($instance);
+        $instancedb=$DB->get_record('simplecertificate', array('id'=>$cert->get_instance()->id));
+        $this->assertEquals('teste', $instancedb->coursename);
+        $this->assertTrue($instancedb > $instanceoldtime);
         $this->write_to_report("Can Update a simple certificate ? Ok");
+        
+    }
+    
+    public function  test_delete_instance() {
+        echo __METHOD__."\n";
+        global $DB;
+        $this->resetAfterTest();
+        
+        //Basic CRUD test
+        $cert = $this->create_instance();
+        $this->assertTrue($cert->delete_instance($cert->get_instance()));
+        $this->assertFalse($DB->record_exists('simplecertificate', array('course' => $this->course->id)));
         $this->write_to_report("Can Delete a simple certificate ? Ok");
     }
     
+    
     public function test_create_issue_instance() {
+        echo __METHOD__."\n";
     	global $DB;
-    	
-    	
+
     	$this->resetAfterTest();
     	$this->setAdminUser();
-    	$cert = $this->getDataGenerator()->create_module('simplecertificate', array('course' => $this->course->id));
-    	$simplecertgen = $this->getDataGenerator()->get_plugin_generator('mod_simplecertificate');
-    	//No certificate is issued
-    	$this->assertFalse($DB->record_exists("simplecertificate_issues", array('certificateid'=>$cert->id)));
-    	$issuecert= $simplecertgen->create_issue(array('certificate'=>$cert, 'user'=>$this->student_account));
+    	$cert = $this->create_instance();
+    	//Verify if no certificate is issued
+    	//$this->assertFalse($DB->record_exists("simplecertificate_issues", array('certificateid'=>$cert->get_instance()->id)));
+    	
     	//Issued a student certificate as manager
+    	$issuecert = $cert->get_issue($this->students[0]);
     	$this->assertNotEmpty($issuecert);
     	$this->assertTrue($DB->record_exists("simplecertificate_issues", array('id'=>$issuecert->id)));
     	$this->assertTrue(!empty($issuecert->haschange));
     	$this->assertEquals($this->course->fullname, $issuecert->coursename);
-    	$this->assertEquals($this->student_account->id, $issuecert->userid);
+    	$this->assertEquals($this->students[0]->id, $issuecert->userid);
     	$this->write_to_report("Can Retrieve a student simple certificate As manager? Ok");
     	
     	//Issuing a manager certificate as manager (do not save)
-    	$issuecert= $simplecertgen->create_issue(array('certificate'=>$cert));
+    	$issuecert= $cert->get_issue();
     	$this->assertNotEmpty($issuecert);
     	$this->assertFalse($DB->record_exists("simplecertificate_issues", array('id'=>$issuecert->id)));
     	$this->assertTrue(!empty($issuecert->haschange));
     	$this->assertEquals($this->course->fullname, $issuecert->coursename);
-    	$this->assertNotEquals($this->student_account->id, $issuecert->userid);
     	$this->write_to_report("Can Retrieve a simple certificate As manager? Ok");
     	 
     	
-    	//Issuing using as student
-    	$this->setUser($this->student_account);
-    	$issuecert= $simplecertgen->create_issue(array('certificate'=>$cert));
-    	//Has issued
+    	//Issuing as student
+    	$this->setUser($this->students[1]);
+    	//Verify if no certificate is issued for this studet
+    	$this->assertFalse($DB->record_exists("simplecertificate_issues", array('certificateid'=>$cert->get_instance()->id, 'userid'=>$this->students[1]->id)));
+    	$issuecert= $cert->get_issue();
     	$this->assertNotEmpty($issuecert);
     	$this->assertTrue($DB->record_exists("simplecertificate_issues", array('id'=>$issuecert->id)));
-    	$this->assertEquals(1, $DB->count_records("simplecertificate_issues", array('certificateid'=>$cert->id)));
+    	$this->assertEquals(1, $DB->count_records("simplecertificate_issues", array('certificateid'=>$cert->get_instance()->id, 'userid'=>$this->students[1]->id)));
     	$this->assertTrue(!empty($issuecert->haschange));
     	$this->assertEquals($this->course->fullname, $issuecert->coursename);
-    	$this->assertEquals($this->student_account->id, $issuecert->userid);
+    	$this->assertEquals($this->students[1]->id, $issuecert->userid);
     	$this->write_to_report("Can Retrieve a simple certificate As student ? Ok");
-    	
-    	$this->assertEquals(1, $DB->count_records("simplecertificate_issues", array('certificateid'=>$cert->id)));
-    	
+    	    	
+    	//Must have 2 certificates
+    	$this->assertEquals(2, $DB->count_records("simplecertificate_issues", array('certificateid'=>$cert->get_instance()->id)));
+    	$this->write_to_report("Manager issued certificates are not save? Ok");
     	        
     }
     
+    public function test_update_instace_update_haschange_issues() {
+        echo __METHOD__."\n";
+        global $DB;
+        
+        $this->resetAfterTest();
+        $this->setAdminUser();
+        $cert = $this->create_instance();
+        
+        $issuecert1 = $cert->get_issue($this->students[0]);
+        
+        $issuecert2 = $cert->get_issue($this->students[1]);
+        $issuecert3 = $cert->get_issue($this->students[2]);
+        
+        //Update haschage status
+        $issuecert1->haschange=0;
+        $this->assertTrue($DB->update_record('simplecertificate_issues', $issuecert1));
+        $issuecert2->haschange=0;
+        $this->assertTrue($DB->update_record('simplecertificate_issues', $issuecert2));
+        $issuecert3->haschange=0;
+        $this->assertTrue($DB->update_record('simplecertificate_issues', $issuecert3));
+        //Verify if haschage is really 0
+        $this->assertEquals(0, $cert->get_issue($this->students[0])->haschange);
+        $this->assertEquals(0, $cert->get_issue($this->students[1])->haschange);
+        $this->assertEquals(0, $cert->get_issue($this->students[2])->haschange);
+        
+        //Update simplecertificate instance
+        $cert->update_instance($cert->get_instance());
+        
+        //Verify if haschage is 1 now
+        $this->assertEquals(1, $cert->get_issue($this->students[0])->haschange);
+        $this->assertEquals(1, $cert->get_issue($this->students[1])->haschange);
+        $this->assertEquals(1, $cert->get_issue($this->students[2])->haschange);
+        
+        $this->write_to_report("Update certificate updates haschange status in issued certificates? Ok");
+        
+    }
+    
+    public function test_detete_instace_update_timedelete_issues() {
+        echo __METHOD__."\n";
+        global $DB;
+    
+        $this->resetAfterTest();
+        $this->setAdminUser();
+        $cert = $this->create_instance();
+        $issuecert1 = $cert->get_issue($this->students[0]);
+        $issuecert2 = $cert->get_issue($this->students[1]);
+        $issuecert3 = $cert->get_issue($this->students[2]);
+
+        //Verify if timedelete is really null
+        $this->assertNull($cert->get_issue($this->students[0])->timedeleted);
+        $this->assertNull($cert->get_issue($this->students[1])->timedeleted);
+        $this->assertNull($cert->get_issue($this->students[2])->timedeleted);
+    
+        //Update simplecertificate instance
+        $cert->delete_instance($cert->get_instance());
+    
+        //Verify if timedelete is not null
+        $this->assertObjectHasAttribute('timedeleted', $DB->get_record('simplecertificate_issues', array('id'=>$issuecert1->id)));
+        $this->assertObjectHasAttribute('timedeleted', $DB->get_record('simplecertificate_issues', array('id'=>$issuecert2->id)));
+        $this->assertObjectHasAttribute('timedeleted', $DB->get_record('simplecertificate_issues', array('id'=>$issuecert3->id)));
+        
+        $this->write_to_report("Delete certificate adds timeend in issued certificates? Ok");
+    }
+    
+    
     public function test_create_issue_code() {
+        echo __METHOD__."\n";
     	global $DB;
     	
     	$this->resetAfterTest();
-    	$this->setAdminUser();
-    	$cert = $this->getDataGenerator()->create_module('simplecertificate', array('course' => $this->course->id));
-    	$simplecertgen = $this->getDataGenerator()->get_plugin_generator('mod_simplecertificate');
-    	$issuecert= $simplecertgen->create_issue(array('certificate'=>$cert, 'user'=>$this->student_account));
-    	    	
+        $this->setAdminUser();
+        $cert = $this->create_instance();
+    	$issuecert = $cert->get_issue($this->students[0]);
+    	    	    	
     	//Verify code
     	$this->assertNotEmpty($issuecert->code);
     	$this->assertEquals(36, strlen($issuecert->code));
-    	$this->assertEquals($issuecert->id, $DB->get_record('simplecertificate_issues', array('code'=>$issuecert->code),"id")->id);
+    	$this->assertEquals($this->students[0]->id, $DB->get_field_select('simplecertificate_issues', 'userid', 'code = :code', array('code' => $issuecert->code)));
     	
     	$this->write_to_report("Certificate code is correct ? Ok");
     }
     
-    public function  test_pdf_file() {
+    
+    public function  test_create_pdf_file() {
+        echo __METHOD__."\n";
     	global $DB, $CFG;
-    	require_once("$CFG->dirroot/mod/simplecertificate/tests/fixtures/locallibwarp.php");
     	
-    	if (moodle_major_version() < 2.6) {
-    		$this->markTestSkipped("Needs moodle 2.6 or grater");
-    	}
     	$this->resetAfterTest();
     	$this->setAdminUser();
-    	$cert = $this->getDataGenerator()->create_module('simplecertificate', array('course' => $this->course->id ));
 
-    	//Deplivery option must be 3 for this test
-   		$cert->delivery = 3; 
-    	$simplecerticate = new simplecertificateWarperClass($cert);
-    		
-    	$issuecert= $simplecerticate->get_issue($this->student_account);
+    	$cert = $this->create_instance();
+    	$issuecert= $cert->get_issue($this->students[2]);
 
     	//Verify if file DON´T EXISTS
-    	$this->assertFalse($simplecerticate->issue_file_exists($issuecert));
     	$this->assertTrue(!empty($issuecert->haschange));
-    	
+    	$this->assertFalse($cert->testable_issue_file_exists($issuecert));
+    	    	
     	//Creating file
-    	$simplecerticate->output_pdf($issuecert);
+    	$file=$cert->testable_get_issue_file($issuecert);
     	$this->assertTrue(empty($issuecert->haschange));
-    	$this->assertTrue($simplecerticate->issue_file_exists($issuecert));
-    	$this->write_to_report("Can Open certificade file in browser? Ok");
-    	$this->write_to_report("Can Download certificade file in browser? Ok");
+    	$this->assertTrue($cert->testable_issue_file_exists($issuecert));
+    	$this->write_to_report("create a pdf file ? Ok");
     	
     	//Verify if only re-create a pdf file if certificate changes
-    	$issuecert= $simplecerticate->get_issue($this->student_account);
+    	$issuecert= $cert->get_issue($this->students[2]);
     	$this->assertTrue(empty($issuecert->haschange));
-    	$this->assertFalse($simplecerticate->create_pdf($issuecert));
-    	$fileinfo=$simplecerticate::get_certificate_issue_fileinfo($issuecert);
-    	$this->assertEquals($fileinfo['filename'], $simplecerticate->save_pdf(null, $issuecert));
+    	$this->assertFalse($cert->testable_create_pdf($issuecert));
+    	$this->assertEquals($file->get_filename(), $cert->testable_save_pdf(null, $issuecert));
     	$this->assertTrue(empty($issuecert->haschange));
-    	//TODO how to test simplecertificate_update_instance function
     	$this->write_to_report("Only re-create a pdf file if certificate changes? Ok");
     	
     	//Issue as admin
     	$this->setAdminUser();
-    	$issuecert= $simplecerticate->get_issue();
+    	$issuecert=$cert->get_issue();
     	
     	//Verify if file DON´T EXISTS
-    	$this->assertFalse($simplecerticate->issue_file_exists($issuecert));
     	$this->assertTrue(!empty($issuecert->haschange));
-
+    	$this->assertFalse($cert->testable_issue_file_exists($issuecert));
+    	
     	//Creating file
-    	$simplecerticate->output_pdf($issuecert);
+    	//file created
+    	$this->assertNotNull($cert->testable_get_issue_file($issuecert));
+    	$instance=$cert->get_instance();
+    	//Disabled delivery to do this teste
+    	$instance->delivery = 3;
+    	//After delivery action file must be removed
+    	$cert->output_pdf($issuecert);
+    	
     	//Must not exixst, no file is storage
-    	$this->assertFalse($simplecerticate->issue_file_exists($issuecert));
     	$this->assertTrue(empty($issuecert->haschange));
+    	$this->assertFalse($cert->testable_issue_file_exists($issuecert));
+    	
     	$this->write_to_report("Managers certificates are not save? Ok");
     }
     
     //Delivering tests
     public function test_delivery_email() {
+        echo __METHOD__."\n";
     	global $DB, $CFG;
-    	require_once("$CFG->dirroot/mod/simplecertificate/tests/fixtures/locallibwarp.php");
     	
     	if (moodle_major_version() < 2.6) {
     		$this->markTestSkipped("Needs moodle 2.6 or grater");
@@ -192,22 +290,22 @@ class mod_simplecertificate_locallib_testcase extends mod_simplecertificate_base
     	$this->resetAfterTest();
     	$this->setAdminUser();
     	$testfrom = 'fromtest@test.com';
-    	$cert = $this->getDataGenerator()->create_module('simplecertificate', array('course' => $this->course->id, 'delivery'=> 2, 'emailfrom' => $testfrom ));
-    	
-    	$simplecerticate = new simplecertificateWarperClass($cert);
-    	$issuecert= $simplecerticate->get_issue($this->student_account);
-    	$pdfcert = $simplecerticate->create_pdf($issuecert);
-    	@$simplecerticate->save_pdf($pdfcert, $issuecert);
+    	//Set some prarmetes
+    	$cert = $this->create_instance(array('delivery'=> 2, 'emailfrom' => $testfrom ));
+    	$issuecert= $cert->get_issue($this->students[1]);
+    	//Try to use output function
+    	$pdfcert = $cert->testable_create_pdf($issuecert);
+    	$cert->testable_save_pdf($pdfcert, $issuecert);
     	
     	//E-mail send to user test
     	unset_config('noemailever');
     	$sink = $this->redirectEmails();
-    	$simplecerticate->send_certificade_email($issuecert);
+    	$cert->testable_send_certificade_email($issuecert);
     	$messages = $sink->get_messages();
     	
     	//Verify email
     	$this->assertEquals(1, count($messages));
-    	$this->assertEquals($this->student_account->email, $messages[0]->to);
+    	$this->assertEquals($this->students[1]->email, $messages[0]->to);
     	//Verify emailfrom
     	$this->assertEquals($testfrom, $messages[0]->from);
     	
@@ -217,6 +315,7 @@ class mod_simplecertificate_locallib_testcase extends mod_simplecertificate_base
 	}
 	
 	public function test_email_notifications() {
+	    echo __METHOD__."\n";
 		global $DB;
 		
 		if (moodle_major_version() < 2.6) {
@@ -224,30 +323,25 @@ class mod_simplecertificate_locallib_testcase extends mod_simplecertificate_base
 		}
 		$this->resetAfterTest();
 		$this->setAdminUser();
-				
-		$testemails=array('teachertest1@test.com', 'teachertest2@test.com', 'test1@test.com', 'test2@test.com');
+
+		//Setup tem certificate instance
+		$testemails=array('test1@test.com', 'test2@test.com','test3@test.com');
+		$emailothers = implode(',',$testemails);
+		$cert = $this->create_instance(array('emailteachers'=>1, 'emailothers'=>$emailothers));
 		
-		//Setup teacher accounts
-		if($editingteacher_role = $DB->get_record('role', array('shortname'=>'editingteacher'))){
-			$userteacher1 = $this->getDataGenerator()->create_user(array('email'=>$testemails[0]));
-			$userteacher2 = $this->getDataGenerator()->create_user(array('email'=>$testemails[1]));
-			$this->getDataGenerator()->enrol_user($userteacher1->id, $this->course->id, $editingteacher_role->id);
-			$this->getDataGenerator()->enrol_user($userteacher2->id, $this->course->id, $editingteacher_role->id);
-		} else {
-			throw new coding_exception("No editing teacher role");
-		}
-		
-		$cert = $this->getDataGenerator()->create_module('simplecertificate', array('course' => $this->course->id, 'emailteachers'=>1, 'emailothers'=>$testemails[2].','.$testemails[3]));
-		$simplecertgen = $this->getDataGenerator()->get_plugin_generator('mod_simplecertificate');
-		$this->setUser($this->student_account);
 		//E-mail send to teachers and others test
 		unset_config('noemailever');
 		$sink = $this->redirectEmails();
-		$issuecert= $simplecertgen->create_issue(array('certificate'=>$cert, 'user'=>$this->student_account));
+		$issuecert= $cert->get_issue($this->students[0]);
 		$messages = $sink->get_messages();
-		
+ 		
 		//Verify e-mails
-		$this->assertEquals(4, count($messages));
+		$this->assertEquals(count($this->editingteachers)+count($testemails), count($messages));
+
+		foreach ($this->editingteachers as $teacher) {
+		    $testemails[] = $teacher->email;
+		}
+		
 		foreach ($messages as $msg) {
 			$this->assertContains($msg->to, $testemails);
 		}

@@ -1,5 +1,5 @@
-moodle-2.6 2.2.0-alpha build: 2013112901
-Runned at: 2013-11-29 17:32
+moodle-2.6 2.2.0-alpha build: 2013121300
+Runned at: 2013-12-16 18:31
 
 
 ------
@@ -12,44 +12,52 @@ PHPUnit tests:
 5- Can Retrieve a student simple certificate As manager? Ok
 6- Can Retrieve a simple certificate As manager? Ok
 7- Can Retrieve a simple certificate As student ? Ok
-8- Certificate code is correct ? Ok
-9- Can Open certificade file in browser? Ok
-10- Can Download certificade file in browser? Ok
-11- Only re-create a pdf file if certificate changes? Ok
-12- Managers certificates are not save? Ok
-13- Can send certificade to e-mail? Ok
-14- Can change email sender (from email)? Ok
-15- Can notify Teacher, when a certificate is issued? Ok
-16- Can notify others, when a certificate is issued? Ok
+8- Manager issued certificates are not save? Ok
+9- Update certificate updates haschange status in issued certificates? Ok
+10- Delete certificate adds timeend in issued certificates? Ok
+11- Certificate code is correct ? Ok
+12- create a pdf file ? Ok
+13- Only re-create a pdf file if certificate changes? Ok
+14- Managers certificates are not save? Ok
+15- Can send certificade to e-mail? Ok
+16- Can change email sender (from email)? Ok
+17- Can notify Teacher, when a certificate is issued? Ok
+18- Can notify others, when a certificate is issued? Ok
 
 End ofPHPUnit tests.
 ------
 
 --Installation (MUST WORK)
-1- Upgrade plugin is work ?
+- Upgrade plugin is work ?
 
 --Certificate informations basic (MUST WORK)
-7- Is all pages in certificate:
-	7.1- Second page is enable and is in certificate? 
-8- Is all texts in certificate:
-	8.1- Front text is correct ?
-	8.2- Back text is enable and correct ?
-	8.3- All variables are correct?
-	8.4- All custom profile variables are correct?
-9- Is all image in certificate:
-	9.1- Front Image is correct?
-	9.2- Back Image is enable and correct?
-10- Is QR enable an in certificate? 
-	10.1- In second page ?
-	10.2- In first page ?
-11- Is certificate verification page works?
-	11.1- Captcha is work if enabled ?
-	11.2- User can download the certificate only if is logged in?
-	11.3- QR code has the correct verification page URL?
+- Is all pages in certificate:
+	- Second page is enable and is in certificate? 
+- Is all texts in certificate:
+	- Front text is correct ?
+	- Back text is enable and correct ?
+	- All variables are correct?
+	- All custom profile variables are correct?
+- Is all image in certificate:
+	- Front Image is correct?
+	- Back Image is enable and correct?
+- Is QR enable an in certificate? 
+	- In second page ?
+	- In first page ?
+- Is certificate verification page works?
+	- Captcha is work if enabled ?
+	- User can download the certificate only if is logged in?
+	- QR code has the correct verification page URL?
 	
 =====
 If reach here all basics are good
 ====
+
+
+--Delivery
+Can Open certificade file in browser?
+Can Download certificade file in browser?
+
 
 --Additional functions
 --- Can change page size ?
@@ -86,7 +94,6 @@ If reach here all basics are good
 ---Can download as ODS file?
 ---Can download as XLS file?
 ---Can download as Text files?
-
 
 --backup & restore
 -Can backup ?

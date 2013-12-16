@@ -49,38 +49,43 @@ class mod_simplecertificate_generator extends testing_module_generator {
     	global $CFG;
     	$record = (object)(array)$record;
     	
-    	if (!isset($record->name)) {
-    		$record->name = 'Unit Case Test Certificate';
-    	}
-    	    	
-    	if (!isset($record->intro)) {
-    		$record->intro = '<h1>Unit Case Test Certificate</h1>';
-    	}
-    	if (!isset($record->introformat)) {
-    		$record->introformat = FORMAT_HTML;
+    	$defaultsettings = array(
+    	        'name'             => 'Unit Case Test Certificate',
+    	        'intro'            => '<h1>Unit Case Test Certificate</h1>',
+    	        'introformat'      => FORMAT_HTML,
+    	        'certificatetextx' => 50,
+    	        'certificatetexty' => 0,
+    	        'enablesecondpage' => 1,
+    	        'secondpagex'      => 0,
+    	        'secondpagey'      => 0,
+    	        'width'            => get_config('simplecertificate','width'),
+    	        'height'           => get_config('simplecertificate','height'), 
+    	        'printqrcode'      => get_config('simplecertificate','printqrcode'),
+    	        'codex'            => get_config('simplecertificate','codex'),
+    	        'codey'            => get_config('simplecertificate','codey'),
+    	        'qrcodefirstpage'  => get_config('simplecertificate','qrcodefirstpage')
+    	);
+    	
+    	foreach ($defaultsettings as $name => $value) {
+    	    if (!isset($record->{$name})) {
+    	        $record->{$name} = $value;
+    	    }
     	}
     	
     	if (!isset($record->certificatetext['text'])) {
     		$record->certificatetext['text'] = file_get_contents("$CFG->dirroot/mod/simplecertificate/tests/fixtures/firstpage.html");
     		$record->certificatetextformat = FORMAT_HTML;
-    		$record->certificatetextx = 50;
-    		$record->certificatetexty = 0;
-    		$record->enablesecondpage = 1;
-    		$record->secondpagex = 50;
-    		$record->secondpagey = 0;
-    		$record->secondpagetext['text'] = file_get_contents("$CFG->dirroot/mod/simplecertificate/tests/fixtures/firstpage.html");
-    		$record->secondpagetextformat = FORMAT_HTML;
+    		
+    	}
+    	
+    	if (!isset($record->secondpagetext['text'])) {
+    	   $record->secondpagetext['text'] = file_get_contents("$CFG->dirroot/mod/simplecertificate/tests/fixtures/firstpage.html");
+    	   $record->secondpagetextformat = FORMAT_HTML;
     	}
     	
     	if (!isset($record->certificatetextformat)){
     		$record->certificatetextformat = FORMAT_HTML;
     	}
-    	
-    	//For test, delivery option must be 2 or 3
-    	 if (!isset($record->delivery) || $record->delivery < 2) {
-    		$record->delivery = 3;
-    	} 
-    	
     	//TODO See how i can test files upload
     	
     	//if (!isset($record->certificateimage));

@@ -237,6 +237,7 @@ class testable_simplecertificate extends simplecertificate {
 	}
 	
 	
+	
 	 /**
      * Returns a list of teachers by group
      * for sending email alerts to teachers

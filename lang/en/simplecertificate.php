@@ -253,3 +253,4 @@ $string['usernotfound'] = 'User not found';
 $string['coursenotfound'] = 'Course not found';
 $string['issuedcertificatenotfound'] = 'Issued certificate not found';
 $string['awardedsubject'] = 'Awarded certificate notification: {$a->certificate} issued to {$a->student}';
+$string['certificatenot'] = 'Simple certificate instance not found';

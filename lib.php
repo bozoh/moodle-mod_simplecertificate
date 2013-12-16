@@ -44,7 +44,13 @@ function simplecertificate_add_instance(stdclass $data, mod_simplecertificate_mo
     
     $context = context_module::instance($data->coursemodule);
     $simplecertificate = new simplecertificate($context, null, null);
-    return $simplecertificate->add_instance($data, $mform);
+    if (!empty($mform)) {
+        $data->images=simplecertificate_process_form_files($mform);
+    } else {
+        $data->images=null;
+    }
+    
+    return $simplecertificate->add_instance($data);
 
 }
 
@@ -60,7 +66,13 @@ function simplecertificate_update_instance(stdclass $data, mod_simplecertificate
 
     $context = context_module::instance($data->coursemodule);
     $simplecertificate = new simplecertificate($context, null, null);
-    return $simplecertificate->update_instance($data, $mform);
+    if (!empty($mform)) {
+        $data->images=simplecertificate_process_form_files($mform);
+    } else {
+        $data->images=null;
+    }
+    
+    return $simplecertificate->update_instance($data);
 
 }
 
@@ -430,6 +442,35 @@ function simplecertificate_get_grade_options() {
     return $gradeoptions + simplecertificate_get_mods();
 }
 
+/**
+ * Process uploaded file
+ */
+function simplecertificate_process_form_files(mod_simplecertificate_mod_form $mform) {
+
+    $certimages = array();
+    if (empty($mform)) {
+        return $certimages;
+    }
+    $certimages[0] = $mform->get_new_filename('certificateimage');
+    $certimages[1] = $mform->get_new_filename('secondimage');
+
+    $fs = get_file_storage();
+    if ($certimages[0] !== false) {
+        $fileinfo = simplecertificate::get_certificate_image_fileinfo($this->context->id);
+        $fs->delete_area_files($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'], $fileinfo['itemid']);
+        $mform->save_stored_file('certificateimage', $fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'],
+        $fileinfo['itemid'], $fileinfo['filepath'], $certimages[0]);
+    }
+
+    if ($certimages[1] !== false) {
+        $fileinfo = simplecertificate::get_certificate_secondimage_fileinfo($this->context->id);
+        $fs = get_file_storage();
+        $fs->delete_area_files($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'], $fileinfo['itemid']);
+        $mform->save_stored_file('secondimage', $fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'],
+        $fileinfo['itemid'], $fileinfo['filepath'], $certimages[1]);
+    }
+    return $certimages;
+}
 
 /**
  * Print issed file certificate link
