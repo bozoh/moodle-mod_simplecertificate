@@ -158,7 +158,7 @@ class simplecertificate {
         $result = $DB->update_record('simplecertificate', $update);
         
         if (!$DB->execute('UPDATE {simplecertificate_issues} SET haschange = 1 WHERE timedeleted is NULL AND certificateid = :certid',
-                     array('certid'=>$this->instance->id))) {
+                     array('certid'=>$this->get_instance()->id))) {
             print_error('cannotupdatemod', '', '', self::CERTIFICATE_COMPONENT_NAME, 'Error update simplecertificate, markig issues 
                      with has change');
         }
@@ -209,8 +209,8 @@ class simplecertificate {
         if ($this->instance) {
             return $this->instance;
         }
-        if ($this->get_course_module()) {
-            $params = array('id' => $this->get_course_module()->instance);
+        if ($cm = $this->get_course_module()) {
+            $params = array('id' => $cm->instance);
             $this->instance= $DB->get_record('simplecertificate', $params, '*', MUST_EXIST);
         }
         if (!$this->instance) {
@@ -320,33 +320,69 @@ class simplecertificate {
      * @return stdClass The simplecertificate instance object
      */
     protected function populate_simplecertificate_instance(stdclass $formdata){
+        global $USER;
         // Creating a simplecertificate instace object.
         $update = new stdClass();
 
         if (isset($formdata->certificatetext['text'])){
             $update->certificatetext = $formdata->certificatetext['text'];
+            if (!isset($formdata->certificatetextformat)){
+                $update->certificatetextformat = $formdata->certificatetext['format'];
+            }
             unset($formdata->certificatetext);
         }
         
         if (isset($formdata->secondpagetext['text'])) {
             $update->secondpagetext = $formdata->secondpagetext['text'];
+            if (!isset($formdata->secondpagetextformat)){
+                $update->secondpagetextformat = $formdata->secondpagetext['format'];
+            }
             unset($formdata->secondpagetext);
+        }
+        
+        if (!empty($formdata->images)) {
+            $user_context = context_user::instance($USER->id); 
+            $fs = get_file_storage();
+            if (!empty($formdata->images[0])) {
+                $fileinfo = simplecertificate::get_certificate_image_fileinfo($this->context->id);
+                $fs->delete_area_files($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'], $fileinfo['itemid']);
+                $fileinfo['filename'] = $formdata->images[0];
+                $file = $fs->get_file($user_context->id, 'user', 'draft', $formdata->certificateimage, '/', $formdata->images[0]);
+                $fs->create_file_from_storedfile($fileinfo, $file);
+                $update->certificateimage = $formdata->images[0];
+                $file->delete();
+                unset($formdata->certificateimage);
+            }
+            if (!empty($formdata->images[1])) {
+                $fileinfo = simplecertificate::get_certificate_secondimage_fileinfo($this->context->id);
+                $fs->delete_area_files($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'], $fileinfo['itemid']);
+                $fileinfo['filename'] = $formdata->images[1];
+                $file = $fs->get_file($user_context->id, 'user', 'draft', $formdata->secondimage, '/', $formdata->images[1]);
+                $fs->create_file_from_storedfile($fileinfo, $file);
+                $update->secondimage = $formdata->images[1];
+                $file->delete();
+                unset($formdata->secondimage);
+            }
+            unset($formdata->images);
+        }
+        
+        foreach ($formdata as $name => $value) {
+            $update->{$name} = $value;
         }
         
         if (isset($formdata->instance)){
             $update->id = $formdata->instance;
-            unset($formdata->instance);
+            unset($update->instance);
         }
         
-        foreach ($formdata as $name => $value) {
-                $update->{$name} = $value;
-        }
         if (empty($update->coursename)) {
             $update->coursename = $this->get_course()->fullname;
         }
         
         return $update;
     }
+    
+   
 
     /**
      * Get the first page background image fileinfo

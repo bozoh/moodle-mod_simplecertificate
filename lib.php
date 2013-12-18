@@ -38,17 +38,12 @@ require_once($CFG->dirroot.'/grade/querylib.php');
  * @param mod_assign_mod_form $form
  * @return int The instance id of the new simplecertificate
  */
-function simplecertificate_add_instance(stdclass $data, mod_simplecertificate_mod_form $mform=null) {
+function simplecertificate_add_instance(stdclass $data) {
     global $CFG;
     require_once($CFG->dirroot . '/mod/simplecertificate/locallib.php');
     
     $context = context_module::instance($data->coursemodule);
     $simplecertificate = new simplecertificate($context, null, null);
-    if (!empty($mform)) {
-        $data->images=simplecertificate_process_form_files($mform);
-    } else {
-        $data->images=null;
-    }
     
     return $simplecertificate->add_instance($data);
 
@@ -60,17 +55,12 @@ function simplecertificate_add_instance(stdclass $data, mod_simplecertificate_mo
  * @param stdClass $certificate
  * @return bool true
  */
-function simplecertificate_update_instance(stdclass $data, mod_simplecertificate_mod_form $mform=null) {
+function simplecertificate_update_instance(stdclass $data) {
     global $DB, $CFG;
     require_once($CFG->dirroot . '/mod/simplecertificate/locallib.php');
 
     $context = context_module::instance($data->coursemodule);
     $simplecertificate = new simplecertificate($context, null, null);
-    if (!empty($mform)) {
-        $data->images=simplecertificate_process_form_files($mform);
-    } else {
-        $data->images=null;
-    }
     
     return $simplecertificate->update_instance($data);
 

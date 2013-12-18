@@ -10,7 +10,7 @@ require_once($CFG->libdir . '/filelib.php');
 
 class mod_simplecertificate_mod_form extends moodleform_mod {
 
-    function definition() {
+    public function definition() {
         global $CFG, $COURSE;
 
 
@@ -267,6 +267,26 @@ class mod_simplecertificate_mod_form extends moodleform_mod {
         }
     }
 
+     
+    
+    
+    public function get_data() {
+        global $CFG;
+        require_once(dirname(__FILE__) . '/locallib.php');
+        
+        $data = parent::get_data();
+        
+        if (empty($data)) {
+            return $data;
+        }
+        $certifiles = array();
+        $certifiles[0] = $this->get_new_filename('certificateimage');
+        $certifiles[1] = $this->get_new_filename('secondimage');
+        
+        $data->images = $certifiles;
+        return $data;
+    }
+    
     /**
      * Some basic validation
      *

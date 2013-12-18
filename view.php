@@ -37,7 +37,6 @@ if (!$certificate = $DB->get_record('simplecertificate', array('id' => $cm->inst
 }
 
 $context = context_module::instance ($cm->id);
-
 $url = new moodle_url('/mod/simplecertificate/view.php', array (
 		'id' => $cm->id,
 		'tab' => $tab,
