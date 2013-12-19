@@ -162,11 +162,6 @@ class mod_simplecertificate_mod_form extends moodleform_mod {
         $mform->setDefault('gradefmt', 0);
         $mform->addHelpButton('gradefmt', 'gradefmt', 'simplecertificate');
 
-        //Required Time
-        $mform->addElement('text', 'requiredtime', get_string('coursetimereq', 'simplecertificate'), array('size'=>'3'));
-        $mform->setType('requiredtime', PARAM_INT);
-        $mform->addHelpButton('requiredtime', 'coursetimereq', 'simplecertificate');
-
         //QR code
         $mform->addElement('selectyesno', 'printqrcode', get_string('printqrcode', 'simplecertificate'));
         $mform->setDefault('printqrcode', get_config('simplecertificate', 'printqrcode'));
@@ -265,20 +260,53 @@ class mod_simplecertificate_mod_form extends moodleform_mod {
             $data['certificatetext'] = array('text' =>'', 'format'=> FORMAT_HTML);
             $data['secondpagetext'] = array('text' =>'', 'format'=> FORMAT_HTML);
         }
+        
+        //completion rules
+        $data['completiontimeenabled'] = !empty($data['requiredtime']) ? 1 : 0;
+        
+        
     }
 
-     
+    public function add_completion_rules() {
+        $mform =& $this->_form;
     
+        $group=array();
+        
+        $group[] =& $mform->createElement('checkbox', 'completiontimeenabled', ' ', get_string('coursetimereq', 'simplecertificate'));
+        $group[] =& $mform->createElement('text', 'requiredtime','', array('size'=>'3'));
+        $mform->setType('requiredtime',PARAM_INT);
+        $mform->addGroup($group, 'completiontimegroup', get_string('coursetimereq','simplecertificate'), array(' '), false);
+        
+        $mform->addHelpButton('completiontimegroup', 'coursetimereq', 'simplecertificate');
+        $mform->disabledIf('requiredtime','completiontimeenabled','notchecked');
+    
+        return array('completiontimegroup');
+    } 
+
+    function completion_rule_enabled($data) {
+        return (!empty($data['completiontimeenabled']) && $data['requiredtime']!=0);
+    }
     
     public function get_data() {
         global $CFG;
         require_once(dirname(__FILE__) . '/locallib.php');
         
         $data = parent::get_data();
-        
+                
         if (empty($data)) {
-            return $data;
+            return false;
         }
+        
+        //For Completion Rules
+        if (!empty($data->completionunlocked)) {
+            // Turn off completion settings if the checkboxes aren't ticked
+            $autocompletion = !empty($data->completion) && $data->completion==COMPLETION_TRACKING_AUTOMATIC;
+            if (empty($data->completiontimeenabled) || !$autocompletion) {
+                $data->requiredtime = 0;
+            }
+        }
+        
+        //For files
         $certifiles = array();
         $certifiles[0] = $this->get_new_filename('certificateimage');
         $certifiles[1] = $this->get_new_filename('secondimage');
@@ -298,7 +326,7 @@ class mod_simplecertificate_mod_form extends moodleform_mod {
         $errors = parent::validation($data, $files);
 
         // Check that the required time entered is valid
-        if ((!is_number($data['requiredtime']) || $data['requiredtime'] < 0)) {
+        if ((isset($data['requiredtime']) && $data['requiredtime'] < 0)) {
             $errors['requiredtime'] = get_string('requiredtimenotvalid', 'simplecertificate');
         }
 

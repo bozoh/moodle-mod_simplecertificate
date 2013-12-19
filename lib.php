@@ -213,10 +213,36 @@ function simplecertificate_supports($feature) {
         case FEATURE_GROUPMEMBERSONLY:        return true;
         case FEATURE_MOD_INTRO:               return true;
         case FEATURE_COMPLETION_TRACKS_VIEWS: return true;
+        case FEATURE_COMPLETION_HAS_RULES:    return true;
         case FEATURE_BACKUP_MOODLE2:          return true;
 
         default: return null;
     }
+}
+
+
+/**
+ * Obtains the automatic completion state for this forum based on any conditions
+ * in simplecertificate settings.
+ *
+ * @param object $course Course
+ * @param object $cm Course-module
+ * @param int $userid User ID
+ * @param bool $type Type of comparison (or/and; can be used as return value if no conditions)
+ * @return bool True if completed, false if not, $type if conditions not set.
+ */
+function simplecertificate_get_completion_state($course, $cm, $userid, $type) {
+    global $CFG;
+    require_once($CFG->dirroot . '/mod/simplecertificate/locallib.php');
+    
+    $context = context_module::instance($cm->id);
+    $simplecertificate = new simplecertificate($context, $cm, $course);
+
+    if ($requiredtime = $simplecertificate->get_instance()->requiredtime) {
+        return ($simplecertificate->get_course_time($userid) >= $requiredtime);  
+    } 
+    // Completion option is not enabled so just return $type
+    return $type;
 }
 
 /**

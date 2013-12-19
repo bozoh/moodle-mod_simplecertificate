@@ -1108,13 +1108,19 @@ class simplecertificate {
         global $CFG, $USER;
         
         if (empty($user)) {
-            $user = $USER;
+            $userid = $USER->id;
+        } else {
+            if (is_object($user)) {
+                $userid = $user->id;
+            } else {
+                $userid = $user;
+            }
         }
         set_time_limit(0);
         
         $totaltime = 0;
         $sql = "l.course = :courseid AND l.userid = :userid";
-        if ($logs = get_logs($sql, array('courseid' => $this->get_course()->id, 'userid' => $user->id), 'l.time ASC', '', '', $totalcount)) {
+        if ($logs = get_logs($sql, array('courseid' => $this->get_course()->id, 'userid' => $userid), 'l.time ASC', '', '', $totalcount)) {
             foreach ( $logs as $log ) {
                 if (empty($login)) {
                     // For the first time $login is not set so the first log is also the first login
@@ -1435,25 +1441,15 @@ class simplecertificate {
         }
         
         if ($chkcompletation) {
-            if ($this->get_instance()->requiredtime) {
+            $completion = new completion_info($this->course);
+            if ($completion->is_enabled($this->coursemodule) && $this->get_instance()->requiredtime) {
                 if ($this->get_course_time($user) < $this->get_instance()->requiredtime) {
                     $a = new stdClass();
                     $a->requiredtime = $this->get_instance()->requiredtime;
                     return get_string('requiredtimenotmet', 'simplecertificate', $a);
                 }
-            }
-            
-            if (completion_info::is_enabled_for_site()) {
-                require_once ("{$CFG->libdir}/completionlib.php");
-                
-                if (!$course = $this->get_course()) {
-                    print_error('cannotfindcourse');
-                }
-                $info = new completion_info($course);
-                
-                if ($info->is_enabled($this->coursemodule) && !$info->is_course_complete($user->id)) {
-                    return get_string('cantissue', 'simplecertificate');
-                }
+                //Mark as complete
+                $completion->update_state($this->coursemodule, COMPLETION_COMPLETE, $user->id);
             }
             
             if ($CFG->enableavailability) {
