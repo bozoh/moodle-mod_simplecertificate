@@ -95,6 +95,12 @@ class simplecertificate {
      */
     private $cache;
     
+    /**
+     * 
+     * @var stdClass the current issued certificate
+     */
+    private $issuecert;
+    
     
     /**
      * Constructor for the base simplecertificate class.
@@ -344,7 +350,7 @@ class simplecertificate {
             $user_context = context_user::instance($USER->id); 
             $fs = get_file_storage();
             if (!empty($formdata->images[0])) {
-                $fileinfo = simplecertificate::get_certificate_image_fileinfo($this->context->id);
+                $fileinfo = self::get_certificate_image_fileinfo($this->context->id);
                 $fs->delete_area_files($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'], $fileinfo['itemid']);
                 $fileinfo['filename'] = $formdata->images[0];
                 $file = $fs->get_file($user_context->id, 'user', 'draft', $formdata->certificateimage, '/', $formdata->images[0]);
@@ -354,7 +360,7 @@ class simplecertificate {
                 unset($formdata->certificateimage);
             }
             if (!empty($formdata->images[1])) {
-                $fileinfo = simplecertificate::get_certificate_secondimage_fileinfo($this->context->id);
+                $fileinfo = self::get_certificate_secondimage_fileinfo($this->context->id);
                 $fs->delete_area_files($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'], $fileinfo['itemid']);
                 $fileinfo['filename'] = $formdata->images[1];
                 $file = $fs->get_file($user_context->id, 'user', 'draft', $formdata->secondimage, '/', $formdata->images[1]);
@@ -504,6 +510,10 @@ class simplecertificate {
             $user = $USER;
         }
         
+        if (!empty($this->issuecert) && !empty($issuecert->haschange) && $this->issuecert->userid == $user->id) {
+            return $this->issuecert;
+        }
+        
         //Check if certificate has already issued
         if (!$issuecert = $DB->get_record('simplecertificate_issues', array('userid' => $user->id, 
                 'certificateid' => $this->get_instance()->id, 
@@ -534,7 +544,15 @@ class simplecertificate {
                     $this->send_alert_email_others();
                 }
             }
+        } else if (!empty($issuecert->haschange)){
+            $formated_certificatename = str_replace('-', '_', $this->get_instance()->name);
+            $formated_coursename = str_replace('-', '_', $this->get_instance()->coursename);
+            $issuecert->coursename = $this->get_instance()->coursename;
+            $issuecert->certificatename = format_string($formated_coursename . '-' . $formated_certificatename, true);
+            $DB->update_record('simplecertificate_issues', $issuecert);
         }
+        //Caching to avoid unessecery db queries
+        $this->issuecert = $issuecert;
         return $issuecert;
     }
 
@@ -1253,10 +1271,12 @@ class simplecertificate {
         }
         
         if ($search) {
-            return str_replace($search, $replace, $certtext);
+            $certtext = str_replace($search, $replace, $certtext);
         }
         
-        return $certtext;
+        //Clear not setted custom profile fiedls {PROFILE_xxxx}
+        return preg_replace('[\{PROFILE_(.*)\}]', "", $certtext);
+        
     }
 
     /**
