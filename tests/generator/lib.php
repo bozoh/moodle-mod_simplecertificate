@@ -46,24 +46,36 @@ class mod_simplecertificate_generator extends testing_module_generator {
     
 
     public function create_instance($record = null, array $options = null) {
-    	global $CFG;
+    	global $CFG, $USER;
     	$record = (object)(array)$record;
+    	$record->images = array();
+    	$user_context = context_user::instance($USER->id);
+    	$fileinfo = array(
+    	               'contextid' => $user_context->id, 
+    	               'component' => 'user', 
+    	               'filearea' => 'draft', 
+    	               'filepath' => '/'
+    	);
+    	
+    	  
+    	        
     	
     	$defaultsettings = array(
     	        'name'             => 'Unit Case Test Certificate',
     	        'intro'            => '<h1>Unit Case Test Certificate</h1>',
     	        'introformat'      => FORMAT_HTML,
-    	        'certificatetextx' => 50,
-    	        'certificatetexty' => 0,
+    	        'certificatetextx' => 0,
+    	        'certificatetexty' => 50,
     	        'enablesecondpage' => 1,
     	        'secondpagex'      => 0,
-    	        'secondpagey'      => 0,
+    	        'secondpagey'      => 50,
     	        'width'            => get_config('simplecertificate','width'),
     	        'height'           => get_config('simplecertificate','height'), 
-    	        'printqrcode'      => get_config('simplecertificate','printqrcode'),
-    	        'codex'            => get_config('simplecertificate','codex'),
-    	        'codey'            => get_config('simplecertificate','codey'),
-    	        'qrcodefirstpage'  => get_config('simplecertificate','qrcodefirstpage')
+    	        'printqrcode'      => 1,
+    	        'codex'            => 30,
+    	        'codey'            => 130,
+    	        'certdatefmt'      => 'Rio de Janeiro, %d de %B de %Y',
+    	        'qrcodefirstpage'  => 1
     	);
     	
     	foreach ($defaultsettings as $name => $value) {
@@ -79,46 +91,38 @@ class mod_simplecertificate_generator extends testing_module_generator {
     	}
     	
     	if (!isset($record->secondpagetext['text'])) {
-    	   $record->secondpagetext['text'] = file_get_contents("$CFG->dirroot/mod/simplecertificate/tests/fixtures/firstpage.html");
+    	   $record->secondpagetext['text'] = file_get_contents("$CFG->dirroot/mod/simplecertificate/tests/fixtures/secondpage.html");
     	   $record->secondpagetextformat = FORMAT_HTML;
     	}
     	
     	if (!isset($record->certificatetextformat)){
     		$record->certificatetextformat = FORMAT_HTML;
     	}
-    	//TODO See how i can test files upload
     	
-    	//if (!isset($record->certificateimage));
+    	if (!isset($record->certificateimage)) {
+    	    $record->certificateimage = $CFG->dirroot . '/mod/simplecertificate/tests/fixtures/firstpagetestimage.jpg';
+    	}
+    	
+    	if (!isset($record->secondimage)) {
+    	    $record->secondimage = $CFG->dirroot . '/mod/simplecertificate/tests/fixtures/secondpagetestimage.jpg'; 
+    	}
+    	
+    	//Firstpage image
+    	$fs = get_file_storage();
+    	$fileinfo['itemid'] = rand(1,10);
+    	$fileinfo['filename'] = basename($record->certificateimage);
+    	$file = $fs->create_file_from_pathname($fileinfo, $record->certificateimage);
+    	$record->certificateimage = $fileinfo['itemid'];
+    	$record->images[0] = $fileinfo['filename'];
+    	
+    	//Secondpage image
+    	$fileinfo['itemid'] = rand(11,21);
+        $fileinfo['filename'] = basename($record->secondimage);
+        $file = $fs->create_file_from_pathname($fileinfo, $record->secondimage);
+        $record->secondimage = $fileinfo['itemid'];
+        $record->images[1] = $fileinfo['filename'];
+    	    	
 
-    	/*Using default (in settings)
-    	if (!isset($record->width));
-    	if (!isset($record->height));
-    	
-    	if (!isset($record->certificatetextx));
-    	if (!isset($record->certificatetexty));
-    	if (!isset($record->coursename));
-    	if (!isset($record->coursehours));
-    	if (!isset($record->outcome));
-    	if (!isset($record->certdate));
-    	if (!isset($record->certdatefmt));
-    	if (!isset($record->certgrade));
-    	if (!isset($record->gradefmt));
-    	if (!isset($record->emailfrom));
-    	if (!isset($record->emailothers));
-    	if (!isset($record->emailteachers));
-    	if (!isset($record->reportcert));
-    	
-    	if (!isset($record->requiredtime))
-    	if (!isset($record->printqrcode));
-    	if (!isset($record->qrcodefirstpage));
-    	if (!isset($record->codex));
-    	if (!isset($record->codey));
-    	if (!isset($record->enablesecondpage));
-    	if (!isset($record->secondpagex));
-    	if (!isset($record->secondpagey));
-    	if (!isset($record->secondpagetext));
-    	if (!isset($record->secondpagetextformat));
-    	if (!isset($record->secondimage));*/
     	
         return parent::create_instance($record, (array)$options);
     }

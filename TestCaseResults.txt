@@ -1,5 +1,5 @@
-moodle-2.6 2.2.0-alpha build: 2013121300
-Runned at: 2013-12-16 18:31
+moodle-2.6 2.2.0-alpha build: 2013121600
+Runned at: 2013-12-19 12:39
 
 
 ------
@@ -9,20 +9,23 @@ PHPUnit tests:
 2- Can Create a simple certificate ? Ok
 3- Can Update a simple certificate ? Ok
 4- Can Delete a simple certificate ? Ok
-5- Can Retrieve a student simple certificate As manager? Ok
-6- Can Retrieve a simple certificate As manager? Ok
-7- Can Retrieve a simple certificate As student ? Ok
-8- Manager issued certificates are not save? Ok
-9- Update certificate updates haschange status in issued certificates? Ok
-10- Delete certificate adds timeend in issued certificates? Ok
-11- Certificate code is correct ? Ok
-12- create a pdf file ? Ok
-13- Only re-create a pdf file if certificate changes? Ok
-14- Managers certificates are not save? Ok
-15- Can send certificade to e-mail? Ok
-16- Can change email sender (from email)? Ok
-17- Can notify Teacher, when a certificate is issued? Ok
-18- Can notify others, when a certificate is issued? Ok
+5- Is all images is in certificate: ? Ok
+6- Front text is correct: ? Ok
+7- Back text is enable and correct ? Ok
+8- Can Retrieve a student simple certificate As manager? Ok
+9- Can Retrieve a simple certificate As manager? Ok
+10- Can Retrieve a simple certificate As student ? Ok
+11- Manager issued certificates are not save? Ok
+12- Update certificate updates haschange status in issued certificates? Ok
+13- Delete certificate adds timeend in issued certificates? Ok
+14- Certificate code is correct ? Ok
+15- create a pdf file ? Ok
+16- Only re-create a pdf file if certificate changes? Ok
+17- Managers certificates are not save? Ok
+18- Can send certificade to e-mail? Ok
+19- Can change email sender (from email)? Ok
+20- Can notify Teacher, when a certificate is issued? Ok
+21- Can notify others, when a certificate is issued? Ok
 
 End ofPHPUnit tests.
 ------
@@ -31,14 +34,12 @@ End ofPHPUnit tests.
 - Upgrade plugin is work ?
 
 --Certificate informations basic (MUST WORK)
-- Is all pages in certificate:
+
 	- Second page is enable and is in certificate? 
-- Is all texts in certificate:
 	- Front text is correct ?
 	- Back text is enable and correct ?
 	- All variables are correct?
 	- All custom profile variables are correct?
-- Is all image in certificate:
 	- Front Image is correct?
 	- Back Image is enable and correct?
 - Is QR enable an in certificate? 

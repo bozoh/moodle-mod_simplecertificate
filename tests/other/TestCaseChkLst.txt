@@ -2,14 +2,12 @@
 - Upgrade plugin is work ?
 
 --Certificate informations basic (MUST WORK)
-- Is all pages in certificate:
+
 	- Second page is enable and is in certificate? 
-- Is all texts in certificate:
 	- Front text is correct ?
 	- Back text is enable and correct ?
 	- All variables are correct?
 	- All custom profile variables are correct?
-- Is all image in certificate:
 	- Front Image is correct?
 	- Back Image is enable and correct?
 - Is QR enable an in certificate? 

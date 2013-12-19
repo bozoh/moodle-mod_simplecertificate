@@ -284,7 +284,6 @@ class testable_simplecertificate extends simplecertificate {
         return parent::get_certificate_text($issuecert, $certtext);
     }
     
-
     /**
      * Returns the date to display for the certificate.
      *

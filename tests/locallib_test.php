@@ -43,10 +43,11 @@ class mod_simplecertificate_locallib_testcase extends mod_simplecertificate_base
     public static $count;
     public static $fhandle;
 
-    public function test_create_certificate_instance() {
+    public function test_create_instance() {
         echo __METHOD__."\n";
         global $DB;
         $this->resetAfterTest();
+        $this->setAdminUser();
 
         //Basic CRUD test
         $this->assertFalse($DB->record_exists('simplecertificate', array('course' => $this->course->id)));
@@ -68,6 +69,7 @@ class mod_simplecertificate_locallib_testcase extends mod_simplecertificate_base
         echo __METHOD__."\n";
         global $DB;
         $this->resetAfterTest();
+        $this->setAdminUser();
         
         //Basic CRUD test
         $cert = $this->create_instance();
@@ -87,6 +89,7 @@ class mod_simplecertificate_locallib_testcase extends mod_simplecertificate_base
         echo __METHOD__."\n";
         global $DB;
         $this->resetAfterTest();
+        $this->setAdminUser();
         
         //Basic CRUD test
         $cert = $this->create_instance();
@@ -95,6 +98,50 @@ class mod_simplecertificate_locallib_testcase extends mod_simplecertificate_base
         $this->write_to_report("Can Delete a simple certificate ? Ok");
     }
     
+    public function test_certificate_images() {
+        echo __METHOD__."\n";
+        global $DB, $CFG;
+        $this->resetAfterTest();
+        $this->setAdminUser();
+        
+        //The default data generation puts firstpage and secondpage background images
+        $cert = $this->create_instance();
+        $fs=get_file_storage();
+        
+        //Firstpage image
+        $fileinfo=$cert::get_certificate_image_fileinfo($cert->get_context());
+        $this->assertTrue($fs->file_exists($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'], $fileinfo['itemid']
+                , $fileinfo['filepath'], $cert->get_instance()->certificateimage));
+        
+        //Second image
+        $fileinfo=$cert::get_certificate_secondimage_fileinfo($cert->get_context());
+        $this->assertTrue($fs->file_exists($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'], $fileinfo['itemid']
+                , $fileinfo['filepath'], $cert->get_instance()->secondimage));
+        $pdf = $cert->testable_create_pdf($cert->get_issue());
+        $this->assertNotNull($pdf);
+        $pdf->Output($CFG->dirroot . '/mod/simplecertificate/tests/test_certificate_'.testable_simplecertificate::PLUGIN_VERSION.'.pdf','F');
+        $this->write_to_report("Is all images is in certificate: ? Ok");
+        
+    }
+    
+    public function test_certificate_texts() {
+        echo __METHOD__."\n";
+        global $DB, $CFG;
+        $this->resetAfterTest();
+        $this->setAdminUser();
+        
+        //The default data generation has many variable, test if not set variables are printed, like {PROFILE_BIRTHDAY}
+        $cert = $this->create_instance();
+        $firstpagetext = $cert->testable_get_certificate_text($cert->get_issue());
+        $secondpagetext = $cert->testable_get_certificate_text($cert->get_issue(),$cert->get_instance()->secondpagetext);
+        //In this test first must be different than second one
+        $this->assertNotEquals($firstpagetext, $secondpagetext);
+        $this->assertNotContains("{", $firstpagetext);
+        $this->write_to_report("Front text is correct: ? Ok");
+        $this->assertNotContains("{", $secondpagetext);
+        $this->write_to_report("Back text is enable and correct ? Ok");
+        
+    }
     
     public function test_create_issue_instance() {
         echo __METHOD__."\n";
