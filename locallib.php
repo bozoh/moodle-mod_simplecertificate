@@ -666,21 +666,27 @@ class simplecertificate {
                 }
         }
         
-        if (!is_null($coursegrade)) {
-            switch ($this->get_instance()->gradefmt) {
+        return $this->get_formated_grade($coursegrade);
+    }
+    
+    private function get_formated_grade (stdClass $coursegrade) {
+        if (empty($coursegrade)) {
+            return '';
+        }
+
+        switch ($this->get_instance()->gradefmt) {
                 case 1 :
                     return $coursegrade->percentage;
-                break;
-                case 2 :
-                    return $coursegrade->points;
-                break;
+                    break;
+                
                 case 3 :
                     return $coursegrade->letter;
-                break;
-            }
+                    break;
+                    
+                default:
+                    return $coursegrade->points;
+                    break;
         }
-        
-        return '';
     }
 
     /**
@@ -1268,6 +1274,9 @@ class simplecertificate {
             $a->teachers = '';
         }
         
+        //Fetch user actitivy restuls
+        $a->userresults = $this->get_user_results($issuecert->userid);
+        
         $a = (array)$a;
         $search = array();
         $replace = array();
@@ -1329,6 +1338,31 @@ class simplecertificate {
         }
         
         return userdate($date, $format);
+    }
+    
+    protected function get_user_results($userid = null) {
+        global $USER;
+        
+        if (empty($userid)) {
+            $userid = $USER->id;
+        }
+        
+        $items = grade_item::fetch_all(array('courseid'=>$this->course->id));
+        if (empty($items)) {
+            return '';
+        }
+        
+        $retval = '';
+        foreach($items as $id=>$item) {
+           // Do not include grades for course itens
+    	   if ($item->itemtype != 'mod') {
+    		  continue;
+    	   }
+    	   $cm = get_coursemodule_from_instance($item->itemmodule, $item->iteminstance);
+    	   $usergrade = $this->get_formated_grade($this->get_mod_grade($cm->id, $userid));
+    	   $retval = $item->itemname . ": $usergrade<br>" . $retval;
+        }
+        return $retval;
     }
 
     /**
@@ -1464,7 +1498,7 @@ class simplecertificate {
     }
 
     /**
-     *  Veeify if cetificate file exists
+     *  Verify if cetificate file exists
      *
      * @param stdClass $issuecert Issued certificate object
      * @return true if exist
