@@ -886,10 +886,11 @@ class simplecertificate {
         }
         
         if ($search) {
-            return str_replace($search, $replace, $certtext);
+            $certtext = str_replace($search, $replace, $certtext);
         }
-
-        return $this->certificatetext;
+        
+        //Clear not setted custom profile fiedls {PROFILE_xxxx}
+        return preg_replace('[\{PROFILE_(.*)\}]', "", $certtext);
     }
     
     private function get_course_contacts($course) {
