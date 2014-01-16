@@ -1922,9 +1922,13 @@ class simplecertificate {
         if ($groupmode) {
             $groupid = groups_get_activity_group($this->coursemodule, true);
         }
-        
+
+		$page_start = intval($page * $perpage);
+		$usercount = 0;
         if (!$selectedusers) {
-            $users = get_enrolled_users($course_context, '', $groupid);
+			$users = get_enrolled_users($course_context, '', $groupid);
+			$usercount = count($users);
+			$users = array_slice($users, $page_start, $perpage);
         } else {
             list($sqluserids, $params) = $DB->get_in_or_equal($selectedusers);
             $sql = "SELECT * FROM {user} WHERE id $sqluserids";
@@ -1932,7 +1936,6 @@ class simplecertificate {
         }
         
         if (!$action) {
-            $usercount = count($users);
             echo $OUTPUT->header();
             $this->show_tabs($url);
             
