@@ -524,7 +524,7 @@ class simplecertificate {
      * @return TCPDF
      */
     private function create_pdf_object() {
-    	$pdf = new pdf($this->orientation, 'mm', array($this->width, $this->height), true, 'UTF-8', true, false);
+    	$pdf = new pdf($this->orientation, 'mm', array($this->width, $this->height), true, 'UTF-8');
     	$pdf->SetTitle($this->name);
     	$pdf->SetSubject($this->name . ' - ' . $this->coursename);
     	$pdf->SetKeywords(get_string('keywords', 'simplecertificate') . ',' . $this->coursename);
@@ -705,7 +705,7 @@ class simplecertificate {
         	 	$from->email = format_string($this->emailfrom, true);
         	} else {
         		$from = format_string($this->emailfrom, true);
-        	}        
+        	}
         	
         	$ret = email_to_user($user, $from, $subject, $message, $messagehtml, $relativefilepath, $file->get_filename());
         	@unlink($attachment);
@@ -1587,8 +1587,12 @@ class simplecertificate {
     		$groupid = groups_get_activity_group($this->cm, true);
     	}
 
+        $page_start = intval($page * $perpage);
+        $usercount = 0;
     	if (!$selectedusers) {
     		$users = get_enrolled_users($course_context, '', $groupid);
+			$usercount = count($users);
+			$users = array_slice($users, $page_start, $perpage);
     	} else {
     		list($sqluserids, $params) = $DB->get_in_or_equal($selectedusers);
     		$sql = "SELECT * FROM {user} WHERE id $sqluserids";
@@ -1596,7 +1600,6 @@ class simplecertificate {
     	}
     	
     	if (!$action) {
-    		$usercount = count($users);
     		echo $OUTPUT->header();
     		$this->show_tabs($url);
     		
