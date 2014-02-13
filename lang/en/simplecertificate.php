@@ -28,7 +28,7 @@ $string['opendownload'] = 'Click the button below to save your certificate to yo
 $string['openemail'] = 'Click the button below and your certificate will be sent to you as an email attachment.';
 $string['openwindow'] = 'Click the button below to open your certificate in a new browser window.';
 $string['hours'] = 'hours';
-$string['keywords'] = 'cetificate, course, pdf, moodle';
+$string['keywords'] = 'certificate, course, pdf, moodle';
 $string['pluginadministration'] = 'Certificate administration';
 $string['deletissuedcertificates'] = 'Delete issued certificates';
 $string['nocertificatesissued'] = 'There are no certificates that have been issued';
@@ -58,7 +58,7 @@ $string['secondpagetext'] = 'Certificate Back Text';
 $string['secondpagex'] = 'Certificate Back Text Horizontal Position';
 $string['secondpagey'] = 'Certificate Back Text Vertical Position';
 $string['secondtextposition'] = 'Certificate Back Text Position';
-$string['secondtextposition_help'] = 'These are the XY coordinates (in millimeters) of the certificate back page text';
+$string['secondtextposition_help'] = 'These are the XY coordinates (in millimetres) of the certificate back page text';
 
 //QR Code
 $string['printqrcode'] = 'Print Certificate QR Code';
@@ -66,8 +66,8 @@ $string['printqrcode_help'] = 'Print (or not) certificate QR Code';
 $string['codex'] = 'Certificate QR Code Horizontal Position';
 $string['codey'] = 'Certificate QR Code Vertical Position';
 $string['qrcodeposition'] = 'Certificate QR Code Position';
-$string['qrcodeposition_help'] = 'These are the XY coordinates (in millimeters) of the certificate QR Code';
-$string['defaultcodex'] = 'Default Hotizontal QR code Position';
+$string['qrcodeposition_help'] = 'These are the XY coordinates (in millimetres) of the certificate QR Code';
+$string['defaultcodex'] = 'Default Horizontal QR code Position';
 $string['defaultcodey'] = 'Default Vertical QR code Position';
 
 ////Date options
@@ -93,7 +93,7 @@ $string['delivery'] = 'Delivery';
 $string['openbrowser'] = 'Open in new window';
 $string['download'] = 'Force download';
 $string['emailcertificate'] = 'Email';
-$string['nodelivering'] = 'No delivering, user will recive this certificate using others ways';
+$string['nodelivering'] = 'No delivering, user will receive this certificate using others ways';
 
 
 
@@ -102,41 +102,41 @@ $string['nodelivering'] = 'No delivering, user will recive this certificate usin
 $string['certificatename_help'] = 'Certificate Name';
 $string['certificatetext_help'] = 'This is the text that will be used in the certificate back, some special words will be replaced with variables such as course name, student\'s name, grade ...
 These are:
-
-{USERNAME} -> Full user name
-{COURSENAME} -> Full course name (or a Defined alternate course name)
-{GRADE} -> Formated Grade
-{DATE} -> Formated Date
-{OUTCOME} -> Outcomes
-{HOURS} -> Defined hours in course
-{TEACHERS} -> Teachers List
-{IDNUMBER} -> User id number
-{FIRSTNAME} -> User first name        
-{LASTNAME} -> User last name        
-{EMAIL} -> User e-mail        
-{ICQ} -> User ICQ        
-{SKYPE} -> User Skype        
-{YAHOO} -> User yahoo messenger        
-{AIM} -> User AIM        
-{MSN} -> User MSN        
-{PHONE1} -> User 1° Phone Number        
-{PHONE2} -> User 2° Phone Number        
-{INSTITUTION} -> User institution        
-{DEPARTMENT} -> User department        
-{ADDRESS} -> User address
-{CITY} -> User city
-{COUNTRY} -> User country
-{URL} -> User Home-page
-{CERTIFICATECODE} -> Unique certificate code text
-{PROFILE_xxxx} -> User custom profile fields
-
-In order to use custom profiles fields you must use "PORFILE_" prefix, for example: you has created a custom profile with shortname of "birthday," so the text mark used on certificate must be {PROFILE_BIRTHDAY} 
-The text can use basic html, basic fonts, tables,  but avoid any position definition';
+<ul>
+<li>{USERNAME} -> Full user name</li>
+<li>{COURSENAME} -> Full course name (or a defined alternate course name)</li>
+<li>{GRADE} -> Formatted Grade</li>
+<li>{DATE} -> Formatted Date</li>
+<li>{OUTCOME} -> Outcomes</li>
+<li>{HOURS} -> Defined hours in course</li>
+<li>{TEACHERS} -> Teachers List</li>
+<li>{IDNUMBER} -> User id number</li>
+<li>{FIRSTNAME} -> User first name</li>
+<li>{LASTNAME} -> User last name</li>
+<li>{EMAIL} -> User e-mail</li>
+<li>{ICQ} -> User ICQ</li>
+<li>{SKYPE} -> User Skype</li>
+<li>{YAHOO} -> User yahoo messenger</li>
+<li>{AIM} -> User AIM</li>
+<li>{MSN} -> User MSN</li>
+<li>{PHONE1} -> User 1° Phone Number</li>
+<li>{PHONE2} -> User 2° Phone Number</li>
+<li>{INSTITUTION} -> User institution</li>
+<li>{DEPARTMENT} -> User department</li>
+<li>{ADDRESS} -> User address</li>
+<li>{CITY} -> User city</li>
+<li>{COUNTRY} -> User country</li>
+<li>{URL} -> User Home-page</li>
+<li>{CERTIFICATECODE} -> Unique certificate code text</li>
+<li>{PROFILE_xxxx} -> User custom profile fields</li>
+</ul>
+In order to use custom profiles fields you must use "PORFILE_" prefix, for example: you has created a custom profile with shortname of "birthday," so the text mark used on certificate must be {PROFILE_BIRTHDAY}.
+The text can use basic html, basic fonts, tables,  but avoid any position definition.';
 
 $string['textposition'] = 'Certificate Text Position';
-$string['textposition_help'] = 'These are the XY coordinates (in millimeters) of the certificate text';
+$string['textposition_help'] = 'These are the XY coordinates (in millimetres) of the certificate text';
 $string['size'] = 'Certificate Size';
-$string['size_help'] = 'These are the Width and Height size (in millimeters) of the certificate, Default size is A4 Landscape';
+$string['size_help'] = 'These are the Width and Height size (in millimetres) of the certificate, Default size is A4 Landscape';
 $string['coursehours_help'] = 'Hours in course';
 $string['coursename_help'] = 'Alternative Course Name';
 $string['certificateimage_help'] = 'This is the picture that will be used in the certificate';
@@ -146,20 +146,23 @@ $string['printdate_help'] = 'This is the date that will be printed, if a print d
 $string['datefmt_help'] = 'Enter a valid PHP date format pattern (http://www.php.net/manual/en/function.strftime.php). Or, leave it empty to use the format of the user\'s chosen language.';
 $string['printgrade_help'] = 'You can choose any available course grade items from the gradebook to print the user\'s grade received for that item on the certificate.  The grade items are listed in the order in which they appear in the gradebook. Choose the format of the grade below.';
 $string['gradefmt_help'] = 'There are three available formats if you choose to print a grade on the certificate:
-
-Percentage Grade: Prints the grade as a percentage.
-Points Grade: Prints the point value of the grade.
-Letter Grade: Prints the percentage grade as a letter.';
+<ul>
+<li>Percentage Grade: Prints the grade as a percentage.</li>
+<li>Points Grade: Prints the point value of the grade.</li>
+<li>Letter Grade: Prints the percentage grade as a letter.</li>
+</ul>';
 
 $string['coursetimereq_help'] = 'Enter here the minimum amount of time, in minutes, that a student must be logged into the course before they will be able to receive the certificate.';
 $string['emailteachers_help'] = 'If enabled, then teachers are alerted with an email whenever students receive a certificate.';
 $string['emailothers_help'] = 'Enter the email addresses here, separated by a comma, of those who should be alerted with an email whenever students receive a certificate.';
 $string['emailfrom_help'] = 'Alternate email form name';
 $string['delivery_help'] = 'Choose here how you would like your students to get their certificate.
-Open in Browser: Opens the certificate in a new browser window.
-Force Download: Opens the browser file download window.
-Email Certificate: Choosing this option sends the certificate to the student as an email attachment.
-After a user receives their certificate, if they click on the certificate link from the course homepage, they will see the date they received their certificate and will be able to review their received certificate.';
+<ul>
+<li>Open in Browser: Opens the certificate in a new browser window.</li>
+<li>Force Download: Opens the browser file download window.</li>
+<li>Email Certificate: Choosing this option sends the certificate to the student as an email attachment.</li>
+<li>After a user receives their certificate, if they click on the certificate link from the course homepage, they will see the date they received their certificate and will be able to review their received certificate.</li>
+</ul>';
 
 ////Form Sections
 $string['issueoptions'] = 'Issue Options';
@@ -168,10 +171,10 @@ $string['designoptions'] = 'Design Options';
 //Emails text
 $string['emailstudentsubject'] = 'Your certificate for {$a->course}';
 $string['emailstudenttext'] = '
-Hello {$a->username}, 
-		
+Hello {$a->username},
+
 		Attached is your certificate for {$a->course}.
-		
+
 
 THIS IS AN AUTOMATED MESSAGE - PLEASE DO NOT REPLY';
 
@@ -196,7 +199,7 @@ You can review it here:
 //Admin settings page
 $string['defaultwidth'] = 'Default Width';
 $string['defaultheight'] = 'Default Height';
-$string['defaultcertificatetextx'] = 'Default Hotizontal Text Position';
+$string['defaultcertificatetextx'] = 'Default Horizontal Text Position';
 $string['defaultcertificatetexty'] = 'Default Vertical Text Position';
 
 
@@ -212,7 +215,7 @@ $string['certificateverification'] = 'Certificate Verification';
 
 //Settings
 $string['certlifetime'] = 'Keep issued certificates for: (in Months)';
-$string['certlifetime_help'] = 'This specifies the length of time you want to keep issued certificates. Issed certificates that are older than this age are automatically deleted.';
+$string['certlifetime_help'] = 'This specifies the length of time you want to keep issued certificates. Issued certificates that are older than this age are automatically deleted.';
 $string['neverdeleteoption'] = 'Never delete';
 
 $string['variablesoptions'] = 'Others Options';
@@ -220,7 +223,7 @@ $string['getcertificate'] = 'Get Certificate';
 $string['verifycertificate'] = 'Verify Certificate';
 
 $string['qrcodefirstpage'] = 'Print QR Code in the first page';
-$string['qrcodefirstpage_help'] = 'Print QR Code in the first page'; 
+$string['qrcodefirstpage_help'] = 'Print QR Code in the first page';
 
 
 //Tabs String
@@ -235,7 +238,7 @@ $string['onepdf'] = 'Download certificates in a one pdf file';
 $string['multipdf'] = 'Download certificates in a zip file';
 $string['sendtoemail'] = 'Send to user\'s email';
 $string['showusers'] = 'Show';
-$string['completedusers'] = 'Users that met the course objectives'; 
+$string['completedusers'] = 'Users that met the course objectives';
 $string['allusers'] = 'All users';
 $string['bulkaction'] = 'Choose a Bulk Operation';
 $string['bulkbuttonlabel'] = 'Send';
