@@ -1,4 +1,0 @@
-id,username,email,firstname,lastname,idnumber,institution,department,phone1,phone2,city,url,icq,skype,aim,yahoo,msn,country
-3,studenttest1,studenttest1@test.tt,Student,"Test 1",,,,,,"Rio de Janeiro",,,,,,,BR
-4,studenttest2,studenttest2@test.tt,Student,"Test 2",,,,,,"Rio de Janeiro",,,,,,,BR
-5,teachertest,teachertest@test.tt,Teacher,"Test",,,,,,"Rio de Janeiro",,,,,,,BR
