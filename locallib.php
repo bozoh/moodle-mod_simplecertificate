@@ -631,8 +631,9 @@ class simplecertificate {
         
         $codeurl = "$CFG->wwwroot/mod/simplecertificate/verify.php?code=$code";
         $pdf->write2DBarcode($codeurl, 'QRCODE,H', $this->codex, $this->codey, 50, 50, $style, 'N');
-        $pdf->SetXY($this->codex,  $this->codey + 48);
-        $pdf->Cell(50,10,$code,0,0,'C',false,'',2);
+        $pdf->SetXY($this->codex,  $this->codey + 49);
+        $pdf->SetFillColor(255,255,255);
+        $pdf->Cell(50,0,$code,'LRB',0,'C',true,'',2);
         
     } 
 
@@ -891,7 +892,6 @@ class simplecertificate {
         
         //Clear not setted custom profile fiedls {PROFILE_xxxx}
         return preg_replace('[\{PROFILE_(.*)\}]', "", $certtext);
-
     }
     
     private function get_course_contacts($course) {
