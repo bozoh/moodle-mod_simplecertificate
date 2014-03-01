@@ -1115,17 +1115,20 @@ class simplecertificate {
     		}
     	
     		if (completion_info::is_enabled_for_site()) {
-    			require_once("{$CFG->libdir}/completionlib.php");
-    		
-    			if (!$course = $DB->get_record('course', array('id' => $this->course))) {
-    				print_error('cannotfindcourse');
-    			}
-    			$info = new completion_info($course);
-    		
-    			if ($info->is_enabled($this->cm) && !$info->is_course_complete($user->id)) {
-            		return get_string('cantissue', 'simplecertificate');
-            	}
-        	}
+                require_once ("{$CFG->libdir}/completionlib.php");
+                
+                if (!$course = $DB->get_record('course', array('id' => $this->course))) {
+                    print_error('cannotfindcourse');
+                }
+                $info = new completion_info($course);
+                
+                if (($info->is_enabled($this->cm) && $info->is_tracked_user($user->id))) {
+                    $activity_info = $info->get_data($this->cm, false, $user->id);
+                    if ($activity_info->completionstate == COMPLETION_INCOMPLETE) {
+                        return get_string('cantissue', 'simplecertificate');
+                    }
+                }
+            }
 
         	if ($CFG->enableavailability) {
         		require_once("{$CFG->libdir}/conditionlib.php");
