@@ -633,8 +633,9 @@ class simplecertificate {
         
         $codeurl = "$CFG->wwwroot/mod/simplecertificate/verify.php?code=$code";
         $pdf->write2DBarcode($codeurl, 'QRCODE,H', $this->codex, $this->codey, 50, 50, $style, 'N');
-        $pdf->SetXY($this->codex,  $this->codey + 48);
-        $pdf->Cell(50,10,$code,0,0,'C',false,'',2);
+        $pdf->SetXY($this->codex,  $this->codey + 49);
+        $pdf->SetFillColor(255,255,255);
+        $pdf->Cell(50,0,$code,'LRB',0,'C',true,'',2);
         
     } 
 
@@ -770,6 +771,7 @@ class simplecertificate {
 
     public function output_pdf($issuecert) {
     	global $OUTPUT;
+    	
         $pdf = $this->create_pdf($issuecert);
         $filename = $this->save_pdf($pdf, $issuecert);
         
