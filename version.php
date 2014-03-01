@@ -6,11 +6,11 @@
  * @package    mod
  * @subpackage simplecertificate
  * @author	   Carlos Alexandre S. da Fonseca
- * @copyright  2013 - Carlos Alexandre S. da Fonseca
+ * @copyright  © Carlos Alexandre S. da Fonseca - 2014
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or late
  */
 
-$module->version  = 2013112500; // The current module version (Date: YYYYMMDDXX)
+$module->version  = 2014030100; // The current module version (Date: YYYYMMDDXX)
 $module->requires = 2012110900;  // Requires this Moodle version (moodle 2.4.x)
 $module->cron     = 4 * 3600;    // Period for cron to check this module (secs)
 $module->component = 'mod_simplecertificate';
