@@ -41,7 +41,6 @@ $string['certificatetextx'] = 'Certificate Text Horizontal Position';
 $string['certificatetexty'] = 'Certificate Text Vertical Position';
 $string['height'] = 'Certificate Height';
 $string['width'] = 'Certificate Width';
-$string['coursehours'] = 'Hours in course';
 $string['coursename'] = 'Alternative Course Name';
 $string['intro'] = 'Introduction';
 $string['printoutcome'] = 'Print Outcome';
@@ -108,7 +107,6 @@ These are:
 <li>{GRADE} -> Formatted Grade</li>
 <li>{DATE} -> Formatted Date</li>
 <li>{OUTCOME} -> Outcomes</li>
-<li>{HOURS} -> Defined hours in course</li>
 <li>{TEACHERS} -> Teachers List</li>
 <li>{IDNUMBER} -> User id number</li>
 <li>{FIRSTNAME} -> User first name</li>
@@ -137,7 +135,6 @@ $string['textposition'] = 'Certificate Text Position';
 $string['textposition_help'] = 'These are the XY coordinates (in millimetres) of the certificate text';
 $string['size'] = 'Certificate Size';
 $string['size_help'] = 'These are the Width and Height size (in millimetres) of the certificate, Default size is A4 Landscape';
-$string['coursehours_help'] = 'Hours in course';
 $string['coursename_help'] = 'Alternative Course Name';
 $string['certificateimage_help'] = 'This is the picture that will be used in the certificate';
 

@@ -101,10 +101,9 @@ class simplecertificate {
      */
     private $issuecert;
 
-
     /**
      * Constructor for the base simplecertificate class.
-     *
+     * 
      * @param mixed $coursemodulecontext context|null the course module context
      *        (or the course context if the coursemodule has not been
      *        created yet).
@@ -117,8 +116,8 @@ class simplecertificate {
         $this->context = $coursemodulecontext;
         $this->coursemodule = $coursemodule;
         $this->course = $course;
-
-        //Temporary cache only lives for a single request - used to reduce db lookups.
+        
+        // Temporary cache only lives for a single request - used to reduce db lookups.
         $this->cache = array();
     }
 
@@ -221,6 +220,10 @@ class simplecertificate {
         }
         if (!$this->instance) {
             throw new coding_exception('Improper use of the simplecertificate class. ' . 'Cannot load the simplecertificate record.');
+        }
+        
+        if (!isset($this->instance->coursename)) {
+            $this->instance->coursename=$this->get_course()->fullname;
         }
         return $this->instance;
     }
@@ -861,7 +864,7 @@ class simplecertificate {
         }
 
         // Remove commas to avoid a bug in TCPDF where a string containing a commas will result in two strings.
-        $keywords = get_string('keywords', 'simplecertificate') . ',' . format_string($this->coursename, true);
+        $keywords = get_string('keywords', 'simplecertificate') . ',' . format_string($this->get_instance()->coursename, true);
         $keywords = str_replace(",", " ", $keywords);  // Replace commas with spaces.
         $keywords = str_replace("  ", " ", $keywords); // Replace two spaces with one.
 
@@ -1254,7 +1257,9 @@ class simplecertificate {
         $a->outcome = $this->get_outcome($user->id);
         $a->certificatecode = $issuecert->code;
 
-        if (!empty($this->get_instance()->coursehours)) {
+        //this code stay here only beace legacy supporte, coursehours variable was removed
+        //see issue 61 https://github.com/bozoh/moodle-mod_simplecertificate/issues/61
+        if (isset($this->get_instance()->coursehours)) {
             $a->hours = format_string($this->get_instance()->coursehours . ' ' . get_string('hours', 'simplecertificate'), true);
         } else {
             $a->hours = '';

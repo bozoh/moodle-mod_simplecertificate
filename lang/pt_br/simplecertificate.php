@@ -41,7 +41,6 @@ $string['certificatetextx'] = 'Posição Horizontal do texto do certificado';
 $string['certificatetexty'] = 'Posição Vertical do texto do certificado';
 $string['height'] = 'Altura do certificado';
 $string['width'] = 'Largura do certificado';
-$string['coursehours'] = 'Carga horária';
 $string['coursename'] = 'Nome alternativo do curso';
 $string['intro'] = 'Introdução';
 $string['printoutcome'] = 'Imprimir resultado (Outcome)';
@@ -105,7 +104,6 @@ Os marcadores são:
 {GRADE} -> Nota formatada
 {DATE} -> Data formatada
 {OUTCOME} -> Resultados (Outcomes)
-{HOURS} -> Carga horária do curso
 {TEACHERS} -> Lista de professores
 {IDNUMBER} -> id number
 {FIRSTNAME} -> Nome        
@@ -135,7 +133,6 @@ $string['textposition'] = 'Posicionamento do Texto do Certificado';
 $string['textposition_help'] = 'Essas são as coordenadas XY (em milímetros) do texto do certificado';
 $string['size'] = 'Tamanho do Certificado';
 $string['size_help'] = 'Esse é o tamanho, Largura e Altura (em milímetros) do certificado, o padrão é A4 paisagem';
-$string['coursehours_help'] = 'Carga horário do curso';
 $string['coursename_help'] = 'Nome alternativo do curso que vai ser impresso no certificado';
 $string['certificateimage_help'] = 'Esta figura será usada no certificado';
 

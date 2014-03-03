@@ -124,12 +124,6 @@ class mod_simplecertificate_mod_form extends moodleform_mod {
         $mform->setAdvanced('coursename');
         $mform->addHelpButton('coursename', 'coursename', 'simplecertificate');
 
-        //Certificate Course Hours
-        $mform->addElement('text', 'coursehours', get_string('coursehours', 'simplecertificate'), array('size'=>'5'));
-        $mform->setType('coursehours', PARAM_INT);
-        $mform->setAdvanced('coursehours');
-        $mform->addHelpButton('coursehours', 'coursehours', 'simplecertificate');
-
         //Certificate Outcomes
         $outcomeoptions = simplecertificate_get_outcomes();
         $mform->addElement('select', 'outcome', get_string('printoutcome', 'simplecertificate'), $outcomeoptions);
