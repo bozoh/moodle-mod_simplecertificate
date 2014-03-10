@@ -89,13 +89,13 @@ function simplecertificate_add_instance(stdclass $certificate, $mform=null) {
         $certificate->secondpagex = null;
         $certificate->secondpagey = null;
     }
-    
+        
     // re-save the record with the replaced URLs in editor fields
     $DB->update_record('simplecertificate', $certificate);
-
-    //Send event
+    
+    // Send event
     simplecertificate_send_event($certificate);
-
+    
     return $certificate->id;
 }
 
@@ -512,20 +512,27 @@ function simplecertificate_process_form_files ($mform, stdclass $context) {
  * Update the event if it exists, else create
  */
 function simplecertificate_send_event($certificate){
-    global $DB;
-    if ($event= $DB->get_record('event', array('modulename'=>'simplecertificate', 'instance'=>$certificate->id))) {
-        $event->name = $certificate->name;
-        update_event($event);
+    global $CFG, $DB;
+    require_once($CFG->dirroot.'/calendar/lib.php');
+    
+    $event = new stdClass();
+    
+    $params = array('modulename' => 'simplecertificate', 'instance' => $certificate->id);
+    $event->id = $DB->get_field('event', 'id', $params);
+    $event->name = $certificate->name;
+    
+    if ($event->id) {
+        $calendarevent = calendar_event::load($event->id);
+        $calendarevent->update($event);
     } else {
-        $event = new stdClass;
-        $event->name = $certificate->name;
+        unset($event->id);
         $event->description = '';
         $event->courseid = $certificate->course;
         $event->groupid = 0;
         $event->userid = 0;
-        $event->modulename  = 'simplecertificate';
+        $event->modulename = 'simplecertificate';
         $event->instance = $certificate->id;
-        add_event($event);
+        calendar_event::create($event);
     }
 }
 
@@ -588,7 +595,6 @@ function simplecertificate_get_mods (){
                         continue;
                     }
                     $mod = $mods[$sectionmod];
-                    $mod->courseid = $COURSE->id;
                     $instance = $DB->get_record($mod->modname, array('id' => $mod->instance));
                     if ($grade_items = grade_get_grade_items_for_activity($mod)) {
                         $mod_item = grade_get_grades($COURSE->id, 'mod', $mod->modname, $mod->instance);

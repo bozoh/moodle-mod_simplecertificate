@@ -20,8 +20,9 @@
  *
  * @package    mod
  * @subpackage simplecertificate
- * @copyright  2010 Petr Skoda (http://skodak.org)
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @author Carlos Alexandre S. da Fonseca
+ * @copyright ® Carlos Alexandre S. da Fonseca - 2014
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or late
  */
 
 defined('MOODLE_INTERNAL') || die();

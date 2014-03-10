@@ -5,8 +5,9 @@
  *
  * @package    mod
  * @subpackage simplecertificate
- * @copyright  Carlos Fonseca <carlos.alexandre@outlook.com>
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @author Carlos Alexandre S. da Fonseca
+ * @copyright ® Carlos Alexandre S. da Fonseca - 2014
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or late
  */
 
 require_once(dirname(dirname(dirname(__FILE__))) . '/config.php');
