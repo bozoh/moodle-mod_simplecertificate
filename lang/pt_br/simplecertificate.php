@@ -249,3 +249,4 @@ $string['coursenotfound'] = 'Curso não encontrado';
 $string['issuedcertificatenotfound'] = 'Certificado não encontrado';
 $string['awardedsubject'] = 'Notificão de obtenção de certificado: {$a->certificate} emitido para {$a->student}';
 $string['certificatenot'] = 'Simple certificate instance not found';
+$string['modulename_help']='A atividade certificado simples possibilita que seja criado certificados costumisáveis que podem ser emitidos pelos participantes que completaram os requerimentos espicificados.';
