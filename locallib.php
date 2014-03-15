@@ -1202,7 +1202,7 @@ class simplecertificate {
      * @return string Return certificate text with all substutions
      */
     protected function get_certificate_text($issuecert, $certtext = null) {
-        global $DB, $CFG;
+        global $OUTPUT, $DB, $CFG;
 
         if (!$user = get_complete_user_data('id', $issuecert->userid)) {
             print_error('nousersfound', 'moodle');
@@ -1231,6 +1231,8 @@ class simplecertificate {
         $a->department = $user->department;
         $a->address = $user->address;
         $a->city = $user->city;
+        //Add userimage url
+        $a->userimage = $OUTPUT->user_picture($user, array('size' => 1, 'popup' => false));
 
         if (!empty($user->country)) {
             $a->country = get_string($user->country, 'countries');
@@ -1294,13 +1296,18 @@ class simplecertificate {
         $replace = array();
         foreach ( $a as $key => $value ) {
             $search[] = '{' . strtoupper($key) . '}';
-            $replace[] = format_string((string)$value, true);
+            //Some variables can't use format_string
+            if (strtoupper($key) == 'USERIMAGE' || strtoupper($key) == 'URL') {
+                $replace[] = $value;
+            } else {
+                $replace[] = format_string((string)$value, true);
+            }
         }
 
         if ($search) {
             $certtext = str_replace($search, $replace, $certtext);
         }
-
+      
         //Clear not setted custom profile fiedls {PROFILE_xxxx}
         return preg_replace('[\{PROFILE_(.*)\}]', "", $certtext);
 
