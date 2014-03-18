@@ -20,15 +20,15 @@ $string['issued'] = 'Emitidos';
 $string['coursegrade'] = 'Nota do curso';
 $string['getcertificate'] = 'Obtenha seu certificado';
 $string['awardedto'] = 'Obtido para';
-$string['receiveddate'] = 'Date de Recebimento';
+$string['receiveddate'] = 'Data de Recebimento';
 $string['grade'] = 'Nota';
 $string['code'] = 'Código';
 $string['report'] = 'Relatório';
-$string['opendownload'] = 'Pressione o botão abaixo para salvar o seu certificado no aeu computador.';
+$string['opendownload'] = 'Pressione o botão abaixo para salvar o seu certificado no seu computador.';
 $string['openemail'] = 'Pressione o botão abaixo e seu certificado será enviado por email.';
 $string['openwindow'] = 'Pressione o botão abaixo para visualizar o seu certificado em uma nova tela.';
 $string['hours'] = 'horas';
-$string['keywords'] = 'cetificate, course, pdf, moodle';
+$string['keywords'] = 'certificate, course, pdf, moodle';
 $string['pluginadministration'] = 'Administração de Certificado';
 $string['deletissuedcertificates'] = 'Remover os certificados emitidos';
 $string['nocertificatesissued'] = 'Nenhum certificado emitido';
@@ -85,7 +85,7 @@ $string['gradepoints'] = 'Nota por pontos';
 $string['coursetimereq'] = 'Minutos mínimos de participação no curso';
 $string['emailteachers'] = 'Enviar email para os Professores';
 $string['emailothers'] = 'Enviar email para outros';
-$string['emailfrom'] = 'Nome alternativo do remetendo do email';
+$string['emailfrom'] = 'Nome alternativo do remetente do email';
 $string['delivery'] = 'Envio';
 //Delivery options
 $string['openbrowser'] = 'Visualizar em uma nova janela';
@@ -96,38 +96,41 @@ $string['nodelivering'] = 'Sem envio, o usuário vai receber o certificado por o
 ////Form options help text
 
 $string['certificatename_help'] = 'Nome do certificado';
-$string['certificatetext_help'] = 'Este é o texto que será usado no verso certificado, algums marcadores especiais serão substituidos por variáveis do certificado, como o nome do curos, nome do estudante, notas...
+$string['certificatetext_help'] = 'Este é o texto que será usado no certificado, algums marcadores especiais serão substituidos por variáveis do certificado, como o nome do curos, nome do estudante, notas...
 Os marcadores são:
 
-{USERNAME} -> Nome completo do aluno
-{COURSENAME} -> Nome compledo do curso (ou o que estiver definido em "Nome Alternativo do Curso")
-{GRADE} -> Nota formatada
-{DATE} -> Data formatada
-{OUTCOME} -> Resultados (Outcomes)
-{TEACHERS} -> Lista de professores
-{IDNUMBER} -> id number
-{FIRSTNAME} -> Nome        
-{LASTNAME} -> Sobrenome        
-{EMAIL} -> E-mail        
-{ICQ} -> ICQ        
-{SKYPE} -> Skype        
-{YAHOO} -> Yahoo messenger        
-{AIM} -> AIM        
-{MSN} -> MSN        
-{PHONE1} -> 1° Número de telefone        
-{PHONE2} -> 2° Número de telefone        
-{INSTITUTION} -> Instituição        
-{DEPARTMENT} -> Departamento        
-{ADDRESS} -> Endereço
-{CITY} -> Cidade
-{COUNTRY} -> País
-{URL} -> Home-page
-{CERTIFICATECODE} -> Texto do código do certificado
-{PROFILE_xxxx} -> Campos personalizados
-
+<ul>
+<li>{USERNAME} -> Nome completo do aluno</li>
+<li>{COURSENAME} -> Nome compledo do curso (ou o que estiver definido em "Nome Alternativo do Curso")</li>
+<li>{GRADE} -> Nota formatada</li>
+<li>{DATE} -> Data formatada</li>
+<li>{OUTCOME} -> Resultados (Outcomes)</li>
+<li>{TEACHERS} -> Lista de professores</li>
+<li>{IDNUMBER} -> User id number</li>
+<li>{FIRSTNAME} -> Nome</li>
+<li>{LASTNAME} -> Sobrenome</li>
+<li>{EMAIL} -> E-mail</li>
+<li>{ICQ} -> ICQ</li>
+<li>{SKYPE} -> Skype</li>
+<li>{YAHOO} -> Yahoo messenger</li>
+<li>{AIM} -> AIM</li>
+<li>{MSN} -> MSN</li>
+<li>{PHONE1} -> 1° Número de telefone</li>
+<li>{PHONE2} -> 2° Número de telefone</li>
+<li>{INSTITUTION} -> Instituição</li>
+<li>{DEPARTMENT} -> Departamento</li>
+<li>{ADDRESS} -> Endereço</li>
+<li>{CITY} -> Cidade</li>
+<li>{COUNTRY} -> País</li>
+<li>{URL} -> Home-page</li>
+<li>{CERTIFICATECODE} -> Texto do código do certificado</li>
+<li>{PROFILE_xxxx} -> Campos personalizados</li>
+</ul>
+<p>
 Para usar campos personalizados deve usar o prefixo "PROFILE_", por exemplo, se criar um campo com a abreviação (shortname) de aniversario, então deve-se usar o marcador
 "PROFILE_ANIVERSARIO"
-O texto pode ser um HTML básico, com fontes básicas do HTLM, tabelas, mas evitar o uso de posicionamento';
+O texto pode ser um HTML básico, com fontes básicas do HTLM, tabelas, mas evitar o uso de posicionamento.</p>';
+
 
 $string['textposition'] = 'Posicionamento do Texto do Certificado';
 $string['textposition_help'] = 'Essas são as coordenadas XY (em milímetros) do texto do certificado';
@@ -142,26 +145,28 @@ $string['printdate_help'] = 'Esta é a data que será impressa, você pose escol
 Também pode-se escolher a data que uma certa atividade foi corrigida, se em algum dos casos o aluno não tiver a data, então a data de emissão será usada.';
 $string['datefmt_help'] = 'Coloque um formato de data válido aceito pelo PHP (http://www.php.net/manual/pt_BR/function.strftime.php). ou deixe-o em branco para usar o valor de formatação padrão definido pela a configuração de idioma do usuário.';
 $string['printgrade_help'] = 'Pode-se escolher a nota que será impressa no certificado, esta pode ser a nota final do curso ou a nota em uma atividade.';
-$string['gradefmt_help'] = 'Pode-se escolher o formato da nota que são:
+$string['gradefmt_help'] = 'Pode-se escolher o formato da nota que são:<br>
+<ul>
+<li>Nota por percentual: Imprime a nota como um percentual.</li>
+<li>Nota pot pontos: Imprime a nota por pontos, o valor da nota tirada.</li>
+<li>Nota por conceito: Imprime o conceito relacionado a nota obtida (A, A+, B, ...).</li>
+</ul>';
 
-Nota por percentual: Imprime a nota como um percentual.
-Nota pot pontos: Imprime a nota por pontos, o valor da nota tirada.
-Nota por conceito: Imprime o conceito relacionado a nota obtida (A, A+, B, ...).';
-
-$string['coursetimereq_help'] = 'Coloque o tempo minimo de participação (em minutos) que um aluno deve ter para conseguir obter o certificado';
+$string['coursetimereq_help'] = 'Coloque o tempo mínimo de participação (em minutos) que um aluno deve ter para conseguir obter o certificado';
 $string['emailteachers_help'] = 'Quando habilitado, os professores recebem os emails toda vez que um aluno emitir um certificado.';
 $string['emailothers_help'] = 'Digite os endereços de emails que vão receber o alerta de emissão de certificado.';
 $string['emailfrom_help'] = 'Nome a ser usado como remetente dos email enviados';
-$string['delivery_help'] = 'Escolha como o certificado deve ser entregue aos alunos:
-Visualizar em uma nova janela: Abre uma nova janela no navegador do aluno contendo o certificado.
-Forçar o download: Abre uma janela de download de arquivo para o aluno salvar em seu computador.
-por Email: Envia o certificado para o email do aluno, e abre o certificado em uma nova janela do navegador.
-
-Depois que estudante emite seu certificado, se ele clicar na atividade certificado aparecerá a data de emissão do certificado e ele poderá revisar ocertificado emitido';
+$string['delivery_help'] = 'Escolha como o certificado deve ser entregue aos alunos:<br>
+<ul>
+<li>Visualizar em uma nova janela: Abre uma nova janela no navegador do aluno contendo o certificado.</li>
+<li>Forçar o download: Abre uma janela de download de arquivo para o aluno salvar em seu computador.</li>
+<li>por Email: Envia o certificado para o email do aluno, e abre o certificado em uma nova janela do navegador.</li>
+</ul><p>
+Depois que estudante emite seu certificado, se ele clicar na atividade certificado aparecerá a data de emissão do certificado e ele poderá revisar ocertificado emitido</p>';
 
 
 ////Form Sections
-$string['issueoptions'] = 'Opcões de Emissão';
+$string['issueoptions'] = 'Opções de Emissão';
 $string['designoptions'] = 'Opções de Design';
 
 //Emails text
@@ -202,12 +207,12 @@ $string['defaultcertificatetexty'] = 'Posição Vertical padrão do texto do cer
 //Erros
 $string['filenotfound'] = 'Arquivo não encontrado: {$a}';
 $string['cantdeleteissue'] = 'Ocorreu um erro ao remover os certificados emitidos';
-$string['requiredtimenotmet'] = 'Você precisa ter ao menos {$a->requiredtime} minutos nesse curso para emidir este certificado';
+$string['requiredtimenotmet'] = 'Você precisa ter ao menos {$a->requiredtime} minutos nesse curso para emitir este certificado';
 
 
 //Settings
-$string['certlifetime'] = 'Manter os certificados emitidos por: (em Mêses)';
-$string['certlifetime_help'] = 'Está opção especifica por quanto tempo deve ser guardado um certificado emitido. Certificados emitidos mais velhos que o tempo determinado nesta opção será autmaticamente removidos.';
+$string['certlifetime'] = 'Manter os certificados emitidos por: (em Meses)';
+$string['certlifetime_help'] = 'Está opção especifica por quanto tempo deve ser guardado um certificado emitido. Certificados emitidos mais velhos que o tempo determinado nesta opção será automaticamente removidos.';
 $string['neverdeleteoption'] = 'Nunca remover';
 
 $string['variablesoptions'] = 'Outras Opções';
@@ -231,7 +236,7 @@ $string['onepdf'] = 'Download de um único arquivo pdf com todos os certificados
 $string['multipdf'] = 'Download de um arquivo zip com os pdfs dos certidicados';
 $string['sendtoemail'] = 'Enviar os certificados para o email do usuário';
 $string['showusers'] = 'Mostrar';
-$string['completedusers'] = 'Usuário que atigiram o objetivos definidos';
+$string['completedusers'] = 'Usuários que atingiram os objetivos definidos';
 $string['allusers'] = 'Todos os usuários';
 $string['bulkaction'] = 'Escolha a operação em lote';
 $string['bulkbuttonlabel'] = 'Enviar';
@@ -240,7 +245,8 @@ $string['emailsent'] = 'Os emails foram enviados';
 $string['issueddownload'] = 'Certificado [id: {$a}] baixado';
 $string['defaultperpage'] = 'Por página';
 $string['defaultperpage_help'] = 'Quantidade de certificados exibidos por página (Max. 200)';
-
+$string['certificateverification'] = 'Verificação do Certificado';
+$string['invalidcode'] = 'Código do certificado é inválido';
 //----
 
 $string['usercontextnotfound'] = 'Contexto de usuário não encontrado';

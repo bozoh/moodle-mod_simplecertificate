@@ -57,7 +57,7 @@ $string['secondpagetext'] = 'Certificate Back Text';
 $string['secondpagex'] = 'Certificate Back Text Horizontal Position';
 $string['secondpagey'] = 'Certificate Back Text Vertical Position';
 $string['secondtextposition'] = 'Certificate Back Text Position';
-$string['secondtextposition_help'] = 'These are the XY coordinates (in millimetres) of the certificate back page text';
+$string['secondtextposition_help'] = 'These are the XY coordinates (in millimeters) of the certificate back page text';
 
 //QR Code
 $string['printqrcode'] = 'Print Certificate QR Code';
@@ -65,7 +65,7 @@ $string['printqrcode_help'] = 'Print (or not) certificate QR Code';
 $string['codex'] = 'Certificate QR Code Horizontal Position';
 $string['codey'] = 'Certificate QR Code Vertical Position';
 $string['qrcodeposition'] = 'Certificate QR Code Position';
-$string['qrcodeposition_help'] = 'These are the XY coordinates (in millimetres) of the certificate QR Code';
+$string['qrcodeposition_help'] = 'These are the XY coordinates (in millimeters) of the certificate QR Code';
 $string['defaultcodex'] = 'Default Horizontal QR code Position';
 $string['defaultcodey'] = 'Default Vertical QR code Position';
 
