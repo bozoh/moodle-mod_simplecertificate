@@ -284,7 +284,20 @@ function xmldb_simplecertificate_upgrade($oldversion=0) {
     	upgrade_mod_savepoint(true, 2013112901, 'simplecertificate');
     }
     
+    if ($oldversion < 2014032202) {
     
+        // Define field timestartdatefmt to be added to simplecertificate.
+        $table = new xmldb_table('simplecertificate');
+        $field = new xmldb_field('timestartdatefmt', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null, 'secondimage');
     
+        // Conditionally launch add field timestartdatefmt.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+    
+        // Simplecertificate savepoint reached.
+        upgrade_mod_savepoint(true, 2014032202, 'simplecertificate');
+    }
+          
     return true;
 }

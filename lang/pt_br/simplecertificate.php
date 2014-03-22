@@ -124,6 +124,10 @@ Os marcadores são:
 <li>{COUNTRY} -> País</li>
 <li>{URL} -> Home-page</li>
 <li>{CERTIFICATECODE} -> Texto do código do certificado</li>
+<li>{LOGIN} -> Username de login do usuário</li>
+<li>{USERROLENAME} -> Nome do papel do usuário no curso</li>
+<li>{TIMESTART} -> Data de inscrição do usuário no curso</li>
+<li>{USERIMAGE} -> Imagem do perfil do usuário</li>
 <li>{PROFILE_xxxx} -> Campos personalizados</li>
 </ul>
 <p>
@@ -143,7 +147,7 @@ $string['printoutcome_help'] = 'Você pode escolher qualquer resultado (outcome)
 
 $string['printdate_help'] = 'Esta é a data que será impressa, você pose escolher entre a data que o aluno completou o curso, ou a data de emissão do certificado.
 Também pode-se escolher a data que uma certa atividade foi corrigida, se em algum dos casos o aluno não tiver a data, então a data de emissão será usada.';
-$string['datefmt_help'] = 'Coloque um formato de data válido aceito pelo PHP (http://www.php.net/manual/pt_BR/function.strftime.php). ou deixe-o em branco para usar o valor de formatação padrão definido pela a configuração de idioma do usuário.';
+$string['datefmt_help'] = 'Coloque um formato de data válido aceito pelo PHP (<a href="http://www.php.net/manual/en/function.strftime.php"> Date Formats</a>). ou deixe-o em branco para usar o valor de formatação padrão definido pela a configuração de idioma do usuário.';
 $string['printgrade_help'] = 'Pode-se escolher a nota que será impressa no certificado, esta pode ser a nota final do curso ou a nota em uma atividade.';
 $string['gradefmt_help'] = 'Pode-se escolher o formato da nota que são:<br>
 <ul>
@@ -256,3 +260,5 @@ $string['issuedcertificatenotfound'] = 'Certificado não encontrado';
 $string['awardedsubject'] = 'Notificão de obtenção de certificado: {$a->certificate} emitido para {$a->student}';
 $string['certificatenot'] = 'Simple certificate instance not found';
 $string['modulename_help']='A atividade certificado simples possibilita que seja criado certificados costumisáveis que podem ser emitidos pelos participantes que completaram os requerimentos espicificados.';
+$string['timestartdatefmt'] = 'Formato da data de inicio da inscrição';
+$string['timestartdatefmt_help'] = 'Coloque um formato de data válido aceito pelo PHP (<a href="http://www.php.net/manual/pt_BR/function.strftime.php">Formato de datas</a>). ou deixe-o em branco para usar o valor de formatação padrão definido pela a configuração de idioma do usuário.';

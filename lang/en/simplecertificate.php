@@ -126,6 +126,10 @@ These are:
 <li>{COUNTRY} -> User country</li>
 <li>{URL} -> User Home-page</li>
 <li>{CERTIFICATECODE} -> Unique certificate code text</li>
+<li>{LOGIN} -> User login username</li>
+<li>{USERROLENAME} -> User role name in course</li>
+<li>{TIMESTART} -> User Enrollment start date in course</li>
+<li>{USERIMAGE} -> User profile image</li>
 <li>{PROFILE_xxxx} -> User custom profile fields</li>
 </ul>
 In order to use custom profiles fields you must use "PORFILE_" prefix, for example: you has created a custom profile with shortname of "birthday," so the text mark used on certificate must be {PROFILE_BIRTHDAY}.
@@ -140,7 +144,7 @@ $string['certificateimage_help'] = 'This is the picture that will be used in the
 
 $string['printoutcome_help'] = 'You can choose any course outcome to print the name of the outcome and the user\'s received outcome on the certificate.  An example might be: Assignment Outcome: Proficient.';
 $string['printdate_help'] = 'This is the date that will be printed, if a print date is selected. If the course completion date is selected but the student has not completed the course, the date received will be printed. You can also choose to print the date based on when an activity was graded. If a certificate is issued before that activity is graded, the date received will be printed.';
-$string['datefmt_help'] = 'Enter a valid PHP date format pattern (http://www.php.net/manual/en/function.strftime.php). Or, leave it empty to use the format of the user\'s chosen language.';
+$string['datefmt_help'] = 'Enter a valid PHP date format pattern (<a href="http://www.php.net/manual/en/function.strftime.php"> Date Formats</a>). Or, leave it empty to use the format of the user\'s chosen language.';
 $string['printgrade_help'] = 'You can choose any available course grade items from the gradebook to print the user\'s grade received for that item on the certificate.  The grade items are listed in the order in which they appear in the gradebook. Choose the format of the grade below.';
 $string['gradefmt_help'] = 'There are three available formats if you choose to print a grade on the certificate:
 <ul>
@@ -254,5 +258,6 @@ $string['coursenotfound'] = 'Course not found';
 $string['issuedcertificatenotfound'] = 'Issued certificate not found';
 $string['awardedsubject'] = 'Awarded certificate notification: {$a->certificate} issued to {$a->student}';
 $string['certificatenot'] = 'Simple certificate instance not found';
-$string['modulename_help']='The simple certificate activity module enables the teacher to create a custom certificate that can be issued to participants who have completed the teacher’s specified requirements.';
-
+$string['modulename_help'] = 'The simple certificate activity module enables the teacher to create a custom certificate that can be issued to participants who have completed the teacher’s specified requirements.';
+$string['timestartdatefmt'] = 'Enrollment start date format';
+$string['timestartdatefmt_help'] = 'Enter a valid PHP date format pattern (<a href="http://www.php.net/manual/en/function.strftime.php"> Date Formats</a>). Or, leave it empty to use the format of the user\'s chosen language.';

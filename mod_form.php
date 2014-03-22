@@ -143,6 +143,15 @@ class mod_simplecertificate_mod_form extends moodleform_mod {
         $mform->setType('certdatefmt', PARAM_TEXT);        
         $mform->addHelpButton('certdatefmt', 'datefmt', 'simplecertificate');
         $mform->setAdvanced('certdatefmt');
+        
+        
+        //Certificate timestart date format
+        
+        $mform->addElement('text', 'timestartdatefmt', get_string('timestartdatefmt', 'simplecertificate'));
+        $mform->setDefault('timestartdatefmt', '');
+        $mform->setType('timestartdatefmt', PARAM_TEXT);
+        $mform->addHelpButton('timestartdatefmt', 'timestartdatefmt', 'simplecertificate');
+        $mform->setAdvanced('timestartdatefmt');
 
         //Certificare grade Options
         $mform->addElement('select', 'certgrade', get_string('printgrade', 'simplecertificate'), simplecertificate_get_grade_options());

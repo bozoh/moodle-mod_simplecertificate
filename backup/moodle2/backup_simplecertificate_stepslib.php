@@ -45,7 +45,7 @@ class backup_simplecertificate_activity_structure_step extends backup_activity_s
                 'coursename', 'coursehours', 'outcome', 'certdate', 'certdatefmt', 'certgrade', 
                 'gradefmt', 'emailfrom', 'emailothers', 'emailteachers', 'reportcert', 'delivery', 
                 'requiredtime', 'printqrcode', 'qrcodefirstpage', 'codex', 'codey', 'enablesecondpage',
-                'secondpagex', 'secondpagey', 'secondpagetext', 'secondpagetextformat', 'secondimage'));
+                'secondpagex', 'secondpagey', 'secondpagetext', 'secondpagetextformat', 'secondimage', 'timestartdatefmt'));
 
 
 

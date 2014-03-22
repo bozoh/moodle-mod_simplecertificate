@@ -324,11 +324,11 @@ class simplecertificate {
 
     /**
      *
-     * @param stdClass $formdata  The data submitted from the form
+     * @param stdClass $formdata The data submitted from the form
      * @param mod_simplecertificate_mod_form $mform The form object to get files
      * @return stdClass The simplecertificate instance object
      */
-    protected function populate_simplecertificate_instance(stdclass $formdata){
+    protected function populate_simplecertificate_instance(stdclass $formdata) {
         global $USER;
         // Creating a simplecertificate instace object.
         $update = new stdClass();
@@ -1293,10 +1293,25 @@ class simplecertificate {
         //Fetch user actitivy restuls
         $a->userresults = $this->get_user_results($issuecert->userid);
         
+        //Get User role name in course
         if (!$a->userrolename = get_user_roles_in_course($user->id, $course->id)){
             $a->userrolename = '';
         }
-
+            
+            // Get user enrollment start date
+        
+        $timestart = $DB->get_field_sql('
+            SELECT ue.timestart
+            FROM {user_enrolments} ue
+            JOIN {enrol} e on ue.enrolid = e.id
+            WHERE ue.userid = ? AND e.courseid = ?', array($user->id, $course->id));
+        if (!empty($timestart)) {
+            $a->timestart = userdate($timestart, $this->get_instance()->timestartdatefmt);
+        } else {
+            $a->timestart = '';
+        }
+       
+        
         $a = (array)$a;
         $search = array();
         $replace = array();
