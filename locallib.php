@@ -1625,40 +1625,19 @@ class simplecertificate {
         }
     }
 
-    protected function get_issued_certificate_users($sort = "ci.timecreated ASC", $groupmode = 0, $page = 0, $perpage = self::SIMPLECERT_MAX_PER_PAGE) {
+    protected function get_issued_certificate_users($sort = "ci.timecreated ASC", $groupmode = 0) {
         global $CFG, $DB;
 
         // get all users that can manage this certificate to exclude them from the report.
         $certmanagers = get_users_by_capability($this->context, 'mod/simplecertificate:manage', 'u.id');
-        $limitsql = '';
-        $page = (int)$page;
-        $perpage = (int)$perpage;
-
-        // Setup pagination - when both $page and $perpage = 0, get all results
-        if ($page || $perpage) {
-            if ($page < 0) {
-                $page = 0;
-            }
-
-            if ($perpage > self::SIMPLECERT_MAX_PER_PAGE) {
-                $perpage = self::SIMPLECERT_MAX_PER_PAGE;
-            } else {
-                $perpage = get_config('simplecertificate', 'perpage');
-            }
-            $limitsql = " LIMIT $perpage" . " OFFSET " . $page * $perpage;
-        }
-
-        // Get all the users that have certificates issued, should only be one issue per user for a certificate
-        $issedusers = $DB->get_records_sql("SELECT u.*, ci.code, ci.timecreated
-                FROM {user} u
-                INNER JOIN {simplecertificate_issues} ci
-                ON u.id = ci.userid
-                WHERE u.deleted = 0
-                AND ci.certificateid = :certificateid
-                AND timedeleted IS NULL
-                ORDER BY {$sort} {$limitsql}", array('certificateid' => $this->get_instance()->id
-        ));
-
+        
+        $issedusers = $DB->get_records_sql("SELECT u.*, ci.code, ci.timecreated 
+            FROM {user} u INNER JOIN {simplecertificate_issues} ci ON u.id = ci.userid 
+            WHERE u.deleted = 0 
+            AND ci.certificateid = :certificateid 
+            AND timedeleted IS NULL 
+            ORDER BY {$sort}", array('certificateid' => $this->get_instance()->id));
+       
         // now exclude all the certmanagers.
         foreach ( $issedusers as $id => $user ) {
             if (!empty($certmanagers[$id])) { //exclude certmanagers.
@@ -1736,9 +1715,14 @@ class simplecertificate {
         $groupmode = groups_get_activity_groupmode($this->get_course_module());
         $page = $url->get_param('page');
         $perpage = $url->get_param('perpage');
+        $usercount = 0;
 
-        $users = $this->get_issued_certificate_users($DB->sql_fullname(), $groupmode, $page, $perpage);
-
+        $users = $this->get_issued_certificate_users($DB->sql_fullname(), $groupmode);
+        if ($users) {
+            $usercount = count($users);
+            $users = array_slice($users, intval($page * $perpage), $perpage);
+        }
+        
         if (!$url->get_param('action')) {
             echo $OUTPUT->header();
             $this->show_tabs($url);
@@ -1754,8 +1738,6 @@ class simplecertificate {
                 echo $OUTPUT->footer();
                 exit();
             }
-
-            $usercount = count($users);
 
             // Create the table for the users
             $table = new html_table();
@@ -1952,7 +1934,20 @@ class simplecertificate {
         } else {
             list($sqluserids, $params) = $DB->get_in_or_equal($selectedusers);
             $sql = "SELECT * FROM {user} WHERE id $sqluserids";
-            $users = $DB->get_records_sql($sql, $params);
+            //Adding sort
+            $sort='';
+            $override = new stdClass();
+            $override->firstname = 'firstname';
+            $override->lastname = 'lastname';
+            $fullnamelanguage = get_string('fullnamedisplay', '', $override);
+            if (($CFG->fullnamedisplay == 'firstname lastname') or ($CFG->fullnamedisplay == 'firstname') or
+             ($CFG->fullnamedisplay == 'language' and $fullnamelanguage == 'firstname lastname')) {
+                $sort = " ORDER BY firstname, lastname";
+            } else { // ($CFG->fullnamedisplay == 'language' and $fullnamelanguage == 'lastname firstname')
+                $sort = " ORDER BY lastname, firstname";
+            }
+            // TODO sort by name, system dependency
+            $users = $DB->get_records_sql($sql.$sort, $params);
         }
 
         if (!$action) {
