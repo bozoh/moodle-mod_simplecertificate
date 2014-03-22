@@ -1232,6 +1232,7 @@ class simplecertificate {
         $a->address = $user->address;
         $a->city = $user->city;
         $a->login = $user->username;
+
         //Add userimage url
         $a->userimage = $OUTPUT->user_picture($user, array('size' => 1, 'popup' => false));
 
@@ -1291,6 +1292,10 @@ class simplecertificate {
 
         //Fetch user actitivy restuls
         $a->userresults = $this->get_user_results($issuecert->userid);
+        
+        if (!$a->userrolename = get_user_roles_in_course($user->id, $course->id)){
+            $a->userrolename = '';
+        }
 
         $a = (array)$a;
         $search = array();
