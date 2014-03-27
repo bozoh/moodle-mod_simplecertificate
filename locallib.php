@@ -103,6 +103,7 @@ class simplecertificate {
     public $context;
     private $orientation = '';
     private $cm;
+    private $imagefilehashes = null;
 
     public function __construct(stdclass $dbrecord, stdclass $context = null) {
         global $DB;
@@ -135,6 +136,21 @@ class simplecertificate {
             $this->orientation = 'P';
         } else {
             $this->orientation = 'L';
+        }
+
+        // get the list of image files if not already cached
+        if (is_null($this->imagefilehashes)) {
+            $fs = get_file_storage();
+            $area_files = $fs->get_area_files(
+                    $this->context->id,
+                    self::CERTIFICATE_COMPONENT_NAME,
+                    self::CERTIFICATE_IMAGE_FILE_AREA);
+
+            foreach ($area_files as $hash => $file) {
+                if ($file->get_filename() != '.') {
+                    $this->imagefilehashes[] = $hash;
+                }
+            }
         }
     }
 
@@ -557,10 +573,9 @@ class simplecertificate {
         $fs = get_file_storage();
 
         // Get first page image file
-        if (!empty($this->certificateimage)) {
-            // Prepare file record object
-            $fileinfo = self::get_certificate_image_fileinfo($this->context->id);
-            $firstpageimagefile = $fs->get_file($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'], $fileinfo['itemid'], $fileinfo['filepath'], $this->certificateimage);
+        if (!empty($this->certificateimage) && (count($this->imagefilehashes) > 0)) {
+            $firstpageimagefile = $fs->get_file_by_hash(array_shift($this->imagefilehashes));
+
             // Read contents
             if ($firstpageimagefile) {
                 $temp_filename = $firstpageimagefile->copy_content_to_temp(self::CERTIFICATE_COMPONENT_NAME, 'first_image_');
@@ -584,11 +599,8 @@ class simplecertificate {
 
             $pdf->AddPage();
 
-            if (!empty($this->secondimage)) {
-                // Prepare file record object
-                $fileinfo = self::get_certificate_secondimage_fileinfo($this->context->id);
-                // Get file
-                $secondimagefile = $fs->get_file($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'], $fileinfo['itemid'], $fileinfo['filepath'], $this->secondimage);
+            if (count($this->imagefilehashes) > 0) {
+                $secondimagefile = $fs->get_file_by_hash(array_shift($this->imagefilehashes));
 
                 // Read contents
                 if ($secondimagefile) {
