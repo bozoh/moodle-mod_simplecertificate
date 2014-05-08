@@ -261,3 +261,8 @@ $string['certificatenot'] = 'Simple certificate instance not found';
 $string['modulename_help'] = 'The simple certificate activity module enables the teacher to create a custom certificate that can be issued to participants who have completed the teacher’s specified requirements.';
 $string['timestartdatefmt'] = 'Enrollment start date format';
 $string['timestartdatefmt_help'] = 'Enter a valid PHP date format pattern (<a href="http://www.php.net/manual/en/function.strftime.php"> Date Formats</a>). Or, leave it empty to use the format of the user\'s chosen language.';
+
+// For Capabilities
+$string['simplecertificate:addinstance'] = "Add Simple Certificate Activity";
+$string['simplecertificate:manage'] = "Manage Simple Certificate Activity";
+$string['simplecertificate:view'] = "View Simple Certificate Activity";
