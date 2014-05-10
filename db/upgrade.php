@@ -298,6 +298,42 @@ function xmldb_simplecertificate_upgrade($oldversion=0) {
         // Simplecertificate savepoint reached.
         upgrade_mod_savepoint(true, 2014032202, 'simplecertificate');
     }
-          
+    
+    if ($oldversion < 2014051000) {
+  	
+    	$table = new xmldb_table('simplecertificate_issues');
+    	$field = new xmldb_field('pathnamehash', XMLDB_TYPE_CHAR, '40', null, null, null, null, 'haschange');
+    	if (!$dbman->field_exists($table, $field)) {
+    		$dbman->add_field($table, $field);
+    	}
+    	
+    	    	
+    	require_once($CFG->dirroot.'/mod/simplecertificate/locallib.php');
+    	
+    	//Must add the certificate files hashs
+    	$issuedcerts = $DB->get_records_select('simplecertificate_issues','timedeleted IS NULL');
+    	
+    	$fs = get_file_storage();
+    	foreach ($issuedcerts as $issued) {
+    		$fileinfo = simplecertificate::get_certificate_issue_fileinfo($issued);
+    	  	if ($fs->file_exists($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'], $fileinfo['itemid'],
+    	                        $fileinfo['filepath'], $fileinfo['filename'])) {
+    	  		$file = $fs->get_file($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'], $fileinfo['itemid'],
+    	  				$fileinfo['filepath'], $fileinfo['filename']);
+    	  		$issued->pathnamehash = $file->get_pathnamehash();
+    	  		if (!$DB->update_record('simplecertificate_issues', $issued)) {
+    	  			die;
+    	  		}
+    	  	}
+    	}
+    	
+    	$field = new xmldb_field('pathnamehash', XMLDB_TYPE_CHAR, '40', null, XMLDB_NOTNULL, null, null, 'haschange');
+    	
+    	// Launch change of nullability for field pathnamehash.
+    	$dbman->change_field_notnull($table, $field);
+    	  
+    	// Simplecertificate savepoint reached.
+    	upgrade_mod_savepoint(true, 2014051000, 'simplecertificate');
+    }
     return true;
 }

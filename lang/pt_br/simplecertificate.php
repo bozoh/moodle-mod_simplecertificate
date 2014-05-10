@@ -262,3 +262,4 @@ $string['certificatenot'] = 'Simple certificate instance not found';
 $string['modulename_help']='A atividade certificado simples possibilita que seja criado certificados costumisáveis que podem ser emitidos pelos participantes que completaram os requerimentos espicificados.';
 $string['timestartdatefmt'] = 'Formato da data de inicio da inscrição';
 $string['timestartdatefmt_help'] = 'Coloque um formato de data válido aceito pelo PHP (<a href="http://www.php.net/manual/pt_BR/function.strftime.php">Formato de datas</a>). ou deixe-o em branco para usar o valor de formatação padrão definido pela a configuração de idioma do usuário.';
+$string['certificatecopy'] = 'CÓPIA';

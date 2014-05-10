@@ -488,7 +488,7 @@ class simplecertificate {
         $fileinfo = array(
                 'contextid' => $context->id, // ID of context
                 'component' => 'user',
-                'filearea' => self::CERTIFICATE_ISSUES_FILE_AREA, // usually = table name
+                'filearea' => simplecertificate::CERTIFICATE_ISSUES_FILE_AREA, // usually = table name
                 'itemid' => 0, //$issuecert->id, // usually = ID of row in table
                 'filepath' => '/certificates/'.$issuecert->coursename.'/', // any path beginning and ending in /
                 'mimetype' => 'application/pdf', // any filename
@@ -513,7 +513,7 @@ class simplecertificate {
             $user = $USER;
         }
 
-        if (!empty($this->issuecert) && !empty($issuecert->haschange) && $this->issuecert->userid == $user->id) {
+        if (!empty($this->issuecert) && empty($this->issuecert->haschange) && $this->issuecert->userid == $user->id) {
             return $this->issuecert;
         }
 
@@ -532,6 +532,8 @@ class simplecertificate {
             $issuecert->certificatename = format_string($formated_coursename . '-' . $formated_certificatename, true);
             $issuecert->timecreated = time();
             $issuecert->code = $this->get_issue_uuid();
+            //Avoiding not null restriction;
+            $issuecert->pathnamehash='';
 
             if (has_capability('mod/simplecertificate:manage', $this->context, $user)) {
                 $issuecert->id = 0;
@@ -741,7 +743,7 @@ class simplecertificate {
      */
     protected function get_issue_uuid() {
         global $CFG;
-        require_once($CFG->dirroot . '/mod/simplecertificate/lib.uuid.php');
+        require_once($CFG->dirroot . '/mod/simplecertificate/lib/lib.uuid.php');
         $UUID = UUID::mint(UUID::VERSION_1, self::CERTIFICATE_COMPONENT_NAME);
         return $UUID->__toString();
     }
@@ -1000,8 +1002,6 @@ class simplecertificate {
     protected function save_pdf($pdf, stdClass $issuecert) {
         global $DB;
 
-
-
         //Check if file exist
         //if issue certificate has no change, it's must has a file
         if (empty($issuecert->haschange)) {
@@ -1030,14 +1030,15 @@ class simplecertificate {
             // Replacing issue certificate
             // Prepare file record object
             $fileinfo = self::get_certificate_issue_fileinfo($issuecert);
-            $fs->create_file_from_string($fileinfo, $pdf->Output('', 'S'));
+            $file = $fs->create_file_from_string($fileinfo, $pdf->Output('', 'S'));
             $issuecert->haschange = 0;
+            $issuecert->pathnamehash = $file->get_pathnamehash();
             // Verify if user is a manager, if not, update haschage status
             if (!has_capability('mod/simplecertificate:manage', $this->context, $issuecert->userid)) {
                 $DB->update_record('simplecertificate_issues', $issuecert);
             }
         }
-        return $fileinfo['filename'];
+        return $file->get_filename();
     }
 
     /**
@@ -1108,9 +1109,7 @@ class simplecertificate {
         }
 
         $fs = get_file_storage();
-        $fileinfo = self::get_certificate_issue_fileinfo($issuecert);
-        return $fs->get_file($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'], $fileinfo['itemid'],
-               $fileinfo['filepath'], $fileinfo['filename']);
+        return $fs->get_file_by_hash($issuecert->pathnamehash);
     }
 
     /**
@@ -1551,8 +1550,7 @@ class simplecertificate {
         $fileinfo = self::get_certificate_issue_fileinfo($issuecert);
 
         // Check for file first
-        return $fs->file_exists($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'], $fileinfo['itemid'],
-               $fileinfo['filepath'], $fileinfo['filename']);
+        return $fs->file_exists_by_hash($issuecert->pathnamehash);
     }
 
     // View methods
@@ -1723,6 +1721,7 @@ class simplecertificate {
     // Issued certificates view
     public function view_issued_certificates(moodle_url $url) {
         global $OUTPUT, $DB, $CFG;
+        
 
         // Declare some variables
         $strcertificates = get_string('modulenameplural', 'simplecertificate');
