@@ -251,6 +251,12 @@ $string['defaultperpage'] = 'Por página';
 $string['defaultperpage_help'] = 'Quantidade de certificados exibidos por página (Max. 200)';
 $string['certificateverification'] = 'Verificação do Certificado';
 $string['invalidcode'] = 'Código do certificado é inválido';
+
+// For Capabilities
+$string['simplecertificate:addinstance'] = "Adicionar uma atividade cerfiticado simples";
+$string['simplecertificate:manage'] = "Gerenciar uma atividade certificado simples";
+$string['simplecertificate:view'] = "Visualizar um certificado simples";
+
 //----
 
 $string['usercontextnotfound'] = 'Contexto de usuário não encontrado';
