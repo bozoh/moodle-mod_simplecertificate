@@ -124,7 +124,6 @@ Os marcadores são:
 <li>{COUNTRY} -> País</li>
 <li>{URL} -> Home-page</li>
 <li>{CERTIFICATECODE} -> Texto do código do certificado</li>
-<li>{LOGIN} -> Username de login do usuário</li>
 <li>{USERROLENAME} -> Nome do papel do usuário no curso</li>
 <li>{TIMESTART} -> Data de inscrição do usuário no curso</li>
 <li>{USERIMAGE} -> Imagem do perfil do usuário</li>

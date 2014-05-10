@@ -126,7 +126,6 @@ These are:
 <li>{COUNTRY} -> User country</li>
 <li>{URL} -> User Home-page</li>
 <li>{CERTIFICATECODE} -> Unique certificate code text</li>
-<li>{LOGIN} -> User login username</li>
 <li>{USERROLENAME} -> User role name in course</li>
 <li>{TIMESTART} -> User Enrollment start date in course</li>
 <li>{USERIMAGE} -> User profile image</li>

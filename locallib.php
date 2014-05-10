@@ -1230,8 +1230,7 @@ class simplecertificate {
         $a->department = $user->department;
         $a->address = $user->address;
         $a->city = $user->city;
-        $a->login = $user->username;
-
+        
         //Add userimage url
         $a->userimage = $OUTPUT->user_picture($user, array('size' => 1, 'popup' => false));
 
