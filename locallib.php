@@ -328,7 +328,7 @@ class simplecertificate {
      * @param mod_simplecertificate_mod_form $mform The form object to get files
      * @return stdClass The simplecertificate instance object
      */
-    protected function populate_simplecertificate_instance(stdclass $formdata) {
+    private function populate_simplecertificate_instance(stdclass $formdata) {
         global $USER;
         // Creating a simplecertificate instace object.
         $update = new stdClass();
@@ -348,31 +348,17 @@ class simplecertificate {
             }
             unset($formdata->secondpagetext);
         }
-
-        if (!empty($formdata->images)) {
-            $user_context = context_user::instance($USER->id);
-            $fs = get_file_storage();
-            if (!empty($formdata->images[0])) {
-                $fileinfo = self::get_certificate_image_fileinfo($this->context->id);
-                $fs->delete_area_files($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'], $fileinfo['itemid']);
-                $fileinfo['filename'] = $formdata->images[0];
-                $file = $fs->get_file($user_context->id, 'user', 'draft', $formdata->certificateimage, '/', $formdata->images[0]);
-                $fs->create_file_from_storedfile($fileinfo, $file);
-                $update->certificateimage = $formdata->images[0];
-                $file->delete();
-                unset($formdata->certificateimage);
-            }
-            if (!empty($formdata->images[1])) {
-                $fileinfo = self::get_certificate_secondimage_fileinfo($this->context->id);
-                $fs->delete_area_files($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'], $fileinfo['itemid']);
-                $fileinfo['filename'] = $formdata->images[1];
-                $file = $fs->get_file($user_context->id, 'user', 'draft', $formdata->secondimage, '/', $formdata->images[1]);
-                $fs->create_file_from_storedfile($fileinfo, $file);
-                $update->secondimage = $formdata->images[1];
-                $file->delete();
-                unset($formdata->secondimage);
-            }
-            unset($formdata->images);
+      
+        if (!empty($formdata->certificateimage)) {
+            $formdata->certificateimage = $this->save_upload_file($formdata->certificateimage, 
+                                                                self::get_certificate_image_fileinfo($this->context->id));
+        
+        }
+        
+        if (!empty($formdata->secondimage)) {
+            $formdata->secondimage = $this->save_upload_file($formdata->secondimage, 
+                                                            self::get_certificate_secondimage_fileinfo($this->context->id));
+        
         }
 
         foreach ($formdata as $name => $value) {
@@ -391,6 +377,28 @@ class simplecertificate {
         return $update;
     }
 
+    /**
+     * Save upload files in $fileinfo array and return the filename
+     * 
+     * @param string $form_item_id Uploado file form id
+     * @param array $fileinfo The file info array, where to store uploaded file
+     * @return string filename
+     */
+    private function save_upload_file($form_item_id, array $fileinfo) {
+        // Clear file area
+        if (empty($fileinfo['itemid'])) {
+            $fileinfo['itemid'] = '';
+        }
+        $fs = get_file_storage();
+        $fs->delete_area_files($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'], $fileinfo['itemid']);
+        file_save_draft_area_files($form_item_id, $fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'], 
+                                $fileinfo['itemid']);
+        // Get only files, not directories
+        $files = $fs->get_area_files($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'], $fileinfo['itemid'], '', 
+                                    false);
+        $file = array_shift($files);
+        return $file->get_filename();
+    }
 
 
     /**
@@ -423,19 +431,9 @@ class simplecertificate {
      * @return the second page background image fileinfo
      */
     public static function get_certificate_secondimage_fileinfo($context) {
-        if (is_object($context)) {
-            $contextid = $context->id;
-        } else {
-            $contextid = $context;
-        }
-
-        $fileinfo = array(
-                'contextid' => $contextid, // ID of context
-                'component' => self::CERTIFICATE_COMPONENT_NAME, // usually = table name
-                'filearea' => self::CERTIFICATE_IMAGE_FILE_AREA, // usually = table name
-                'itemid' => 2, // usually = ID of row in table
-                'filepath' => '/'           // any path beginning and ending in /
-        );
+        
+        $fileinfo = self::get_certificate_image_fileinfo($context);
+        $fileinfo['itemid'] = 2;
         return $fileinfo;
     }
 
