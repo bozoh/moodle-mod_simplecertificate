@@ -16,10 +16,10 @@ require_once("$CFG->dirroot/mod/simplecertificate/locallib.php");
 $id = required_param('id', PARAM_INT); // Course Module ID
 $action = optional_param('action', '', PARAM_ALPHA);
 $tab = optional_param('tab', simplecertificate::DEFAULT_VIEW, PARAM_INT);
-$sort = optional_param('sort', '', PARAM_RAW);
 $type = optional_param('type', '', PARAM_ALPHA);
 $page = optional_param('page', 0, PARAM_INT);
 $perpage = optional_param('perpage', get_config('simplecertificate', 'perpage'), PARAM_INT);
+$orderby = optional_param('orderby', 'username', PARAM_RAW);
 $issuelist = optional_param('issuelist', null, PARAM_ALPHA);
 $selectedusers = optional_param_array('selectedusers', null, PARAM_INT);
 
@@ -48,8 +48,8 @@ if ($type) {
 	$url->param('type', $type);
 }
 
-if ($sort) {
-	$url->param ('sort', $sort);
+if ($orderby) {
+	$url->param ('orderby', $orderby);
 }
 
 if ($action) {

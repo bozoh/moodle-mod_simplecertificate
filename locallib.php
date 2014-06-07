@@ -1640,8 +1640,16 @@ class simplecertificate {
         }
     }
 
-    protected function get_issued_certificate_users($sort = "ci.timecreated ASC", $groupmode = 0) {
+    protected function get_issued_certificate_users($sort = 'username', $groupmode = 0) {
         global $CFG, $DB;
+        
+        if ($sort == 'username') {
+            $sort = $DB->sql_fullname() . ' ASC';
+        } else if ($sort == 'issuedate') {
+            $sort = 'ci.timecreated ASC';
+        } else {
+            $sort = '';
+        }
 
         // get all users that can manage this certificate to exclude them from the report.
         $certmanagers = get_users_by_capability($this->context, 'mod/simplecertificate:manage', 'u.id');
@@ -1723,17 +1731,18 @@ class simplecertificate {
         // Declare some variables
         $strcertificates = get_string('modulenameplural', 'simplecertificate');
         $strcertificate = get_string('modulename', 'simplecertificate');
-        $strto = get_string('awardedto', 'simplecertificate');
-        $strdate = get_string('receiveddate', 'simplecertificate');
+        $strto = html_writer::link($url->out(false, array('orderby' => 'username')), get_string('awardedto', 'simplecertificate'));
+        $strdate = html_writer::link($url->out(false, array('orderby' => 'issuedate')), get_string('receiveddate', 'simplecertificate'));
         $strgrade = get_string('grade', 'simplecertificate');
         $strcode = get_string('code', 'simplecertificate');
         $strreport = get_string('report', 'simplecertificate');
         $groupmode = groups_get_activity_groupmode($this->get_course_module());
         $page = $url->get_param('page');
         $perpage = $url->get_param('perpage');
+        $orderby = $url->get_param('orderby');
         $usercount = 0;
 
-        $users = $this->get_issued_certificate_users($DB->sql_fullname(), $groupmode);
+        $users = $this->get_issued_certificate_users($orderby, $groupmode);
         if ($users) {
             $usercount = count($users);
             $users = array_slice($users, intval($page * $perpage), $perpage);
