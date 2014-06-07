@@ -38,8 +38,8 @@ class mod_simplecertificate_mod_form extends moodleform_mod {
         $maxbytes = get_max_upload_file_size($CFG->maxbytes, $COURSE->maxbytes);
 
         //Certificate image file
-        $mform->addElement('filepicker', 'certificateimage', get_string('certificateimage','simplecertificate'), null,
-                array('maxbytes' => $maxbytes, 'accepted_types' =>  array('image')));
+        $mform->addElement('filemanager', 'certificateimage', get_string('certificateimage','simplecertificate'), null,
+                $this->get_filemanager_options_array());
         $mform->addHelpButton('certificateimage', 'certificateimage', 'simplecertificate');
         
 
@@ -88,8 +88,8 @@ class mod_simplecertificate_mod_form extends moodleform_mod {
         $mform->addHelpButton('enablesecondpage', 'enablesecondpage', 'simplecertificate');
 
         //Certificate secondimage file
-        $mform->addElement('filepicker', 'secondimage', get_string('secondimage','simplecertificate'), null,
-                array('maxbytes' => $maxbytes, 'accepted_types' =>  array('image')));
+        $mform->addElement('filemanager', 'secondimage', get_string('secondimage','simplecertificate'), null,
+                $this->get_filemanager_options_array());
         $mform->addHelpButton('secondimage', 'secondimage', 'simplecertificate');
         $mform->disabledIf('secondimage', 'enablesecondpage', 'eq', 0);
          
@@ -242,18 +242,30 @@ class mod_simplecertificate_mod_form extends moodleform_mod {
         require_once(dirname(__FILE__) . '/locallib.php');
         if ($this->current->instance) {
             // editing an existing certificate - let us prepare the added editor elements (intro done automatically), and files
+            
+            //First Page
+            
+            //Get firstimage
             $imagedraftitemid = file_get_submitted_draft_itemid('certificateimage');
+            //Get firtsimage filearea information
             $imagefileinfo = simplecertificate::get_certificate_image_fileinfo($this->context);
-            file_prepare_draft_area($imagedraftitemid, $imagefileinfo['contextid'], $imagefileinfo['component'], $imagefileinfo['filearea'], $imagefileinfo['itemid']);
+            file_prepare_draft_area($imagedraftitemid, $imagefileinfo['contextid'], $imagefileinfo['component'], $imagefileinfo['filearea'], $imagefileinfo['itemid'],
+                         $this->get_filemanager_options_array());
+            
             $data['certificateimage'] = $imagedraftitemid;
+            
+            //Prepare certificate text
             $data['certificatetext'] = array('text' =>$data['certificatetext'], 'format'=> FORMAT_HTML);
 
             //Second page
+            //Get Back image
             $secondimagedraftitemid = file_get_submitted_draft_itemid('secondimage');
+            //Get secondimage filearea info
             $secondimagefileinfo = simplecertificate::get_certificate_secondimage_fileinfo($this->context);
-            file_prepare_draft_area($secondimagedraftitemid, $secondimagefileinfo['contextid'], $secondimagefileinfo['component'], $secondimagefileinfo['filearea'], $secondimagefileinfo['itemid']);
+            file_prepare_draft_area($secondimagedraftitemid, $secondimagefileinfo['contextid'], $secondimagefileinfo['component'], $secondimagefileinfo['filearea'], $secondimagefileinfo['itemid'], $this->get_filemanager_options_array());
             $data['secondimage'] = $secondimagedraftitemid;
 
+            //Get backpage text
             if (!empty($data['secondpagetext'])) {
                 $data['secondpagetext'] = array('text' =>$data['secondpagetext'], 'format'=> FORMAT_HTML);
             } else {
@@ -309,12 +321,6 @@ class mod_simplecertificate_mod_form extends moodleform_mod {
             }
         }
         
-        //For files
-        $certifiles = array();
-        $certifiles[0] = $this->get_new_filename('certificateimage');
-        $certifiles[1] = $this->get_new_filename('secondimage');
-        
-        $data->images = $certifiles;
         return $data;
     }
     
@@ -335,4 +341,10 @@ class mod_simplecertificate_mod_form extends moodleform_mod {
 
         return $errors;
     }
+    
+    private function get_filemanager_options_array () {
+        return array('subdirs' => 0, 'maxbytes' => 0, 'maxfiles' => 1,
+                'accepted_types' => array('image'));
+    }
+    
 }
