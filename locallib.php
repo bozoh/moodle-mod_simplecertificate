@@ -453,19 +453,14 @@ class simplecertificate {
             }
         }
 
-        if (empty($issuecert->coursename)) {
-            //Try to cacth course name
-            if ($cert=$DB->get_record('simplecertificate', array('id'=>$issuecert->certificateid))) {
-                $course = get_course($cert->course);
-            }
-            if (empty($course)) {
-                error_log(get_string('coursenotfound','simplecertificate'));
-                print_error('coursenotfound','simplecertificate');
-            }
-            $issuecert->coursename = $course->fullname;
-            $DB->update_record('simplecertificate_issues', $issuecert);
+       //Try to cacth course name
+        if ($cert=$DB->get_record('simplecertificate', array('id'=>$issuecert->certificateid))) {
+            $course = get_course($cert->course);
+        } else {
+            error_log(get_string('certificatenot','simplecertificate'));
+            print_error('certificatenot','simplecertificate');
         }
-
+           
         try {
             $context = context_user::instance($issuecert->userid);
         } catch (Exception $e) {
@@ -474,24 +469,16 @@ class simplecertificate {
             die;
         }
 
-        if ($user=$DB->get_record("user", array('id'=>$issuecert->userid))) {
-            $filename = str_replace(' ', '_', clean_filename($issuecert->certificatename .' '. fullname($user) .' '. $issuecert->id
-                      . '.pdf'));
-        } else {
-            error_log(get_string('usernotfound','simplecertificate'));
-            print_error('usernotfound','simplecertificate');
-            die;
-        }
-
-        $fileinfo = array(
+       $fileinfo = array(
                 'contextid' => $context->id, // ID of context
                 'component' => 'user',
                 'filearea' => simplecertificate::CERTIFICATE_ISSUES_FILE_AREA, // usually = table name
                 'itemid' => 0, //$issuecert->id, // usually = ID of row in table
-                'filepath' => '/certificates/'.$issuecert->coursename.'/', // any path beginning and ending in /
-                'mimetype' => 'application/pdf', // any filename
+                'filepath' => '/certificates/'.$course->fullname.'/', // any path beginning and ending in /
+                'mimetype' => 'application/pdf', 
                 'userid' => $issuecert->userid,
-                'filename' => $filename
+                'filename' =>  str_replace(' ', '_', clean_filename($issuecert->certificatename .' '. $issuecert->id
+                      . '.pdf'))
         );
 
         return $fileinfo;
@@ -1693,36 +1680,6 @@ class simplecertificate {
         return $issedusers;
     }
 
-   /**
-    * Print issed file certificate link
-    * @param stdClass $issuecert The issued certificate object
-    * @return string file link url
-    */
-    protected function print_issue_certificate_file(stdClass $issuecert) {
-        global $CFG, $OUTPUT;
-
-        $output = '';
-
-        $fs = get_file_storage();
-        $fileinfo = simplecertificate::get_certificate_issue_fileinfo($issuecert);
-        if (!$fs->file_exists($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'], $fileinfo['itemid'],
-            $fileinfo['filepath'], $fileinfo['filename'])) {
-            return $output;
-        }
-
-        $link = moodle_url::make_pluginfile_url($this->get_context()->id, self::CERTIFICATE_COMPONENT_NAME, $fileinfo['filearea'],
-                            $issuecert->id, $fileinfo['filepath'], $fileinfo['filename'], true);
-
-        $mimetype = $fileinfo['mimetype'];
-        $output = '<img src="' . $OUTPUT->pix_url(file_mimetype_icon($mimetype)) . '" height="16" width="16" alt="' . $mimetype .
-                '" />&nbsp;' . '<a href="' . $link->out(false) . '" target="_blank" >' . s($fileinfo['filename']) . '</a>';
-
-        $output .= '<br />';
-        $output = '<div class="files">' . $output . '</div>';
-
-        return $output;
-    }
-
     // Issued certificates view
     public function view_issued_certificates(moodle_url $url) {
         global $OUTPUT, $DB, $CFG;
@@ -1772,7 +1729,7 @@ class simplecertificate {
             $table->align = array("left", "left", "center", "center");
             foreach ( $users as $user ) {
                 $name = $OUTPUT->user_picture($user) . fullname($user);
-                $date = userdate($user->timecreated) . $this->print_issue_certificate_file($this->get_issue($user));
+                $date = userdate($user->timecreated) . simplecertificate_print_issue_certificate_file($this->get_issue($user));
                 $code = $user->code;
                 $table->data[] = array($name, $date, $this->get_grade($user->id), $code);
             }

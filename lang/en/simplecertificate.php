@@ -231,14 +231,14 @@ $string['standardview'] = 'Issue a test certificate';
 $string['issuedview'] = 'Issued certificates';
 $string['bulkview'] = 'Bulk operations';
 
-$string['cantissue'] = 'The certificate can\'t be issued, because the user hasn\'t reached the course objectives';
+$string['cantissue'] = 'The certificate can\'t be issued, because the user hasn\'t met activity conditions';
 
 //Bulk texts
 $string['onepdf'] = 'Download certificates in a one pdf file';
 $string['multipdf'] = 'Download certificates in a zip file';
 $string['sendtoemail'] = 'Send to user\'s email';
 $string['showusers'] = 'Show';
-$string['completedusers'] = 'Users that met the course objectives';
+$string['completedusers'] = 'Users that met the activity conditions';
 $string['allusers'] = 'All users';
 $string['bulkaction'] = 'Choose a Bulk Operation';
 $string['bulkbuttonlabel'] = 'Send';

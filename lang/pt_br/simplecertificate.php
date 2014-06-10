@@ -231,7 +231,7 @@ $string['standardview'] = 'Emitir um certificado de teste';
 $string['issuedview'] = 'Certificados emitidos';
 $string['bulkview'] = 'Operações em lote';
 
-$string['cantissue'] = 'O certificado não pode ser emitido pois o usuário não atigiu a meta do curso';
+$string['cantissue'] = 'O certificado não pode ser emitido pois o usuário não atigiu a meta da atividade';
 
 //Bulk Texts
 

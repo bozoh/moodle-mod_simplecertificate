@@ -1,5 +1,6 @@
 <?php
 
+use core\session\exception;
 // This file is part of Certificate module for Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -287,40 +288,18 @@ function simplecertificate_cron() {
  * @return bool nothing if file not found, does not return anything if found - just send the file
  */
 function simplecertificate_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload, array $options = array()) {
-    global $CFG, $DB;
-    require_once ($CFG->dirroot . '/mod/simplecertificate/locallib.php');
-    require_once ($CFG->libdir . '/filelib.php');
-       
+      
     require_login($course);
     
     if ($context->contextlevel != CONTEXT_MODULE) {
         return false;
     }
     
-    // Get issued certificate
-    $issuedcertid = (int)array_shift($args);
-    if (!$issuedcert = $DB->get_record('simplecertificate_issues', array('id' => $issuedcertid))) {
-        print_error('issuedcertificatenotfound', 'simplecertificate');
-        return false;
-    }
+    $url = new moodle_url('wssendfile.php');
+    $url->param('id', (int)array_shift($args));
+    $url->param('sk',sesskey());
     
-    $fileinfo = simplecertificate::get_certificate_issue_fileinfo($issuedcert);
-    $fs = get_file_storage();
-    
-    if (!$fs->file_exists_by_hash($issuedcert->pathnamehash)) {
-        print_error(get_string('filenotfound', 'simplecertificate', $fileinfo['filename']));
-        return false;
-    }
-    $file = $fs->get_file_by_hash($issuedcert->pathnamehash);
-    
-    $url = moodle_url::make_pluginfile_url($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'], 
-                                        $fileinfo['itemid'], $fileinfo['filepath'], $fileinfo['filename'], true);
-    
-    add_to_log($course->id, 'simplecertificate', 'download', $url->out_as_local_url(false), 
-            get_string('issueddownload', 'simplecertificate', $issuedcert->id), $cm->id, $USER->id);
-    
-    send_stored_file($file, 0, 0, true, $options);
-    
+    redirect($url);
 }
 
 /**
@@ -464,27 +443,30 @@ function simplecertificate_get_grade_options() {
  * @return string file link url
  */
 function simplecertificate_print_issue_certificate_file(stdClass $issuecert) {
-	global $CFG, $OUTPUT;
-	require_once (dirname(__FILE__) . '/locallib.php');
-	
-	$output = '';
-	
-	$fs = get_file_storage();
-	if (!$fs->file_exists_by_hash($issuecert->pathnamehash)){
-		return $output;
-	}
-	
-	$link=new moodle_url('/mod/simplecertificate/verify.php');
-	$link->param('code', $issuecert->code);
-	$link->param('sk', sesskey());
-	
-	$fileinfo = simplecertificate::get_certificate_issue_fileinfo($issuecert);
-	$mimetype = $fileinfo['mimetype'];
-	$output = '<img src="' . $OUTPUT->pix_url(file_mimetype_icon($mimetype)) . '" height="16" width="16" alt="' . $mimetype .
-	'" />&nbsp;' . '<a href="' . $link->out(false) . '" target="_blank" >' . s($fileinfo['filename']) . '</a>';
-	
-	$output .= '<br />';
-	$output = '<div class="files">' . $output . '</div>';
-	
-	return $output;
+    global $CFG, $OUTPUT;
+    require_once (dirname(__FILE__) . '/locallib.php');
+    
+    // Trying to cath course module context
+    try {
+        $fs = get_file_storage();
+        if (!$fs->file_exists_by_hash($issuecert->pathnamehash)) {
+            throw new Exception();
+        }
+        $file = $fs->get_file_by_hash($issuecert->pathnamehash);
+        $output = '<img src="' . $OUTPUT->pix_url(file_mimetype_icon($file->get_mimetype())) . '" height="16" width="16" alt="' .
+         $file->get_mimetype() . '" />&nbsp;';
+        
+        $url = new moodle_url('wmsendfile.php');
+        $url->param('id', $issuecert->id);
+        $url->param('sk', sesskey());
+        
+        $output .= '<a href="' . $url->out(true) . '" target="_blank" >' . s($file->get_filename()) . '</a>';
+    
+    }
+    catch (Exception $e) {
+        $output = get_string('filenotfound', 'simplecertificate', '');
+    }
+    
+    return '<div class="files">' . $output . '<br /> </div>';
+
 }
