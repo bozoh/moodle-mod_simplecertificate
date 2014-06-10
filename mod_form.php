@@ -135,18 +135,14 @@ class mod_simplecertificate_mod_form extends moodleform_mod {
         $mform->setDefault('certdate', get_config('simplecertificate', 'certdate'));
         $mform->addHelpButton('certdate', 'printdate', 'simplecertificate');
 
-
         //Certificate date format
-
         $mform->addElement('text', 'certdatefmt', get_string('datefmt', 'simplecertificate'));
         $mform->setDefault('certdatefmt', '');
         $mform->setType('certdatefmt', PARAM_TEXT);        
         $mform->addHelpButton('certdatefmt', 'datefmt', 'simplecertificate');
         $mform->setAdvanced('certdatefmt');
-        
-        
+       
         //Certificate timestart date format
-        
         $mform->addElement('text', 'timestartdatefmt', get_string('timestartdatefmt', 'simplecertificate'));
         $mform->setDefault('timestartdatefmt', '');
         $mform->setType('timestartdatefmt', PARAM_TEXT);

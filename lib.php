@@ -1,6 +1,5 @@
 <?php
 
-use core\session\exception;
 // This file is part of Certificate module for Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -462,8 +461,7 @@ function simplecertificate_print_issue_certificate_file(stdClass $issuecert) {
         
         $output .= '<a href="' . $url->out(true) . '" target="_blank" >' . s($file->get_filename()) . '</a>';
     
-    }
-    catch (Exception $e) {
+    } catch (Exception $e) {
         $output = get_string('filenotfound', 'simplecertificate', '');
     }
     

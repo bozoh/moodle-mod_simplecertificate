@@ -18,8 +18,8 @@
 // using the functions defined in lib/ddllib.php
 
 function xmldb_simplecertificate_upgrade($oldversion=0) {
-
-    global $CFG, $THEME, $DB;
+    global $CFG, $DB, $OUTPUT;
+    
     $dbman = $DB->get_manager();
     if ($oldversion < 2013053102) {
 
@@ -283,12 +283,12 @@ function xmldb_simplecertificate_upgrade($oldversion=0) {
     	// Simplecertificate savepoint reached.
     	upgrade_mod_savepoint(true, 2013112901, 'simplecertificate');
     }
-    
+    // v2.1.3
     if ($oldversion < 2014032202) {
     
         // Define field timestartdatefmt to be added to simplecertificate.
         $table = new xmldb_table('simplecertificate');
-        $field = new xmldb_field('timestartdatefmt', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null, 'secondimage');
+        $field = new xmldb_field('timestartdatefmt', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, '', 'secondimage');
     
         // Conditionally launch add field timestartdatefmt.
         if (!$dbman->field_exists($table, $field)) {
@@ -306,31 +306,96 @@ function xmldb_simplecertificate_upgrade($oldversion=0) {
     	if (!$dbman->field_exists($table, $field)) {
     		$dbman->add_field($table, $field);
     	}
-    	
-    	    	
-    	require_once($CFG->dirroot.'/mod/simplecertificate/locallib.php');
-    	
-    	//Must add the certificate files hashs
-    	$issuedcerts = $DB->get_records_select('simplecertificate_issues','timedeleted IS NULL');
+    	//Must move files to new area and add the certificate files hashs
+    	$issuedcerts = $DB->get_records_select('simplecertificate_issues');
+    	$countcerts = count($issuedcerts);
     	
     	$fs = get_file_storage();
+    	
+    	$pbar = new progress_bar('simplecertificatemoveissuedfiles', 500, true);
+    	$i = 0;
     	foreach ($issuedcerts as $issued) {
-    		$fileinfo = simplecertificate::get_certificate_issue_fileinfo($issued);
-    	  	if ($fs->file_exists($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'], $fileinfo['itemid'],
-    	                        $fileinfo['filepath'], $fileinfo['filename'])) {
-    	  		$file = $fs->get_file($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'], $fileinfo['itemid'],
-    	  				$fileinfo['filepath'], $fileinfo['filename']);
-    	  		$issued->pathnamehash = $file->get_pathnamehash();
-    	  		if (!$DB->update_record('simplecertificate_issues', $issued)) {
-    	  			die;
-    	  		}
-    	  	}
+    	    $i++;
+    	    try {
+    	        $moduleid = $DB->get_field('modules', 'id', array('name' => 'simplecertificate'), MUST_EXIST);
+    	        $courseid = $DB->get_field('simplecertificate', 'course', array('id' => $issued->certificateid ), MUST_EXIST);
+    	        if (!isset($issued->coursename)) {
+    	            //If don't have coursename, trying to get from course table
+    	            $coursename = $DB->get_field('course', 'fullname', array('id' => $courseid ), MUST_EXIST);
+    	        } else {
+    	            $coursename = $issued->coursename;
+    	        }
+    	        $cmid =  $DB->get_field('course_modules', 'id', array('module' => $moduleid, 'course'=>$courseid, 'instance'=>$issued->certificateid), MUST_EXIST);
+    	            	       
+                $oldcontext = context_module::instance($cmid);
+                               
+                if ($user = $DB->get_record("user", array('id' => $issued->userid))) {
+                    $filename = str_replace(' ', '_', clean_filename($issued->certificatename . ' ' . fullname($user) . ' ' . $issued->id . '.pdf'));
+                } else {
+                    $filename = str_replace(' ', '_', clean_filename($issued->certificatename . ' ' . $issued->id . '.pdf'));
+                }
+                
+                $oldfileinfo = array('contextid' => $oldcontext->id,
+                                'component' => 'mod_simplecertificate', 
+                                'filearea' => 'issues',
+                                'itemid' => $issued->id,
+                                'filepath' => '/',
+                                'mimetype' => 'application/pdf',
+                                'userid' => $issued->userid, 
+                                'filename' => $filename);
+                
+                if ($fs->file_exists($oldfileinfo['contextid'], $oldfileinfo['component'], $oldfileinfo['filearea'], 
+                                    $oldfileinfo['itemid'], $oldfileinfo['filepath'], $oldfileinfo['filename'])) {
+                                      
+                    $file = $fs->get_file($oldfileinfo['contextid'], $oldfileinfo['component'], $oldfileinfo['filearea'], 
+                                        $oldfileinfo['itemid'], $oldfileinfo['filepath'], $oldfileinfo['filename']);
+                    
+                    $context = context_user::instance($issued->userid);
+                        
+                    $newfileinfo = array(
+                                'contextid' => $context->id,                         
+                                'component' => 'user', 
+                                'filearea' => 'private', 
+                                'itemid' => 0,                        
+                                'filepath' => '/certificates/' . $coursename . '/',
+                                'mimetype' => 'application/pdf', 
+                                'userid' => $issued->userid,
+                                'filename' =>  str_replace(' ', '_', clean_filename($issued->certificatename .' '. $issued->id . '.pdf'))
+                    );
+                        
+                    if ($newfile = $fs->create_file_from_storedfile($newfileinfo, $file)) {
+                        $file->delete();
+                        $issued->pathnamehash = $newfile->get_pathnamehash();
+                    }
+                    
+                } else {
+                   throw new Exception('File not found');
+                }
+            } catch (Exception $e) {
+                if (empty($issued->timedeleted)) {
+                    $issued->timedeleted = time();
+                }
+                $issued->pathnamehash = '';
+            }
+            $pbar->update($i, $countcerts, "Moving Issued certificate files  ($i/$countcerts)");
+            if (!$DB->update_record('simplecertificate_issues', $issued)) {
+                print_error('upgradeerror', 'simplecertificate', null, "Can't update an issued certificate [id->$issued->id]");
+            }
+           
     	}
     	
     	$field = new xmldb_field('pathnamehash', XMLDB_TYPE_CHAR, '40', null, XMLDB_NOTNULL, null, null, 'haschange');
     	
     	// Launch change of nullability for field pathnamehash.
     	$dbman->change_field_notnull($table, $field);
+    	
+    	
+    	$field = new xmldb_field('coursename');
+    	
+    	// Conditionally launch drop field coursename.
+    	if ($dbman->field_exists($table, $field)) {
+    	    $dbman->drop_field($table, $field);
+    	}
     	  
     	// Simplecertificate savepoint reached.
     	upgrade_mod_savepoint(true, 2014051000, 'simplecertificate');
