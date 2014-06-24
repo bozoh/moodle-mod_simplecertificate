@@ -119,7 +119,9 @@ class mod_simplecertificate_locallib_testcase extends mod_simplecertificate_base
                 , $fileinfo['filepath'], $cert->get_instance()->secondimage));
         $pdf = $cert->testable_create_pdf($cert->get_issue());
         $this->assertNotNull($pdf);
-        $pdf->Output($CFG->dirroot . '/mod/simplecertificate/tests/test_certificate_'.testable_simplecertificate::PLUGIN_VERSION.'.pdf','F');
+        $filepath = $CFG->dirroot . '/mod/simplecertificate/tests/test_certificate_'.testable_simplecertificate::PLUGIN_VERSION.'.pdf';
+        $pdf->Output($filepath, 'F');
+        $this->assertTrue(file_exists($filepath));
         $this->write_to_report("Is all images is in certificate: ? Ok");
         
     }
@@ -158,7 +160,6 @@ class mod_simplecertificate_locallib_testcase extends mod_simplecertificate_base
     	$this->assertNotEmpty($issuecert);
     	$this->assertTrue($DB->record_exists("simplecertificate_issues", array('id'=>$issuecert->id)));
     	$this->assertTrue(!empty($issuecert->haschange));
-    	$this->assertEquals($this->course->fullname, $issuecert->coursename);
     	$this->assertEquals($this->students[0]->id, $issuecert->userid);
     	$this->write_to_report("Can Retrieve a student simple certificate As manager? Ok");
     	
@@ -167,7 +168,6 @@ class mod_simplecertificate_locallib_testcase extends mod_simplecertificate_base
     	$this->assertNotEmpty($issuecert);
     	$this->assertFalse($DB->record_exists("simplecertificate_issues", array('id'=>$issuecert->id)));
     	$this->assertTrue(!empty($issuecert->haschange));
-    	$this->assertEquals($this->course->fullname, $issuecert->coursename);
     	$this->write_to_report("Can Retrieve a simple certificate As manager? Ok");
     	 
     	
@@ -180,7 +180,6 @@ class mod_simplecertificate_locallib_testcase extends mod_simplecertificate_base
     	$this->assertTrue($DB->record_exists("simplecertificate_issues", array('id'=>$issuecert->id)));
     	$this->assertEquals(1, $DB->count_records("simplecertificate_issues", array('certificateid'=>$cert->get_instance()->id, 'userid'=>$this->students[1]->id)));
     	$this->assertTrue(!empty($issuecert->haschange));
-    	$this->assertEquals($this->course->fullname, $issuecert->coursename);
     	$this->assertEquals($this->students[1]->id, $issuecert->userid);
     	$this->write_to_report("Can Retrieve a simple certificate As student ? Ok");
     	    	
@@ -188,6 +187,23 @@ class mod_simplecertificate_locallib_testcase extends mod_simplecertificate_base
     	$this->assertEquals(2, $DB->count_records("simplecertificate_issues", array('certificateid'=>$cert->get_instance()->id)));
     	$this->write_to_report("Manager issued certificates are not save? Ok");
     	        
+    }
+    
+    public function test_create_issue_code() {
+        echo __METHOD__."\n";
+        global $DB;
+         
+        $this->resetAfterTest();
+        $this->setAdminUser();
+        $cert = $this->create_instance();
+        $issuecert = $cert->get_issue($this->students[0]);
+         
+        //Verify code
+        $this->assertNotEmpty($issuecert->code);
+        $this->assertEquals(36, strlen($issuecert->code));
+        $this->assertEquals($this->students[0]->id, $DB->get_field_select('simplecertificate_issues', 'userid', 'code = :code', array('code' => $issuecert->code)));
+         
+        $this->write_to_report("Certificate code is correct ? Ok");
     }
     
     public function test_update_instace_update_haschange_issues() {
@@ -199,7 +215,6 @@ class mod_simplecertificate_locallib_testcase extends mod_simplecertificate_base
         $cert = $this->create_instance();
         
         $issuecert1 = $cert->get_issue($this->students[0]);
-        
         $issuecert2 = $cert->get_issue($this->students[1]);
         $issuecert3 = $cert->get_issue($this->students[2]);
         
@@ -227,6 +242,63 @@ class mod_simplecertificate_locallib_testcase extends mod_simplecertificate_base
         
     }
     
+    public function  test_create_pdf_file() {
+        echo __METHOD__."\n";
+        global $DB, $CFG;
+         
+        $this->resetAfterTest();
+        $this->setAdminUser();
+    
+        $cert = $this->create_instance();
+        $issuecert= $cert->get_issue($this->students[2]);
+    
+        //Verify if file DON´T EXISTS
+        $this->assertTrue(!empty($issuecert->haschange));
+        $this->assertFalse($cert->testable_issue_file_exists($issuecert));
+        $this->assertDebuggingCalled();
+    
+        //Creating file
+        $file=$cert->testable_get_issue_file($issuecert);
+        $this->assertTrue(empty($issuecert->haschange));
+        $this->assertTrue($cert->testable_issue_file_exists($issuecert));
+        $this->assertEquals($issuecert->pathnamehash, $file->get_pathnamehash());
+        $this->write_to_report("create a pdf file ? Ok");
+         
+        //Verify if only re-create a pdf file if certificate changes
+        $issuecert= $cert->get_issue($this->students[2]);
+        $this->assertTrue(empty($issuecert->haschange));
+        $this->assertFalse($cert->testable_create_pdf($issuecert));
+        $this->assertEquals($file, $cert->testable_save_pdf($issuecert));
+        $this->assertTrue(empty($issuecert->haschange));
+        $this->write_to_report("Only re-create a pdf file if certificate changes? Ok");
+         
+        //Issue as admin
+        $this->setAdminUser();
+        $issuecert=$cert->get_issue();
+         
+        //Verify if file DON´T EXISTS
+        $this->assertTrue(!empty($issuecert->haschange));
+        $this->assertFalse($cert->testable_issue_file_exists($issuecert));
+        $this->assertDebuggingCalled();
+         
+        //Creating file
+        //file created
+        $this->assertNotNull($cert->testable_get_issue_file($issuecert));
+        $instance=$cert->get_instance();
+        //Disabled delivery to do this teste
+        $instance->delivery = 3;
+        //After delivery action file must be removed
+        $cert->output_pdf($issuecert);
+         
+        //Must not exixst, no file is storage
+        $this->assertTrue(empty($issuecert->haschange));
+        $this->assertFalse($cert->testable_issue_file_exists($issuecert));
+        $this->assertDebuggingCalled();
+         
+        $this->write_to_report("Managers certificates are not save? Ok");
+    
+    }
+    
     public function test_detete_instace_update_timedelete_issues() {
         echo __METHOD__."\n";
         global $DB;
@@ -237,94 +309,54 @@ class mod_simplecertificate_locallib_testcase extends mod_simplecertificate_base
         $issuecert1 = $cert->get_issue($this->students[0]);
         $issuecert2 = $cert->get_issue($this->students[1]);
         $issuecert3 = $cert->get_issue($this->students[2]);
-
+        
         //Verify if timedelete is really null
         $this->assertNull($cert->get_issue($this->students[0])->timedeleted);
         $this->assertNull($cert->get_issue($this->students[1])->timedeleted);
         $this->assertNull($cert->get_issue($this->students[2])->timedeleted);
-    
+        
+        //Creating issue file, but not issuecert2
+        $oldfile1 = $cert->testable_get_issue_file($issuecert1);
+        $this->assertFalse(empty($oldfile1));
+        $this->assertTrue($cert->testable_issue_file_exists($issuecert1));
+        
+        $this->assertFalse($cert->testable_issue_file_exists($issuecert3));
+        $this->assertDebuggingCalled();
+        
+        $oldfile3 = $cert->testable_get_issue_file($issuecert3);
+        $this->assertFalse(empty($oldfile3));
+        $this->assertTrue($cert->testable_issue_file_exists($issuecert3));
+          
         //Update simplecertificate instance
         $cert->delete_instance($cert->get_instance());
-    
+        //It's expected a debug calling beacause isseucert2 does not create issue file
+        $this->assertDebuggingCalled(get_string('filenotfound', 'simplecertificate'). ' (issue id:[' . $issuecert2->id . '])', DEBUG_DEVELOPER);
+       
         //Verify if timedelete is not null
-        $this->assertObjectHasAttribute('timedeleted', $DB->get_record('simplecertificate_issues', array('id'=>$issuecert1->id)));
-        $this->assertObjectHasAttribute('timedeleted', $DB->get_record('simplecertificate_issues', array('id'=>$issuecert2->id)));
-        $this->assertObjectHasAttribute('timedeleted', $DB->get_record('simplecertificate_issues', array('id'=>$issuecert3->id)));
+        $issuecert1 = $DB->get_record('simplecertificate_issues', array('id'=>$issuecert1->id));
+        $issuecert2 = $DB->get_record('simplecertificate_issues', array('id'=>$issuecert2->id));
+        $issuecert3 = $DB->get_record('simplecertificate_issues', array('id'=>$issuecert3->id));
+        
+        $this->assertObjectHasAttribute('timedeleted', $issuecert1);
+        $this->assertObjectHasAttribute('timedeleted', $issuecert2);
+        $this->assertObjectHasAttribute('timedeleted', $issuecert3);
         
         $this->write_to_report("Delete certificate adds timeend in issued certificates? Ok");
-    }
-    
-    
-    public function test_create_issue_code() {
-        echo __METHOD__."\n";
-    	global $DB;
-    	
-    	$this->resetAfterTest();
-        $this->setAdminUser();
-        $cert = $this->create_instance();
-    	$issuecert = $cert->get_issue($this->students[0]);
-    	    	    	
-    	//Verify code
-    	$this->assertNotEmpty($issuecert->code);
-    	$this->assertEquals(36, strlen($issuecert->code));
-    	$this->assertEquals($this->students[0]->id, $DB->get_field_select('simplecertificate_issues', 'userid', 'code = :code', array('code' => $issuecert->code)));
-    	
-    	$this->write_to_report("Certificate code is correct ? Ok");
-    }
-    
-    
-    public function  test_create_pdf_file() {
-        echo __METHOD__."\n";
-    	global $DB, $CFG;
-    	
-    	$this->resetAfterTest();
-    	$this->setAdminUser();
+        
+        //Verify pathnamehash
+        $this->assertNotEquals($oldfile1->get_pathnamehash(), $issuecert1->pathnamehash);
+        $this->assertEmpty($DB->get_field('simplecertificate_issues', 'pathnamehash', array('id'=>$issuecert2->id)));
+        $this->assertNotEquals($oldfile1->get_pathnamehash(), $issuecert3->pathnamehash);
+        
+        //Verify if issued certificate is moved to user private file area
+        $this->assertTrue($cert->testable_issue_file_exists($issuecert1));
+        $this->assertTrue($cert->testable_issue_file_exists($issuecert3));
+        $this->assertFalse($cert->testable_issue_file_exists($issuecert2));
+        $this->assertDebuggingCalled();        
 
-    	$cert = $this->create_instance();
-    	$issuecert= $cert->get_issue($this->students[2]);
-
-    	//Verify if file DON´T EXISTS
-    	$this->assertTrue(!empty($issuecert->haschange));
-    	$this->assertFalse($cert->testable_issue_file_exists($issuecert));
-    	    	
-    	//Creating file
-    	$file=$cert->testable_get_issue_file($issuecert);
-    	$this->assertTrue(empty($issuecert->haschange));
-    	$this->assertTrue($cert->testable_issue_file_exists($issuecert));
-    	$this->write_to_report("create a pdf file ? Ok");
-    	
-    	//Verify if only re-create a pdf file if certificate changes
-    	$issuecert= $cert->get_issue($this->students[2]);
-    	$this->assertTrue(empty($issuecert->haschange));
-    	$this->assertFalse($cert->testable_create_pdf($issuecert));
-    	$this->assertEquals($file->get_filename(), $cert->testable_save_pdf(null, $issuecert));
-    	$this->assertTrue(empty($issuecert->haschange));
-    	$this->write_to_report("Only re-create a pdf file if certificate changes? Ok");
-    	
-    	//Issue as admin
-    	$this->setAdminUser();
-    	$issuecert=$cert->get_issue();
-    	
-    	//Verify if file DON´T EXISTS
-    	$this->assertTrue(!empty($issuecert->haschange));
-    	$this->assertFalse($cert->testable_issue_file_exists($issuecert));
-    	
-    	//Creating file
-    	//file created
-    	$this->assertNotNull($cert->testable_get_issue_file($issuecert));
-    	$instance=$cert->get_instance();
-    	//Disabled delivery to do this teste
-    	$instance->delivery = 3;
-    	//After delivery action file must be removed
-    	$cert->output_pdf($issuecert);
-    	
-    	//Must not exixst, no file is storage
-    	$this->assertTrue(empty($issuecert->haschange));
-    	$this->assertFalse($cert->testable_issue_file_exists($issuecert));
-    	
-    	$this->write_to_report("Managers certificates are not save? Ok");
+        $this->write_to_report("Move issues certificate to user private filearea if simplecertificate activity is deleted? Ok");
     }
-    
+
     //Delivering tests
     public function test_delivery_email() {
         echo __METHOD__."\n";
@@ -340,9 +372,6 @@ class mod_simplecertificate_locallib_testcase extends mod_simplecertificate_base
     	//Set some prarmetes
     	$cert = $this->create_instance(array('delivery'=> 2, 'emailfrom' => $testfrom ));
     	$issuecert= $cert->get_issue($this->students[1]);
-    	//Try to use output function
-    	$pdfcert = $cert->testable_create_pdf($issuecert);
-    	$cert->testable_save_pdf($pdfcert, $issuecert);
     	
     	//E-mail send to user test
     	unset_config('noemailever');
@@ -409,6 +438,7 @@ class mod_simplecertificate_locallib_testcase extends mod_simplecertificate_base
 		fwrite(self::$fhandle, 'Runned at: '.date('Y-m-d H:i')."\n\n");
 		fwrite(self::$fhandle, "\n------\nPHPUnit tests:\n\n");
 		self::$count = 0;
+		parent::setUpBeforeClass();
 		
 	}
 	
@@ -419,6 +449,7 @@ class mod_simplecertificate_locallib_testcase extends mod_simplecertificate_base
 		$othertests = file_get_contents ("$CFG->dirroot/mod/simplecertificate/tests/other/TestCaseChkLst.txt");
 		fwrite(self::$fhandle, $othertests);
 		fclose(self::$fhandle);
+		parent::tearDownAfterClass();
 	}
 	
 	private function write_to_report($str) {

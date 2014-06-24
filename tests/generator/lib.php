@@ -56,10 +56,7 @@ class mod_simplecertificate_generator extends testing_module_generator {
     	               'filearea' => 'draft', 
     	               'filepath' => '/'
     	);
-    	
-    	  
-    	        
-    	
+ 
     	$defaultsettings = array(
     	        'name'             => 'Unit Case Test Certificate',
     	        'intro'            => '<h1>Unit Case Test Certificate</h1>',
@@ -121,9 +118,7 @@ class mod_simplecertificate_generator extends testing_module_generator {
         $file = $fs->create_file_from_pathname($fileinfo, $record->secondimage);
         $record->secondimage = $fileinfo['itemid'];
         $record->images[1] = $fileinfo['filename'];
-    	    	
-
-    	
+ 
         return parent::create_instance($record, (array)$options);
     }
 }

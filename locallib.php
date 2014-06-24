@@ -261,7 +261,7 @@ class simplecertificate {
             // Try to get issue file
             if (!$this->issue_file_exists($issue)) {
                 throw new moodle_exception('filenotfound', 'simplecertificate', null, null, 
-                                        'function remove_issue id:[' . $issue->id . ']');
+                                        'issue id:[' . $issue->id . ']');
             }
             $fs = get_file_storage();
             
@@ -467,15 +467,13 @@ class simplecertificate {
         }
         
         if (!empty($formdata->certificateimage)) {
-            $formdata->certificateimage = $this->save_upload_file($formdata->certificateimage, 
-                                                                self::get_certificate_image_fileinfo($this->context->id));
-        
+            $fileinfo = self::get_certificate_image_fileinfo($this->context->id);
+            $formdata->certificateimage = $this->save_upload_file($formdata->certificateimage, $fileinfo);
         }
         
         if (!empty($formdata->secondimage)) {
-            $formdata->secondimage = $this->save_upload_file($formdata->secondimage, 
-                                                            self::get_certificate_secondimage_fileinfo($this->context->id));
-        
+            $fileinfo = self::get_certificate_secondimage_fileinfo($this->context->id);
+            $formdata->secondimage = $this->save_upload_file($formdata->secondimage, $fileinfo); 
         }
         
         foreach ($formdata as $name => $value) {
@@ -497,7 +495,7 @@ class simplecertificate {
     /**
      * Save upload files in $fileinfo array and return the filename
      * 
-     * @param string $form_item_id Uploado file form id
+     * @param string $form_item_id Upload file form id
      * @param array $fileinfo The file info array, where to store uploaded file
      * @return string filename
      */
@@ -506,6 +504,7 @@ class simplecertificate {
         if (empty($fileinfo['itemid'])) {
             $fileinfo['itemid'] = '';
         }
+        
         $fs = get_file_storage();
         $fs->delete_area_files($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'], $fileinfo['itemid']);
         file_save_draft_area_files($form_item_id, $fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'], 
@@ -1152,7 +1151,7 @@ class simplecertificate {
         $info = new stdClass();
         $info->username = format_string(fullname($user), true);
         $info->certificate = format_string($issuecert->certificatename, true);
-        $info->course = format_string($issuecert->coursename, true);
+        $info->course = format_string($this->get_instance()->coursename, true);
         
         $subject = get_string('emailstudentsubject', 'simplecertificate', $info);
         $message = get_string('emailstudenttext', 'simplecertificate', $info) . "\n";

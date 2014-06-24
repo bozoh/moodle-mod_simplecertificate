@@ -223,8 +223,72 @@ class mod_simplecertificate_base_testcase extends advanced_testcase {
  */
 class testable_simplecertificate extends simplecertificate {
 
-    const PLUGIN_VERSION = '2.2.0-alpha';
+    const PLUGIN_VERSION = '2.2.0-RC';
 
+    /**
+     * Overwrites parents to format $formdata
+     * @see simplecertificate::update_instance()
+     */
+    public function update_instance(stdClass $instance) {
+        global $CFG, $USER;
+        
+        //usercontext
+        $user_context = context_user::instance($USER->id);
+        
+        // Draft fileinfo
+        $fileinfo = array(
+                'contextid' => $user_context->id,
+                'component' => 'user',
+                'filearea' => 'draft',
+                'filepath' => '/'
+        );
+               
+        $formdata = clone $instance;
+        unset($formdata->certificatetext);
+        unset($formdata->certificatetextformat);
+        
+               
+        $formdata->certificatetext['text'] = $instance->certificatetext;
+        $formdata->certificatetext['format'] = $instance->certificatetextformat;
+        
+        
+        if (!empty($instance->secondpagetext)) {
+            unset($formdata->secondpagetext);
+            unset($formdata->secondpagetextformat);
+            $formdata->secondpagetext['text'] = $instance->secondpagetext;
+            $formdata->secondpagetext['format'] = $instance->secondpagetextformat;
+        }
+        
+        $fs = get_file_storage();
+        if (!empty($instance->certificateimage)) {
+            $imagefileinfo = self::get_certificate_image_fileinfo($this->get_context()->id);
+            $imagefile = $fs->get_file($imagefileinfo['contextid'], $imagefileinfo['component'], $imagefileinfo['filearea'], 
+                                    $imagefileinfo['itemid'], $imagefileinfo['filepath'], $instance->certificateimage);
+            
+            $fileinfo['itemid'] = rand(1, 10);
+            $fs->delete_area_files($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'], $fileinfo['itemid']);
+            $fs->create_file_from_storedfile($fileinfo, $imagefile);
+            
+            $formdata->certificateimage = $fileinfo['itemid'];
+            $imagefileinfo = null;
+        }
+        
+        if (!empty($instance->secondimage)) {
+            $imagefileinfo = self::get_certificate_secondimage_fileinfo($this->get_context()->id);
+            $imagefile = $fs->get_file($imagefileinfo['contextid'], $imagefileinfo['component'], $imagefileinfo['filearea'], 
+                                    $imagefileinfo['itemid'], $imagefileinfo['filepath'], $instance->secondimage);
+            
+            $fileinfo['itemid'] = rand(11, 21);
+            $fs->delete_area_files($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'], $fileinfo['itemid']);
+            $fs->create_file_from_storedfile($fileinfo, $imagefile);
+            
+            $formdata->secondimage = $fileinfo['itemid'];
+            $imagefileinfo = null;
+        }
+
+        parent::update_instance($formdata);
+    }
+    
     /**
 	 * Prepare to print an activity grade.
 	 *
@@ -259,8 +323,8 @@ class testable_simplecertificate extends simplecertificate {
      * @param stdClass $issuecert the certificate issue record
      * @return mixed return string with filename if successful, null otherwise
      */
-    public function testable_save_pdf($pdf, $issuecert) {
-		return parent::save_pdf($pdf, $issuecert);
+    public function testable_save_pdf($issuecert) {
+		return parent::save_pdf($issuecert);
 	}
 
     /**
@@ -334,7 +398,11 @@ class testable_simplecertificate extends simplecertificate {
      * 
      */
     public function testable_issue_file_exists($issuecert) {
-    	return parent::issue_file_exists($issuecert);
+        if (!parent::issue_file_exists($issuecert)) {
+            debugging('Issued certificate pathnamehash='.$issuecert->pathnamehash);
+            return false;
+        }
+        return true;
     }
 
    	public function testable_get_issued_certificate_users ($sort="ci.timecreated ASC", $groupmode=0, $page = 0, $perpage = self::SIMPLECERT_MAX_PER_PAGE) {
