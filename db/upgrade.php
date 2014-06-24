@@ -115,7 +115,7 @@ function xmldb_simplecertificate_upgrade($oldversion=0) {
 
     }
 
-    //--- Unir tudo em uma versão só
+    
     if ($oldversion < 2013092000) {
 
         // Changing nullability of field certificateimage on table simplecertificate to null.
@@ -284,22 +284,16 @@ function xmldb_simplecertificate_upgrade($oldversion=0) {
     	upgrade_mod_savepoint(true, 2013112901, 'simplecertificate');
     }
     // v2.1.3
-    if ($oldversion < 2014032202) {
-    
+    if ($oldversion < 2014051000) {
+        
         // Define field timestartdatefmt to be added to simplecertificate.
         $table = new xmldb_table('simplecertificate');
-        $field = new xmldb_field('timestartdatefmt', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, '', 'secondimage');
-    
+        $field = new xmldb_field('timestartdatefmt', XMLDB_TYPE_CHAR, '255', null, null, null, '', 'secondimage');
+        
         // Conditionally launch add field timestartdatefmt.
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }
-    
-        // Simplecertificate savepoint reached.
-        upgrade_mod_savepoint(true, 2014032202, 'simplecertificate');
-    }
-    
-    if ($oldversion < 2014051000) {
   	
     	$table = new xmldb_table('simplecertificate_issues');
     	$field = new xmldb_field('pathnamehash', XMLDB_TYPE_CHAR, '40', null, null, null, null, 'haschange');
@@ -317,63 +311,41 @@ function xmldb_simplecertificate_upgrade($oldversion=0) {
     	foreach ($issuedcerts as $issued) {
     	    $i++;
     	    try {
-    	        $moduleid = $DB->get_field('modules', 'id', array('name' => 'simplecertificate'), MUST_EXIST);
     	        $courseid = $DB->get_field('simplecertificate', 'course', array('id' => $issued->certificateid ), MUST_EXIST);
-    	        if (!isset($issued->coursename)) {
-    	            //If don't have coursename, trying to get from course table
-    	            $coursename = $DB->get_field('course', 'fullname', array('id' => $courseid ), MUST_EXIST);
-    	        } else {
-    	            $coursename = $issued->coursename;
-    	        }
-    	        $cmid =  $DB->get_field('course_modules', 'id', array('module' => $moduleid, 'course'=>$courseid, 'instance'=>$issued->certificateid), MUST_EXIST);
-    	            	       
-                $oldcontext = context_module::instance($cmid);
-                               
+    	        $cm = get_coursemodule_from_instance('simplecertificate', $issued->certificateid, $courseid, false, MUST_EXIST);
+    	        $context = context_module::instance($cm->id);
+    	                        
                 if ($user = $DB->get_record("user", array('id' => $issued->userid))) {
                     $filename = str_replace(' ', '_', clean_filename($issued->certificatename . ' ' . fullname($user) . ' ' . $issued->id . '.pdf'));
                 } else {
                     $filename = str_replace(' ', '_', clean_filename($issued->certificatename . ' ' . $issued->id . '.pdf'));
                 }
                 
-                $oldfileinfo = array('contextid' => $oldcontext->id,
+                $fileinfo = array('contextid' => $context->id,
                                 'component' => 'mod_simplecertificate', 
                                 'filearea' => 'issues',
                                 'itemid' => $issued->id,
                                 'filepath' => '/',
-                                'mimetype' => 'application/pdf',
-                                'userid' => $issued->userid, 
                                 'filename' => $filename);
                 
-                if ($fs->file_exists($oldfileinfo['contextid'], $oldfileinfo['component'], $oldfileinfo['filearea'], 
-                                    $oldfileinfo['itemid'], $oldfileinfo['filepath'], $oldfileinfo['filename'])) {
+                if ($fs->file_exists($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'], 
+                                    $fileinfo['itemid'], $fileinfo['filepath'], $fileinfo['filename'])) {
                                       
-                    $file = $fs->get_file($oldfileinfo['contextid'], $oldfileinfo['component'], $oldfileinfo['filearea'], 
-                                        $oldfileinfo['itemid'], $oldfileinfo['filepath'], $oldfileinfo['filename']);
-                    
-                    $context = context_user::instance($issued->userid);
+                    $file = $fs->get_file($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'], 
+                                        $fileinfo['itemid'], $fileinfo['filepath'], $fileinfo['filename']);
                         
-                    $newfileinfo = array(
-                                'contextid' => $context->id,                         
-                                'component' => 'user', 
-                                'filearea' => 'private', 
-                                'itemid' => 0,                        
-                                'filepath' => '/certificates/' . $coursename . '/',
-                                'mimetype' => 'application/pdf', 
-                                'userid' => $issued->userid,
-                                'filename' =>  str_replace(' ', '_', clean_filename($issued->certificatename .' '. $issued->id . '.pdf'))
-                    );
+                    $fileinfo['filename'] = str_replace(' ', '_', clean_filename($issued->certificatename .' '. $issued->id . '.pdf'));
                         
-                    if ($newfile = $fs->create_file_from_storedfile($newfileinfo, $file)) {
+                    if ($newfile = $fs->create_file_from_storedfile($fileinfo, $file)) {
                         $file->delete();
                         $issued->pathnamehash = $newfile->get_pathnamehash();
                     }
-                    
                 } else {
                    throw new Exception('File not found');
                 }
             } catch (Exception $e) {
                 if (empty($issued->timedeleted)) {
-                    $issued->timedeleted = time();
+                    $issued->haschange = 1;
                 }
                 $issued->pathnamehash = '';
             }

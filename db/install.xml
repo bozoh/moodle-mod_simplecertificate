@@ -41,7 +41,7 @@
                 <FIELD NAME="secondpagetext" TYPE="text" NOTNULL="false" SEQUENCE="false" PREVIOUS="secondpagey" NEXT="secondpagetextformat"/>
                 <FIELD NAME="secondpagetextformat" TYPE="text" NOTNULL="false" SEQUENCE="false" PREVIOUS="secondpagetext" NEXT="secondimage"/>
                 <FIELD NAME="secondimage" TYPE="text" NOTNULL="false" SEQUENCE="false" PREVIOUS="secondpagetextformat" NEXT="timestartdatefmt"/>
-                <FIELD NAME="timestartdatefmt" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" PREVIOUS="secondpagetextformat" />
+                <FIELD NAME="timestartdatefmt" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" PREVIOUS="secondpagetextformat" />
             </FIELDS>
             <KEYS>
                 <KEY NAME="primary" TYPE="primary" FIELDS="id"/>

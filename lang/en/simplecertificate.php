@@ -204,7 +204,7 @@ $string['defaultcertificatetexty'] = 'Default Vertical Text Position';
 
 
 //Erros
-$string['filenotfound'] = 'File not Found: {$a}';
+$string['filenotfound'] = 'File not Found';
 $string['invalidcode'] = 'Invalid certificate code';
 $string['cantdeleteissue'] = 'Error removing issued certificates';
 $string['requiredtimenotmet'] = 'You must have at least {$a->requiredtime} minutes in this course to issue this certificate';
