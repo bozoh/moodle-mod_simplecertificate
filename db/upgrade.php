@@ -18,8 +18,8 @@
 // using the functions defined in lib/ddllib.php
 
 function xmldb_simplecertificate_upgrade($oldversion=0) {
-
-    global $CFG, $THEME, $DB;
+    global $CFG, $DB, $OUTPUT;
+    
     $dbman = $DB->get_manager();
     if ($oldversion < 2013053102) {
 
@@ -115,7 +115,7 @@ function xmldb_simplecertificate_upgrade($oldversion=0) {
 
     }
 
-    //--- Unir tudo em uma versão só
+    
     if ($oldversion < 2013092000) {
 
         // Changing nullability of field certificateimage on table simplecertificate to null.
@@ -254,5 +254,123 @@ function xmldb_simplecertificate_upgrade($oldversion=0) {
     	upgrade_mod_savepoint(true, 2013112500, 'simplecertificate');
     }
     
+    if ($oldversion < 2013112901) {
+    
+    	// Define field coursename to be added to simplecertificate_issues.
+    	$table = new xmldb_table('simplecertificate_issues');
+    	$field = new xmldb_field('coursename', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null, 'timedeleted');
+    
+    	// Conditionally launch add field coursename.
+    	if (!$dbman->field_exists($table, $field)) {
+    		$dbman->add_field($table, $field);
+    	}
+    	$sql= 'UPDATE {simplecertificate_issues} set coursename = (select fullname from {course} where id = (select course from {simplecertificate} where id = certificateid)) where timedeleted is null';
+    	$DB->execute($sql);
+    	 
+    
+    	// Simplecertificate savepoint reached.
+    	$field = new xmldb_field('haschange', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'coursename');
+    
+    	// Conditionally launch add field haschange.
+    	if (!$dbman->field_exists($table, $field)) {
+    		$dbman->add_field($table, $field);
+    	}
+    	
+    	$sql = 'UPDATE {simplecertificate_issues} SET haschange = 1';
+    	$DB->execute($sql);
+    	
+    
+    	// Simplecertificate savepoint reached.
+    	upgrade_mod_savepoint(true, 2013112901, 'simplecertificate');
+    }
+    // v2.1.3
+    if ($oldversion < 2014051000) {
+        
+        // Define field timestartdatefmt to be added to simplecertificate.
+        $table = new xmldb_table('simplecertificate');
+        $field = new xmldb_field('timestartdatefmt', XMLDB_TYPE_CHAR, '255', null, null, null, '', 'secondimage');
+        
+        // Conditionally launch add field timestartdatefmt.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+  	
+    	$table = new xmldb_table('simplecertificate_issues');
+    	$field = new xmldb_field('pathnamehash', XMLDB_TYPE_CHAR, '40', null, null, null, null, 'haschange');
+    	if (!$dbman->field_exists($table, $field)) {
+    		$dbman->add_field($table, $field);
+    	}
+    	//Must move files to new area and add the certificate files hashs
+    	$issuedcerts = $DB->get_records_select('simplecertificate_issues');
+    	$countcerts = count($issuedcerts);
+    	
+    	$fs = get_file_storage();
+    	
+    	$pbar = new progress_bar('simplecertificatemoveissuedfiles', 500, true);
+    	$i = 0;
+    	foreach ($issuedcerts as $issued) {
+    	    $i++;
+    	    try {
+    	        $courseid = $DB->get_field('simplecertificate', 'course', array('id' => $issued->certificateid ), MUST_EXIST);
+    	        $cm = get_coursemodule_from_instance('simplecertificate', $issued->certificateid, $courseid, false, MUST_EXIST);
+    	        $context = context_module::instance($cm->id);
+    	                        
+                if ($user = $DB->get_record("user", array('id' => $issued->userid))) {
+                    $filename = str_replace(' ', '_', clean_filename($issued->certificatename . ' ' . fullname($user) . ' ' . $issued->id . '.pdf'));
+                } else {
+                    $filename = str_replace(' ', '_', clean_filename($issued->certificatename . ' ' . $issued->id . '.pdf'));
+                }
+                
+                $fileinfo = array('contextid' => $context->id,
+                                'component' => 'mod_simplecertificate', 
+                                'filearea' => 'issues',
+                                'itemid' => $issued->id,
+                                'filepath' => '/',
+                                'filename' => $filename);
+                
+                if ($fs->file_exists($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'], 
+                                    $fileinfo['itemid'], $fileinfo['filepath'], $fileinfo['filename'])) {
+                                      
+                    $file = $fs->get_file($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'], 
+                                        $fileinfo['itemid'], $fileinfo['filepath'], $fileinfo['filename']);
+                        
+                    $fileinfo['filename'] = str_replace(' ', '_', clean_filename($issued->certificatename .' '. $issued->id . '.pdf'));
+                        
+                    if ($newfile = $fs->create_file_from_storedfile($fileinfo, $file)) {
+                        $file->delete();
+                        $issued->pathnamehash = $newfile->get_pathnamehash();
+                    }
+                } else {
+                   throw new Exception('File not found');
+                }
+            } catch (Exception $e) {
+                if (empty($issued->timedeleted)) {
+                    $issued->haschange = 1;
+                }
+                $issued->pathnamehash = '';
+            }
+            $pbar->update($i, $countcerts, "Moving Issued certificate files  ($i/$countcerts)");
+            if (!$DB->update_record('simplecertificate_issues', $issued)) {
+                print_error('upgradeerror', 'simplecertificate', null, "Can't update an issued certificate [id->$issued->id]");
+            }
+           
+    	}
+    	
+    	$field = new xmldb_field('pathnamehash', XMLDB_TYPE_CHAR, '40', null, XMLDB_NOTNULL, null, null, 'haschange');
+    	
+    	// Launch change of nullability for field pathnamehash.
+    	$dbman->change_field_notnull($table, $field);
+    	
+    	
+    	$field = new xmldb_field('coursename');
+    	
+    	// Conditionally launch drop field coursename.
+    	if ($dbman->field_exists($table, $field)) {
+    	    $dbman->drop_field($table, $field);
+    	}
+    	  
+    	// Simplecertificate savepoint reached.
+    	upgrade_mod_savepoint(true, 2014051000, 'simplecertificate');
+    }
     return true;
 }

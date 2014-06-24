@@ -1,14 +1,4 @@
 <?php
-/**
- * Verify an issued certificate form
- *
- * @package    mod
- * @subpackage simplecertificate
- * @author Carlos Alexandre S. da Fonseca
- * @copyright ® Carlos Alexandre S. da Fonseca - 2014
- * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or late
- */
-
 if (!defined('MOODLE_INTERNAL')) {
     die('Direct access to this script is forbidden.');    ///  It must be included from a Moodle page
 }
