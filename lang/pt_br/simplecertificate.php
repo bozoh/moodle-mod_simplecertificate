@@ -127,6 +127,7 @@ Os marcadores são:
 <li>{USERROLENAME} -> Nome do papel do usuário no curso</li>
 <li>{TIMESTART} -> Data de inscrição do usuário no curso</li>
 <li>{USERIMAGE} -> Imagem do perfil do usuário</li>
+<li>{USERRESULTS} -> Resultados (notas) dos usuarios de outras atividades do curso</li>
 <li>{PROFILE_xxxx} -> Campos personalizados</li>
 </ul>
 <p>
