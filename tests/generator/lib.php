@@ -107,7 +107,6 @@ class mod_simplecertificate_generator extends testing_module_generator {
     	$fs = get_file_storage();
     	if (!empty($record->certificateimage)) {
             // Firstpage image
-            $fs = get_file_storage();
             $fileinfo['itemid'] = rand(1, 10);
             $fileinfo['filename'] = basename($record->certificateimage);
             $file = $fs->create_file_from_pathname($fileinfo, $record->certificateimage);

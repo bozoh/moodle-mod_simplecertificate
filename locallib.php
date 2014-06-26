@@ -1204,7 +1204,7 @@ class simplecertificate {
      * @param stdClass $issuecert Issued certificate object
      * @return mixed <stored_file, boolean>
      */
-    protected function get_issue_file(stdClass $issuecert) {
+    public function get_issue_file(stdClass $issuecert) {
         if (!empty($issuecert->haschange)) {
             return $this->save_pdf($issuecert);
         }
