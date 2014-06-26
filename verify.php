@@ -54,7 +54,11 @@ if (!$verifyform->get_data()) {
     $table->tablealign = "center";
     $table->head = array(get_string('course'), $strto, $strdate, $strcode);
     $table->align = array("left", "left", "center", "center");
-    $table->data[] = array($issuedcert->coursename, $username, 
+    //Try to get coursename
+    if(!$coursename = $DB->get_field('simplecertificate', 'coursename', array('id' => $issuedcert->certificateid))) {
+        $coursename = get_string('coursenotfound', 'simplecertificate');
+    }
+    $table->data[] = array($coursename, $username, 
             userdate($issuedcert->timecreated) . simplecertificate_print_issue_certificate_file($issuedcert), $issuedcert->code);
     echo html_writer::table($table);
 }
