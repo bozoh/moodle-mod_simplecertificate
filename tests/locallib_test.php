@@ -124,6 +124,12 @@ class mod_simplecertificate_locallib_testcase extends mod_simplecertificate_base
         $this->assertTrue(file_exists($filepath));
         $this->write_to_report("Is all images is in certificate: ? Ok");
         
+        //Test if can create certificate without any images
+        $cert = $this->create_instance(array('certificateimage'=>'', 'secondimage'=>''));
+        $this->assertAttributeEmpty('certificateimage', $cert->get_instance());
+        $this->assertAttributeEmpty('secondimage', $cert->get_instance());
+        $this->write_to_report("Can create certificate without images ? Ok");
+        
     }
     
     public function test_certificate_texts() {

@@ -301,7 +301,7 @@ function xmldb_simplecertificate_upgrade($oldversion=0) {
     		$dbman->add_field($table, $field);
     	}
     	//Must move files to new area and add the certificate files hashs
-    	$issuedcerts = $DB->get_records_select('simplecertificate_issues');
+    	$issuedcerts = $DB->get_records('simplecertificate_issues');
     	$countcerts = count($issuedcerts);
     	
     	$fs = get_file_storage();
