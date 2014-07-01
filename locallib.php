@@ -447,6 +447,10 @@ class simplecertificate {
      */
     private function populate_simplecertificate_instance(stdclass $formdata) {
         global $USER;
+        
+        //Clear image filearea
+        $fs = get_file_storage();
+        $fs->delete_area_files($this->get_context()->id, self::CERTIFICATE_COMPONENT_NAME, self::CERTIFICATE_IMAGE_FILE_AREA);
         // Creating a simplecertificate instace object.
         $update = new stdClass();
         
@@ -466,14 +470,22 @@ class simplecertificate {
             unset($formdata->secondpagetext);
         }
         
-        if (!empty($formdata->certificateimage)) {
-            $fileinfo = self::get_certificate_image_fileinfo($this->context->id);
-            $formdata->certificateimage = $this->save_upload_file($formdata->certificateimage, $fileinfo);
+        if (isset($formdata->certificateimage)) {
+            if (!empty($formdata->certificateimage)) {
+                $fileinfo = self::get_certificate_image_fileinfo($this->context->id);
+                $formdata->certificateimage = $this->save_upload_file($formdata->certificateimage, $fileinfo);
+            }
+        } else {
+            $formdata->certificateimage = null;
         }
         
-        if (!empty($formdata->secondimage)) {
-            $fileinfo = self::get_certificate_secondimage_fileinfo($this->context->id);
-            $formdata->secondimage = $this->save_upload_file($formdata->secondimage, $fileinfo); 
+        if (isset($formdata->secondimage)) {
+            if (!empty($formdata->secondimage)) {
+                $fileinfo = self::get_certificate_secondimage_fileinfo($this->context->id);
+                $formdata->secondimage = $this->save_upload_file($formdata->secondimage, $fileinfo);
+            }
+        } else {
+            $formdata->secondimage = null;
         }
         
         foreach ($formdata as $name => $value) {
@@ -1192,7 +1204,7 @@ class simplecertificate {
      * @param stdClass $issuecert Issued certificate object
      * @return mixed <stored_file, boolean>
      */
-    protected function get_issue_file(stdClass $issuecert) {
+    public function get_issue_file(stdClass $issuecert) {
         if (!empty($issuecert->haschange)) {
             return $this->save_pdf($issuecert);
         }

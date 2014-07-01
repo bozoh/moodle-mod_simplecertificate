@@ -316,7 +316,20 @@ class mod_simplecertificate_mod_form extends moodleform_mod {
                 $data->requiredtime = 0;
             }
         }
+        //File manager always creata a Files folder, so certimages is never empty. 
+        //I must check if it has a file or it's only a empty files folder reference
+        if (isset($data->certificateimage) && !empty($data->certificateimage)) {
+            if (!$this->check_has_files('certificateimage')) {
+                $data->certificateimage = null;
+            }
+        }
         
+        if (isset($data->secondimage) && !empty($data->secondimage)) {
+            if (!$this->check_has_files('secondimage')) {
+                $data->secondimage = null;
+            }
+        }
+
         return $data;
     }
     
@@ -336,6 +349,21 @@ class mod_simplecertificate_mod_form extends moodleform_mod {
         }
 
         return $errors;
+    }
+
+    private function check_has_files($itemname) {
+        global $USER;
+        
+        $draftitemid = file_get_submitted_draft_itemid($itemname);
+        file_prepare_draft_area($draftitemid, $this->context->id, 'mod_simplecertificate', 'imagefilecheck', null, 
+                                $this->get_filemanager_options_array());
+        
+        // Get file from users draft area.
+        $usercontext = context_user::instance($USER->id);
+        $fs = get_file_storage();
+        $files = $fs->get_area_files($usercontext->id, 'user', 'draft', $draftitemid, 'id', false);
+
+        return (count($files) > 0);
     }
     
     private function get_filemanager_options_array () {
