@@ -16,31 +16,27 @@ require_once("$CFG->dirroot/mod/simplecertificate/locallib.php");
 $id = required_param('id', PARAM_INT); // Course Module ID
 $action = optional_param('action', '', PARAM_ALPHA);
 $tab = optional_param('tab', simplecertificate::DEFAULT_VIEW, PARAM_INT);
-$sort = optional_param('sort', '', PARAM_RAW);
 $type = optional_param('type', '', PARAM_ALPHA);
 $page = optional_param('page', 0, PARAM_INT);
 $perpage = optional_param('perpage', get_config('simplecertificate', 'perpage'), PARAM_INT);
+$orderby = optional_param('orderby', 'username', PARAM_RAW);
 $issuelist = optional_param('issuelist', null, PARAM_ALPHA);
 $selectedusers = optional_param_array('selectedusers', null, PARAM_INT);
 
 
-if (! $cm = get_coursemodule_from_id( 'simplecertificate', $id)) {
+if (!$cm = get_coursemodule_from_id( 'simplecertificate', $id)) {
 	print_error('Course Module ID was incorrect');
 }
 
-if (! $course = $DB->get_record('course', array('id' => $cm->course))) {
+if (!$course = $DB->get_record('course', array('id' => $cm->course))) {
 	print_error('course is misconfigured');
 }
 
-if (! $certificate = $DB->get_record('simplecertificate', array('id' => $cm->instance))) {
+if (!$certificate = $DB->get_record('simplecertificate', array('id' => $cm->instance))) {
 	print_error('course module is incorrect');
 }
 
-require_login( $course->id, false, $cm);
-$context = context_module::instance ( $cm->id );
-require_capability('mod/simplecertificate:view', $context);
-$canmanage = has_capability('mod/simplecertificate:manage', $context);
-
+$context = context_module::instance ($cm->id);
 $url = new moodle_url('/mod/simplecertificate/view.php', array (
 		'id' => $cm->id,
 		'tab' => $tab,
@@ -52,8 +48,8 @@ if ($type) {
 	$url->param('type', $type);
 }
 
-if ($sort) {
-	$url->param ('sort', $sort);
+if ($orderby) {
+	$url->param ('orderby', $orderby);
 }
 
 if ($action) {
@@ -64,19 +60,26 @@ if ($issuelist) {
 	$url->param ('issuelist', $issuelist);
 }
 
-// log update
-$simplecertificate = new simplecertificate($certificate, $context);
-
-$completion = new completion_info($course);
-$completion->set_module_viewed($cm);
-
 // Initialize $PAGE, compute blocks
 $PAGE->set_url($url);
 $PAGE->set_context($context);
 $PAGE->set_cm($cm);
+
+require_login( $course->id, false, $cm);
+require_capability('mod/simplecertificate:view', $context);
+$canmanage = has_capability('mod/simplecertificate:manage', $context);
+
+
+
+// log update
+$simplecertificate = new simplecertificate($context, $cm, $course);
+$simplecertificate->set_instance($certificate);
+
+$completion = new completion_info($course);
+$completion->set_module_viewed($cm);
+
 $PAGE->set_title(format_string($certificate->name));
 $PAGE->set_heading(format_string($course->fullname));
-
 
 switch ($tab) {
 	case $simplecertificate::ISSUED_CERTIFCADES_VIEW :
