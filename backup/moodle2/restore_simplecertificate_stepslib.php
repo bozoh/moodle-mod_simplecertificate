@@ -30,7 +30,7 @@
  * Structure step to restore one simplecertificate activity
  */
 class restore_simplecertificate_activity_structure_step extends restore_activity_structure_step {
-
+    
     protected function define_structure() {
 
         $paths = array();
@@ -46,13 +46,44 @@ class restore_simplecertificate_activity_structure_step extends restore_activity
         return $this->prepare_activity_structure($paths);
     }
 
-    protected function process_simplecertificate($data) {
+    protected function process_simplecertificate($olddata) {
         global $DB;
 
-        $data = (object)$data;
-        $oldid = $data->id;
+        $olddata = (object)$olddata;
+        $data = new stdClass();
+        $data = $olddata;
+        
         $data->course = $this->get_courseid();
-        $data->timemodified = $this->apply_date_offset($data->timemodified);
+        $data->timemodified = $this->apply_date_offset($olddata->timemodified);
+       
+        if (isset($olddata->outcame) && !empty($olddata->outcame)) {
+            $data->outcame = $this->get_mappingid('outcome', $olddata->outcame);
+        }
+        
+        //Verifing if certdate it's from a module
+        if (isset($olddata->certdate) && $olddata->certdate > 0) {
+            //Try to get new module id, but could be not set
+            if (!$certdate = $this->get_mappingid('course_module', $olddata->certdate)) {
+                //Add this ugly hack to mark not sucefully, try in after_restorke in TASK lib
+                // as sugested in http://docs.moodle.org/dev/Restore_2.0_for_developers
+                $certdate = -1000 * $olddata->certdate;
+            }
+            
+            $data->certdate = $certdate;
+        }
+        
+        //Verifing if certgrade it's from a module
+        if (isset($olddata->certgrade) && $olddata->certgrade > 0) {
+            //an odd error, i think,  it's don't set correct CERTGRADE if it's equals CERTDATE
+            if ($olddata->certdate == $olddata->certgrade) {
+                $certgrade =  $data->certdate;
+            } else if (!$certgrade = $this->get_mappingid('course_module', $olddata->certgrade)) { //Try to get new module id, but could be not set
+                //Add this ugly hack to mark not sucefully, try in after_restorke in TASK lib
+                // as sugested in http://docs.moodle.org/dev/Restore_2.0_for_developers
+                $certgrade = -1000 * $olddata->certgrade;
+            }
+            $data->certgrade = $certgrade;
+        }
 
         // insert the simplecertificate record
         $newitemid = $DB->insert_record('simplecertificate', $data);
@@ -65,20 +96,34 @@ class restore_simplecertificate_activity_structure_step extends restore_activity
 
         $data = (object)$data;
         $oldid = $data->id;
-
+        
+        $data->pathnamehash = $oldid;
         $data->certificateid = $this->get_new_parentid('simplecertificate');
-        $data->timecreated = $this->apply_date_offset($data->timecreated);
+        $data->userid = $this->get_mappingid('user', $data->userid);
+        if (!isset($data->timecreated)) {
+            $data->timecreated = time();
+        }
 
         $newitemid = $DB->insert_record('simplecertificate_issues', $data);
         $this->set_mapping('simplecertificate_issue', $oldid, $newitemid);
+
     }
 
     protected function after_execute() {
         global $CFG;
-        require_once("$CFG->dirroot/mod/simplecertificate/locallib.php");
 
         // Add simplecertificate related files, no need to match by itemname (just internally handled context)
-        $this->add_related_files('mod_simplecertificate', simplecertificate::CERTIFICATE_IMAGE_FILE_AREA, 0);
-        $this->add_related_files('mod_simplecertificate', simplecertificate::CERTIFICATE_ISSUES_FILE_AREA, 'simplecertificate_issue');
+        $this->add_related_files('mod_simplecertificate', 'intro', null);
+        $this->add_related_files('mod_simplecertificate', 'image', null);
+        $this->add_related_files('mod_simplecertificate', 'issues', null);
+    }
+    
+      
+    private function get_backupinfo($info) {
+        $backupinfo = backup_general_helper::get_backup_information(basename($this->get_task()->get_basepath()));
+        if (object_property_exists($backupinfo, $info)){
+            return $backupinfo->$info;
+        } 
+        return false;
     }
 }

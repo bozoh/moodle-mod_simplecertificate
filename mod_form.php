@@ -10,7 +10,7 @@ require_once($CFG->libdir . '/filelib.php');
 
 class mod_simplecertificate_mod_form extends moodleform_mod {
 
-    function definition() {
+    public function definition() {
         global $CFG, $COURSE;
 
 
@@ -38,8 +38,8 @@ class mod_simplecertificate_mod_form extends moodleform_mod {
         $maxbytes = get_max_upload_file_size($CFG->maxbytes, $COURSE->maxbytes);
 
         //Certificate image file
-        $mform->addElement('filepicker', 'certificateimage', get_string('certificateimage','simplecertificate'), null,
-                array('maxbytes' => $maxbytes, 'accepted_types' =>  array('image')));
+        $mform->addElement('filemanager', 'certificateimage', get_string('certificateimage','simplecertificate'), null,
+                $this->get_filemanager_options_array());
         $mform->addHelpButton('certificateimage', 'certificateimage', 'simplecertificate');
         
 
@@ -88,8 +88,8 @@ class mod_simplecertificate_mod_form extends moodleform_mod {
         $mform->addHelpButton('enablesecondpage', 'enablesecondpage', 'simplecertificate');
 
         //Certificate secondimage file
-        $mform->addElement('filepicker', 'secondimage', get_string('secondimage','simplecertificate'), null,
-                array('maxbytes' => $maxbytes, 'accepted_types' =>  array('image')));
+        $mform->addElement('filemanager', 'secondimage', get_string('secondimage','simplecertificate'), null,
+                $this->get_filemanager_options_array());
         $mform->addHelpButton('secondimage', 'secondimage', 'simplecertificate');
         $mform->disabledIf('secondimage', 'enablesecondpage', 'eq', 0);
          
@@ -124,12 +124,6 @@ class mod_simplecertificate_mod_form extends moodleform_mod {
         $mform->setAdvanced('coursename');
         $mform->addHelpButton('coursename', 'coursename', 'simplecertificate');
 
-        //Certificate Course Hours
-        $mform->addElement('text', 'coursehours', get_string('coursehours', 'simplecertificate'), array('size'=>'5'));
-        $mform->setType('coursehours', PARAM_INT);
-        $mform->setAdvanced('coursehours');
-        $mform->addHelpButton('coursehours', 'coursehours', 'simplecertificate');
-
         //Certificate Outcomes
         $outcomeoptions = simplecertificate_get_outcomes();
         $mform->addElement('select', 'outcome', get_string('printoutcome', 'simplecertificate'), $outcomeoptions);
@@ -141,14 +135,19 @@ class mod_simplecertificate_mod_form extends moodleform_mod {
         $mform->setDefault('certdate', get_config('simplecertificate', 'certdate'));
         $mform->addHelpButton('certdate', 'printdate', 'simplecertificate');
 
-
         //Certificate date format
-
         $mform->addElement('text', 'certdatefmt', get_string('datefmt', 'simplecertificate'));
         $mform->setDefault('certdatefmt', '');
         $mform->setType('certdatefmt', PARAM_TEXT);        
         $mform->addHelpButton('certdatefmt', 'datefmt', 'simplecertificate');
         $mform->setAdvanced('certdatefmt');
+       
+        //Certificate timestart date format
+        $mform->addElement('text', 'timestartdatefmt', get_string('timestartdatefmt', 'simplecertificate'));
+        $mform->setDefault('timestartdatefmt', '');
+        $mform->setType('timestartdatefmt', PARAM_TEXT);
+        $mform->addHelpButton('timestartdatefmt', 'timestartdatefmt', 'simplecertificate');
+        $mform->setAdvanced('timestartdatefmt');
 
         //Certificare grade Options
         $mform->addElement('select', 'certgrade', get_string('printgrade', 'simplecertificate'), simplecertificate_get_grade_options());
@@ -161,11 +160,6 @@ class mod_simplecertificate_mod_form extends moodleform_mod {
         $mform->addElement('select', 'gradefmt', get_string('gradefmt', 'simplecertificate'), $gradeformatoptions);
         $mform->setDefault('gradefmt', 0);
         $mform->addHelpButton('gradefmt', 'gradefmt', 'simplecertificate');
-
-        //Required Time
-        $mform->addElement('text', 'requiredtime', get_string('coursetimereq', 'simplecertificate'), array('size'=>'3'));
-        $mform->setType('requiredtime', PARAM_INT);
-        $mform->addHelpButton('requiredtime', 'coursetimereq', 'simplecertificate');
 
         //QR code
         $mform->addElement('selectyesno', 'printqrcode', get_string('printqrcode', 'simplecertificate'));
@@ -244,18 +238,30 @@ class mod_simplecertificate_mod_form extends moodleform_mod {
         require_once(dirname(__FILE__) . '/locallib.php');
         if ($this->current->instance) {
             // editing an existing certificate - let us prepare the added editor elements (intro done automatically), and files
+            
+            //First Page
+            
+            //Get firstimage
             $imagedraftitemid = file_get_submitted_draft_itemid('certificateimage');
+            //Get firtsimage filearea information
             $imagefileinfo = simplecertificate::get_certificate_image_fileinfo($this->context);
-            file_prepare_draft_area($imagedraftitemid, $imagefileinfo['contextid'], $imagefileinfo['component'], $imagefileinfo['filearea'], $imagefileinfo['itemid']);
+            file_prepare_draft_area($imagedraftitemid, $imagefileinfo['contextid'], $imagefileinfo['component'], $imagefileinfo['filearea'], $imagefileinfo['itemid'],
+                         $this->get_filemanager_options_array());
+            
             $data['certificateimage'] = $imagedraftitemid;
+            
+            //Prepare certificate text
             $data['certificatetext'] = array('text' =>$data['certificatetext'], 'format'=> FORMAT_HTML);
 
             //Second page
+            //Get Back image
             $secondimagedraftitemid = file_get_submitted_draft_itemid('secondimage');
+            //Get secondimage filearea info
             $secondimagefileinfo = simplecertificate::get_certificate_secondimage_fileinfo($this->context);
-            file_prepare_draft_area($secondimagedraftitemid, $secondimagefileinfo['contextid'], $secondimagefileinfo['component'], $secondimagefileinfo['filearea'], $secondimagefileinfo['itemid']);
+            file_prepare_draft_area($secondimagedraftitemid, $secondimagefileinfo['contextid'], $secondimagefileinfo['component'], $secondimagefileinfo['filearea'], $secondimagefileinfo['itemid'], $this->get_filemanager_options_array());
             $data['secondimage'] = $secondimagedraftitemid;
 
+            //Get backpage text
             if (!empty($data['secondpagetext'])) {
                 $data['secondpagetext'] = array('text' =>$data['secondpagetext'], 'format'=> FORMAT_HTML);
             } else {
@@ -265,8 +271,68 @@ class mod_simplecertificate_mod_form extends moodleform_mod {
             $data['certificatetext'] = array('text' =>'', 'format'=> FORMAT_HTML);
             $data['secondpagetext'] = array('text' =>'', 'format'=> FORMAT_HTML);
         }
+        
+        //completion rules
+        $data['completiontimeenabled'] = !empty($data['requiredtime']) ? 1 : 0;
+        
+        
     }
 
+    public function add_completion_rules() {
+        $mform =& $this->_form;
+    
+        $group=array();
+        
+        $group[] =& $mform->createElement('checkbox', 'completiontimeenabled', ' ', get_string('coursetimereq', 'simplecertificate'));
+        $group[] =& $mform->createElement('text', 'requiredtime','', array('size'=>'3'));
+        $mform->setType('requiredtime',PARAM_INT);
+        $mform->addGroup($group, 'completiontimegroup', get_string('coursetimereq','simplecertificate'), array(' '), false);
+        
+        $mform->addHelpButton('completiontimegroup', 'coursetimereq', 'simplecertificate');
+        $mform->disabledIf('requiredtime','completiontimeenabled','notchecked');
+    
+        return array('completiontimegroup');
+    } 
+
+    function completion_rule_enabled($data) {
+        return (!empty($data['completiontimeenabled']) && $data['requiredtime']!=0);
+    }
+    
+    public function get_data() {
+        global $CFG;
+        require_once(dirname(__FILE__) . '/locallib.php');
+        
+        $data = parent::get_data();
+                
+        if (empty($data)) {
+            return false;
+        }
+        
+        //For Completion Rules
+        if (!empty($data->completionunlocked)) {
+            // Turn off completion settings if the checkboxes aren't ticked
+            $autocompletion = !empty($data->completion) && $data->completion==COMPLETION_TRACKING_AUTOMATIC;
+            if (empty($data->completiontimeenabled) || !$autocompletion) {
+                $data->requiredtime = 0;
+            }
+        }
+        //File manager always creata a Files folder, so certimages is never empty. 
+        //I must check if it has a file or it's only a empty files folder reference
+        if (isset($data->certificateimage) && !empty($data->certificateimage)) {
+            if (!$this->check_has_files('certificateimage')) {
+                $data->certificateimage = null;
+            }
+        }
+        
+        if (isset($data->secondimage) && !empty($data->secondimage)) {
+            if (!$this->check_has_files('secondimage')) {
+                $data->secondimage = null;
+            }
+        }
+
+        return $data;
+    }
+    
     /**
      * Some basic validation
      *
@@ -278,10 +344,31 @@ class mod_simplecertificate_mod_form extends moodleform_mod {
         $errors = parent::validation($data, $files);
 
         // Check that the required time entered is valid
-        if ((!is_number($data['requiredtime']) || $data['requiredtime'] < 0)) {
+        if ((isset($data['requiredtime']) && $data['requiredtime'] < 0)) {
             $errors['requiredtime'] = get_string('requiredtimenotvalid', 'simplecertificate');
         }
 
         return $errors;
     }
+
+    private function check_has_files($itemname) {
+        global $USER;
+        
+        $draftitemid = file_get_submitted_draft_itemid($itemname);
+        file_prepare_draft_area($draftitemid, $this->context->id, 'mod_simplecertificate', 'imagefilecheck', null, 
+                                $this->get_filemanager_options_array());
+        
+        // Get file from users draft area.
+        $usercontext = context_user::instance($USER->id);
+        $fs = get_file_storage();
+        $files = $fs->get_area_files($usercontext->id, 'user', 'draft', $draftitemid, 'id', false);
+
+        return (count($files) > 0);
+    }
+    
+    private function get_filemanager_options_array () {
+        return array('subdirs' => 0, 'maxbytes' => 0, 'maxfiles' => 1,
+                'accepted_types' => array('image'));
+    }
+    
 }

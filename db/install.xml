@@ -19,9 +19,8 @@
                 <FIELD NAME="certificatetextformat" TYPE="text" NOTNULL="true" SEQUENCE="false" PREVIOUS="certificatetext" NEXT="certificatetextx"/>
                 <FIELD NAME="certificatetextx" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="10" SEQUENCE="false" PREVIOUS="certificatetextformat" NEXT="certificatetexty"/>
                 <FIELD NAME="certificatetexty" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="50" SEQUENCE="false" PREVIOUS="certificatetextx" NEXT="coursename"/>
-                <FIELD NAME="coursename" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" PREVIOUS="certificatetexty" NEXT="coursehours"/>
-                <FIELD NAME="coursehours" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false" PREVIOUS="coursename" NEXT="outcome"/>
-                <FIELD NAME="outcome" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="coursehours" NEXT="certdate"/>
+                <FIELD NAME="coursename" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" PREVIOUS="certificatetexty" NEXT="outcome"/>
+                <FIELD NAME="outcome" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="coursename" NEXT="certdate"/>
                 <FIELD NAME="certdate" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="-2" SEQUENCE="false" PREVIOUS="outcome" NEXT="certdatefmt"/>
                 <FIELD NAME="certdatefmt" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" PREVIOUS="certdate" NEXT="certgrade"/>
                 <FIELD NAME="certgrade" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="certdatefmt" NEXT="gradefmt"/>
@@ -41,7 +40,8 @@
                 <FIELD NAME="secondpagey" TYPE="int" LENGTH="4" NOTNULL="false" DEFAULT="50" SEQUENCE="false" PREVIOUS="secondpagex" NEXT="secondpagetext"/>
                 <FIELD NAME="secondpagetext" TYPE="text" NOTNULL="false" SEQUENCE="false" PREVIOUS="secondpagey" NEXT="secondpagetextformat"/>
                 <FIELD NAME="secondpagetextformat" TYPE="text" NOTNULL="false" SEQUENCE="false" PREVIOUS="secondpagetext" NEXT="secondimage"/>
-                <FIELD NAME="secondimage" TYPE="text" NOTNULL="false" SEQUENCE="false" PREVIOUS="secondpagetextformat"/>
+                <FIELD NAME="secondimage" TYPE="text" NOTNULL="false" SEQUENCE="false" PREVIOUS="secondpagetextformat" NEXT="timestartdatefmt"/>
+                <FIELD NAME="timestartdatefmt" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" PREVIOUS="secondpagetextformat" />
             </FIELDS>
             <KEYS>
                 <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
@@ -57,7 +57,9 @@
                 <FIELD NAME="certificatename" TYPE="text" NOTNULL="true" SEQUENCE="false" PREVIOUS="userid" NEXT="code"/>
                 <FIELD NAME="code" TYPE="char" LENGTH="36" NOTNULL="true" SEQUENCE="false" PREVIOUS="certificatename" NEXT="timecreated"/>
                 <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="code" NEXT="timedeleted"/>
-                <FIELD NAME="timedeleted" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" SEQUENCE="false" PREVIOUS="timecreated"/>
+                <FIELD NAME="timedeleted" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" SEQUENCE="false" PREVIOUS="timecreated" NEXT="haschange"/>
+                <FIELD NAME="haschange" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="timedeleted" NEXT="pathnamehash"/>
+                <FIELD NAME="pathnamehash" TYPE="char" LENGTH="40" NOTNULL="true" SEQUENCE="false" PREVIOUS="haschange"/>
             </FIELDS>
             <KEYS>
                 <KEY NAME="primary" TYPE="primary" FIELDS="id" />
