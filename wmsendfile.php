@@ -23,14 +23,43 @@ if (confirm_sesskey($sk)) {
 }
 
 function watermark_and_sent(stdClass $issuedcert) {
-    global $CFG, $USER, $COURSE;
+    global $CFG, $USER, $COURSE, $DB, $PAGE;
     
-    $fs = get_file_storage();
-    if (!$fs->file_exists_by_hash($issuedcert->pathnamehash)) {
-        print_error(get_string('filenotfound', 'simplecertificate', ''));
+    if ($issuedcert->haschange) {
+        //This issue have a haschange flag, try to reissue
+        if (empty($issuedcert->timedeleted)) {
+            require_once ($CFG->dirroot . '/mod/simplecertificate/locallib.php');
+            try {
+                // Try to get cm
+                $cm = get_coursemodule_from_instance('simplecertificate', $issuedcert->certificateid, 0, false, MUST_EXIST);
+                $context = context_module::instance($cm->id);
+                
+                //Must set a page context to issue .... 
+                $PAGE->set_context($context);
+                $simplecertificate = new simplecertificate($context, null, null);
+                $file = $simplecertificate->get_issue_file($issuedcert);
+            
+            } catch (moodle_exception $e) {
+                // Only debug, no errors
+                debugging($e->getMessage(), DEBUG_DEVELOPER, $e->getTrace());
+            }
+        } else {
+            //Have haschange and timedeleted, somehting wrong, it will be impossible to reissue
+            //add wraning
+            debugging("issued certificate [$issuedcert->id], have haschange and timedeleted");
+        }
+        $issuedcert->haschange = 0;
+        $DB->update_record('simplecertificate_issues', $issuedcert);
     }
     
-    $file = $fs->get_file_by_hash($issuedcert->pathnamehash);
+    if (empty($file)) {
+        $fs = get_file_storage();
+        if (!$fs->file_exists_by_hash($issuedcert->pathnamehash)) {
+            print_error(get_string('filenotfound', 'simplecertificate', ''));
+        }
+        
+        $file = $fs->get_file_by_hash($issuedcert->pathnamehash);
+    }
     
     $canmanage = false;
     if (!empty($COURSE)) {
