@@ -296,6 +296,15 @@ function xmldb_simplecertificate_upgrade($oldversion=0) {
         }
   	
     	$table = new xmldb_table('simplecertificate_issues');
+    	
+    	$field = new xmldb_field('haschange', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'timedeleted');
+    	
+    	// Conditionally launch add field haschange.
+    	if (!$dbman->field_exists($table, $field)) {
+    	    $dbman->add_field($table, $field);
+    	}
+    	
+    	
     	$field = new xmldb_field('pathnamehash', XMLDB_TYPE_CHAR, '40', null, null, null, null, 'haschange');
     	if (!$dbman->field_exists($table, $field)) {
     		$dbman->add_field($table, $field);
