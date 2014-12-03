@@ -1011,7 +1011,7 @@ class simplecertificate {
         //Writing text
         $pdf->SetXY($this->get_instance()->certificatetextx, $this->get_instance()->certificatetexty);
         $pdf->writeHTMLCell(0, 0, '', '', $this->get_certificate_text($issuecert, $this->get_instance()->certificatetext), 0, 0, 0, 
-                            true, 'C');
+                            true, 'L');
         
         //Print QR code in first page (if enable)
         if (!empty($this->get_instance()->qrcodefirstpage) && !empty($this->get_instance()->printqrcode)) {
@@ -1039,7 +1039,7 @@ class simplecertificate {
             if (!empty($this->get_instance()->secondpagetext)) {
                 $pdf->SetXY($this->get_instance()->secondpagex, $this->get_instance()->secondpagey);
                 $pdf->writeHTMLCell(0, 0, '', '', $this->get_certificate_text($issuecert, $this->get_instance()->secondpagetext), 0, 
-                                    0, 0, true, 'C');
+                                    0, 0, true, 'L');
             }
         }
         
