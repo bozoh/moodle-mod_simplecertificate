@@ -11,12 +11,12 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version  = 2014070500;  // The current module version (Date: YYYYMMDDXX)
+$plugin->version  = 2015011600;  // The current module version (Date: YYYYMMDDXX)
 $plugin->requires = 2013101800;  // Requires this Moodle version (moodle 2.6.x)
 $plugin->cron     = 4 * 3600;    // Period for cron to check this module (secs)
 $plugin->component = 'mod_simplecertificate';
-$plugin->release  = '2.2.0';       // Human-friendly version name
+$plugin->release  = '2.2.1';       // Human-friendly version name
 //MATURITY_ALPHA, MATURITY_BETA, MATURITY_RC, MATURITY_STABLE
-$plugin->maturity = MATURITY_STABLE;
+$plugin->maturity = MATURITY_RC;
 
 $plugin->dependencies = array();

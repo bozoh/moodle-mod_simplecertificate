@@ -1259,7 +1259,7 @@ class simplecertificate {
                 // Now the actual log became the previous log for the next cycle
                 $lasthit = $log->time;
             }
-            return $totaltime;
+            return $totaltime / 60;
         }
         return 0;
     }
@@ -2128,7 +2128,16 @@ class simplecertificate {
                     foreach ($users as $user) {
                         $canissue = $this->can_issue($user, $issuelist != 'allusers');
                         if (empty($canissue)) {
-                            $this->create_pdf($this->get_issue($user), $pdf, true);
+                            //To one pdf file
+                            $issuecert = $this->get_issue($user);
+                            $this->create_pdf($issuecert, $pdf, true);
+                            
+                            //Save certificate PDF
+                            if (!$this->issue_file_exists($issuecert)) {
+                                //To force file creation
+                                $issuecert->haschage = true;
+                                $this->get_issue_file($issuecert);
+                            }
                         }
                     }
                     $pdf->Output($filename, 'D');
