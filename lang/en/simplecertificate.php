@@ -268,3 +268,7 @@ $string['timestartdatefmt'] = 'Enrollment start date format';
 $string['timestartdatefmt_help'] = 'Enter a valid PHP date format pattern (<a href="http://www.php.net/manual/en/function.strftime.php"> Date Formats</a>). Or, leave it empty to use the format of the user\'s chosen language.';
 $string['certificatecopy'] = 'COPY';
 $string['upgradeerror'] = 'Error while upgrading $a';
+
+//Verify envent
+$string['eventcertificate_verified'] = 'Certificate verified';
+$string['eventcertificate_verified_description'] = 'The user with id {$a->userid} verified the certificate with id {$a->certificateid}, issued to user with id {$a->certiticate_userid}.';

@@ -452,8 +452,10 @@ class mod_simplecertificate_locallib_testcase extends mod_simplecertificate_base
 		global $CFG;
 		
 		fwrite(self::$fhandle, "\nEnd ofPHPUnit tests.\n------\n\n");
-		$othertests = file_get_contents ("$CFG->dirroot/mod/simplecertificate/tests/other/TestCaseChkLst.txt");
-		fwrite(self::$fhandle, $othertests);
+		if (file_exists("$CFG->dirroot/mod/simplecertificate/tests/other/TestCaseChkLst.txt")) {
+		  $othertests = file_get_contents ("$CFG->dirroot/mod/simplecertificate/tests/other/TestCaseChkLst.txt");
+		  fwrite(self::$fhandle, $othertests);
+		}
 		fclose(self::$fhandle);
 		parent::tearDownAfterClass();
 	}

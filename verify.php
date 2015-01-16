@@ -46,8 +46,7 @@ if (!$verifyform->get_data()) {
     $strdate = get_string('issueddate', 'simplecertificate');
     $strcode = get_string('code', 'simplecertificate');
     
-    // Add to log
-    add_to_log($context->instanceid, 'simplecertificate', 'verify', "verify.php?code=$code", '$issuedcert->id');
+   
     
     $table = new html_table();
     $table->width = "95%";
@@ -61,6 +60,20 @@ if (!$verifyform->get_data()) {
     $table->data[] = array($coursename, $username, 
             userdate($issuedcert->timecreated) . simplecertificate_print_issue_certificate_file($issuedcert), $issuedcert->code);
     echo html_writer::table($table);
+    
+    // Add to log
+    //add_to_log($context->instanceid, 'simplecertificate', 'verify', "verify.php?code=$code", '$issuedcert->id');
+    
+    $event = \mod_simplecertificate\event\certificate_verified::create(array(
+            'objectid' => $issuedcert->id,
+            'context' => $context,
+            'relateduserid' => $issuedcert->userid,
+            'other' => array( 'issuedcertcode' => $issuedcert->code)
+        )
+    );
+    $event->trigger();
+    
+    
 }
 
 echo $OUTPUT->footer();

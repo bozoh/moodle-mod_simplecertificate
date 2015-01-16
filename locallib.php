@@ -1235,33 +1235,39 @@ class simplecertificate {
                 $userid = $user;
             }
         }
+        $manager = get_log_manager();
+        $selectreaders = $manager->get_readers('\core\log\sql_select_reader');
+        $reader = reset($selectreaders);
+
+        //This can take a log time to process, but it's accurate
+        // it's can be done by get only first and last log entry creation time, 
+        // but it's far more inaccurate,  could have an option to choose.
         set_time_limit(0);
-        
         $totaltime = 0;
-        $sql = "l.course = :courseid AND l.userid = :userid";
-        if ($logs = get_logs($sql, array('courseid' => $this->get_course()->id, 'userid' => $userid), 'l.time ASC', '', '', 
-                            $totalcount)) {
+        $sql = "action = 'viewed' AND target = 'course' AND courseid = :courseid AND userid = :userid";
+        
+        if ($logs = $reader->get_events_select($sql, array('courseid' => $this->get_course()->id, 'userid' => $userid), 
+            'timecreated ASC', '', '')) {
             foreach ($logs as $log) {
                 if (empty($login)) {
                     // For the first time $login is not set so the first log is also the first login
-                    $login = $log->time;
-                    $lasthit = $log->time;
-                    $totaltime = 0;
+                    $login = $log->timecreated;
+                    $lasthit = $log->timecreated;
                 }
-                $delay = $log->time - $lasthit;
-                if ($delay > ($CFG->sessiontimeout * 60)) {
+                $delay = $log->timecreated - $lasthit;
+                
+                if (!($delay > ($CFG->sessiontimeout))) {
                     // The difference between the last log and the current log is more than
-                    // the timeout Register session value so that we have found a session!
-                    $login = $log->time;
-                } else {
+                    // the timeout 
+                    //Register session value so that we have found a new session!
                     $totaltime += $delay;
                 }
                 // Now the actual log became the previous log for the next cycle
-                $lasthit = $log->time;
+                $lasthit = $log->timecreated;
             }
-            return $totaltime;
         }
-        return 0;
+        return $totaltime / 60;
+        
     }
 
     /**
@@ -1630,19 +1636,23 @@ class simplecertificate {
                     $a->requiredtime = $this->get_instance()->requiredtime;
                     return get_string('requiredtimenotmet', 'simplecertificate', $a);
                 }
-                //Mark as complete
+                // Mark as complete
                 $completion->update_state($this->coursemodule, COMPLETION_COMPLETE, $user->id);
             }
             
             if ($CFG->enableavailability) {
-                require_once ("{$CFG->libdir}/conditionlib.php");
-                $condition_info = new condition_info($this->coursemodule, CONDITION_MISSING_EVERYTHING);
-                if (!$condition_info->is_available($msg, false, $user->id)) {
-                    return $msg;
+                $modinfo = get_fast_modinfo($this->get_course());
+                $cm = $modinfo->get_cm($this->get_course_module()->id);
+                if (!$cm->uservisible) {
+                    if ($cm->availableinfo) {
+                        return $cm->availableinfo;
+                    } else {
+                        return get_string('cantissue', 'simplecertificate');
+                    }
                 }
+                return null;
             }
         }
-        return null;
     }
 
     /**
@@ -1710,9 +1720,7 @@ class simplecertificate {
             }
             
             if (!$canmanage) {
-                // TODO create a funciton add_log
-               add_to_log($this->get_course()->id, 'simplecertificate', 'view', $url->out_as_local_url(false), 
-                        $this->get_instance()->id, $this->coursemodule->id);
+               $this->add_to_log('view');
             }
             
             if ($this->get_instance()->delivery != 3 || $canmanage) {
@@ -2123,7 +2131,16 @@ class simplecertificate {
                     foreach ($users as $user) {
                         $canissue = $this->can_issue($user, $issuelist != 'allusers');
                         if (empty($canissue)) {
-                            $this->create_pdf($this->get_issue($user), $pdf, true);
+                            //To one pdf file
+                            $issuecert = $this->get_issue($user);
+                            $this->create_pdf($issuecert, $pdf, true);
+                            
+                            //Save certificate PDF
+                            if (!$this->issue_file_exists($issuecert)) {
+                                //To force file creation
+                                $issuecert->haschage = true;
+                                $this->get_issue_file($issuecert);
+                            }
                         }
                     }
                     $pdf->Output($filename, 'D');
@@ -2178,4 +2195,29 @@ class simplecertificate {
         }
         echo $OUTPUT->footer();
     }
+
+    /**
+     * Util function to loggin
+     * 
+     * @param string $action Log action
+     */
+    private function add_to_log($action) {
+        switch ($action) {
+            default:
+                // Default is view action
+                
+                $event = \mod_simplecertificate\event\course_module_viewed::create(
+                       array(
+                            'objectid' => $this->get_course_module()->instance, 
+                            'context' => $this->get_context(),
+                            'other' => array('certificatecode' => $this->get_issue()->code)));
+                $event->add_record_snapshot('course', $this->get_course());
+            
+            break;
+        };
+        
+        if (!empty($event)) {
+            $event->trigger();
+        }
+    } 
 }
