@@ -591,7 +591,7 @@ class simplecertificate {
         $created = false;
         if (!empty($this->issuecert) && $this->issuecert->userid == $userid) {
             if (empty($this->issuecert->haschange)) {
-                    // haschange is marked, if no return from cache
+                // haschange is marked, if no return from cache
                 return $this->issuecert;
             } else {
                 // haschange is maked, must update
@@ -599,8 +599,7 @@ class simplecertificate {
             }
             // Not in cache, trying get from database
         } else if (!$issuecert = $DB->get_record('simplecertificate_issues', 
-                                                array('userid' => $userid, 'certificateid' => $this->get_instance()->id, 
-                                                        'timedeleted' => null))) {
+                        array('userid' => $userid, 'certificateid' => $this->get_instance()->id, 'timedeleted' => null))) {
             // Not in cache and not in DB, create new certificate issue record
             // Mark as created
             $created = true;
