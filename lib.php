@@ -243,7 +243,7 @@ function simplecertificate_get_completion_state($course, $cm, $userid, $type) {
     
     $context = context_module::instance($cm->id);
     $simplecertificate = new simplecertificate($context, $cm, $course);
-    
+   
     if ($requiredtime = $simplecertificate->get_instance()->requiredtime) {
         return ($simplecertificate->get_course_time($userid) >= $requiredtime);
     }

@@ -591,7 +591,7 @@ class simplecertificate {
         $created = false;
         if (!empty($this->issuecert) && $this->issuecert->userid == $userid) {
             if (empty($this->issuecert->haschange)) {
-                // haschange is marked, if no return from cache
+                    // haschange is marked, if no return from cache
                 return $this->issuecert;
             } else {
                 // haschange is maked, must update
@@ -599,7 +599,8 @@ class simplecertificate {
             }
             // Not in cache, trying get from database
         } else if (!$issuecert = $DB->get_record('simplecertificate_issues', 
-                        array('userid' => $userid, 'certificateid' => $this->get_instance()->id, 'timedeleted' => null))) {
+                                                array('userid' => $userid, 'certificateid' => $this->get_instance()->id, 
+                                                        'timedeleted' => null))) {
             // Not in cache and not in DB, create new certificate issue record
             // Mark as created
             $created = true;
@@ -1636,19 +1637,23 @@ class simplecertificate {
                     $a->requiredtime = $this->get_instance()->requiredtime;
                     return get_string('requiredtimenotmet', 'simplecertificate', $a);
                 }
-                //Mark as complete
+                // Mark as complete
                 $completion->update_state($this->coursemodule, COMPLETION_COMPLETE, $user->id);
             }
             
             if ($CFG->enableavailability) {
-                require_once ("{$CFG->libdir}/conditionlib.php");
-                $condition_info = new condition_info($this->coursemodule, CONDITION_MISSING_EVERYTHING);
-                if (!$condition_info->is_available($msg, false, $user->id)) {
-                    return $msg;
+                $modinfo = get_fast_modinfo($this->get_course());
+                $cm = $modinfo->get_cm($this->get_course_module()->id);
+                if (!$cm->uservisible) {
+                    if ($cm->availableinfo) {
+                        return $cm->availableinfo;
+                    } else {
+                        return get_string('cantissue', 'simplecertificate');
+                    }
                 }
+                return null;
             }
         }
-        return null;
     }
 
     /**
@@ -1716,9 +1721,7 @@ class simplecertificate {
             }
             
             if (!$canmanage) {
-                // TODO create a funciton add_log
-               add_to_log($this->get_course()->id, 'simplecertificate', 'view', $url->out_as_local_url(false), 
-                        $this->get_instance()->id, $this->coursemodule->id);
+               $this->add_to_log('view');
             }
             
             if ($this->get_instance()->delivery != 3 || $canmanage) {
@@ -2193,4 +2196,29 @@ class simplecertificate {
         }
         echo $OUTPUT->footer();
     }
+
+    /**
+     * Util function to loggin
+     * 
+     * @param string $action Log action
+     */
+    private function add_to_log($action) {
+        switch ($action) {
+            default:
+                // Default is view action
+                
+                $event = \mod_simplecertificate\event\course_module_viewed::create(
+                       array(
+                            'objectid' => $this->get_course_module()->instance, 
+                            'context' => $this->get_context(),
+                            'other' => array('certificatecode' => $this->get_issue()->code)));
+                $event->add_record_snapshot('course', $this->get_course());
+            
+            break;
+        };
+        
+        if (!empty($event)) {
+            $event->trigger();
+        }
+    } 
 }
