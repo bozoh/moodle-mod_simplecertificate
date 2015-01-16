@@ -1,0 +1,107 @@
+moodle-2.8 2.2.0-RC build: 2014070500
+Runned at: 2015-01-16 14:48
+
+
+------
+PHPUnit tests:
+
+1- Creating plugin is working ? Ok
+2- Can Create a simple certificate ? Ok
+3- Can Update a simple certificate ? Ok
+4- Can Delete a simple certificate ? Ok
+5- Is all images is in certificate: ? Ok
+6- Can create certificate without images ? Ok
+7- Front text is correct: ? Ok
+8- Back text is enable and correct ? Ok
+9- Can Retrieve a student simple certificate As manager? Ok
+10- Can Retrieve a simple certificate As manager? Ok
+11- Can Retrieve a simple certificate As student ? Ok
+12- Manager issued certificates are not save? Ok
+13- Certificate code is correct ? Ok
+14- Update certificate updates haschange status in issued certificates? Ok
+15- create a pdf file ? Ok
+16- Only re-create a pdf file if certificate changes? Ok
+17- Managers certificates are not save? Ok
+18- Delete certificate adds timeend in issued certificates? Ok
+19- Move issues certificate to user private filearea if simplecertificate activity is deleted? Ok
+20- Can send certificade to e-mail? Ok
+21- Can change email sender (from email)? Ok
+22- Can notify Teacher, when a certificate is issued? Ok
+23- Can notify others, when a certificate is issued? Ok
+
+End ofPHPUnit tests.
+------
+
+--Installation (MUST WORK)
+- Upgrade plugin is work ?
+
+--Certificate informations basic (MUST WORK)
+
+	- Second page is enable and is in certificate? 
+	- Front text is correct ?
+	- Back text is enable and correct ?
+	- All variables are correct?
+	- All custom profile variables are correct?
+	- Front Image is correct?
+	- Back Image is enable and correct?
+- Is QR enable an in certificate? 
+	- In second page ?
+	- In first page ?
+- Is certificate verification page works?
+	- Captcha is work if enabled ?
+	- User can download the certificate only if is logged in?
+	- QR code has the correct verification page URL?
+	
+=====
+If reach here all basics are good
+====
+
+
+--Delivery
+Can Open certificade file in browser?
+Can Download certificade file in browser?
+
+
+--Additional functions
+--- Can change page size ?
+
+--Positions
+--- Can change text position:
+--- Front page text?
+--- Back page text?
+--- Can change QR code position?
+
+--Text formation
+---Can change date format?
+---Can change Grade format?
+
+--Issue Conditions
+---Can't issue if don't match requirements:
+---Minutes in course?
+---Access Restrictions?
+---Completion options?
+
+--Bulk Operations
+---Can list only students that match course objectives?
+---Can list all users ?
+---Can create one PDF files with all listed certificates?
+---Can create one PDF files with only selected certificates?
+---Can create one zip file with all listed certificates?
+---Can create one zip file with only selected certificates?
+---Can send certificates to all listed  user's ?
+---Can send certificates to all selected user's ?
+
+--Report
+---Can view all issued certificate?
+---Can download all issued certificate?
+---Can download as ODS file?
+---Can download as XLS file?
+---Can download as Text files?
+
+--backup & restore
+-Can backup ?
+--Backup file is correct?
+-Can restore ?
+--Certificate files is restored correctly?
+--issued certificate is restored correctly?
+	
