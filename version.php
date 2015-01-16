@@ -20,8 +20,4 @@ $plugin->component = 'mod_simplecertificate';
 $plugin->dependencies = array();
 $plugin->release  = '2.2.0';       // Human-friendly version name
 //MATURITY_ALPHA, MATURITY_BETA, MATURITY_RC, MATURITY_STABLE
-<<<<<<< HEAD
 $plugin->maturity = MATURITY_RC;
-=======
-$plugin->maturity = MATURITY_STABLE;
->>>>>>> refs/heads/MOODLE_27
