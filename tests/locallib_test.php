@@ -41,7 +41,6 @@ require_once($CFG->dirroot . '/mod/simplecertificate/tests/base_test.php');
  * */
 class mod_simplecertificate_locallib_testcase extends mod_simplecertificate_base_testcase {
     public static $count;
-    public static $fhandle;
     public static $filepath;
 
     public function test_create_instance() {
@@ -434,30 +433,21 @@ class mod_simplecertificate_locallib_testcase extends mod_simplecertificate_base
 	}
 	
 	public static function setUpBeforeClass() {
-		global $CFG;
-		
 		$moodle_version='moodle-'.moodle_major_version();
 		$moodle_version.=' '.testable_simplecertificate::PLUGIN_VERSION;
 		$moodle_version.=' build: '.get_config('mod_simplecertificate','version')."\n";
-		
-		self::$fhandle = fopen("$CFG->dirroot/mod/simplecertificate/TestCaseResults.txt", "w");
-		fwrite(self::$fhandle, $moodle_version);
-		fwrite(self::$fhandle, 'Runned at: '.date('Y-m-d H:i')."\n\n");
-		fwrite(self::$fhandle, "\n------\nPHPUnit tests:\n\n");
+
+                mtrace($moodle_version);
+                mtrace('Runned at: ' . date('Y-m-d H:i'));
+                mtrace("------PHPUnit tests:");
 		self::$count = 0;
 		parent::setUpBeforeClass();
 		
 	}
 	
 	public static function tearDownAfterClass() {
-		global $CFG;
-		
-		fwrite(self::$fhandle, "\nEnd ofPHPUnit tests.\n------\n\n");
-		if (file_exists("$CFG->dirroot/mod/simplecertificate/tests/other/TestCaseChkLst.txt")) {
-		  $othertests = file_get_contents ("$CFG->dirroot/mod/simplecertificate/tests/other/TestCaseChkLst.txt");
-		  fwrite(self::$fhandle, $othertests);
-		}
-		fclose(self::$fhandle);
+                mtrace("End ofPHPUnit tests.------");
+                mtrace('Runned at: ' . date('Y-m-d H:i'));
 
                 if (file_exists(self::$filepath)) {
                     unlink(self::$filepath);
@@ -468,7 +458,7 @@ class mod_simplecertificate_locallib_testcase extends mod_simplecertificate_base
 	
 	private function write_to_report($str) {
 		self::$count++;
-		fwrite(self::$fhandle, self::$count.'- '.$str."\n");
+                mtrace(self::$count . '- ' . $str);
 	}
 }
 
