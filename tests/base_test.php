@@ -90,6 +90,8 @@ class mod_simplecertificate_base_testcase extends advanced_testcase {
 
         $this->resetAfterTest(true);
 
+        $this->setAdminUser();
+
         $this->course = $this->getDataGenerator()->create_course();
         $this->teachers = array();
         for ($i = 0; $i < self::DEFAULT_TEACHER_COUNT; $i++) {
