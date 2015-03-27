@@ -42,6 +42,7 @@ require_once($CFG->dirroot . '/mod/simplecertificate/tests/base_test.php');
 class mod_simplecertificate_locallib_testcase extends mod_simplecertificate_base_testcase {
     public static $count;
     public static $fhandle;
+    public static $filepath;
 
     public function test_create_instance() {
         echo __METHOD__."\n";
@@ -119,9 +120,9 @@ class mod_simplecertificate_locallib_testcase extends mod_simplecertificate_base
                 , $fileinfo['filepath'], $cert->get_instance()->secondimage));
         $pdf = $cert->testable_create_pdf($cert->get_issue());
         $this->assertNotNull($pdf);
-        $filepath = $CFG->dirroot . '/mod/simplecertificate/tests/test_certificate_'.testable_simplecertificate::PLUGIN_VERSION.'.pdf';
-        $pdf->Output($filepath, 'F');
-        $this->assertTrue(file_exists($filepath));
+        self::$filepath = $CFG->dirroot . '/mod/simplecertificate/tests/test_certificate_'.testable_simplecertificate::PLUGIN_VERSION.'.pdf';
+        $pdf->Output(self::$filepath, 'F');
+        $this->assertTrue(file_exists(self::$filepath));
         $this->write_to_report("Is all images is in certificate: ? Ok");
         
         //Test if can create certificate without any images
@@ -457,6 +458,11 @@ class mod_simplecertificate_locallib_testcase extends mod_simplecertificate_base
 		  fwrite(self::$fhandle, $othertests);
 		}
 		fclose(self::$fhandle);
+
+                if (file_exists(self::$filepath)) {
+                    unlink(self::$filepath);
+                }
+
 		parent::tearDownAfterClass();
 	}
 	
