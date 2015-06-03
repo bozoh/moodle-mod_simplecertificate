@@ -1,0 +1,4 @@
+id;username;email;firstname;lastname;idnumber;institution;department;phone1;phone2;city;url;icq;skype;aim;yahoo;msn;country;address
+8;studenttest1;studenttest1@test.tt;Student;Test 1;11111111;Test certificate Institute;Teste certificate dep.;+5521123456789;+5521123456780;Rio de Janeiro;http://moodle.org;Test ICQ;Test Skype;Test AIM;Test Yahoo;Test MSN;BR;My test Street 1
+9;studenttest2;studenttest2@test.tt;Student;Test 2;22222222;Test certificate Institute;Teste certificate dep.;+5521123456789;+5521123456780;Rio de Janeiro;http://moodle.org;Test ICQ;Test Skype;Test AIM;Test Yahoo;Test MSN;BR;My test Street 2
+10;teachertest;teachertest@test.tt;Teacher;Test;33333333;Test certificate Institute;Teste certificate dep.;+5521123456789;+5521123456780;Rio de Janeiro;http://moodle.org;Test ICQ;Test Skype;Test AIM;Test Yahoo;Test MSN;BR;My test Street 3
