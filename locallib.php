@@ -1236,9 +1236,9 @@ class simplecertificate {
             }
         }
         $manager = get_log_manager();
-        $selectreaders = $manager->get_readers('\core\log\sql_select_reader');
+        $selectreaders = $manager->get_readers('\core\log\sql_reader');
         $reader = reset($selectreaders);
-
+        
         //This can take a log time to process, but it's accurate
         // it's can be done by get only first and last log entry creation time, 
         // but it's far more inaccurate,  could have an option to choose.

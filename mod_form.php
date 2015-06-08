@@ -29,8 +29,8 @@ class mod_simplecertificate_mod_form extends moodleform_mod {
         $mform->addRule('name', null, 'required', null, 'client');
         $mform->addHelpButton('name', 'certificatename', 'simplecertificate');
 
-        $this->add_intro_editor(false, get_string('intro', 'simplecertificate'));
-
+        $this->standard_intro_elements(get_string('intro', 'simplecertificate'));
+        
 
         //--------------------------------------- Design Options----------------------------------------------------
         $mform->addElement('header', 'designoptions', get_string('designoptions', 'simplecertificate'));
@@ -236,6 +236,7 @@ class mod_simplecertificate_mod_form extends moodleform_mod {
     public function data_preprocessing(&$data) {
         global $CFG;
         require_once(dirname(__FILE__) . '/locallib.php');
+        parent::data_preprocessing($data);
         if ($this->current->instance) {
             // editing an existing certificate - let us prepare the added editor elements (intro done automatically), and files
             
