@@ -154,7 +154,7 @@ class simplecertificate {
         $this->course = $DB->get_record('course', array('id' => $formdata->course), '*', MUST_EXIST);
         
         if (!$this->instance = $DB->get_record('simplecertificate', array('id' => $returnid), '*', MUST_EXIST)) {
-            print_erro('certificatenot', 'simplecertificate');
+            print_error('certificatenot', 'simplecertificate');
         }
         
         return $returnid;
@@ -183,7 +183,7 @@ class simplecertificate {
         }
         
         if (!$this->instance = $DB->get_record('simplecertificate', array('id' => $update->id), '*', MUST_EXIST)) {
-            print_erro('certificatenot', 'simplecertificate');
+            print_error('certificatenot', 'simplecertificate');
         }
         
         return $result;
