@@ -110,7 +110,7 @@ function simplecertificate_reset_userdata($data) {
             foreach ($issuecertificates as $issuecertificate) {
                 $issuecertificate->timedeleted = $timedeleted;
                 if (!$DB->update_record('simplecertificate_issues', $issuecertificate)) {
-                    print_erro(get_string('cantdeleteissue', 'simplecertificate'));
+                    print_error(get_string('cantdeleteissue', 'simplecertificate'));
                 }
             }
         }
