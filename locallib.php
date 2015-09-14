@@ -1191,14 +1191,15 @@ class simplecertificate {
             } else {
                 $from = format_string($this->get_instance()->emailfrom, true);
             }
-            
+
             // Email student
             $ret = email_to_user($user, $from, $subject, $message, $messagehtml, $relativefilepath, $file->get_filename());
 
-            foreach ($this->get_teachers() as $teacher) {
-                $tmpmail = $teacher->user->email;
-                // Email teacher
-                @email_to_user($tmpmail, $from, $tchsubject, $message, $messagehtml, $relativefilepath, $file->get_filename());
+            // Email teacher when cert2teacher enabled
+            if ($this->get_instance()->cert2teacher == 1) {
+                foreach ($this->get_teachers() as $teacher) {
+                    $tmpmail = $teacher->user->email;
+                    @email_to_user($tmpmail, $from, $tchsubject, $message, $messagehtml, $relativefilepath, $file->get_filename());
                 }
             }
             @unlink($fullfilepath);

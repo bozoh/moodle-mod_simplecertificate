@@ -29,6 +29,9 @@ if ($ADMIN->fulltree) {
     $settings->add(new admin_setting_configselect('simplecertificate/certdate', get_string('printdate', 'simplecertificate'),
         get_string('printdate_help', 'simplecertificate'), -2, simplecertificate_get_date_options()));
 
+    // Setting to include teachers in certificate completion emails
+    $settings->add(new admin_setting_configcheckbox('simplecertificate/cert2teacher', get_string('cert2teacher', 'simplecertificate'),
+		get_string('cert2teacher_help', 'simplecertificate'), 1));
 
     $settings->add(new admin_setting_configtext('simplecertificate/certlifetime', get_string('certlifetime', 'simplecertificate'),
         get_string('certlifetime_help', 'simplecertificate'), 60, PARAM_INT));

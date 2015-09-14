@@ -21,6 +21,14 @@ function xmldb_simplecertificate_upgrade($oldversion=0) {
     global $CFG, $DB, $OUTPUT;
     
     $dbman = $DB->get_manager();
+
+    // add cert2teacher option
+    $table = new xmldb_table('simplecertificate');
+    $field = new xmldb_field('cert2teacher', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'cert2teacher');
+    if (!$dbman->field_exists($table, $field)) {
+        $dbman->add_field($table, $field);
+    }
+
     if ($oldversion < 2013053102) {
 
         $table = new xmldb_table('simplecertificate');

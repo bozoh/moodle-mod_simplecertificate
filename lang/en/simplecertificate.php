@@ -213,6 +213,8 @@ $string['defaultcertificatetextx'] = 'Default Horizontal Text Position';
 $string['defaultcertificatetexty'] = 'Default Vertical Text Position';
 
 
+
+
 //Erros
 $string['filenotfound'] = 'File not Found';
 $string['invalidcode'] = 'Invalid certificate code';
@@ -226,6 +228,9 @@ $string['certificateverification'] = 'Certificate Verification';
 //Settings
 $string['certlifetime'] = 'Keep issued certificates for: (in Months)';
 $string['certlifetime_help'] = 'This specifies the length of time you want to keep issued certificates. Issued certificates that are older than this age are automatically deleted.';
+$string['cert2teacher'] = 'Send individual copies of each cert to Teachers';
+$string['cert2teacher_help'] = 'When students generate their certificate this setting will email Teachers for each course when sending students their copy.';
+
 $string['neverdeleteoption'] = 'Never delete';
 
 $string['variablesoptions'] = 'Others Options';
