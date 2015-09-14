@@ -1165,8 +1165,12 @@ class simplecertificate {
         $info->certificate = format_string($issuecert->certificatename, true);
         $info->course = format_string($this->get_instance()->coursename, true);
         
+        // Details to send to student
         $subject = get_string('emailstudentsubject', 'simplecertificate', $info);
         $message = get_string('emailstudenttext', 'simplecertificate', $info) . "\n";
+        // Details to send to teachers
+        $tchsubject = get_string('emailstudentsubjectteacher', 'simplecertificate', $info);
+        $tchmessage = get_string('emailstudenttextteacher', 'simplecertificate', $info) . "\n";
         
         // Make the HTML version more XHTML happy  (&amp;)
         $messagehtml = text_to_html($message);
@@ -1188,7 +1192,15 @@ class simplecertificate {
                 $from = format_string($this->get_instance()->emailfrom, true);
             }
             
+            // Email student
             $ret = email_to_user($user, $from, $subject, $message, $messagehtml, $relativefilepath, $file->get_filename());
+
+            foreach ($this->get_teachers() as $teacher) {
+                $tmpmail = $teacher->user->email;
+                // Email teacher
+                @email_to_user($tmpmail, $from, $tchsubject, $message, $messagehtml, $relativefilepath, $file->get_filename());
+                }
+            }
             @unlink($fullfilepath);
             
             return $ret;

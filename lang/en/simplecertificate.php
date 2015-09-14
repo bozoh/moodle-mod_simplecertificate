@@ -179,6 +179,15 @@ Hello {$a->username},
 
 THIS IS AN AUTOMATED MESSAGE - PLEASE DO NOT REPLY';
 
+$string['emailstudentsubjectteacher'] = '{$a->username} has completed {$a->course}';
+$string['emailstudenttextteacher'] = '
+Hello,
+
+The student {$a->username} has completed {$a->course} and a certificate has been issued.
+
+It has been attached to this email for your records.
+
+THIS IS AN AUTOMATED MESSAGE - PLEASE DO NOT REPLY';
 $string['emailteachermail'] = '
 {$a->student} has received their certificate: \'{$a->certificate}\'
 for {$a->course}.
