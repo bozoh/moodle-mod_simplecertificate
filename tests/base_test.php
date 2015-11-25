@@ -223,7 +223,7 @@ class mod_simplecertificate_base_testcase extends advanced_testcase {
  */
 class testable_simplecertificate extends simplecertificate {
 
-    const PLUGIN_VERSION = '2.2.0-RC';
+    const PLUGIN_VERSION = '2.2.2';
 
     /**
      * Overwrites parents to format $formdata

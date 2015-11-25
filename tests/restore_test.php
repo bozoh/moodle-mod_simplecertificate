@@ -1,4 +1,7 @@
 <?php
+///*** it's not working well
+/// try to chage to behat
+
 
 define('CLI_SCRIPT', true);
 
