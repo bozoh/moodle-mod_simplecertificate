@@ -270,6 +270,7 @@ $string['timestartdatefmt'] = 'Formato da data de inicio da inscrição';
 $string['timestartdatefmt_help'] = 'Coloque um formato de data válido aceito pelo PHP (<a href="http://www.php.net/manual/pt_BR/function.strftime.php">Formato de datas</a>). ou deixe-o em branco para usar o valor de formatação padrão definido pela a configuração de idioma do usuário.';
 $string['certificatecopy'] = 'CÓPIA';
 $string['upgradeerror'] = 'Erro durante o upgrade $a';
+$string['notreceived'] = 'Certificado não emitido';
 
 //Verify envent
 $string['eventcertificate_verified'] = 'Certificado verificado';
