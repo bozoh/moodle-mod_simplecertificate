@@ -328,18 +328,17 @@ class simplecertificate {
      */
     public function get_instance() {
         global $DB;
-        if ($this->instance) {
-            return $this->instance;
-        }
-        if ($cm = $this->get_course_module()) {
-            $params = array('id' => $cm->instance);
-            $this->instance = $DB->get_record('simplecertificate', $params, '*', MUST_EXIST);
-        }
-        if (!$this->instance) {
-            throw new coding_exception('Improper use of the simplecertificate class. ' . 'Cannot load the simplecertificate record.');
-        }
         
-        if (!isset($this->instance->coursename)) {
+        if (!isset($this->instance)) {
+            if ($cm = $this->get_course_module()) {
+                $params = array('id' => $cm->instance);
+                $this->instance = $DB->get_record('simplecertificate', $params, '*', MUST_EXIST);
+            }
+            if (!$this->instance) {
+                throw new coding_exception('Improper use of the simplecertificate class. ' . 'Cannot load the simplecertificate record.');
+            }
+        }
+        if (empty($this->instance->coursename)) {
             $this->instance->coursename = $this->get_course()->fullname;
         }
         return $this->instance;
@@ -496,11 +495,7 @@ class simplecertificate {
             $update->id = $formdata->instance;
             unset($update->instance);
         }
-        
-        if (empty($update->coursename)) {
-            $update->coursename = $this->get_course()->fullname;
-        }
-        
+
         return $update;
     }
 
