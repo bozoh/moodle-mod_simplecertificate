@@ -28,8 +28,8 @@ $printsection = "";
 $timenow = time();
 
 // Strings used multiple times
-$strcertificates = get_string('modulenameplural', 'certificate');
-$strissued  = get_string('issued', 'certificate');
+$strcertificates = get_string('modulenameplural', 'simplecertificate');
+$strissued  = get_string('issued', 'simplecertificate');
 $strname  = get_string("name");
 $strsectionname = get_string('sectionname', 'format_'.$course->format);
 
@@ -41,15 +41,16 @@ $PAGE->set_title($strcertificates);
 $PAGE->set_heading($course->fullname);
 
 // Get the certificates, if there are none display a notice
-if (!$certificates = get_all_instances_in_course('certificate', $course)) {
+if (!$certificates = get_all_instances_in_course('simplecertificate', $course)) {
     echo $OUTPUT->header();
-    notice(get_string('nocertificates', 'certificate'), "$CFG->wwwroot/course/view.php?id=$course->id");
+    notice(get_string('nocertificatesissued', 'simplecertificate'), "$CFG->wwwroot/course/view.php?id=$course->id");
     echo $OUTPUT->footer();
     exit();
 }
 
 if ($usesections = course_format_uses_sections($course->format)) {
-    $sections = get_all_sections($course->id);
+    $modinfo = get_fast_modinfo($course->id);
+    $sections = $modinfo->get_section_info_all();
 }
 
 $table = new html_table();
@@ -80,10 +81,10 @@ foreach ($certificates as $certificate) {
         $currentsection = $certificate->section;
     }
     // Get the latest certificate issue
-    if ($certrecord = $DB->get_record('certificate_issues', array('userid' => $USER->id, 'certificateid' => $certificate->id))) {
+    if ($certrecord = $DB->get_record('simplecertificate_issues', array('userid' => $USER->id, 'certificateid' => $certificate->id))) {
         $issued = userdate($certrecord->timecreated);
     } else {
-        $issued = get_string('notreceived', 'certificate');
+        $issued = get_string('notreceived', 'simplecertificate');
     }
     if (($course->format == 'weeks') || ($course->format == 'topics')) {
         $table->data[] = array ($certificate->section, $link, $issued);
