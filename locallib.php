@@ -1350,7 +1350,7 @@ class simplecertificate {
         
         //Formatting URL, if needed
         $url = $user->url;
-        if (strpos($url, '://') === false) {
+        if (!empty($url) && strpos($url, '://') === false) {
             $url = 'http://' . $url;
         }
         $a->url = $url;
@@ -1426,12 +1426,11 @@ class simplecertificate {
         $replace = array();
         foreach ($a as $key => $value) {
             $search[] = '{' . strtoupper($key) . '}';
-            //Some variables can't use format_string
-            if (strtoupper($key) == 'USERIMAGE' || strtoupper($key) == 'URL') {
-                $replace[] = $value;
-            } else {
-                $replace[] = format_string((string)$value, true);
-            }
+            // Due #148 bug, i must disable filters, because activities names {USERRESULTS}
+            // will be replaced by actitiy link, don't make sense put activity link
+            // in the certificate, only activity name and grade
+            // para=> false to remove the <div> </div>  form strings
+            $replace[] = format_text((string)$value, FORMAT_MOODLE, array('filter' => false, 'para' => false));
         }
         
         if ($search) {
@@ -1488,7 +1487,13 @@ class simplecertificate {
         
         return userdate($date, $format);
     }
-
+    
+/**
+ *  Return all actitity grades, in the format:
+ *  Grade Item Name: grade<br>
+ *  
+ * @param int $userid the user id, if none are supplied, gets $USER->id
+ */
     protected function get_user_results($userid = null) {
         global $USER;
         
