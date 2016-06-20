@@ -842,16 +842,14 @@ class simplecertificate {
             list($coursecontactroles, $trash) = get_roles_with_cap_in_context($this->get_context(), 'mod/simplecertificate:manage');
         }
         foreach ($coursecontactroles as $roleid) {
-            $role = $DB->get_record('role', array('id' => $roleid));
             $roleid = (int)$roleid;
+            $role = $DB->get_record('role', array('id' => $roleid));
             if ($users = get_role_users($roleid, $this->context, true)) {
                 foreach ($users as $teacher) {
-                    if ($teacher->id == $USER->id) {
-                        continue; // do not send self
-                    }// do not send self
                     $manager = new stdClass();
                     $manager->user = $teacher;
                     $manager->username = fullname($teacher);
+                    $manager->rolename = role_get_name($role, $this->get_context());
                     $teachers[$teacher->id] = $manager;
                 }
             }
@@ -1376,32 +1374,22 @@ class simplecertificate {
             $a->hours = '';
         }
         
-        try {
-            if ($course = $this->get_course()) {
-                require_once ($CFG->libdir . '/coursecatlib.php');
-                $courseinlist = new course_in_list($course);
-                if ($courseinlist->has_course_contacts()) {
-                    $t = array();
-                    foreach ($courseinlist->get_course_contacts() as $userid => $coursecontact) {
-                        $t[] = $coursecontact['rolename'] . ': ' . $coursecontact['username'];
-                    }
-                    $a->teachers = implode("<br>", $t);
-                } else {
-                    $a->teachers = '';
-                }
-            } else {
-                $a->teachers = '';
+        $teachers = $this->get_teachers();
+        if (empty($teachers)) {
+            $teachers = '';
+        } else {
+            $t = array();
+            foreach ($teachers as $teacher) {
+                $t[] = format_text($teacher->rolename . ': ' . $teacher->username, FORMAT_PLAIN);
             }
+            $a->teachers = implode("<br>", $t);
         }
-        catch (Exception $e) {
-            $a->teachers = '';
-        }
-        
+
         //Fetch user actitivy restuls
         $a->userresults = $this->get_user_results($issuecert->userid);
         
         //Get User role name in course
-        if (!$a->userrolename = get_user_roles_in_course($user->id, $course->id)) {
+        if (!$a->userrolename = get_user_roles_in_course($user->id, $this->get_course()->id)) {
             $a->userrolename = '';
         }
         
@@ -1413,7 +1401,7 @@ class simplecertificate {
               JOIN {user} u ON u.id = ue.userid
               WHERE ue.userid = :userid AND e.status = :enabled AND u.deleted = 0";
         
-        $params = array('enabled'=>ENROL_INSTANCE_ENABLED, 'userid'=>$user->id, 'courseid'=>$course->id);
+        $params = array('enabled'=>ENROL_INSTANCE_ENABLED, 'userid'=>$user->id, 'courseid'=>$this->get_course()->id);
        
         if ($timestart = $DB->get_field_sql($sql, $params)) {
             $a->timestart = userdate($timestart, $this->get_instance()->timestartdatefmt);
