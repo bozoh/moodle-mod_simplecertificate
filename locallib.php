@@ -129,7 +129,6 @@ class simplecertificate {
         $this->context = $coursemodulecontext;
         $this->coursemodule = $coursemodule;
         $this->course = $course;
-        
         // Temporary cache only lives for a single request - used to reduce db lookups.
         $this->cache = array();
     }
@@ -211,8 +210,7 @@ class simplecertificate {
                 return $DB->delete_records('simplecertificate', array('id' => $this->get_instance()->id));
             }
             return true;
-        }
-        catch (moodle_exception $e) {
+        } catch (moodle_exception $e) {
             print_error($e->errorcode, $e->module, $e->link, $e->a, $e->debuginfo);
         }
     }
@@ -227,7 +225,7 @@ class simplecertificate {
         try {
             if (empty($certificateisntance)) {
                 $certificateisntance = $this->get_instance();
-            } 
+            }
             
             if ($issues = $DB->get_records_select('simplecertificate_issues', 
                                                 'certificateid = :certificateid AND timedeleted is NULL', 
@@ -240,8 +238,7 @@ class simplecertificate {
                     }
                 }
             }
-        }
-        catch (Exception $e) {
+        } catch (Exception $e) {
             throw $e;
             return false;
         }
@@ -260,8 +257,7 @@ class simplecertificate {
         try {
             // Try to get issue file
             if (!$this->issue_file_exists($issue)) {
-                throw new moodle_exception('filenotfound', 'simplecertificate', null, null, 
-                                        'issue id:[' . $issue->id . ']');
+                throw new moodle_exception('filenotfound', 'simplecertificate', null, null, 'issue id:[' . $issue->id . ']');
             }
             $fs = get_file_storage();
             
@@ -536,14 +532,12 @@ class simplecertificate {
             $contextid = $context;
         }
         
-        $fileinfo = array(
-                'contextid' => $contextid,         // ID of context
-                'component' => self::CERTIFICATE_COMPONENT_NAME,         // usually = table name
-                'filearea' => self::CERTIFICATE_IMAGE_FILE_AREA,         // usually = table name
-                'itemid' => 1,         // usually = ID of row in table
-                'filepath' => '/'
-        );        // any path beginning and ending in /
-       
+        $fileinfo = array('contextid' => $contextid, // ID of context
+                          'component' => self::CERTIFICATE_COMPONENT_NAME, // usually = table name
+                          'filearea' => self::CERTIFICATE_IMAGE_FILE_AREA, // usually = table name
+                          'itemid' => 1, // usually = ID of row in table
+                          'filepath' => '/'); // any path beginning and ending in /
+        
         return $fileinfo;
     }
 
@@ -558,6 +552,30 @@ class simplecertificate {
         $fileinfo = self::get_certificate_image_fileinfo($context);
         $fileinfo['itemid'] = 2;
         return $fileinfo;
+    }
+    
+    /**
+     * Get the temporary filearea, used to store user 
+     * profile photos to make the certiticate
+     * 
+     * @param int/object $context The module context
+     * @return the temporary fileinfo
+     */
+    public static function get_certificate_tmp_fileinfo($context){
+    
+        if (is_object($context)) {
+            $contextid = $context->id;
+        } else {
+            $contextid = $context;
+        }
+    
+        $filerecord = array('contextid' => $contextid, 
+                            'component' => self::CERTIFICATE_COMPONENT_NAME, 
+                            'filearea' => 'tmp', 
+                            'itemid' => 0, 
+                            'filepath' => '/');
+    
+        return $filerecord;
     }
 
     /**
@@ -1078,7 +1096,7 @@ class simplecertificate {
      * @return mixed return stored_file if successful, false otherwise
      */
     protected function save_pdf(stdClass $issuecert) {
-        global $DB;
+        global $DB, $CFG;
         
         // Check if file exist
         //if issue certificate has no change, it's must has a file
@@ -1125,6 +1143,10 @@ class simplecertificate {
             if (!$file = $fs->create_file_from_string($fileinfo, $pdf->Output('', 'S'))) {
                 print_error('cannotsavefile', 'error', '', $fileinfo['filename']);
                 return false;
+            } 
+            
+            if (!empty($CFG->forceloginforprofileimage)){
+               $this->remove_user_image($issuecert->userid);
             }
             
             $issuecert->pathnamehash = $file->get_pathnamehash();
@@ -1240,7 +1262,7 @@ class simplecertificate {
         $sql = "action = 'viewed' AND target = 'course' AND courseid = :courseid AND userid = :userid";
         
         if ($logs = $reader->get_events_select($sql, array('courseid' => $this->get_course()->id, 'userid' => $userid), 
-            'timecreated ASC', '', '')) {
+                                            'timecreated ASC', '', '')) {
             foreach ($logs as $log) {
                 if (empty($login)) {
                     // For the first time $login is not set so the first log is also the first login
@@ -1307,7 +1329,7 @@ class simplecertificate {
      * @return string Return certificate text with all substutions
      */
     protected function get_certificate_text($issuecert, $certtext = null) {
-        global $OUTPUT, $DB, $CFG;
+        global $DB, $CFG;
         
         if (!$user = get_complete_user_data('id', $issuecert->userid)) {
             print_error('nousersfound', 'moodle');
@@ -1336,9 +1358,13 @@ class simplecertificate {
         $a->department = $user->department;
         $a->address = $user->address;
         $a->city = $user->city;
-        
-        //Add userimage url
-        $a->userimage = $OUTPUT->user_picture($user, array('size' => 1, 'popup' => false));
+            
+            // Add userimage url only if have a picture
+        if ($user->picture > 0) {
+            $a->userimage = $this->get_user_image_url($user);
+        } else {
+            $a->userimage = '';
+        }
         
         if (!empty($user->country)) {
             $a->country = get_string($user->country, 'countries');
@@ -1428,7 +1454,72 @@ class simplecertificate {
         //Clear not setted custom profile fiedls {PROFILE_xxxx}
         return preg_replace('[\{PROFILE_(.*)\}]', "", $certtext);
     
+    }
+    
+    
+    protected function remove_user_image($userid) {
+        $filename='f1-' . $userid;
+        
+        $fileinfo=self::get_certificate_tmp_fileinfo($this->get_context());
+        $fs = get_file_storage();
+        
+        if ($file=$fs->get_file($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'],
+            $fileinfo['itemid'], $fileinfo['filepath'], $filename)) {
+            //Got it,  now remove it       
+            $file->delete();
         }
+    }
+
+    /**
+     * Return user profile image URL
+     */
+    protected function get_user_image_url($user) {
+        global $CFG;
+
+        // Beacuse bug #141 forceloginforprofileimage=enabled
+        // i must check if this contiguration is enalbe and by pass it
+        $path = '/';
+        $filename = 'f1';
+        $usercontext = context_user::instance($user->id, IGNORE_MISSING);
+        if (empty($CFG->forceloginforprofileimage)) {
+            // Not enable so it's very easy
+            $url = moodle_url::make_pluginfile_url($usercontext->id, 'user', 'icon', NULL, $path, $filename);
+            $url->param('rev', $user->picture);
+        } else {
+            
+            // It's enable, so i must copy the profile image to somewhere else, so i can get the image;
+            // Try to get the profile image file
+            
+            $fs = get_file_storage();
+            if (!$file = $fs->get_file($usercontext->id, 'user', 'icon', 0, '/', $filename . '.png')) {
+                $extension = '.jpg';
+                if (!$file = $fs->get_file($usercontext->id, 'user', 'icon', 0, '/', $filename . '.jpg')) {
+                    // I Can't get the file, sorry
+                    return '';
+                }
+            }
+            
+            // with the file, now let's copy to plugin filearea
+            $fileinfo = self::get_certificate_tmp_fileinfo($this->get_context()->id);
+            
+            // Since f1 is the same name for all user, i must to rename the file, i think
+            // add userid, since it's unique.
+            $fileinfo['filename'] = 'f1-' . $user->id;
+            
+            // I must verify if image is already copied, or i get an error.
+            // This file will be removed  as soon as certificate file is generated
+            if (!$fs->file_exists($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'],
+                $fileinfo['itemid'], $fileinfo['filepath'], $fileinfo['filename'])) {
+                //File don't exists yet, so, copy to tmp file area
+                $fs->create_file_from_storedfile($fileinfo, $file);
+            }
+            
+            // Now creating the image URL
+            $url = moodle_url::make_pluginfile_url($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'],
+                    NULL, $fileinfo['filepath'], $fileinfo['filename']);
+        }
+        return '<img src="' . $url->out() . '"  width="100" height="100" />';
+    }
 
     /**
      * Returns the date to display for the certificate.
@@ -1767,8 +1858,7 @@ class simplecertificate {
             WHERE u.deleted = 0 
             AND ci.certificateid = :certificateid 
             AND timedeleted IS NULL 
-            ORDER BY {$sort}", 
-                                        array('certificateid' => $this->get_instance()->id));
+            ORDER BY {$sort}", array('certificateid' => $this->get_instance()->id));
         
         // now exclude all the certmanagers.
         foreach ($issedusers as $id => $user) {
@@ -1794,7 +1884,7 @@ class simplecertificate {
                 foreach ($issedusers as $id => $unused) {
                     if (empty($groupusers[$id])) {
                         // remove this user as it isn't in the group!
-                        unset ($issedusers[$id]);
+                        unset($issedusers[$id]);
                     }
                 }
             }
@@ -2100,7 +2190,7 @@ class simplecertificate {
             echo html_writer::tag('div', $downloadbutton, array('style' => 'text-align: center'));
             echo '</form>';
         
-            } else if ($action == 'download') {
+        } else if ($action == 'download') {
             $type = $url->get_param('type');
             
             // Calculate file name
@@ -2207,5 +2297,5 @@ class simplecertificate {
         if (!empty($event)) {
             $event->trigger();
         }
-    } 
+    }
 }

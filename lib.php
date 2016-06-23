@@ -287,18 +287,31 @@ function simplecertificate_cron() {
  * @return bool nothing if file not found, does not return anything if found - just send the file
  */
 function simplecertificate_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload, array $options = array()) {
-      
-    require_login($course);
     
-    if ($context->contextlevel != CONTEXT_MODULE) {
-        return false;
+    if ($filearea == 'tmp') {
+        //Beacuse bug #141 forceloginforprofileimage=enabled by passing
+        
+        $filename=array_shift($args);
+        $fs = get_file_storage();
+        
+        if ($file=$fs->get_file($context->id, 'mod_simplecertificate', 'tmp', 0, '/', $filename)) {
+            send_stored_file($file, null, 0, false);
+        } 
+       
+    } else {
+        
+        require_login($course);
+        
+        if ($context->contextlevel != CONTEXT_MODULE) {
+            return false;
+        }
+        
+        $url = new moodle_url('wssendfile.php');
+        $url->param('id', (int)array_shift($args));
+        $url->param('sk', sesskey());
+        
+        redirect($url);
     }
-    
-    $url = new moodle_url('wssendfile.php');
-    $url->param('id', (int)array_shift($args));
-    $url->param('sk',sesskey());
-    
-    redirect($url);
 }
 
 /**
