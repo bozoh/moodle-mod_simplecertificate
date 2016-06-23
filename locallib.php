@@ -1385,7 +1385,8 @@ class simplecertificate {
             $key = 'profile_' . $key;
             $a->$key = $value;
         }
-        
+        //The course name never change form a certificate to another, useless
+        //text mark and atribbute, can be removed ....
         $a->coursename = format_string($this->get_instance()->coursename, true);
         $a->grade = $this->get_grade($user->id);
         $a->date = $this->get_date($issuecert, $user->id);
@@ -1406,7 +1407,7 @@ class simplecertificate {
         } else {
             $t = array();
             foreach ($teachers as $teacher) {
-                $t[] = format_text($teacher->rolename . ': ' . $teacher->username, FORMAT_PLAIN);
+                $t[] = content_to_text($teacher->rolename . ': ' . $teacher->username, FORMAT_MOODLE);
             }
             $a->teachers = implode("<br>", $t);
         }
@@ -1415,7 +1416,9 @@ class simplecertificate {
         $a->userresults = $this->get_user_results($issuecert->userid);
         
         //Get User role name in course
-        if (!$a->userrolename = get_user_roles_in_course($user->id, $this->get_course()->id)) {
+        if ($userrolename = get_user_roles_in_course($user->id, $this->get_course()->id)) {
+            $a->userrolename = content_to_text($userrolename, FORMAT_MOODLE);
+        }else{
             $a->userrolename = '';
         }
         
