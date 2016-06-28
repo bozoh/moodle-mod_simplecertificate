@@ -1931,7 +1931,7 @@ class simplecertificate {
             groups_print_activity_menu($this->coursemodule, $url);
             
             if (!$users) {
-                notify(get_string('nocertificatesissued', 'simplecertificate'));
+                $OUTPUT->notification(get_string('nocertificatesissued', 'simplecertificate'));
                 echo $OUTPUT->footer();
                 exit();
             }
