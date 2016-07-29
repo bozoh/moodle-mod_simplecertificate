@@ -1,0 +1,23 @@
+.settings
+.buildpath
+.project
+.cache
+*~
+*.swp
+/tags
+/TAGS
+/cscope.*
+/.patches/
+/.idea/
+/nbproject/
+CVS
+.DS_Store
+phpunit.xml
+composer.phar
+composer.lock
+/vendor/
+/behat.yml
+*/yui/build/*/*-coverage.js
+/lib/yuilib/*/build/*/*-coverage.js
+# lib/yuilib/version/module/module-coverage.js
+/lib/yuilib/*/*/*-coverage.js
