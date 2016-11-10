@@ -1339,7 +1339,9 @@ class simplecertificate {
         if (empty($certtext)) {
             $certtext = $this->get_instance()->certificatetext;
         }
-        $certtext = format_text($certtext, FORMAT_HTML, array('noclean' => true));
+        // Due #111 improvement
+        // The  filter auto generated links was removed in the certificate text
+        $certtext = format_text($certtext, FORMAT_HTML, array('filter' => false, 'noclean' => true));
         
         $a = new stdClass();
         $a->username = fullname($user);
