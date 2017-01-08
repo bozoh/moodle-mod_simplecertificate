@@ -33,6 +33,11 @@ require_once ($CFG->dirroot . '/grade/querylib.php');
 require_once ($CFG->libdir . '/pdflib.php');
 require_once ($CFG->dirroot . '/user/profile/lib.php');
 
+
+use core_availability\info;
+use core_availability\info_module;
+//use core_availability\info_section;
+
 class simplecertificate {
     /**
      *  module constats using in file storage
@@ -1707,7 +1712,7 @@ class simplecertificate {
         }
         
         if (has_capability('mod/simplecertificate:manage', $this->context, $user)) {
-            return get_string('cantissue', 'simplecertificate');
+            return 'Manager user';
         }
         
         if ($chkcompletation) {
@@ -1723,18 +1728,21 @@ class simplecertificate {
             }
             
             if ($CFG->enableavailability) {
-                $modinfo = get_fast_modinfo($this->get_course());
-                $cm = $modinfo->get_cm($this->get_course_module()->id);
-                if (!$cm->uservisible) {
-                    if ($cm->availableinfo) {
-                        return $cm->availableinfo;
-                    } else {
-                        return get_string('cantissue', 'simplecertificate');
-                    }
+                if (!$this->check_user_can_access_certificate_instance($user->id)) {
+                    return get_string('cantissue', 'simplecertificate');
                 }
-                return null;
             }
+            return null;
         }
+    }
+    
+    /**
+     * get full user status of on certificate instance (if it can view/access)
+     * this method helps the unit test (easy to mock)
+     * @param int $userid
+     */
+    protected function check_user_can_access_certificate_instance($userid) {
+       return info_module::is_user_visible($this->get_course_module(), $userid, false);
     }
 
     /**
