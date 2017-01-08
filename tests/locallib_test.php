@@ -39,16 +39,13 @@ require_once($CFG->dirroot . '/mod/simplecertificate/tests/base_test.php');
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @group	   simplecertificate_basics	 
  * */
+
+
+//vendor/bin/phpunit mod_simplecertificate_locallib_testcase mod/simplecertificate/tests/locallib_test.php
 class mod_simplecertificate_locallib_testcase extends mod_simplecertificate_base_testcase {
-    public static $count;
-    public static $fhandle;
-
     public function test_create_instance() {
-        echo __METHOD__."\n";
         global $DB;
-        $this->resetAfterTest();
-        $this->setAdminUser();
-
+       
         //Basic CRUD test
         $this->assertFalse($DB->record_exists('simplecertificate', array('course' => $this->course->id)));
         $cert = $this->create_instance();
@@ -59,18 +56,11 @@ class mod_simplecertificate_locallib_testcase extends mod_simplecertificate_base
         $cert = $this->create_instance($params);
         $this->assertEquals(2, $DB->count_records('simplecertificate', array('course' => $this->course->id)));
         $this->assertEquals('One more certificate', $DB->get_field_select('simplecertificate', 'name', 'id = :id', array('id' => $cert->get_instance()->id)));
-        
-        $this->write_to_report("Creating plugin is working ? Ok");
-        $this->write_to_report("Can Create a simple certificate ? Ok");
-        
     }
     
     public function test_update_instance() {
-        echo __METHOD__."\n";
         global $DB;
-        $this->resetAfterTest();
-        $this->setAdminUser();
-        
+
         //Basic CRUD test
         $cert = $this->create_instance();
         $instance=$cert->get_instance();
@@ -81,29 +71,20 @@ class mod_simplecertificate_locallib_testcase extends mod_simplecertificate_base
         $instancedb=$DB->get_record('simplecertificate', array('id'=>$cert->get_instance()->id));
         $this->assertEquals('teste', $instancedb->coursename);
         $this->assertTrue($instancedb > $instanceoldtime);
-        $this->write_to_report("Can Update a simple certificate ? Ok");
-        
     }
     
     public function  test_delete_instance() {
-        echo __METHOD__."\n";
         global $DB;
-        $this->resetAfterTest();
-        $this->setAdminUser();
-        
+                
         //Basic CRUD test
         $cert = $this->create_instance();
         $this->assertTrue($cert->delete_instance($cert->get_instance()));
         $this->assertFalse($DB->record_exists('simplecertificate', array('course' => $this->course->id)));
-        $this->write_to_report("Can Delete a simple certificate ? Ok");
     }
     
     public function test_certificate_images() {
-        echo __METHOD__."\n";
         global $DB, $CFG;
-        $this->resetAfterTest();
-        $this->setAdminUser();
-        
+
         //The default data generation puts firstpage and secondpage background images
         $cert = $this->create_instance();
         $fs=get_file_storage();
@@ -123,21 +104,19 @@ class mod_simplecertificate_locallib_testcase extends mod_simplecertificate_base
 //         $filepath = $CFG->dirroot . '/mod/simplecertificate/tests/test_certificate_'.testable_simplecertificate::PLUGIN_VERSION.'.pdf';
 //         $pdf->Output($filepath, 'F');
 //         $this->assertTrue(file_exists($filepath));
-        $this->write_to_report("Is all images is in certificate: ? Ok");
+        
         
         //Test if can create certificate without any images
         $cert = $this->create_instance(array('certificateimage'=>'', 'secondimage'=>''));
         $this->assertAttributeEmpty('certificateimage', $cert->get_instance());
         $this->assertAttributeEmpty('secondimage', $cert->get_instance());
-        $this->write_to_report("Can create certificate without images ? Ok");
+        
         
     }
     
     public function test_certificate_texts() {
-        echo __METHOD__."\n";
+        
         global $DB, $CFG;
-        $this->resetAfterTest();
-        $this->setAdminUser();
         
         //The default data generation has many variable, test if not set variables are printed, like {PROFILE_BIRTHDAY}
         $cert = $this->create_instance();
@@ -146,18 +125,13 @@ class mod_simplecertificate_locallib_testcase extends mod_simplecertificate_base
         //In this test first must be different than second one
         $this->assertNotEquals($firstpagetext, $secondpagetext);
         $this->assertNotContains("{", $firstpagetext);
-        $this->write_to_report("Front text is correct: ? Ok");
         $this->assertNotContains("{", $secondpagetext);
-        $this->write_to_report("Back text is enable and correct ? Ok");
-        
+       
     }
     
     public function test_create_issue_instance() {
-        echo __METHOD__."\n";
-    	global $DB;
-
-    	$this->resetAfterTest();
-    	$this->setAdminUser();
+        global $DB;
+    	
     	$cert = $this->create_instance();
     	//Verify if no certificate is issued
     	//$this->assertFalse($DB->record_exists("simplecertificate_issues", array('certificateid'=>$cert->get_instance()->id)));
@@ -168,14 +142,14 @@ class mod_simplecertificate_locallib_testcase extends mod_simplecertificate_base
     	$this->assertTrue($DB->record_exists("simplecertificate_issues", array('id'=>$issuecert->id)));
     	$this->assertTrue(!empty($issuecert->haschange));
     	$this->assertEquals($this->students[0]->id, $issuecert->userid);
-    	$this->write_to_report("Can Retrieve a student simple certificate As manager? Ok");
+    	
     	
     	//Issuing a manager certificate as manager (do not save)
     	$issuecert= $cert->get_issue();
     	$this->assertNotEmpty($issuecert);
     	$this->assertFalse($DB->record_exists("simplecertificate_issues", array('id'=>$issuecert->id)));
     	$this->assertTrue(!empty($issuecert->haschange));
-    	$this->write_to_report("Can Retrieve a simple certificate As manager? Ok");
+    	
     	 
     	
     	//Issuing as student
@@ -188,20 +162,15 @@ class mod_simplecertificate_locallib_testcase extends mod_simplecertificate_base
     	$this->assertEquals(1, $DB->count_records("simplecertificate_issues", array('certificateid'=>$cert->get_instance()->id, 'userid'=>$this->students[1]->id)));
     	$this->assertTrue(!empty($issuecert->haschange));
     	$this->assertEquals($this->students[1]->id, $issuecert->userid);
-    	$this->write_to_report("Can Retrieve a simple certificate As student ? Ok");
+    	
     	    	
     	//Must have 2 certificates
     	$this->assertEquals(2, $DB->count_records("simplecertificate_issues", array('certificateid'=>$cert->get_instance()->id)));
-    	$this->write_to_report("Manager issued certificates are not save? Ok");
-    	        
     }
     
     public function test_create_issue_code() {
-        echo __METHOD__."\n";
         global $DB;
          
-        $this->resetAfterTest();
-        $this->setAdminUser();
         $cert = $this->create_instance();
         $issuecert = $cert->get_issue($this->students[0]);
          
@@ -209,16 +178,12 @@ class mod_simplecertificate_locallib_testcase extends mod_simplecertificate_base
         $this->assertNotEmpty($issuecert->code);
         $this->assertEquals(36, strlen($issuecert->code));
         $this->assertEquals($this->students[0]->id, $DB->get_field_select('simplecertificate_issues', 'userid', 'code = :code', array('code' => $issuecert->code)));
-         
-        $this->write_to_report("Certificate code is correct ? Ok");
+        
     }
     
     public function test_update_instace_update_haschange_issues() {
-        echo __METHOD__."\n";
         global $DB;
         
-        $this->resetAfterTest();
-        $this->setAdminUser();
         $cert = $this->create_instance();
         
         $issuecert1 = $cert->get_issue($this->students[0]);
@@ -245,17 +210,15 @@ class mod_simplecertificate_locallib_testcase extends mod_simplecertificate_base
         $this->assertEquals(1, $cert->get_issue($this->students[1])->haschange);
         $this->assertEquals(1, $cert->get_issue($this->students[2])->haschange);
         
-        $this->write_to_report("Update certificate updates haschange status in issued certificates? Ok");
-        
     }
     //PDF creation don't work in moodle 3.0
     
 //     public function  test_create_pdf_file() {
-//         echo __METHOD__."\n";
+//         
 //         global $DB, $CFG;
          
-//         $this->resetAfterTest();
-//         $this->setAdminUser();
+//         
+//         
     
 //         $cert = $this->create_instance();
 //         $issuecert= $cert->get_issue($this->students[2]);
@@ -270,7 +233,7 @@ class mod_simplecertificate_locallib_testcase extends mod_simplecertificate_base
 //         $this->assertTrue(empty($issuecert->haschange));
 //         $this->assertTrue($cert->testable_issue_file_exists($issuecert));
 //         $this->assertEquals($issuecert->pathnamehash, $file->get_pathnamehash());
-//         $this->write_to_report("create a pdf file ? Ok");
+//         
          
 //         //Verify if only re-create a pdf file if certificate changes
 //         $issuecert= $cert->get_issue($this->students[2]);
@@ -278,7 +241,7 @@ class mod_simplecertificate_locallib_testcase extends mod_simplecertificate_base
 //         $this->assertFalse($cert->testable_create_pdf($issuecert));
 //         $this->assertEquals($file, $cert->testable_save_pdf($issuecert));
 //         $this->assertTrue(empty($issuecert->haschange));
-//         $this->write_to_report("Only re-create a pdf file if certificate changes? Ok");
+//         
          
 //         //Issue as admin
 //         $this->setAdminUser();
@@ -303,17 +266,14 @@ class mod_simplecertificate_locallib_testcase extends mod_simplecertificate_base
 //         $this->assertFalse($cert->testable_issue_file_exists($issuecert));
 //         $this->assertDebuggingCalled();
          
-//         $this->write_to_report("Managers certificates are not save? Ok");
+//         
     
 //     }
     
     public function test_detete_instace_update_timedelete_issues() {
-        echo __METHOD__."\n";
         global $DB;
     
         //PDF creation don't work in moodle 3.0
-        $this->resetAfterTest();
-        $this->setAdminUser();
         $cert = $this->create_instance();
         $issuecert1 = $cert->get_issue($this->students[0]);
         //$issuecert2 = $cert->get_issue($this->students[1]);
@@ -357,7 +317,7 @@ class mod_simplecertificate_locallib_testcase extends mod_simplecertificate_base
         //$this->assertObjectHasAttribute('timedeleted', $issuecert2);
         //$this->assertObjectHasAttribute('timedeleted', $issuecert3);
         
-        $this->write_to_report("Delete certificate adds timeend in issued certificates? Ok");
+        
         
         //PDF creation don't work in moodle 3.0
         //Verify pathnamehash
@@ -371,21 +331,21 @@ class mod_simplecertificate_locallib_testcase extends mod_simplecertificate_base
 //         $this->assertFalse($cert->testable_issue_file_exists($issuecert2));
 //         $this->assertDebuggingCalled();        
 
-//         $this->write_to_report("Move issues certificate to user private filearea if simplecertificate activity is deleted? Ok");
+//         
     }
 
     ///DOn't work with moodle 3.0
 //     //Delivering tests
 //     public function test_delivery_email() {
-//         echo __METHOD__."\n";
+//         
 //     	global $DB, $CFG;
     	
 //     	if (moodle_major_version() < 2.6) {
 //     		$this->markTestSkipped("Needs moodle 2.6 or grater");
 //     	}
     	    	 
-//     	$this->resetAfterTest();
-//     	$this->setAdminUser();
+//     	
+//     	
 //     	$testfrom = 'fromtest@test.com';
 //     	//Set some prarmetes
 //     	$cert = $this->create_instance(array('delivery'=> 2, 'emailfrom' => $testfrom ));
@@ -403,20 +363,16 @@ class mod_simplecertificate_locallib_testcase extends mod_simplecertificate_base
 //     	//Verify emailfrom
 //     	$this->assertEquals($testfrom, $messages[0]->from);
     	
-//     	$this->write_to_report("Can send certificade to e-mail? Ok");
-//     	$this->write_to_report("Can change email sender (from email)? Ok");
+
     	
 // 	}
 	
 	public function test_email_notifications() {
-	    echo __METHOD__."\n";
 		global $DB;
 		
 		if (moodle_major_version() < 2.6) {
 			$this->markTestSkipped("Needs moodle 2.6 or grater");
 		}
-		$this->resetAfterTest();
-		$this->setAdminUser();
 
 		//Setup tem certificate instance
 		$testemails=array('test1@test.com', 'test2@test.com','test3@test.com');
@@ -440,39 +396,122 @@ class mod_simplecertificate_locallib_testcase extends mod_simplecertificate_base
 			$this->assertContains($msg->to, $testemails);
 		}
 		
-		$this->write_to_report("Can notify Teacher, when a certificate is issued? Ok");
-		$this->write_to_report("Can notify others, when a certificate is issued? Ok");
 	}
 	
+	public function test_can_issue_user_without_grade_restrinction() {
+	    $cert = $this->create_instance();
+
+	    $this->assertNull($cert->testable_can_issue($this->students[0]));
+	}
+	
+	
+ 	public function test_can_issue_with_grade_restrinction() {
+ 	    
+ 	    $mock_cert = $this->get_certificate_mock(array('testable_check_user_can_access_certificate_instance'));
+    
+	    $mock_cert->expects($this->once())
+	    ->method('testable_check_user_can_access_certificate_instance')
+	    ->will($this->returnValue(true));
+	    
+	    $this->assertNull($mock_cert->testable_can_issue($this->students[0]));
+	    
+ 	}
+
+    public function test_can_issue_with_completion_restrinction() {
+        $this->course = $this->getDataGenerator()->create_course(array('enablecompletion' => true));
+        $completionauto = array('completion' => COMPLETION_TRACKING_AUTOMATIC);
+        $mock_cert = $this->get_certificate_mock(
+                    array('get_instance', 'get_course_time', 'testable_check_user_can_access_certificate_instance'), 
+                    array(), $completionauto);
+        
+        
+        $return_value = new stdClass();
+        $return_value->requiredtime = 5;
+        
+        $mock_cert->expects($this->any())->
+            method('get_instance')->
+            will($this->returnValue($return_value));
+        
+        $mock_cert->expects($this->any())->
+            method('get_course_time')->
+            will($this->returnValue(10));
+        
+        $mock_cert->expects($this->any())->
+            method('testable_check_user_can_access_certificate_instance')->
+            will($this->returnValue(true));
+        
+        $this->assertNull($mock_cert->testable_can_issue($this->students[0]));
+    }
+	
+	public function test_cant_issue_with_grade_restrinction() {
+	      $mock_cert = $this->get_certificate_mock(array('testable_check_user_can_access_certificate_instance'));
+    
+	    $mock_cert->expects($this->once())
+	       ->method('testable_check_user_can_access_certificate_instance')
+	       ->will($this->returnValue(false));
+	    
+	    $this->assertEquals(get_string('cantissue', 'simplecertificate'), $mock_cert->testable_can_issue($this->students[0]));
+	    
+	}
+	
+	public function test_cant_issue_with_completion_restrinction() {
+	    $this->course = $this->getDataGenerator()->create_course(array('enablecompletion' => true));
+	    $completionauto = array('completion' => COMPLETION_TRACKING_AUTOMATIC);
+	    $mock_cert = $this->get_certificate_mock(
+	       array('get_instance', 'get_course_time', 'testable_check_user_can_access_certificate_instance'),
+	       array(), $completionauto);
+	    
+	    ///Removing Avaliability checks 
+	    $mock_cert->expects($this->any())->
+	       method('testable_check_user_can_access_certificate_instance')->
+	       will($this->returnValue(true));
+	    
+	    
+	    $return_value= new stdClass();
+	    $return_value->requiredtime = 5;
+	     
+	    $mock_cert->expects($this->any())->
+	       method('get_instance')->
+	       will($this->returnValue($return_value));
+	     
+	    
+	    $mock_cert->expects($this->any())->
+	       method('get_course_time')->
+	       will($this->returnValue(4));
+        
+        $a = new stdClass();
+        $a->requiredtime = $mock_cert->get_instance()->requiredtime;
+        $error_msg = get_string('requiredtimenotmet', 'simplecertificate', $a);
+	     
+	    $this->assertEquals($error_msg, $mock_cert->testable_can_issue($this->students[0]));
+    }
+
+    /**
+     * 
+     */
+     private function get_certificate_mock(array $methods = null, array $params = array(), array $options = null) {
+	    //Only to get contexts variables
+	    $cert = $this->create_instance($params, $options);
+	    
+	    $mock_cert = $this->getMockBuilder('testable_simplecertificate')->
+	       setMethods($methods)->
+	       setConstructorArgs(array($cert->get_context(), $cert->get_course_module(), $cert->get_course()))->
+	       getMock();
+	    
+        return $mock_cert;
+    }
+	
+	
 	public static function setUpBeforeClass() {
-		global $CFG;
 		
-		$moodle_version='moodle-'.moodle_major_version();
-		$moodle_version.=' '.testable_simplecertificate::PLUGIN_VERSION;
-		$moodle_version.=' build: '.get_config('mod_simplecertificate','version')."\n";
-		
-		self::$fhandle = fopen("$CFG->dirroot/mod/simplecertificate/TestCaseResults.txt", "w");
-		fwrite(self::$fhandle, $moodle_version);
-		fwrite(self::$fhandle, 'Runned at: '.date('Y-m-d H:i')."\n\n");
-		fwrite(self::$fhandle, "\n------\nPHPUnit tests:\n\n");
-		self::$count = 0;
 		parent::setUpBeforeClass();
 		
 	}
 	
 	public static function tearDownAfterClass() {
-		global $CFG;
 		
-		fwrite(self::$fhandle, "\nEnd ofPHPUnit tests.\n------\n\n");
-		$othertests = file_get_contents ("$CFG->dirroot/mod/simplecertificate/tests/other/TestCaseChkLst.txt");
-		fwrite(self::$fhandle, $othertests);
-		fclose(self::$fhandle);
 		parent::tearDownAfterClass();
 	}
 	
-	private function write_to_report($str) {
-		self::$count++;
-		fwrite(self::$fhandle, self::$count.'- '.$str."\n");
-	}
 }
 
