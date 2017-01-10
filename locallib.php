@@ -2137,7 +2137,6 @@ class simplecertificate {
         if (!$selectedusers) {
             $users = get_enrolled_users($course_context, '', $groupid);
             $usercount = count($users);
-            $users = array_slice($users, $page_start, $perpage);
         } else {
             list($sqluserids, $params) = $DB->get_in_or_equal($selectedusers);
             $sql = "SELECT * FROM {user} WHERE id $sqluserids";
@@ -2183,6 +2182,11 @@ class simplecertificate {
             $table->head = array(' ', get_string('fullname'), get_string('grade'));
             $table->align = array("left", "left", "center");
             $table->size = array('1%', '89%', '10%');
+            
+            //BUG #157, the paging is afecting download files, 
+            //So only apply paging when displaying users
+            $users = array_slice($users, $page_start, $perpage);
+            
             foreach ($users as $user) {
                 $canissue = $this->can_issue($user, $issuelist != 'allusers');
                 if (empty($canissue)) {
@@ -2203,6 +2207,8 @@ class simplecertificate {
         
         } else if ($action == 'download') {
             $type = $url->get_param('type');
+            
+            
             
             // Calculate file name
             $filename = str_replace(' ', '_', 
