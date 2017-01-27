@@ -2,7 +2,7 @@
 
 use Behat\Mink\Exception\ElementNotFoundException;
 use Behat\Mink\Exception\ElementException;
-use Behat\Mink\Exception\Exception;
+#use Behat\Mink\Exception\Exception;
 use Behat\Mink\Exception\ExpectationException;
 
 // This file is part of Moodle - http://moodle.org/
@@ -100,6 +100,115 @@ class behat_mod_simplecertificate extends behat_base {
         $this->select_option_from($this->escape($grade_activity), 'id');
         $this->execute('behat_forms::i_set_the_field_to', array('minval', $this->escape($mingrade)));
         $this->execute('behat_forms::press_button', array("Save and return to course"));
+    }
+    
+    /**
+     * Redirets to a page
+     *
+     * @Given /^I am on "(?P<page_name_string>(?:[^"]|\\")*)"$/
+     * @param unknown $page_name
+     */
+    public function i_am_on($page_name){
+      switch ($page_name) {
+        case "certificate verification page":
+          $this->getSession()->visit($this->locate_path('mod/simplecertificate/verify.php'));
+          break;
+      
+        case "homepage":
+          $this->getSession()->visit($this->locate_path('/'));
+          break;
+      default:
+        throw new Exception("Page not found: $page_name");
+      break;
+    }
+  }
+
+  private function get_issue_certificate_by_simplecertificate_name($certificate_name, $user) {
+    global $DB, $CFG;
+    require_once($CFG->dirroot . '/mod/simplecertificate/locallib.php');
+    
+    var_export($DB->get_record("simplecertificate", array('name'=>$certificate_name)));
+    if($certificate_instance_id = $DB->get_record("simplecertificate", array('name'=>$certificate_name), 'id')) {
+      $certificate_instance_id = $certificate_instance_id->id;
+    } else {
+      throw new Exception("Can't find certificate with name: $certificate_name");
+    }
+    
+    $cm = get_coursemodule_from_instance('simplecertificate', $certificate_instance_id, 0, false, MUST_EXIST);
+    $context = context_module::instance($cm->id);
+    
+    $simplecertificate = new simplecertificate($context, null, null);
+    
+    $issuecert = $simplecertificate->get_issue($user);
+    if (empty($issuecert->has_change)) {
+      $simplecertificate->get_issue_file($issuecert);
+    }
+    return $issuecert;
+    
+  }
+  /**
+   *
+   * @Given /^I issue a "(?P<certificate_name_string>(?:[^"]|\\")*)" to "(?P<user_name_string>(?:[^"]|\\")*)"$/
+   * 
+   * @param unknown $certificate_name          
+   * @param unknown $username          
+   */
+  public function issue_certificate_to($certificate_name, $username) {
+    global $DB, $CFG;
+    require_once($CFG->dirroot . '/mod/simplecertificate/locallib.php');
+    
+    if(!$user = $DB->get_record("user", array('username'=>$username))) {
+      throw new Exception("Can't find User with username: $username");
+    }
+    
+    if(!$issuecert = $this->get_issue_certificate_by_simplecertificate_name($certificate_name, $user)) {
+      throw new Exception("Can't find certificate with name: $certificate_name");
+    }
+    
+   }
+    
+    
+    /**
+     *
+     * @Given /^I set "(?P<user_name_string>(?:[^"]|\\")*)" certificate "(?P<certificate_name_string>(?:[^"]|\\")*)" code$/
+     * @param unknown $certificate_name
+     * @param unknown $username
+     */
+    public function set_certificate_code($username, $certificate_name){
+      global $DB;
+      
+      if(!$user = $DB->get_record("user", array('username'=>$username))) {
+        throw new Exception("Can't find User with username: $username");
+      }
+    
+      if(!$issuecert = $this->get_issue_certificate_by_simplecertificate_name($certificate_name, $user)) {
+        throw new Exception("Can't find certificate with name: $certificate_name");
+      }
+        $code = $issuecert->code;
+        $this->execute('behat_forms::i_set_the_field_to', array('code', $this->escape($code)));
+    
+    }
+    
+    
+    /**
+     *
+     * @Given /^I should see the "(?P<user_name_string>(?:[^"]|\\")*)" certificate "(?P<certificate_name_string>(?:[^"]|\\")*)" code$/
+     * @param unknown $certificate_name
+     * @param unknown $username
+     */
+    public function verify_certificate_code($username, $certificate_name){
+      global $DB;
+      
+      if(!$user = $DB->get_record("user", array('username'=>$username))) {
+        throw new Exception("Can't find User with username: $username");
+      }
+    
+      if(!$issuecert = $this->get_issue_certificate_by_simplecertificate_name($certificate_name, $user)) {
+        throw new Exception("Can't find certificate with name: $certificate_name");
+      }
+      $code = $issuecert->code;
+      $this->execute('behat_general::assert_page_contains_text', $code);
+    
     }
 
 }

@@ -54,7 +54,7 @@ if (!$verifyform->get_data()) {
     $table->head = array(get_string('course'), $strto, $strdate, $strcode);
     $table->align = array("left", "left", "center", "center");
     //Try to get coursename
-    if(!$coursename = $DB->get_field('simplecertificate', 'coursename', array('id' => $issuedcert->certificateid))) {
+    if(!$coursename = $issuedcert->coursename) {
         $coursename = get_string('coursenotfound', 'simplecertificate');
     }
     $table->data[] = array($coursename, $username, 

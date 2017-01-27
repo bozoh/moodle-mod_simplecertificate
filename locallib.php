@@ -623,6 +623,7 @@ class simplecertificate {
             $created = true;
             $issuecert = new stdClass();
             $issuecert->certificateid = $this->get_instance()->id;
+            $issuecert->coursename = format_string($this->get_instance()->coursename, true);
             $issuecert->userid = $userid;
             $issuecert->haschange = 1;
             $formated_coursename = str_replace('-', '_', $this->get_instance()->coursename);
