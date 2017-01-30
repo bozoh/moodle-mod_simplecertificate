@@ -418,12 +418,12 @@ function simplecertificate_get_mods() {
     $items = $items ? $items : array();
     
     foreach ($items as $id => $item) {
-        // Do not include grades for course itens
-        if ($item->itemtype != 'mod') {
-            continue;
-        }
-        $cm = get_coursemodule_from_instance($item->itemmodule, $item->iteminstance);
-        $grademodules[$cm->id] = $item->get_name();
+      // Do not include grades for course itens
+      if ($item->itemtype != 'mod') {
+        continue;
+      }
+      $cm = get_coursemodule_from_instance($item->itemmodule, $item->iteminstance);
+      $grademodules[$cm->id] = $item->get_name();
     }
     asort($grademodules);
     return $grademodules;

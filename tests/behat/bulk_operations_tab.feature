@@ -47,7 +47,9 @@ Feature: Verify bulk operations
     And I follow "Course 1"
     And I put a grade restrinction to "Test Simple Certificate" with "Grade assignment" min grade "70"
     And I follow "Grade assignment"
-    And I follow "View all submissions"
+      #	Old version 3.1 or less
+#    And I follow "View all submissions"
+    And I navigate to "View all submissions" in current page administration
     And I click on "Grade" "link" in the "Tumé Arandú" "table_row"
     And I set the following fields to these values:
       | Grade | 70 |
@@ -56,7 +58,9 @@ Feature: Verify bulk operations
     And I follow "Edit settings"
     And I press "Cancel"
     And I follow "Grade assignment"
-    And I follow "View all submissions"
+    #	Old version 3.1 or less
+#    And I follow "View all submissions"
+    And I navigate to "View all submissions" in current page administration
     And I click on "Grade" "link" in the "Arasy Guaraní" "table_row"
     And I set the following fields to these values:
       | Grade | 69 |
@@ -77,7 +81,9 @@ Feature: Verify bulk operations
     And I follow "Course 1"
     And I put a grade restrinction to "Test Simple Certificate" with "Grade assignment" min grade "70"
     And I follow "Grade assignment"
-    And I follow "View all submissions"
+  #	Old version 3.1 or less
+#    And I follow "View all submissions"
+    And I navigate to "View all submissions" in current page administration
     And I click on "Grade" "link" in the "Tumé Arandú" "table_row"
     And I set the following fields to these values:
       | Grade | 70 |
@@ -86,7 +92,9 @@ Feature: Verify bulk operations
     And I follow "Edit settings"
     And I press "Cancel"
     And I follow "Grade assignment"
-    And I follow "View all submissions"
+      #	Old version 3.1 or less
+#    And I follow "View all submissions"
+    And I navigate to "View all submissions" in current page administration
     And I click on "Grade" "link" in the "Arasy Guaraní" "table_row"
     And I set the following fields to these values:
       | Grade | 69 |

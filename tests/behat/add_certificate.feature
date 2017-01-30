@@ -74,7 +74,9 @@ Feature: Add a simplecertificate
     And I am on site homepage
     And I follow "Course 1"
     And I follow "Grade assignment"
-    And I follow "View all submissions"
+#	Old version 3.1 or less
+#    And I follow "View all submissions"
+    And I navigate to "View all submissions" in current page administration
     And I click on "Grade" "link" in the "Sam1 Student1" "table_row"
     And I set the following fields to these values:
       | Grade | 20 |
