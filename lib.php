@@ -408,6 +408,12 @@ function simplecertificate_get_mods() {
     global $COURSE, $CFG, $DB;
     
     $grademodules = array();
+    
+    //If in settings page, i don't have any grade_item or should not list them
+    if ($COURSE->id == SITEID) {
+      return $grademodules;
+    }
+    
     $items = grade_item::fetch_all(array('courseid' => $COURSE->id));
     $items = $items ? $items : array();
     

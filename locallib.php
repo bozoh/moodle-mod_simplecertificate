@@ -33,6 +33,11 @@ require_once ($CFG->dirroot . '/grade/querylib.php');
 require_once ($CFG->libdir . '/pdflib.php');
 require_once ($CFG->dirroot . '/user/profile/lib.php');
 
+
+use core_availability\info;
+use core_availability\info_module;
+//use core_availability\info_section;
+
 class simplecertificate {
     /**
      *  module constats using in file storage
@@ -618,6 +623,7 @@ class simplecertificate {
             $created = true;
             $issuecert = new stdClass();
             $issuecert->certificateid = $this->get_instance()->id;
+            $issuecert->coursename = format_string($this->get_instance()->coursename, true);
             $issuecert->userid = $userid;
             $issuecert->haschange = 1;
             $formated_coursename = str_replace('-', '_', $this->get_instance()->coursename);
@@ -1385,7 +1391,8 @@ class simplecertificate {
             $key = 'profile_' . $key;
             $a->$key = $value;
         }
-        
+        //The course name never change form a certificate to another, useless
+        //text mark and atribbute, can be removed ....
         $a->coursename = format_string($this->get_instance()->coursename, true);
         $a->grade = $this->get_grade($user->id);
         $a->date = $this->get_date($issuecert, $user->id);
@@ -1406,7 +1413,7 @@ class simplecertificate {
         } else {
             $t = array();
             foreach ($teachers as $teacher) {
-                $t[] = format_text($teacher->rolename . ': ' . $teacher->username, FORMAT_PLAIN);
+                $t[] = content_to_text($teacher->rolename . ': ' . $teacher->username, FORMAT_MOODLE);
             }
             $a->teachers = implode("<br>", $t);
         }
@@ -1415,7 +1422,9 @@ class simplecertificate {
         $a->userresults = $this->get_user_results($issuecert->userid);
         
         //Get User role name in course
-        if (!$a->userrolename = get_user_roles_in_course($user->id, $this->get_course()->id)) {
+        if ($userrolename = get_user_roles_in_course($user->id, $this->get_course()->id)) {
+            $a->userrolename = content_to_text($userrolename, FORMAT_MOODLE);
+        }else{
             $a->userrolename = '';
         }
         
@@ -1704,7 +1713,7 @@ class simplecertificate {
         }
         
         if (has_capability('mod/simplecertificate:manage', $this->context, $user)) {
-            return get_string('cantissue', 'simplecertificate');
+            return 'Manager user';
         }
         
         if ($chkcompletation) {
@@ -1720,18 +1729,21 @@ class simplecertificate {
             }
             
             if ($CFG->enableavailability) {
-                $modinfo = get_fast_modinfo($this->get_course());
-                $cm = $modinfo->get_cm($this->get_course_module()->id);
-                if (!$cm->uservisible) {
-                    if ($cm->availableinfo) {
-                        return $cm->availableinfo;
-                    } else {
-                        return get_string('cantissue', 'simplecertificate');
-                    }
+                if (!$this->check_user_can_access_certificate_instance($user->id)) {
+                    return get_string('cantissue', 'simplecertificate');
                 }
-                return null;
             }
+            return null;
         }
+    }
+    
+    /**
+     * get full user status of on certificate instance (if it can view/access)
+     * this method helps the unit test (easy to mock)
+     * @param int $userid
+     */
+    protected function check_user_can_access_certificate_instance($userid) {
+       return info_module::is_user_visible($this->get_course_module(), $userid, false);
     }
 
     /**
@@ -1928,7 +1940,7 @@ class simplecertificate {
             groups_print_activity_menu($this->coursemodule, $url);
             
             if (!$users) {
-                notify(get_string('nocertificatesissued', 'simplecertificate'));
+                $OUTPUT->notification(get_string('nocertificatesissued', 'simplecertificate'));
                 echo $OUTPUT->footer();
                 exit();
             }
@@ -2126,7 +2138,6 @@ class simplecertificate {
         if (!$selectedusers) {
             $users = get_enrolled_users($course_context, '', $groupid);
             $usercount = count($users);
-            $users = array_slice($users, $page_start, $perpage);
         } else {
             list($sqluserids, $params) = $DB->get_in_or_equal($selectedusers);
             $sql = "SELECT * FROM {user} WHERE id $sqluserids";
@@ -2172,6 +2183,11 @@ class simplecertificate {
             $table->head = array(' ', get_string('fullname'), get_string('grade'));
             $table->align = array("left", "left", "center");
             $table->size = array('1%', '89%', '10%');
+            
+            //BUG #157, the paging is afecting download files, 
+            //So only apply paging when displaying users
+            $users = array_slice($users, $page_start, $perpage);
+            
             foreach ($users as $user) {
                 $canissue = $this->can_issue($user, $issuelist != 'allusers');
                 if (empty($canissue)) {
@@ -2192,6 +2208,8 @@ class simplecertificate {
         
         } else if ($action == 'download') {
             $type = $url->get_param('type');
+            
+            
             
             // Calculate file name
             $filename = str_replace(' ', '_', 
