@@ -238,6 +238,7 @@ $string['cantissue'] = 'The certificate can\'t be issued, because the user hasn\
 $string['onepdf'] = 'Download certificates in a one pdf file';
 $string['multipdf'] = 'Download certificates in a zip file';
 $string['sendtoemail'] = 'Send to user\'s email';
+$string['deleteselected'] = "Delete selected";
 $string['showusers'] = 'Show';
 $string['completedusers'] = 'Users that met the activity conditions';
 $string['allusers'] = 'All users';

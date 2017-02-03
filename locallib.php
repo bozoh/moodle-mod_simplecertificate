@@ -2162,6 +2162,7 @@ class simplecertificate {
             
             groups_print_activity_menu($this->coursemodule, $url);
             
+            ///Add to  values to constants
             $selectoptions = array('completed' => get_string('completedusers', 'simplecertificate'), 
                     'allusers' => get_string('allusers', 'simplecertificate'));
             $select = new single_select($url, 'issuelist', $selectoptions, $issuelist);
@@ -2172,8 +2173,11 @@ class simplecertificate {
             
             echo html_writer::label(get_string('bulkaction', 'simplecertificate'), 'menutype', true);
             echo '&nbsp;';
+            
             $selectoptions = array('pdf' => get_string('onepdf', 'simplecertificate'), 
-                    'zip' => get_string('multipdf', 'simplecertificate'), 'email' => get_string('sendtoemail', 'simplecertificate'));
+                    'zip' => get_string('multipdf', 'simplecertificate'), 
+                    'email' => get_string('sendtoemail', 'simplecertificate'),
+                    'deleteselected' => get_string('deleteselected', 'simplecertificate'));
             echo html_writer::select($selectoptions, 'type', 'pdf');
             $table = new html_table();
             $table->width = "95%";
@@ -2286,6 +2290,12 @@ class simplecertificate {
                     $url->remove_params('action', 'type');
                     redirect($url, get_string('emailsent', 'simplecertificate'), 5);
                 break;
+                
+                case 'deleteselected':
+                  $url->remove_params('action', 'type');
+                  redirect($url);
+                  //redirect($url, "User deleted", 5);
+                  break;
             }
             exit();
         }
