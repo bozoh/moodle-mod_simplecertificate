@@ -389,7 +389,7 @@ function xmldb_simplecertificate_upgrade($oldversion=0) {
       $table = new xmldb_table('simplecertificate_issues');
     
       // <FIELD NAME="coursename" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" PREVIOUS="pathnamehash" />
-      $field = new xmldb_field('coursename', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, '', 'pathnamehash');
+      $field = new xmldb_field('coursename', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, '---', 'pathnamehash');
     
 
       if (!$dbman->field_exists($table, $field)) {
