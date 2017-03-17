@@ -203,10 +203,12 @@ class mod_simplecertificate_base_testcase extends advanced_testcase {
      * @param array $params Array of parameters to pass to the generator
      * @return testable_simplecertificate Testable wrapper around the simplecertificate class.
      */
-    protected function create_instance($params=array()) {
+    protected function create_instance($params = array(), $options = null) {
+        $this->setAdminUser();
         $generator = $this->getDataGenerator()->get_plugin_generator('mod_simplecertificate');
         $params['course'] = $this->course->id;
-        $instance = $generator->create_instance($params);
+       
+        $instance = $generator->create_instance($params, $options);
         $cm = get_coursemodule_from_instance('simplecertificate', $instance->id);
         $context = context_module::instance($cm->id);
         return new testable_simplecertificate($context, $cm, $this->course);
@@ -288,6 +290,16 @@ class testable_simplecertificate extends simplecertificate {
 
         parent::update_instance($formdata);
     }
+    
+    //For mocking
+    function check_user_can_access_certificate_instance($userid) {
+         return $this->testable_check_user_can_access_certificate_instance($userid);
+    }
+    
+    public function testable_check_user_can_access_certificate_instance($userid) {
+        return  parent::check_user_can_access_certificate_instance($userid);
+    }
+   
     
     /**
 	 * Prepare to print an activity grade.
@@ -387,7 +399,7 @@ class testable_simplecertificate extends simplecertificate {
      * @return string null if user meet issued conditions, or an text with erro
      */
     public function testable_can_issue($user = null, $chkcompletation = true) {
-    	return parent::can_issue($user = null, $chkcompletation = true);
+    	return parent::can_issue($user, $chkcompletation);
     }
     
     /**

@@ -381,5 +381,46 @@ function xmldb_simplecertificate_upgrade($oldversion=0) {
     	// Simplecertificate savepoint reached.
     	upgrade_mod_savepoint(true, 2014051000, 'simplecertificate');
     }
+    
+    // v2.2.4
+    if ($oldversion < 2017012731) {
+    
+      // Define coursename in simplecertificate_issues table
+      $table = new xmldb_table('simplecertificate_issues');
+    
+      // <FIELD NAME="coursename" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" PREVIOUS="pathnamehash" />
+      $field = new xmldb_field('coursename', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, '---', 'pathnamehash');
+    
+
+      if (!$dbman->field_exists($table, $field)) {
+        $dbman->add_field($table, $field);
+        // Must add course name in new column
+        $issuedcerts = $DB->get_records('simplecertificate_issues');
+        $countcerts = count($issuedcerts);
+        $count = 0;
+        foreach ($issuedcerts as $issued) {
+          if (!$coursename = $DB->get_field('simplecertificate', 'coursename', 
+                array('id' => $issued->certificateid))) {
+            try {
+              $courseid = $DB->get_field('simplecertificate', 'course', array('id' => $issued->certificateid), MUST_EXIST);
+              $coursename = $DB->get_field('course', 'fullname', array('id' => $courseid), MUST_EXIST);
+            } catch (Exception $e) {
+              if (empty($issued->timedeleted)) {
+                $issued->haschange = 1;
+              }
+              $coursename = '';
+            }
+          }
+          $issued->coursename = $coursename;
+          if (!$DB->update_record('simplecertificate_issues', $issued)) {
+            print_error('upgradeerror', 'simplecertificate', null, "Can't update an issued certificate [id->$issued->id]");
+          }
+          $count++;
+          $pbar->update($count, $countcerts, "Moving Issued certificate files  ($i/$countcerts)");
+        }
+      }
+      // Simplecertificate savepoint reached.
+      upgrade_mod_savepoint(true, 2017012731, 'simplecertificate');
+    }
     return true;
 }
