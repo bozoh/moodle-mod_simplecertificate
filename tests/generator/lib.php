@@ -122,7 +122,7 @@ class mod_simplecertificate_generator extends testing_module_generator {
             $record->secondimage = $fileinfo['itemid'];
             $record->images[1] = $fileinfo['filename'];
         }
- 
-        return parent::create_instance($record, (array)$options);
+        
+       return parent::create_instance($record, (array)$options);
     }
 }
