@@ -213,27 +213,4 @@ class behat_mod_simplecertificate extends behat_base {
     }
     
 
-    /**
-     * 
-     * Copy from moodle 3.1  setps ,  not needed in moodle 3.1 or above, can be removed
-     * Go to current page setting item
-     *
-     * This can be used on front page, course, category or modules pages.
-     *
-     * @Given /^I navigate to "(?P<nodetext_string>(?:[^"]|\\")*)" in current page administration$/
-     *
-     * @throws ExpectationException
-     * @param string $nodetext navigation node to click, may contain path, for example "Reports > Overview"
-     * @return void
-     */
-    public function i_navigate_to_in_current_page_administration($nodetext) {
-        $parentnodes = array_map('trim', explode('>', $nodetext));
-        // Find the name of the first category of the administration block tree.
-        $xpath = '//div[contains(@class,\'block_settings\')]//div[@id=\'settingsnav\']/ul/li[1]/p[1]/span';
-        $node = $this->find('xpath', $xpath);
-        array_unshift($parentnodes, $node->getText());
-        $lastnode = array_pop($parentnodes);
-        $this->select_node_in_navigation($lastnode, $parentnodes);
-    }
-
 }
