@@ -398,6 +398,7 @@ function xmldb_simplecertificate_upgrade($oldversion=0) {
         $issuedcerts = $DB->get_records('simplecertificate_issues');
         $countcerts = count($issuedcerts);
         $count = 0;
+        $pbar = new progress_bar('simplecertificateupdate', 500, true);
         foreach ($issuedcerts as $issued) {
           if (!$coursename = $DB->get_field('simplecertificate', 'coursename', 
                 array('id' => $issued->certificateid))) {
