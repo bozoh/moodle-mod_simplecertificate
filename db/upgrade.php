@@ -383,7 +383,7 @@ function xmldb_simplecertificate_upgrade($oldversion=0) {
     }
     
     // v2.2.4
-    if ($oldversion < 2017012731) {
+    if ($oldversion < 2017013001) {
     
       // Define coursename in simplecertificate_issues table
       $table = new xmldb_table('simplecertificate_issues');
@@ -420,7 +420,7 @@ function xmldb_simplecertificate_upgrade($oldversion=0) {
         }
       }
       // Simplecertificate savepoint reached.
-      upgrade_mod_savepoint(true, 2017012731, 'simplecertificate');
+      upgrade_mod_savepoint(true, 2017013001, 'simplecertificate');
     }
     return true;
 }
