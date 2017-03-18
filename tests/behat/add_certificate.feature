@@ -16,6 +16,8 @@ Feature: Add a simplecertificate
       | user | course | role |
       | teacher1 | C1 | editingteacher |
       | student1 | C1 | student |
+    And the following config values are set as admin:
+      | enableavailability | 1 |
 
   @javascript 
   Scenario: Add a very basic certificate and verify if a student can donwload
