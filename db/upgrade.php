@@ -350,7 +350,7 @@ function xmldb_simplecertificate_upgrade($oldversion=0) {
                         $issued->pathnamehash = $newfile->get_pathnamehash();
                     }
                 } else {
-                   throw new Exception('File not found');
+                   throw new moodle_exception('filenotfound', 'simplecertificate', null, null, '');
                 }
             } catch (Exception $e) {
                 if (empty($issued->timedeleted)) {

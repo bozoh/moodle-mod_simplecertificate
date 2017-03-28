@@ -191,7 +191,7 @@ class restore_simplecertificate_activity_task extends restore_activity_task {
                                                 $fileinfo['itemid']);
                         
                         } else {
-                            throw new Exception('File not found');
+                            throw new moodle_exception('filenotfound', 'simplecertificate', null, null, '');
                         }
                     } catch (Exception $e) {
                         $this->log(" Can't restore file $filename. " . $e->getMessage(), backup::LOG_WARNING);

@@ -31,7 +31,6 @@ class certificate_verified extends \core\event\base  {
             'certificateid' => $this->objectid,
             'certiticate_userid' => $this->relateduserid 
         ));
-         "The user with id {$a->userid} verified the certificate with id {$a->certificateid} issued to user with id {$a->certiticate_userid}.";
     }
     
     public function get_url() {

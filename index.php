@@ -68,8 +68,8 @@ foreach ($certificates as $certificate) {
             'href' => $CFG->wwwroot . '/mod/simplecertificate/view.php?id=' . $certificate->coursemodule));
     } else {
         // Show normal if the mod is visible
-        $link = html_writer::tag('a', $certificate->name, array('class' => 'dimmed',
-            'href' => $CFG->wwwroot . '/mod/simplecertificate/view.php?id=' . $certificate->coursemodule));
+        $link = html_writer::tag('a', $certificate->name, array('href' => $CFG->wwwroot . 
+          '/mod/simplecertificate/view.php?id=' . $certificate->coursemodule));
     }
     if ($certificate->section !== $currentsection) {
         if ($certificate->section) {
