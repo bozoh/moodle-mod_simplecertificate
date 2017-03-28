@@ -36,7 +36,7 @@ require_once ($CFG->dirroot . '/user/profile/lib.php');
 
 use core_availability\info;
 use core_availability\info_module;
-//use core_availability\info_section;
+
 
 class simplecertificate {
     /**
@@ -87,18 +87,6 @@ class simplecertificate {
      * @var stdClass the course this simplecertificate instance belongs to
      */
     private $course;
-    
-    /**
-     *
-     * @var stdClass the admin config for all simplecertificate instances
-     */
-    private $adminconfig;
-    
-    /**
-     *
-     * @var assign_renderer the custom renderer for this module
-     */
-    private $output;
     
     /**
      *
@@ -201,7 +189,7 @@ class simplecertificate {
     public function delete_instance() {
         global $DB;
         try {
-            if ($instance = $this->get_instance()) {
+            if ($this->get_instance()) {
                 // Delete issued certificates
                 $this->remove_issues($this->get_instance());
                 
@@ -245,7 +233,6 @@ class simplecertificate {
             }
         } catch (Exception $e) {
             throw $e;
-            return false;
         }
     }
 
@@ -279,12 +266,12 @@ class simplecertificate {
                 if (!$coursename = $DB->get_field('simplecertificate', 'coursename', array('id' => $issue->certificateid), 
                                                 IGNORE_MISSING)) {
                     // Can't take, try get course
-                    if (!$course = $this->get_course()) {
-                        error_log("Can't find course");
-                        // TODO add exception msg
-                        throw new moodle_exception('TODO');
+                    if ($this->get_course()) {
+                      $coursename = $this->get_course()->fullname;
                     } else {
-                        $coursename = $course->fullname;
+                      error_log("Can't find course");
+                      // TODO add exception msg
+                      throw new moodle_exception('TODO');
                     }
                 }
             } else {
@@ -401,11 +388,7 @@ class simplecertificate {
             return $this->coursemodule;
         }
         
-        if (!$this->context) {
-            return null;
-        }
-        
-        if ($this->context->contextlevel == CONTEXT_MODULE) {
+        if ($this->context && $this->context->contextlevel == CONTEXT_MODULE) {
             $this->coursemodule = get_coursemodule_from_id('simplecertificate', $this->context->instanceid, 0, false, MUST_EXIST);
             return $this->coursemodule;
         }
@@ -446,9 +429,8 @@ class simplecertificate {
      * @return stdClass The simplecertificate instance object
      */
     private function populate_simplecertificate_instance(stdclass $formdata) {
-        global $USER;
-        
-        //Clear image filearea
+
+          //Clear image filearea
         $fs = get_file_storage();
         $fs->delete_area_files($this->get_context()->id, self::CERTIFICATE_COMPONENT_NAME, self::CERTIFICATE_IMAGE_FILE_AREA);
         // Creating a simplecertificate instace object.
@@ -537,13 +519,11 @@ class simplecertificate {
             $contextid = $context;
         }
         
-        $fileinfo = array('contextid' => $contextid, // ID of context
+        return array('contextid' => $contextid, // ID of context
                           'component' => self::CERTIFICATE_COMPONENT_NAME, // usually = table name
                           'filearea' => self::CERTIFICATE_IMAGE_FILE_AREA, // usually = table name
                           'itemid' => 1, // usually = ID of row in table
                           'filepath' => '/'); // any path beginning and ending in /
-        
-        return $fileinfo;
     }
 
     /**
@@ -574,13 +554,11 @@ class simplecertificate {
             $contextid = $context;
         }
     
-        $filerecord = array('contextid' => $contextid, 
+        return array('contextid' => $contextid, 
                             'component' => self::CERTIFICATE_COMPONENT_NAME, 
                             'filearea' => 'tmp', 
                             'itemid' => 0, 
                             'filepath' => '/');
-    
-        return $filerecord;
     }
 
     /**
@@ -691,7 +669,7 @@ class simplecertificate {
      * @return string the attempt table
      */
     public function print_attempts($attempts) {
-        global $OUTPUT, $DB;
+        global $OUTPUT;
         
         echo $OUTPUT->heading(get_string('summaryofattempts', 'simplecertificate'));
         
@@ -734,7 +712,7 @@ class simplecertificate {
      * @return string the grade result
      */
     protected function get_grade($userid = null) {
-        global $USER, $DB;
+        global $USER;
         
         if (empty($userid)) {
             $userid = $USER->id;
