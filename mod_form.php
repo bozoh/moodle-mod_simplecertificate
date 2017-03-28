@@ -11,7 +11,7 @@ require_once($CFG->libdir . '/filelib.php');
 class mod_simplecertificate_mod_form extends moodleform_mod {
 
     public function definition() {
-        global $CFG, $COURSE;
+        global $CFG;
 
 
         $mform =& $this->_form;
@@ -318,16 +318,16 @@ class mod_simplecertificate_mod_form extends moodleform_mod {
         }
         //File manager always creata a Files folder, so certimages is never empty. 
         //I must check if it has a file or it's only a empty files folder reference
-        if (isset($data->certificateimage) && !empty($data->certificateimage)) {
-            if (!$this->check_has_files('certificateimage')) {
+        if (isset($data->certificateimage) && !empty($data->certificateimage) 
+            && !$this->check_has_files('certificateimage')) {
                 $data->certificateimage = null;
-            }
+            
         }
         
-        if (isset($data->secondimage) && !empty($data->secondimage)) {
-            if (!$this->check_has_files('secondimage')) {
+        if (isset($data->secondimage) && !empty($data->secondimage) &&
+            !$this->check_has_files('secondimage')) {
                 $data->secondimage = null;
-            }
+            
         }
 
         return $data;

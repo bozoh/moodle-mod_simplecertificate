@@ -13,7 +13,6 @@ require_once (dirname(dirname(dirname(__FILE__))) . '/config.php');
 require_once ('verify_form.php');
 require_once ('lib.php');
 
-// optional_param('id', $USER->id, PARAM_INT);
 $code = optional_param('code', null, PARAM_ALPHANUMEXT); // Issed Code
 
 $context = context_system::instance();
@@ -27,8 +26,7 @@ echo $OUTPUT->heading(get_string('certificateverification', 'simplecertificate')
 
 $verifyform = new verify_form();
 
-if (!$verifyform->get_data()) {
-    if ($code)
+if (!$verifyform->get_data() && $code) {
         $verifyform->set_data(array('code' => $code));
     
     $verifyform->display();
@@ -62,8 +60,6 @@ if (!$verifyform->get_data()) {
     echo html_writer::table($table);
     
     // Add to log
-    //add_to_log($context->instanceid, 'simplecertificate', 'verify', "verify.php?code=$code", '$issuedcert->id');
-    
     $event = \mod_simplecertificate\event\certificate_verified::create(array(
             'objectid' => $issuedcert->id,
             'context' => $context,

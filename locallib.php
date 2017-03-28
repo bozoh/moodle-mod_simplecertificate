@@ -591,31 +591,31 @@ class simplecertificate {
                 return $this->issuecert;
             } else {
                 // haschange is maked, must update
-                $issuecert = $this->issuecert;
+                $issuedcert = $this->issuecert;
             }
             // Not in cache, trying get from database
-        } else if (!$issuecert = $DB->get_record('simplecertificate_issues', 
+        } else if (!$issuedcert = $DB->get_record('simplecertificate_issues', 
                         array('userid' => $userid, 'certificateid' => $this->get_instance()->id, 'timedeleted' => null))) {
             // Not in cache and not in DB, create new certificate issue record
             // Mark as created
             $created = true;
-            $issuecert = new stdClass();
-            $issuecert->certificateid = $this->get_instance()->id;
-            $issuecert->coursename = format_string($this->get_instance()->coursename, true);
-            $issuecert->userid = $userid;
-            $issuecert->haschange = 1;
+            $issuedcert = new stdClass();
+            $issuedcert->certificateid = $this->get_instance()->id;
+            $issuedcert->coursename = format_string($this->get_instance()->coursename, true);
+            $issuedcert->userid = $userid;
+            $issuedcert->haschange = 1;
             $formated_coursename = str_replace('-', '_', $this->get_instance()->coursename);
             $formated_certificatename = str_replace('-', '_', $this->get_instance()->name);
-            $issuecert->certificatename = format_string($formated_coursename . '-' . $formated_certificatename, true);
-            $issuecert->timecreated = time();
-            $issuecert->code = $this->get_issue_uuid();
+            $issuedcert->certificatename = format_string($formated_coursename . '-' . $formated_certificatename, true);
+            $issuedcert->timecreated = time();
+            $issuedcert->code = $this->get_issue_uuid();
             // Avoiding not null restriction;
-            $issuecert->pathnamehash = '';
+            $issuedcert->pathnamehash = '';
             
             if (has_capability('mod/simplecertificate:manage', $this->context, $userid)) {
-                $issuecert->id = 0;
+                $issuedcert->id = 0;
             } else {
-                $issuecert->id = $DB->insert_record('simplecertificate_issues', $issuecert);
+                $issuedcert->id = $DB->insert_record('simplecertificate_issues', $issuedcert);
                 
                 // Email to the teachers and anyone else
                 if (!empty($this->get_instance()->emailteachers)) {
@@ -629,16 +629,16 @@ class simplecertificate {
         }
         
         //If cache or db issued certificate is maked as haschange, must update
-        if (!empty($issuecert->haschange) && !$created) { //Check haschange, if so, reissue
+        if (!empty($issuedcert->haschange) && !$created) { //Check haschange, if so, reissue
             $formated_coursename = str_replace('-', '_', $this->get_instance()->coursename);
             $formated_certificatename = str_replace('-', '_', $this->get_instance()->name);
-            $issuecert->certificatename = format_string($formated_coursename . '-' . $formated_certificatename, true);
-            $DB->update_record('simplecertificate_issues', $issuecert);
+            $issuedcert->certificatename = format_string($formated_coursename . '-' . $formated_certificatename, true);
+            $DB->update_record('simplecertificate_issues', $issuedcert);
         }
         
         //Caching to avoid unessecery db queries
-        $this->issuecert = $issuecert;
-        return $issuecert;
+        $this->issuecert = $issuedcert;
+        return $issuedcert;
     }
 
     /**
@@ -835,7 +835,7 @@ class simplecertificate {
      * @return array the teacher array
      */
     protected function get_teachers() {
-        global $CFG, $USER, $DB;
+        global $CFG, $DB;
         $teachers = array();
         
         if (!empty($CFG->coursecontact)) {
@@ -864,14 +864,13 @@ class simplecertificate {
      * First checks whether the option to email teachers is set for this certificate.
      */
     protected function send_alert_email_teachers() {
-        if (!empty($this->get_instance()->emailteachers)) {
-            if ($teachers = $this->get_teachers()) {
+        if (!empty($this->get_instance()->emailteachers) && ($teachers = $this->get_teachers())) {
                 $emailteachers = array();
                 foreach ($teachers as $teacher) {
                     $emailteachers[] = $teacher->user->email;
                 }
                 $this->send_alert_emails($emailteachers);
-            }
+            
         }
     }
 
@@ -894,7 +893,7 @@ class simplecertificate {
      * @param array $emails emails arrays
      */
     protected function send_alert_emails($emails) {
-        global $USER, $CFG, $DB;
+        global $USER, $CFG;
         
         if (!empty($emails)) {
             
@@ -1588,7 +1587,7 @@ class simplecertificate {
      * @return array
      */
     protected function get_outcomes() {
-        global $COURSE, $DB;
+        global $COURSE;
         
         // get all outcomes in course
         $grade_seq = new grade_tree($COURSE->id, false, true, '', false);
@@ -1620,7 +1619,7 @@ class simplecertificate {
      * @return string the outcome
      */
     protected function get_outcome($userid) {
-        global $USER, $DB;
+        global $USER;
         
         if (empty($userid)) {
             $userid = $USER->id;
@@ -2196,29 +2195,7 @@ class simplecertificate {
                                                  strip_tags(format_string($type, true))));
             
             switch ($type) {
-                //One pdf with all certificates
-              default:
-                    $pdf = $this->create_pdf_object();
-                    
-                    foreach ($users as $user) {
-                        $canissue = $this->can_issue($user, $issuelist != 'allusers');
-                        if (empty($canissue)) {
-                            //To one pdf file
-                            $issuedcert = $this->get_issue($user);
-                            $this->create_pdf($issuedcert, $pdf, true);
-                            
-                            //Save certificate PDF
-                            if (!$this->issue_file_exists($issuedcert)) {
-                                //To force file creation
-                                $issuedcert->haschage = true;
-                                $this->get_issue_file($issuedcert);
-                            }
-                        }
-                    }
-                    $pdf->Output($filename, 'D');
-                
-                break;
-                
+              
                 //One zip with all certificates in separated files
                 case 'zip':
                     $filesforzipping = array();
@@ -2267,6 +2244,29 @@ class simplecertificate {
                   $url->remove_params('action', 'type');
                   redirect($url);
                   break;
+                  
+                  //One pdf with all certificates
+                  default:
+                    $pdf = $this->create_pdf_object();
+                  
+                    foreach ($users as $user) {
+                      $canissue = $this->can_issue($user, $issuelist != 'allusers');
+                      if (empty($canissue)) {
+                        //To one pdf file
+                        $issuedcert = $this->get_issue($user);
+                        $this->create_pdf($issuedcert, $pdf, true);
+                  
+                        //Save certificate PDF
+                        if (!$this->issue_file_exists($issuedcert)) {
+                          //To force file creation
+                          $issuedcert->haschage = true;
+                          $this->get_issue_file($issuedcert);
+                        }
+                      }
+                    }
+                    $pdf->Output($filename, 'D');
+                  
+                    break;
             }
             exit();
         }

@@ -313,7 +313,7 @@ function simplecertificate_pluginfile($course, $cm, $context, $filearea, $args, 
  * @return array
  */
 function simplecertificate_get_outcomes() {
-    global $COURSE, $DB;
+    global $COURSE;
     
     // get all outcomes in course
     $grade_seq = new grade_tree($COURSE->id, false, true, '', false);
@@ -398,7 +398,7 @@ function simplecertificate_get_editor_options(stdclass $context) {
  *
  */
 function simplecertificate_get_mods() {
-    global $COURSE, $CFG, $DB;
+    global $COURSE, $CFG;
     
     $grademodules = array();
     
