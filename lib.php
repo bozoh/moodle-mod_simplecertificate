@@ -208,17 +208,11 @@ function simplecertificate_get_participants($certificateid) {
 function simplecertificate_supports($feature) {
     switch ($feature) {
         case FEATURE_GROUPS:
-            return true;
         case FEATURE_GROUPINGS:
-            return true;
         case FEATURE_GROUPMEMBERSONLY:
-            return true;
         case FEATURE_MOD_INTRO:
-            return true;
         case FEATURE_COMPLETION_TRACKS_VIEWS:
-            return true;
         case FEATURE_COMPLETION_HAS_RULES:
-            return true;
         case FEATURE_BACKUP_MOODLE2:
             return true;
         
@@ -468,7 +462,7 @@ function simplecertificate_print_issue_certificate_file(stdClass $issuecert) {
     try {
         $fs = get_file_storage();
         if (!$fs->file_exists_by_hash($issuecert->pathnamehash)) {
-            throw new Exception();
+            throw new moodle_exception('filenotfound', 'simplecertificate', null, null, '');
         }
         $file = $fs->get_file_by_hash($issuecert->pathnamehash);
         $output = '<img src="' . $OUTPUT->pix_url(file_mimetype_icon($file->get_mimetype())) . '" height="16" width="16" alt="' .
