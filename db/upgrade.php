@@ -382,6 +382,7 @@ function xmldb_simplecertificate_upgrade($oldversion=0) {
     	upgrade_mod_savepoint(true, 2014051000, 'simplecertificate');
     }
 
+    
     // v2.2.4
     if ($oldversion < 2017013002) {
     
@@ -398,7 +399,6 @@ function xmldb_simplecertificate_upgrade($oldversion=0) {
         $issuedcerts = $DB->get_records('simplecertificate_issues');
         $countcerts = count($issuedcerts);
         $count = 0;
-        $pbar = new progress_bar('simplecertificateupdate', 500, true);
         foreach ($issuedcerts as $issued) {
           if (!$coursename = $DB->get_field('simplecertificate', 'coursename', 
                 array('id' => $issued->certificateid))) {
