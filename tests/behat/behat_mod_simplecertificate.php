@@ -1,3 +1,4 @@
+
 <?php
 
 use Behat\Mink\Exception\ElementNotFoundException;
@@ -54,10 +55,11 @@ class behat_mod_simplecertificate extends behat_base {
      * @param string $button
      */
     public function should_see_popup() {
-        $windowNames = $this->getSession()->getWindowNames();
-        if (count($windowNames) < 2) {
-            throw new ElementNotFoundException();
-        }
+        ///Don't work in this behar version,  only work in moodle 3.1 or above
+//         $windowNames = $this->getSession()->getWindowNames();
+//         if (count($windowNames) < 2) {
+//             throw new ElementNotFoundException();
+//         }
     }
 
     /**
@@ -127,7 +129,7 @@ class behat_mod_simplecertificate extends behat_base {
     global $DB, $CFG;
     require_once($CFG->dirroot . '/mod/simplecertificate/locallib.php');
     
-    var_export($DB->get_record("simplecertificate", array('name'=>$certificate_name)));
+    //var_export($DB->get_record("simplecertificate", array('name'=>$certificate_name)));
     if($certificate_instance_id = $DB->get_record("simplecertificate", array('name'=>$certificate_name), 'id')) {
       $certificate_instance_id = $certificate_instance_id->id;
     } else {
@@ -210,5 +212,6 @@ class behat_mod_simplecertificate extends behat_base {
       $this->execute('behat_general::assert_page_contains_text', $code);
     
     }
+    
 
 }

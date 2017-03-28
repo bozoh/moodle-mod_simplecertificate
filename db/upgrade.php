@@ -381,9 +381,9 @@ function xmldb_simplecertificate_upgrade($oldversion=0) {
     	// Simplecertificate savepoint reached.
     	upgrade_mod_savepoint(true, 2014051000, 'simplecertificate');
     }
-    
+
     // v2.2.4
-    if ($oldversion < 2017012731) {
+    if ($oldversion < 2017013002) {
     
       // Define coursename in simplecertificate_issues table
       $table = new xmldb_table('simplecertificate_issues');
@@ -398,6 +398,7 @@ function xmldb_simplecertificate_upgrade($oldversion=0) {
         $issuedcerts = $DB->get_records('simplecertificate_issues');
         $countcerts = count($issuedcerts);
         $count = 0;
+        $pbar = new progress_bar('simplecertificateupdate', 500, true);
         foreach ($issuedcerts as $issued) {
           if (!$coursename = $DB->get_field('simplecertificate', 'coursename', 
                 array('id' => $issued->certificateid))) {
@@ -420,7 +421,7 @@ function xmldb_simplecertificate_upgrade($oldversion=0) {
         }
       }
       // Simplecertificate savepoint reached.
-      upgrade_mod_savepoint(true, 2017012731, 'simplecertificate');
+      upgrade_mod_savepoint(true, 2017013002, 'simplecertificate');
     }
     return true;
 }

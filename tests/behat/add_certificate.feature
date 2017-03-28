@@ -16,6 +16,8 @@ Feature: Add a simplecertificate
       | user | course | role |
       | teacher1 | C1 | editingteacher |
       | student1 | C1 | student |
+    And the following config values are set as admin:
+      | enableavailability | 1 |
 
   @javascript 
   Scenario: Add a very basic certificate and verify if a student can donwload
@@ -75,14 +77,14 @@ Feature: Add a simplecertificate
     And I follow "Course 1"
     And I follow "Grade assignment"
 #	Old version 3.1 or less
-#    And I follow "View all submissions"
-    And I navigate to "View all submissions" in current page administration
+    And I follow "View/grade all submissions"
+#    And I navigate to "View all submissions" in current page administration
     And I click on "Grade" "link" in the "Sam1 Student1" "table_row"
     And I set the following fields to these values:
       | Grade | 20 |
     And I press "Save changes"
-    And I press "Ok"
-    And I follow "Edit settings"
+    And I press "Continue"
+  #  And I follow "Edit settings"
     And I log out
     And I log in as "student1"
     And I am on site homepage
