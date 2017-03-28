@@ -54,7 +54,7 @@ function simplecertificate_add_instance(stdclass $data) {
  * @return bool true
  */
 function simplecertificate_update_instance(stdclass $data) {
-    global $DB, $CFG;
+    global $CFG;
     require_once ($CFG->dirroot . '/mod/simplecertificate/locallib.php');
     
     $context = context_module::instance($data->coursemodule);
@@ -73,9 +73,8 @@ function simplecertificate_update_instance(stdclass $data) {
  * @return bool true if successful
  */
 function simplecertificate_delete_instance($id) {
-    global $DB, $CFG;
-    
     global $CFG;
+        
     require_once ($CFG->dirroot . '/mod/simplecertificate/locallib.php');
     $cm = get_coursemodule_from_instance('simplecertificate', $id, 0, false, MUST_EXIST);
     $context = context_module::instance($cm->id);

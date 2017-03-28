@@ -35,7 +35,6 @@ class mod_simplecertificate_mod_form extends moodleform_mod {
         //--------------------------------------- Design Options----------------------------------------------------
         $mform->addElement('header', 'designoptions', get_string('designoptions', 'simplecertificate'));
 
-        $maxbytes = get_max_upload_file_size($CFG->maxbytes, $COURSE->maxbytes);
 
         //Certificate image file
         $mform->addElement('filemanager', 'certificateimage', get_string('certificateimage','simplecertificate'), null,

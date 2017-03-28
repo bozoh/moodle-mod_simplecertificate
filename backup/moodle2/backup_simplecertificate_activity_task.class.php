@@ -61,8 +61,7 @@ class backup_simplecertificate_activity_task extends backup_activity_task {
 
         // Link to simplecertificate view by moduleid
         $search="/(".$base."\/mod\/simplecertificate\/view.php\?id\=)([0-9]+)/";
-        $content= preg_replace($search, '$@SIMPLECERTIFICATEVIEWBYID*$2@$', $content);
+        return preg_replace($search, '$@SIMPLECERTIFICATEVIEWBYID*$2@$', $content);
 
-        return $content;
     }
 }

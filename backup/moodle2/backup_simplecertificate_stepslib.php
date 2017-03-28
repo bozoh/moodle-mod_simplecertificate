@@ -74,8 +74,6 @@ class backup_simplecertificate_activity_structure_step extends backup_activity_s
         $issue->annotate_ids('user', 'userid');
 
         // Define file annotations 
-       
-        //$certificate->annotate_files('mod_simplecertificate', 'intro', null);
         $certificate->annotate_files(simplecertificate::CERTIFICATE_COMPONENT_NAME, simplecertificate::CERTIFICATE_IMAGE_FILE_AREA, null);
         $issue->annotate_files(simplecertificate::CERTIFICATE_COMPONENT_NAME, simplecertificate::CERTIFICATE_ISSUES_FILE_AREA, 'id');
         

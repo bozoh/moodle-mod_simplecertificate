@@ -971,7 +971,7 @@ class simplecertificate {
      * @return mixed PDF object or error
      */
     protected function create_pdf(stdClass $issuecert, $pdf = null, $isbulk = false) {
-        global $DB, $CFG;
+        global $CFG;
         
         //Check if certificate file is already exists, if issued has changes, it will recreated
         if (empty($issuecert->haschange) && $this->issue_file_exists($issuecert) && !$isbulk) {
@@ -1136,11 +1136,11 @@ class simplecertificate {
             $issuecert->pathnamehash = $file->get_pathnamehash();
             
             // Verify if user is a manager, if not, update issuedcert
-            if (!has_capability('mod/simplecertificate:manage', $this->context, $issuecert->userid)) {
-                if (!$DB->update_record('simplecertificate_issues', $issuecert)) {
+            if (!has_capability('mod/simplecertificate:manage', 
+                $this->context, $issuecert->userid) && !$DB->update_record('simplecertificate_issues',
+                    $issuecert)) {
                     print_error('cannotupdatemod', 'error', null, 'simplecertificate_issue');
                     return false;
-                }
             }
              return $file;
         }
@@ -1291,7 +1291,8 @@ class simplecertificate {
                     echo $OUTPUT->footer(); //send email
                 break;
                 
-                case self::OUTPUT_OPEN_IN_BROWSER:
+                //OUTPUT_OPEN_IN_BROWSER
+                default:
                     send_stored_file($file, 10, 0, false, array('dontdie' => true)); // open in browser
                 break;// open in browser
           }
@@ -1476,14 +1477,11 @@ class simplecertificate {
             
             // It's enable, so i must copy the profile image to somewhere else, so i can get the image;
             // Try to get the profile image file
-            
             $fs = get_file_storage();
-            if (!$file = $fs->get_file($usercontext->id, 'user', 'icon', 0, '/', $filename . '.png')) {
-                $extension = '.jpg';
-                if (!$file = $fs->get_file($usercontext->id, 'user', 'icon', 0, '/', $filename . '.jpg')) {
+            if ((!$file = $fs->get_file($usercontext->id, 'user', 'icon', 0, '/', $filename . '.png'))
+            && (!$file = $fs->get_file($usercontext->id, 'user', 'icon', 0, '/', $filename . '.jpg'))) {
                     // I Can't get the file, sorry
                     return '';
-                }
             }
             
             // with the file, now let's copy to plugin filearea
@@ -1538,17 +1536,16 @@ class simplecertificate {
             $sql = "SELECT MAX(c.timecompleted) as timecompleted FROM {course_completions} c
                  WHERE c.userid = :userid AND c.course = :courseid";
             
-            if ($timecompleted = $DB->get_record_sql($sql, 
-                                                    array('userid' => $issuecert->userid, 'courseid' => $this->get_course()->id))) {
-                if (!empty($timecompleted->timecompleted)) {
+            if ($timecompleted = $DB->get_record_sql($sql, array('userid' => $issuecert->userid,
+              'courseid' => $this->get_course()->id)) && !empty($timecompleted->timecompleted)) {
                     $date = $timecompleted->timecompleted;
-                }
+                
             }
             // Get the module grade date
-        } else if ($this->get_instance()->certdate > 0) {
-            if ($modinfo = $this->get_mod_grade($this->get_instance()->certdate, $issuecert->userid)) {
+        } else if ($this->get_instance()->certdate > 0
+            && $modinfo = $this->get_mod_grade($this->get_instance()->certdate, $issuecert->userid)) {
                 $date = $modinfo->dategraded;
-            }
+            
         }
         
         return userdate($date, $format);
@@ -1629,14 +1626,13 @@ class simplecertificate {
             $userid = $USER->id;
         }
         
-        if ($this->get_instance()->outcome > 0) {
-            if ($grade_item = new grade_item(array('id' => $this->get_instance()->outcome))) {
+        if ($this->get_instance()->outcome > 0
+            && $grade_item = new grade_item(array('id' => $this->get_instance()->outcome))){ 
                 $outcomeinfo = new stdClass();
                 $outcomeinfo->name = $grade_item->get_name();
                 $outcome = new grade_grade(array('itemid' => $grade_item->id, 'userid' => $userid));
                 $outcomeinfo->grade = grade_format_gradevalue($outcome->finalgrade, $grade_item, true, GRADE_DISPLAY_TYPE_REAL);
                 return $outcomeinfo->name . ': ' . $outcomeinfo->grade;
-            }
         }
         
         return '';
@@ -1684,7 +1680,7 @@ class simplecertificate {
      * @return string null if user meet issued conditions, or an text with erro
      */
     protected function can_issue($user = null, $chkcompletation = true) {
-        global $DB, $USER, $CFG;
+        global $USER, $CFG;
         
         if (empty($user)) {
             $user = $USER;
@@ -1706,10 +1702,10 @@ class simplecertificate {
                 $completion->update_state($this->coursemodule, COMPLETION_COMPLETE, $user->id);
             }
             
-            if ($CFG->enableavailability) {
-                if (!$this->check_user_can_access_certificate_instance($user->id)) {
+            if ($CFG->enableavailability
+                && !$this->check_user_can_access_certificate_instance($user->id)) {
                     return get_string('cantissue', 'simplecertificate');
-                }
+                
             }
             return null;
         }
@@ -1794,7 +1790,6 @@ class simplecertificate {
             
             if ($this->get_instance()->delivery != 3 || $canmanage) {
                 // Create new certificate record, or return existing record
-                $certrecord = $this->get_issue();
                 switch ($this->get_instance()->delivery) {
                     case self::OUTPUT_FORCE_DOWNLOAD:
                         $str = get_string('opendownload', 'simplecertificate');
@@ -1858,10 +1853,9 @@ class simplecertificate {
         }
         
         // if groupmembersonly used, remove users who are not in any group
-        if (!empty($issedusers) && !empty($CFG->enablegroupings) && $this->coursemodule->groupmembersonly) {
-            if ($groupingusers = groups_get_grouping_members($cm->groupingid, 'u.id', 'u.id')) {
-                $issedusers = array_intersect($issedusers, array_keys($groupingusers));
-            }
+        if (!empty($issedusers) && !empty($CFG->enablegroupings) && $this->coursemodule->groupmembersonly 
+            && $groupingusers = groups_get_grouping_members($cm->groupingid, 'u.id', 'u.id')) {
+            $issedusers = array_intersect($issedusers, array_keys($groupingusers));
         }
         
         if ($groupmode) {
@@ -1884,11 +1878,9 @@ class simplecertificate {
     
     // Issued certificates view
     public function view_issued_certificates(moodle_url $url) {
-        global $OUTPUT, $DB, $CFG;
+        global $OUTPUT, $CFG;
         
         // Declare some variables
-        $strcertificates = get_string('modulenameplural', 'simplecertificate');
-        $strcertificate = get_string('modulename', 'simplecertificate');
         $strto = html_writer::link($url->out(false, array('orderby' => 'username')), get_string('awardedto', 'simplecertificate'));
         $strdate = html_writer::link($url->out(false, array('orderby' => 'issuedate')), 
                                     get_string('receiveddate', 'simplecertificate'));
@@ -2051,7 +2043,8 @@ class simplecertificate {
                     $workbook->close();
                 break;
                 
-                case 'txt':
+                //txt
+                default:
                     
                     header("Content-Type: application/download\n");
                     header("Content-Disposition: attachment; filename=\"" . format_text($filename, true) . "\"");
@@ -2069,7 +2062,7 @@ class simplecertificate {
                     // Generate the data for the body of the spreadsheet
                     $i = 0;
                     $row = 1;
-                    if ($users)
+                    if ($users){
                         foreach ($users as $user) {
                             echo fullname($user);
                             $studentid = " ";
@@ -2089,6 +2082,7 @@ class simplecertificate {
                             echo $user->code . "\n";
                             $row++;
                         }
+                    }
                 break;
             }
             exit();
@@ -2203,21 +2197,21 @@ class simplecertificate {
             
             switch ($type) {
                 //One pdf with all certificates
-                case 'pdf':
+              default:
                     $pdf = $this->create_pdf_object();
                     
                     foreach ($users as $user) {
                         $canissue = $this->can_issue($user, $issuelist != 'allusers');
                         if (empty($canissue)) {
                             //To one pdf file
-                            $issuecert = $this->get_issue($user);
-                            $this->create_pdf($issuecert, $pdf, true);
+                            $issuedcert = $this->get_issue($user);
+                            $this->create_pdf($issuedcert, $pdf, true);
                             
                             //Save certificate PDF
-                            if (!$this->issue_file_exists($issuecert)) {
+                            if (!$this->issue_file_exists($issuedcert)) {
                                 //To force file creation
-                                $issuecert->haschage = true;
-                                $this->get_issue_file($issuecert);
+                                $issuedcert->haschage = true;
+                                $this->get_issue_file($issuedcert);
                             }
                         }
                     }
@@ -2231,8 +2225,8 @@ class simplecertificate {
                     foreach ($users as $user) {
                         $canissue = $this->can_issue($user, $issuelist != 'allusers');
                         if (empty($canissue)) {
-                            $issuecert = $this->get_issue($user);
-                            if ($file = $this->get_issue_file($issuecert)) {
+                            $issuedcert = $this->get_issue($user);
+                            if ($file = $this->get_issue_file($issuedcert)) {
                                 $fileforzipname = $file->get_filename();
                                 $filesforzipping[$fileforzipname] = $file;
                             } else {
@@ -2256,9 +2250,9 @@ class simplecertificate {
                     foreach ($users as $user) {
                         $canissue = $this->can_issue($user, $issuelist != 'allusers');
                         if (empty($canissue)) {
-                            $issuecert = $this->get_issue($user);
-                            if ($this->get_issue_file($issuecert)) {
-                                $this->send_certificade_email($issuecert);
+                            $issuedcert = $this->get_issue($user);
+                            if ($this->get_issue_file($issuedcert)) {
+                                $this->send_certificade_email($issuedcert);
                             } else {
                                 error_log(get_string('filenotfound', 'simplecertificate'));
                                 print_error('filenotfound', 'simplecertificate');
@@ -2272,7 +2266,6 @@ class simplecertificate {
                 case 'deleteselected':
                   $url->remove_params('action', 'type');
                   redirect($url);
-                  //redirect($url, "User deleted", 5);
                   break;
             }
             exit();
@@ -2286,18 +2279,13 @@ class simplecertificate {
      * @param string $action Log action
      */
     private function add_to_log($action) {
-        switch ($action) {
-            default:
-                // Default is view action
-                
+        if ($action) {
                 $event = \mod_simplecertificate\event\course_module_viewed::create(
                        array(
                             'objectid' => $this->get_course_module()->instance, 
                             'context' => $this->get_context(),
                             'other' => array('certificatecode' => $this->get_issue()->code)));
                 $event->add_record_snapshot('course', $this->get_course());
-            
-            break;
         }
         
         if (!empty($event)) {

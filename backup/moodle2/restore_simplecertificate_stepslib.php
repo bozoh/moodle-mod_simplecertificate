@@ -110,20 +110,10 @@ class restore_simplecertificate_activity_structure_step extends restore_activity
     }
 
     protected function after_execute() {
-        global $CFG;
-
         // Add simplecertificate related files, no need to match by itemname (just internally handled context)
         $this->add_related_files('mod_simplecertificate', 'intro', null);
         $this->add_related_files('mod_simplecertificate', 'image', null);
         $this->add_related_files('mod_simplecertificate', 'issues', null);
     }
     
-      
-    private function get_backupinfo($info) {
-        $backupinfo = backup_general_helper::get_backup_information(basename($this->get_task()->get_basepath()));
-        if (object_property_exists($backupinfo, $info)){
-            return $backupinfo->$info;
-        } 
-        return false;
-    }
 }

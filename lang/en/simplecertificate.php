@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Language strings for the simplecertificate module
  *
@@ -9,8 +8,6 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-
-//-----
 $string['modulename'] = 'Simple Certificate';
 $string['modulenameplural'] = 'Simple Certificates';
 $string['pluginname'] = 'Simple Certificate';

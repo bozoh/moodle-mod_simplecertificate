@@ -3,7 +3,7 @@
 namespace mod_simplecertificate\event;
 
 defined('MOODLE_INTERNAL') || die();
-
+ 
 /**
  * The mod_simplecertificate course module viewed event class.
  * 

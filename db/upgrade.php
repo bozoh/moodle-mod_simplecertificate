@@ -18,7 +18,7 @@
 // using the functions defined in lib/ddllib.php
 
 function xmldb_simplecertificate_upgrade($oldversion=0) {
-    global $CFG, $DB, $OUTPUT;
+    global $DB;
     
     $dbman = $DB->get_manager();
     if ($oldversion < 2013053102) {
