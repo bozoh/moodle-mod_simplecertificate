@@ -1660,7 +1660,7 @@ class simplecertificate {
                         require_once ($CFG->dirroot . '/user/profile/field/' . $field->datatype . '/field.class.php');
                         $newfield = 'profile_field_' . $field->datatype;
                         $formfield = new $newfield($field->id, $userid);
-                        if ($formfield->is_visible() and !$formfield->is_empty()) {
+                        if ($formfield->is_visible() && !$formfield->is_empty()) {
                             if ($field->datatype == 'checkbox') {
                                 $usercustomfields->{$field->shortname} = ($formfield->data == 1 ? get_string('yes') : get_string(
                                                                                                                                 'no'));
@@ -1858,7 +1858,7 @@ class simplecertificate {
         }
         
         // if groupmembersonly used, remove users who are not in any group
-        if (!empty($issedusers) and !empty($CFG->enablegroupings) and $this->coursemodule->groupmembersonly) {
+        if (!empty($issedusers) && !empty($CFG->enablegroupings) && $this->coursemodule->groupmembersonly) {
             if ($groupingusers = groups_get_grouping_members($cm->groupingid, 'u.id', 'u.id')) {
                 $issedusers = array_intersect($issedusers, array_keys($groupingusers));
             }
@@ -2125,8 +2125,8 @@ class simplecertificate {
             $override->firstname = 'firstname';
             $override->lastname = 'lastname';
             $fullnamelanguage = get_string('fullnamedisplay', '', $override);
-            if (($CFG->fullnamedisplay == 'firstname lastname') or ($CFG->fullnamedisplay == 'firstname') or
-             ($CFG->fullnamedisplay == 'language' and $fullnamelanguage == 'firstname lastname')) {
+            if (($CFG->fullnamedisplay == 'firstname lastname') || ($CFG->fullnamedisplay == 'firstname') ||
+             ($CFG->fullnamedisplay == 'language' && $fullnamelanguage == 'firstname lastname')) {
                 $sort = " ORDER BY firstname, lastname";
             } else { // ($CFG->fullnamedisplay == 'language' and $fullnamelanguage == 'lastname firstname')
                 $sort = " ORDER BY lastname, firstname";
@@ -2298,7 +2298,7 @@ class simplecertificate {
                 $event->add_record_snapshot('course', $this->get_course());
             
             break;
-        };
+        }
         
         if (!empty($event)) {
             $event->trigger();
