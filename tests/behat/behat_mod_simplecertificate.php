@@ -2,7 +2,7 @@
 
 use Behat\Mink\Exception\ElementNotFoundException;
 use Behat\Mink\Exception\ElementException;
-#use Behat\Mink\Exception\Exception;
+use Behat\Mink\Exception\Exception;
 use Behat\Mink\Exception\ExpectationException;
 
 // This file is part of Moodle - http://moodle.org/
