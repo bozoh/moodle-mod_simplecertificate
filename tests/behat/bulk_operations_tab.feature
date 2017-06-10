@@ -19,7 +19,9 @@ Feature: Verify bulk operations
       | student1 | C1 | student |
       | student2 | C1 | student |
     And I log in as "teacher1"
-    And I follow "Course 1"
+    #Moodle 3.2 and below
+    #And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I turn editing mode on
     And I add a "Assignment" to section "1" and I fill the form with:
       | Assignment name | Grade assignment |
@@ -33,7 +35,9 @@ Feature: Verify bulk operations
 
   Scenario: Verify if list all user without any grading restrictions
     Given I log in as "teacher1"
-    And I follow "Course 1"
+    #Moodle 3.2 and below
+    #And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test Simple Certificate"
     And I click on "Bulk operations" "link"
     And I set the field "issuelist" to "All users"
@@ -44,7 +48,9 @@ Feature: Verify bulk operations
   @javascript  
   Scenario: Verify if list all user with grading restrictions
     Given I log in as "teacher1"
-    And I follow "Course 1"
+    #Moodle 3.2 and below
+    #And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I put a grade restrinction to "Test Simple Certificate" with "Grade assignment" min grade "70"
     And I follow "Grade assignment"
       #	Old version 3.1 or less
@@ -68,7 +74,9 @@ Feature: Verify bulk operations
     And I press "Ok"
     And I follow "Edit settings"
     And I press "Cancel"
-    And I follow "Course 1"
+    #Moodle 3.2 and below
+    #And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test Simple Certificate"
     And I click on "Bulk operations" "link"
     And I set the field "issuelist" to "All users"
@@ -78,7 +86,9 @@ Feature: Verify bulk operations
   @javascript  
   Scenario: Verify if list only user whose match grading restrictions
   	Given I log in as "teacher1"
-    And I follow "Course 1"
+    #Moodle 3.2 and below
+    #And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I put a grade restrinction to "Test Simple Certificate" with "Grade assignment" min grade "70"
     And I follow "Grade assignment"
   #	Old version 3.1 or less
@@ -102,7 +112,9 @@ Feature: Verify bulk operations
     And I press "Ok"
     And I follow "Edit settings"
     And I press "Cancel"
-    And I follow "Course 1"
+    #Moodle 3.2 and below
+    #And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test Simple Certificate"
     And I click on "Bulk operations" "link"
     And I set the field "issuelist" to "Users that met the activity conditions"

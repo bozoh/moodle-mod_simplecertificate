@@ -464,7 +464,8 @@ function simplecertificate_print_issue_certificate_file(stdClass $issuecert) {
             throw new moodle_exception('filenotfound', 'simplecertificate', null, null, '');
         }
         $file = $fs->get_file_by_hash($issuecert->pathnamehash);
-        $output = '<img src="' . $OUTPUT->pix_url(file_mimetype_icon($file->get_mimetype())) . '" height="16" width="16" alt="' .
+        #$output = '<img src="' . $OUTPUT->pix_url(file_mimetype_icon($file->get_mimetype())) . '" height="16" width="16" alt="' .
+        $output = '<img src="' . $OUTPUT->image_url(file_mimetype_icon($file->get_mimetype())) . '" height="16" width="16" alt="' .
          $file->get_mimetype() . '" />&nbsp;';
         
         $url = new moodle_url('wmsendfile.php');
