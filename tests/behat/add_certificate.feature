@@ -20,14 +20,16 @@ Feature: Add a simplecertificate
   @javascript 
   Scenario: Add a very basic certificate and verify if a student can donwload
     When I log in as "teacher1"
-    And I follow "Course 1"
+    #Moodle 3.2 and below
+    #And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I turn editing mode on
     And I add a "Simple Certificate" to section "1" and I fill the form with:
       | Certificate Name | Test Simple Certificate |
       | Certificate Text | Test Simple Certificate |
 	And I log out
     And I log in as "student1"
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test Simple Certificate"
     Then I press "Get Certificate"
     And I should see a pop-up window
@@ -36,7 +38,7 @@ Feature: Add a simplecertificate
   Scenario: Show certificate greyed-out to students when grade condition is not satisfied
     Given  I log in as "teacher1"
     #And I am on site homepage
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I turn editing mode on
     And I add a "Assignment" to section "1" and I fill the form with:
       | Assignment name | Grade assignment |
@@ -60,9 +62,11 @@ Feature: Add a simplecertificate
     And I log out
     When I log in as "student1"
     And I am on site homepage
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     Then I should see "Not available unless: You achieve a required score in Grade assignment"
-    And "Test Simple Certificate" activity should be hidden
+    #for moodle 3.2 or below
+    #And "Test Simple Certificate" activity should be hidden
+    And I should not see "Test page name"
     And I follow "Grade assignment"
     And I press "Add submission"
     And I set the following fields to these values:
@@ -72,7 +76,7 @@ Feature: Add a simplecertificate
     And I log out
     And I log in as "teacher1"
     And I am on site homepage
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Grade assignment"
 #	Old version 3.1 or less
 #    And I follow "View all submissions"
@@ -86,7 +90,7 @@ Feature: Add a simplecertificate
     And I log out
     And I log in as "student1"
     And I am on site homepage
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And "Test Simple Certificate" activity should be visible
     And I should not see "Not available unless: You achieve a required score in Grade assignment"
     And I follow "Test Simple Certificate"

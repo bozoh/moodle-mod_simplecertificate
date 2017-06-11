@@ -19,7 +19,9 @@ Feature: Verify bulk operations
       | student1 | C1 | student |
       | student2 | C1 | student |
     And I log in as "teacher1"
-    And I follow "Course 1"
+    #Moodle 3.2 and below
+    #And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I turn editing mode on
     And I add a "Assignment" to section "1" and I fill the form with:
       | Assignment name | Grade assignment |
@@ -34,8 +36,10 @@ Feature: Verify bulk operations
   Scenario: Verify if list all user without any grading restrictions
     Given I log in as "teacher1"
     And I follow "Course 1"
-    And I follow "Test Simple Certificate"
-    And I click on "Bulk operations" "link"
+    And I follow "Test Simple Certificate"    #Moodle 3.2 and below
+    #And I follow "Course 1"
+    And I am on "Course 1" course homepage
+erations" "link"
     And I set the field "issuelist" to "All users"
     Then "Tumé Arandú" "text" should exist in the ".generaltable" "css_element"
     And "Arasy Guaraní" "text" should exist in the ".generaltable" "css_element"
@@ -46,8 +50,10 @@ Feature: Verify bulk operations
     Given I log in as "teacher1"
     And I follow "Course 1"
     And I put a grade restrinction to "Test Simple Certificate" with "Grade assignment" min grade "70"
-    And I follow "Grade assignment"
-      #	Old version 3.1 or less
+    And I    #Moodle 3.2 and below
+    #And I follow "Course 1"
+    And I am on "Course 1" course homepage
+     #	Old version 3.1 or less
 #    And I follow "View all submissions"
     And I navigate to "View all submissions" in current page administration
     And I click on "Grade" "link" in the "Tumé Arandú" "table_row"
@@ -72,7 +78,10 @@ Feature: Verify bulk operations
     And I follow "Test Simple Certificate"
     And I click on "Bulk operations" "link"
     And I set the field "issuelist" to "All users"
-    Then "Tumé Arandú" "text" should exist in the ".generaltable" "css_element"
+    Then "Tumé Arandú" "text" should exist i    #Moodle 3.2 and below
+    #And I follow "Course 1"
+    And I am on "Course 1" course homepage
+lement"
     And "Arasy Guaraní" "text" should exist in the ".generaltable" "css_element"
        
   @javascript  
@@ -83,7 +92,10 @@ Feature: Verify bulk operations
     And I follow "Grade assignment"
   #	Old version 3.1 or less
 #    And I follow "View all submissions"
-    And I navigate to "View all submissions" in current page administration
+    And I navigate to "View all submissions"    #Moodle 3.2 and below
+    #And I follow "Course 1"
+    And I am on "Course 1" course homepage
+ion
     And I click on "Grade" "link" in the "Tumé Arandú" "table_row"
     And I set the following fields to these values:
       | Grade | 70 |
@@ -107,11 +119,9 @@ Feature: Verify bulk operations
     And I click on "Bulk operations" "link"
     And I set the field "issuelist" to "Users that met the activity conditions"
     Then "Tumé Arandú" "text" should exist in the ".generaltable" "css_element"
-    But "Arasy Guaraní" "text" should not exist in the ".generaltable" "css_element"
-  
-  
-  
-    
-    
+    But "Arasy Guaraní" "text" should not exist in the ".generaltable" "css    #Moodle 3.2 and below
+    #And I follow "Course 1"
+    And I am on "Course 1" course homepage
+
     
 	
