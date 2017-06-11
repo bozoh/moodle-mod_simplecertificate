@@ -66,7 +66,7 @@ Feature: Remove an issued certificate
     And I click on "Send" "button"
     And I am on "Course 1" course homepage
     And I follow "Test Simple Certificate"
-    And I click on "Issued certificates" "link"
+    And I click on "Issued certificates" "link" 
     Then "Tumé Arandú" "text" should not exist in the ".generaltable" "css_element"
     And "Arasy Guaraní" "text" should not exist in the ".generaltable" "css_element"
  
