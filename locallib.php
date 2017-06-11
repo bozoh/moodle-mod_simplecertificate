@@ -36,6 +36,7 @@ require_once ($CFG->dirroot . '/user/profile/lib.php');
 
 use core_availability\info;
 use core_availability\info_module;
+use core\message\inbound\private_files_handler;
 
 
 class simplecertificate {
@@ -225,7 +226,7 @@ class simplecertificate {
                                                 array('certificateid' => $certificateisntance->id))) {
                 
                 foreach ($issues as $issue) {
-                    if (!$this->remove_issue($issue, $certificateisntance)) {
+                    if (!$this->remove_issue($issue)) {
                         // TODO add exception msg
                         throw new moodle_exception('TODO');
                     }
@@ -240,9 +241,10 @@ class simplecertificate {
      * Remove an issue certificate
      * 
      * @param stdClass $issue Issue certificate object
+     * @param boolean $move_cert_file Move the certificate file to usuer private folder (defaul true)
      * @return bool true if removed
      */
-    protected function remove_issue(stdClass $issue, stdClass $certinstance = null) {
+    protected function remove_issue(stdClass $issue,  $move_cert_file = true) {
         global $DB;
         
         // Try to move certificate to users private file area
@@ -261,48 +263,40 @@ class simplecertificate {
                 throw new moodle_exception('usercontextnotfound', 'simplecertificate', null, null, 'userid [' . $issue->userid . ']');
             }
             
-            // Try get coursename
-            if (empty($certinstance)) {
-                if (!$coursename = $DB->get_field('simplecertificate', 'coursename', array('id' => $issue->certificateid), 
-                                                IGNORE_MISSING)) {
-                    // Can't take, try get course
-                    if ($this->get_course()) {
-                      $coursename = $this->get_course()->fullname;
+            //Check if it's to move certificate file or not
+            if ($move_cert_file) {
+                $coursename = $issue->coursename;
+            
+                $fileinfo = array(
+                        'contextid' => $userctx->id, 
+                        'component' => 'user', 
+                        'filearea' => 'private', 
+                        'itemid' => $issue->certificateid, 
+                        'filepath' => '/certificates/' . $coursename . '/', 
+                        'filename' => $file->get_filename());
+            
+                if (!$fs->file_exists($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'], $fileinfo['itemid'], 
+                                    $fileinfo['filepath'], $fileinfo['filename'])) {
+                    if ($newfile = $fs->create_file_from_storedfile($fileinfo, $file)) {
+                        $issue->pathnamehash = $newfile->get_pathnamehash();
                     } else {
-                      error_log("Can't find course");
-                      // TODO add exception msg
-                      throw new moodle_exception('TODO');
+                        throw new moodle_exception('cannotsavefile', null, null, null, $file->get_filename());
                     }
                 }
             } else {
-                // Has certificate instance
-                $coursename = $certinstance->coursename;
-            }
-            
-            // Assembling users filearea fileinfo
-            $fileinfo = array(
-                    'contextid' => $userctx->id, 
-                    'component' => 'user', 
-                    'filearea' => 'private', 
-                    'itemid' => $issue->certificateid, 
-                    'filepath' => '/certificates/' . $coursename . '/', 
-                    'filename' => $file->get_filename());
-            
-            if (!$fs->file_exists($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'], $fileinfo['itemid'], 
-                                $fileinfo['filepath'], $fileinfo['filename'])) {
-                if ($newfile = $fs->create_file_from_storedfile($fileinfo, $file)) {
-                    $issue->pathnamehash = $newfile->get_pathnamehash();
-                } else {
-                    throw new moodle_exception('cannotsavefile', null, null, null, $file->get_filename());
-                }
+                $file->delete();
             }
         } catch (moodle_exception $e) {
             debugging($e->getMessage(), DEBUG_DEVELOPER, $e->getTrace());
             $issue->pathnamehash = '';
         }
         try {
-            $issue->timedeleted = time();
-            return $DB->update_record('simplecertificate_issues', $issue);
+            if ($move_cert_file) {
+                $issue->timedeleted = time();
+                return $DB->update_record('simplecertificate_issues', $issue);
+            } else {
+                return $DB->delete_records('simplecertificate_issues', array('id' => $issue->id));
+            }
         } catch (Exception $e) {
             throw $e;
         }
@@ -2148,7 +2142,7 @@ class simplecertificate {
             $selectoptions = array('pdf' => get_string('onepdf', 'simplecertificate'), 
                     'zip' => get_string('multipdf', 'simplecertificate'), 
                     'email' => get_string('sendtoemail', 'simplecertificate'),
-                    'deleteselected' => get_string('deleteselected', 'simplecertificate'));
+                    'delete' => get_string('deleteissued', 'simplecertificate'));
             echo html_writer::select($selectoptions, 'type', 'pdf');
             $table = new html_table();
             $table->width = "95%";
@@ -2240,29 +2234,33 @@ class simplecertificate {
                     redirect($url, get_string('emailsent', 'simplecertificate'), 5);
                 break;
                 
-                case 'deleteselected':
+                case 'delete':
+                    foreach ($users as $user) {
+                        $issuedcert = $this->get_issue($user);
+                        $this->remove_issue($issuedcert, false);
+                    }
                   $url->remove_params('action', 'type');
                   redirect($url);
                   break;
-                  
-                  //One pdf with all certificates
-                  default:
+                    
+                    // One pdf with all certificates
+                default:
                     $pdf = $this->create_pdf_object();
-                  
+                    
                     foreach ($users as $user) {
-                      $canissue = $this->can_issue($user, $issuelist != 'allusers');
-                      if (empty($canissue)) {
-                        //To one pdf file
-                        $issuedcert = $this->get_issue($user);
-                        $this->create_pdf($issuedcert, $pdf, true);
-                  
-                        //Save certificate PDF
-                        if (!$this->issue_file_exists($issuedcert)) {
-                          //To force file creation
-                          $issuedcert->haschage = true;
-                          $this->get_issue_file($issuedcert);
+                        $canissue = $this->can_issue($user, $issuelist != 'allusers');
+                        if (empty($canissue)) {
+                            // To one pdf file
+                            $issuedcert = $this->get_issue($user);
+                            $this->create_pdf($issuedcert, $pdf, true);
+                            
+                            // Save certificate PDF
+                            if (!$this->issue_file_exists($issuedcert)) {
+                                // To force file creation
+                                $issuedcert->haschage = true;
+                                $this->get_issue_file($issuedcert);
+                            }
                         }
-                      }
                     }
                     $pdf->Output($filename, 'D');
                   
