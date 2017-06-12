@@ -26,14 +26,19 @@ Feature: Remove an issued certificate
     And I add a "Simple Certificate" to section "2" and I fill the form with:
       | Certificate Name | Test Simple Certificate |
       | Certificate Text | Test Simple Certificate |
-	And I log out
+    And I am on "Course 1" course homepage
+    And I follow "Test Simple Certificate"
+    And I click on "Bulk operations" "link"
+    And I select "All users" from the "issuelist" singleselect
+    And I click on "Send" "button"
+	And I am on site homepage
+    And I log out
 
-  Scenario: Verify if list all user
+  Scenario: Verify if list all user is listed
     Given I log in as "teacher1"
     And I follow "Course 1"
     And I follow "Test Simple Certificate"
-    And I click on "Bulk operations" "link"
-    And I set the field "issuelist" to "All users"
+    And I click on "Issued certificates" "link"
     Then "Tumé Arandú" "text" should exist in the ".generaltable" "css_element"
     And "Arasy Guaraní" "text" should exist in the ".generaltable" "css_element"
     
@@ -41,32 +46,20 @@ Feature: Remove an issued certificate
     Given I log in as "teacher1"
     And I follow "Course 1"
     And I follow "Test Simple Certificate"
-    And I click on "Bulk operations" "link"
-    And I set the field "issuelist" to "All users"
-    Then "Tumé Arandú" "text" should exist in the ".generaltable" "css_element"
-    And "Arasy Guaraní" "text" should exist in the ".generaltable" "css_element"
-    Then I set the field "menutype" to "Delete selected certificate (or all if none is selected)"
-    And I set the field with xpath "//tr[contains(normalize-space(.), 'Arasy Guaraní')]//input[@type='checkbox']" to "1"
-    And I click on "Send" "button"
-    And I am on "Course 1" course homepage
-    And I follow "Test Simple Certificate"
     And I click on "Issued certificates" "link"
+    #And I click on "Delete selected certificate (or all  if none is selected)" "option" in the "menutype" "select"
+    And I set the field with xpath "//tr[contains(normalize-space(.), 'Arasy Guaraní')]//input[@type='checkbox']" to "1"
+    And I click on "Delete Selected" "button"
     Then "Tumé Arandú" "text" should exist in the ".generaltable" "css_element"
     And "Arasy Guaraní" "text" should not exist in the ".generaltable" "css_element"
  
- Scenario: Delete selected certificates
-    Given I log in as "teacher1"
+ Scenario: Delete All certificates
+ 	Given I log in as "teacher1"
     And I follow "Course 1"
     And I follow "Test Simple Certificate"
-    And I click on "Bulk operations" "link"
-    And I set the field "issuelist" to "All users"
-    Then "Tumé Arandú" "text" should exist in the ".generaltable" "css_element"
-    And "Arasy Guaraní" "text" should exist in the ".generaltable" "css_element"
-    Then I set the field "menutype" to "Delete selected certificate (or all if none is selected)"
-    And I click on "Send" "button"
-    And I am on "Course 1" course homepage
-    And I follow "Test Simple Certificate"
-    And I click on "Issued certificates" "link" 
+    And I click on "Issued certificates" "link"
+    #And I click on "Delete selected certificate (or all  if none is selected)" "option" in the "menutype" "select"
+    And I click on "Delete All" "button"
     Then "Tumé Arandú" "text" should not exist in the ".generaltable" "css_element"
     And "Arasy Guaraní" "text" should not exist in the ".generaltable" "css_element"
  

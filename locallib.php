@@ -559,9 +559,10 @@ class simplecertificate {
      * Get issued certificate object, if it's not exist, it will be create
      * 
      * @param mixed User obj or id
+     * @param boolean Issue teh user certificate if it's not exists (default = true)
      * @return stdClass the issue certificate object
      */
-    public function get_issue($user = null) {
+    public function get_issue($user = null, $issue_if_empty = true) {
         global $DB, $USER;
         
         if (empty($user)) {
@@ -591,6 +592,12 @@ class simplecertificate {
         } else if (!$issuedcert = $DB->get_record('simplecertificate_issues', 
                         array('userid' => $userid, 'certificateid' => $this->get_instance()->id, 'timedeleted' => null))) {
             // Not in cache and not in DB, create new certificate issue record
+            
+            if (!$issue_if_empty) {
+                //Not create a new one, only check if exists
+                return null;
+            }
+            
             // Mark as created
             $created = true;
             $issuedcert = new stdClass();
@@ -2092,6 +2099,7 @@ class simplecertificate {
         $perpage = $url->get_param('perpage');
         $issuelist = $url->get_param('issuelist');
         $action = $url->get_param('action');
+        $type = $url->get_param('type');
         $groupid = 0;
         $groupmode = groups_get_activity_groupmode($this->coursemodule);
         if ($groupmode) {
@@ -2143,7 +2151,7 @@ class simplecertificate {
                     'zip' => get_string('multipdf', 'simplecertificate'), 
                     'email' => get_string('sendtoemail', 'simplecertificate'),
                     'delete' => get_string('deleteissued', 'simplecertificate'));
-            echo html_writer::select($selectoptions, 'type', 'pdf');
+            echo html_writer::select($selectoptions, 'type', $type);
             $table = new html_table();
             $table->width = "95%";
             $table->tablealign = "center";
@@ -2188,7 +2196,7 @@ class simplecertificate {
                                                  strip_tags(format_string($this->get_instance()->name, true)) . '.' .
                                                  strip_tags(format_string($type, true))));
             
-            switch ($type) {
+           switch ($type) {
               
                 //One zip with all certificates in separated files
                 case 'zip':
@@ -2235,9 +2243,15 @@ class simplecertificate {
                 break;
                 
                 case 'delete':
+                    ////I think its better to move this functionality do issued certificate tab
+                    //since bulk operation don't list only issued certificates, makes more sense 
+                    // to be in there
                     foreach ($users as $user) {
                         $issuedcert = $this->get_issue($user);
-                        $this->remove_issue($issuedcert, false);
+                        #if it's issued, then i remove
+                        if ($issuedcert) {
+                            $this->remove_issue($issuedcert, false);
+                        }
                     }
                   $url->remove_params('action', 'type');
                   redirect($url);
