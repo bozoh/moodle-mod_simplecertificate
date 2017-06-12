@@ -1877,8 +1877,8 @@ class simplecertificate {
     }
     
     // Issued certificates view
-    public function view_issued_certificates(moodle_url $url) {
-        global $OUTPUT, $CFG;
+    public function view_issued_certificates(moodle_url $url, array $selectedusers = null) {
+        global $OUTPUT, $CFG, $DB;
         
         // Declare some variables
         $strto = html_writer::link($url->out(false, array('orderby' => 'username')), get_string('awardedto', 'simplecertificate'));
@@ -1891,15 +1891,32 @@ class simplecertificate {
         $page = $url->get_param('page');
         $perpage = $url->get_param('perpage');
         $orderby = $url->get_param('orderby');
+        $action = $url->get_param('action');
         $usercount = 0;
         
-        $users = $this->get_issued_certificate_users($orderby, $groupmode);
-        if ($users) {
+        
+        if (!$selectedusers) {
+            $users = $this->get_issued_certificate_users($orderby, $groupmode);
             $usercount = count($users);
-            $users = array_slice($users, intval($page * $perpage), $perpage);
+        } else {
+            list($sqluserids, $params) = $DB->get_in_or_equal($selectedusers);
+            $sql = "SELECT * FROM {user} WHERE id $sqluserids";
+            //Adding sort
+            $sort = '';
+            $override = new stdClass();
+            $override->firstname = 'firstname';
+            $override->lastname = 'lastname';
+            $fullnamelanguage = get_string('fullnamedisplay', '', $override);
+            if (($CFG->fullnamedisplay == 'firstname lastname') || ($CFG->fullnamedisplay == 'firstname') ||
+            ($CFG->fullnamedisplay == 'language' && $fullnamelanguage == 'firstname lastname')) {
+                $sort = " ORDER BY firstname, lastname";
+            } else { // ($CFG->fullnamedisplay == 'language' and $fullnamelanguage == 'lastname firstname')
+                $sort = " ORDER BY lastname, firstname";
+            }
+            $users = $DB->get_records_sql($sql . $sort, $params);
         }
         
-        if (!$url->get_param('action')) {
+        if (!$action) {
             echo $OUTPUT->header();
             $this->show_tabs($url);
             
@@ -1915,177 +1932,230 @@ class simplecertificate {
                 exit();
             }
             
+      
             // Create the table for the users
             $table = new html_table();
             $table->width = "95%";
             $table->tablealign = "center";
-            $table->head = array($strto, $strdate, $strgrade, $strcode);
-            $table->align = array("left", "left", "center", "center");
+            
+            //strgrade
+            $table->head = array(' ', get_string('fullname'), get_string('grade'));
+            $table->align = array("left", "left", "center");
+            $table->size = array('1%', '89%', '10%');
+            
+            
+            $table = new html_table();
+            $table->width = "95%";
+            $table->tablealign = "center";
+            $table->head = array(' ', $strto, $strdate, $strgrade, $strcode);
+            $table->align = array("left", "left", "left", "center", "center");
+            $table->size = array('1%', '54%', '10%','5%','30%');
+            
+            $users = array_slice($users, intval($page * $perpage), $perpage);
+            
             foreach ($users as $user) {
+                $chkbox = html_writer::checkbox('selectedusers[]', $user->id, false);
                 $name = $OUTPUT->user_picture($user) . fullname($user);
                 $date = userdate($user->timecreated) . simplecertificate_print_issue_certificate_file($this->get_issue($user));
                 $code = $user->code;
-                $table->data[] = array($name, $date, $this->get_grade($user->id), $code);
+                $table->data[] = array($chkbox, $name, $date, $this->get_grade($user->id), $code);
             }
             
             // Create table to store buttons
             $tablebutton = new html_table();
             $tablebutton->attributes['class'] = 'downloadreport';
             
+            $deleteselectedbutton = $OUTPUT->single_button($url->out_as_local_url(false, array('action' => 'delete', 'type' => 'selected')),
+                    get_string('deleteselected', 'simplecertificate'));
+            $deleteallbutton = $OUTPUT->single_button($url->out_as_local_url(false, array('action' => 'delete', 'type'=>'all')),
+                    get_string('deleteall', 'simplecertificate'));
             $btndownloadods = $OUTPUT->single_button($url->out_as_local_url(false, array('action' => 'download', 'type' => 'ods')), 
-                                                    get_string("downloadods"));
+                    get_string("downloadods"));
             $btndownloadxls = $OUTPUT->single_button($url->out_as_local_url(false, array('action' => 'download', 'type' => 'xls')), 
-                                                    get_string("downloadexcel"));
+                    get_string("downloadexcel"));
             $btndownloadtxt = $OUTPUT->single_button($url->out_as_local_url(false, array('action' => 'download', 'type' => 'txt')), 
-                                                    get_string("downloadtext"));
-            $tablebutton->data[] = array($btndownloadods, $btndownloadxls, $btndownloadtxt);
+                    get_string("downloadtext"));
+            $tablebutton->data[] = array($deleteselectedbutton, $deleteallbutton, $btndownloadods, $btndownloadxls, $btndownloadtxt);
             
-            echo $OUTPUT->paging_bar($usercount, $page, $perpage, $url);
+           
             echo '<br />';
+            echo '<form id="bulkissue" name="bulkissue" method="post" action="view.php">';
             echo html_writer::table($table);
+            echo $OUTPUT->paging_bar($usercount, $page, $perpage, $url);
             echo html_writer::tag('div', html_writer::table($tablebutton), array('style' => 'margin:auto; width:50%'));
-        
-            } else if ($url->get_param('action') == 'download') {
-            $page = $perpage = 0;
+            echo '</form>';
+          
+        } else {
             $type = $url->get_param('type');
-            // Calculate file name
-            $filename = clean_filename(
-                                    $this->get_instance()->coursename . '-' .
+            $url->remove_params('action', 'type', 'selectedusers');
+            switch ($action) {
+                case 'delete':
+                    switch ($type) {
+                        case  'all':
+                            //Override $users param, if there is a selected users, but it clicks on delete all
+                            if ($selectedusers){
+                                $users = $this->get_issued_certificate_users($orderby, $groupmode);
+                            }
+                        break;
+                        
+                        case 'selected':
+                            //Override $users param if no user are selected, but clicks in delete selected
+                            if (!$selectedusers){
+                               $users = array();
+                            }
+                        break;
+                    }
+                    foreach ($users as $user) {
+                        $issuedcert = $this->get_issue($user);
+                        #if it's issued, then i remove
+                        if ($issuedcert) {
+                            $this->remove_issue($issuedcert, false);
+                        }
+                    }
+                break;
+                  
+                case 'download':    
+                    $page = $perpage = 0;
+            
+                    // Calculate file name
+                    $filename = clean_filename($this->get_instance()->coursename . '-' .
                                      strip_tags(format_string($this->get_instance()->name, true)) . '.' .
                                      strip_tags(format_string($type, true)));
             
-            switch ($type) {
-                case 'ods':
-                    require_once ("$CFG->libdir/odslib.class.php");
+                    switch ($type) {
+                        case 'ods':
+                            require_once ("$CFG->libdir/odslib.class.php");
                     
-                    // Creating a workbook
-                    $workbook = new MoodleODSWorkbook("-");
-                    // Send HTTP headers
-                    $workbook->send(format_text($filename, true));
-                    // Creating the first worksheet
-                    $myxls = $workbook->add_worksheet($strreport);
-                    
-                    // Print names of all the fields
-                    $myxls->write_string(0, 0, get_string("fullname"));
-                    $myxls->write_string(0, 1, get_string("idnumber"));
-                    $myxls->write_string(0, 2, get_string("group"));
-                    $myxls->write_string(0, 3, $strdate);
-                    $myxls->write_string(0, 4, $strgrade);
-                    $myxls->write_string(0, 5, $strcode);
-                    
-                    // Generate the data for the body of the spreadsheet
-                    $i = 0;
-                    $row = 1;
-                    if ($users) {
-                        foreach ($users as $user) {
-                            $myxls->write_string($row, 0, fullname($user));
-                            $studentid = (!empty($user->idnumber)) ? $user->idnumber : " ";
-                            $myxls->write_string($row, 1, $studentid);
-                            $ug2 = '';
-                            if ($usergrps = groups_get_all_groups($this->get_course()->id, $user->id)) {
-                                foreach ($usergrps as $ug) {
-                                    $ug2 = $ug2 . $ug->name;
+                            // Creating a workbook
+                            $workbook = new MoodleODSWorkbook("-");
+                            // Send HTTP headers
+                            $workbook->send(format_text($filename, true));
+                            // Creating the first worksheet
+                            $myxls = $workbook->add_worksheet($strreport);
+                            
+                            // Print names of all the fields
+                            $myxls->write_string(0, 0, get_string("fullname"));
+                            $myxls->write_string(0, 1, get_string("idnumber"));
+                            $myxls->write_string(0, 2, get_string("group"));
+                            $myxls->write_string(0, 3, $strdate);
+                            $myxls->write_string(0, 4, $strgrade);
+                            $myxls->write_string(0, 5, $strcode);
+                            
+                            // Generate the data for the body of the spreadsheet
+                            $i = 0;
+                            $row = 1;
+                            if ($users) {
+                                foreach ($users as $user) {
+                                    $myxls->write_string($row, 0, fullname($user));
+                                    $studentid = (!empty($user->idnumber)) ? $user->idnumber : " ";
+                                    $myxls->write_string($row, 1, $studentid);
+                                    $ug2 = '';
+                                    if ($usergrps = groups_get_all_groups($this->get_course()->id, $user->id)) {
+                                        foreach ($usergrps as $ug) {
+                                            $ug2 = $ug2 . $ug->name;
+                                        }
+                                    }
+                                    $myxls->write_string($row, 2, $ug2);
+                                    $myxls->write_string($row, 3, userdate($user->timecreated));
+                                    $myxls->write_string($row, 4, $this->get_grade($user->id));
+                                    $myxls->write_string($row, 5, $user->code);
+                                    $row++;
                                 }
+                                $pos = 5;
                             }
-                            $myxls->write_string($row, 2, $ug2);
-                            $myxls->write_string($row, 3, userdate($user->timecreated));
-                            $myxls->write_string($row, 4, $this->get_grade($user->id));
-                            $myxls->write_string($row, 5, $user->code);
-                            $row++;
-                        }
-                        $pos = 5;
-                    }
-                    // Close the workbook
-                    $workbook->close();
-                break;
+                            // Close the workbook
+                            $workbook->close();
+                        break;
                 
-                case 'xls':
-                    require_once ("$CFG->libdir/excellib.class.php");
-                    
-                    // Creating a workbook
-                    $workbook = new MoodleExcelWorkbook("-");
-                    // Send HTTP headers
-                    $workbook->send(format_text($filename, true));
-                    // Creating the first worksheet
-                    $myxls = $workbook->add_worksheet($strreport);
-                    
-                    // Print names of all the fields
-                    $myxls->write_string(0, 0, get_string("fullname"));
-                    $myxls->write_string(0, 1, get_string("idnumber"));
-                    $myxls->write_string(0, 2, get_string("group"));
-                    $myxls->write_string(0, 3, $strdate);
-                    $myxls->write_string(0, 4, $strgrade);
-                    $myxls->write_string(0, 5, $strcode);
-                    
-                    // Generate the data for the body of the spreadsheet
-                    $i = 0;
-                    $row = 1;
-                    if ($users) {
-                        foreach ($users as $user) {
-                            $myxls->write_string($row, 0, fullname($user));
-                            $studentid = (!empty($user->idnumber)) ? $user->idnumber : " ";
-                            $myxls->write_string($row, 1, $studentid);
-                            $ug2 = '';
-                            if ($usergrps = groups_get_all_groups($this->get_course()->id, $user->id)) {
-                                foreach ($usergrps as $ug) {
-                                    $ug2 = $ug2 . $ug->name;
+                        case 'xls':
+                            require_once ("$CFG->libdir/excellib.class.php");
+                            
+                            // Creating a workbook
+                            $workbook = new MoodleExcelWorkbook("-");
+                            // Send HTTP headers
+                            $workbook->send(format_text($filename, true));
+                            // Creating the first worksheet
+                            $myxls = $workbook->add_worksheet($strreport);
+                            
+                            // Print names of all the fields
+                            $myxls->write_string(0, 0, get_string("fullname"));
+                            $myxls->write_string(0, 1, get_string("idnumber"));
+                            $myxls->write_string(0, 2, get_string("group"));
+                            $myxls->write_string(0, 3, $strdate);
+                            $myxls->write_string(0, 4, $strgrade);
+                            $myxls->write_string(0, 5, $strcode);
+                            
+                            // Generate the data for the body of the spreadsheet
+                            $i = 0;
+                            $row = 1;
+                            if ($users) {
+                                foreach ($users as $user) {
+                                    $myxls->write_string($row, 0, fullname($user));
+                                    $studentid = (!empty($user->idnumber)) ? $user->idnumber : " ";
+                                    $myxls->write_string($row, 1, $studentid);
+                                    $ug2 = '';
+                                    if ($usergrps = groups_get_all_groups($this->get_course()->id, $user->id)) {
+                                        foreach ($usergrps as $ug) {
+                                            $ug2 = $ug2 . $ug->name;
+                                        }
+                                    }
+                                    $myxls->write_string($row, 2, $ug2);
+                                    $myxls->write_string($row, 3, userdate($user->timecreated));
+                                    $myxls->write_string($row, 4, $this->get_grade($user->id));
+                                    $myxls->write_string($row, 5, $user->code);
+                                    $row++;
                                 }
+                                $pos = 5;
                             }
-                            $myxls->write_string($row, 2, $ug2);
-                            $myxls->write_string($row, 3, userdate($user->timecreated));
-                            $myxls->write_string($row, 4, $this->get_grade($user->id));
-                            $myxls->write_string($row, 5, $user->code);
-                            $row++;
-                        }
-                        $pos = 5;
-                    }
-                    // Close the workbook
-                    $workbook->close();
-                break;
+                            // Close the workbook
+                            $workbook->close();
+                        break;
                 
-                //txt
-                default:
-                    
-                    header("Content-Type: application/download\n");
-                    header("Content-Disposition: attachment; filename=\"" . format_text($filename, true) . "\"");
-                    header("Expires: 0");
-                    header("Cache-Control: must-revalidate,post-check=0,pre-check=0");
-                    header("Pragma: public");
-                    
-                    // Print names of all the fields
-                    echo get_string("fullname") . "\t" . get_string("idnumber") . "\t";
-                    echo get_string("group") . "\t";
-                    echo $strdate . "\t";
-                    echo $strgrade . "\t";
-                    echo $strcode . "\n";
-                    
-                    // Generate the data for the body of the spreadsheet
-                    $i = 0;
-                    $row = 1;
-                    if ($users){
-                        foreach ($users as $user) {
-                            echo fullname($user);
-                            $studentid = " ";
-                            if (!empty($user->idnumber)) {
-                                $studentid = $user->idnumber;
-                            }
-                            echo "\t" . $studentid . "\t";
-                            $ug2 = '';
-                            if ($usergrps = groups_get_all_groups($this->get_course()->id, $user->id)) {
-                                foreach ($usergrps as $ug) {
-                                    $ug2 = $ug2 . $ug->name;
+                        //txt
+                        default:
+                            
+                            header("Content-Type: application/download\n");
+                            header("Content-Disposition: attachment; filename=\"" . format_text($filename, true) . "\"");
+                            header("Expires: 0");
+                            header("Cache-Control: must-revalidate,post-check=0,pre-check=0");
+                            header("Pragma: public");
+                            
+                            // Print names of all the fields
+                            echo get_string("fullname") . "\t" . get_string("idnumber") . "\t";
+                            echo get_string("group") . "\t";
+                            echo $strdate . "\t";
+                            echo $strgrade . "\t";
+                            echo $strcode . "\n";
+                            
+                            // Generate the data for the body of the spreadsheet
+                            $i = 0;
+                            $row = 1;
+                            if ($users){
+                                foreach ($users as $user) {
+                                    echo fullname($user);
+                                    $studentid = " ";
+                                    if (!empty($user->idnumber)) {
+                                        $studentid = $user->idnumber;
+                                    }
+                                    echo "\t" . $studentid . "\t";
+                                    $ug2 = '';
+                                    if ($usergrps = groups_get_all_groups($this->get_course()->id, $user->id)) {
+                                        foreach ($usergrps as $ug) {
+                                            $ug2 = $ug2 . $ug->name;
+                                        }
+                                    }
+                                    echo $ug2 . "\t";
+                                    echo userdate($user->timecreated) . "\t";
+                                    echo $this->get_grade($user->id) . "\t";
+                                    echo $user->code . "\n";
+                                    $row++;
                                 }
                             }
-                            echo $ug2 . "\t";
-                            echo userdate($user->timecreated) . "\t";
-                            echo $this->get_grade($user->id) . "\t";
-                            echo $user->code . "\n";
-                            $row++;
-                        }
+                        break;
                     }
                 break;
             }
-            exit();
+            redirect($url);
         }
         echo $OUTPUT->footer();
     }
@@ -2149,8 +2219,7 @@ class simplecertificate {
             
             $selectoptions = array('pdf' => get_string('onepdf', 'simplecertificate'), 
                     'zip' => get_string('multipdf', 'simplecertificate'), 
-                    'email' => get_string('sendtoemail', 'simplecertificate'),
-                    'delete' => get_string('deleteissued', 'simplecertificate'));
+                    'email' => get_string('sendtoemail', 'simplecertificate'));
             echo html_writer::select($selectoptions, 'type', $type);
             $table = new html_table();
             $table->width = "95%";
@@ -2242,22 +2311,7 @@ class simplecertificate {
                     redirect($url, get_string('emailsent', 'simplecertificate'), 5);
                 break;
                 
-                case 'delete':
-                    ////I think its better to move this functionality do issued certificate tab
-                    //since bulk operation don't list only issued certificates, makes more sense 
-                    // to be in there
-                    foreach ($users as $user) {
-                        $issuedcert = $this->get_issue($user);
-                        #if it's issued, then i remove
-                        if ($issuedcert) {
-                            $this->remove_issue($issuedcert, false);
-                        }
-                    }
-                  $url->remove_params('action', 'type');
-                  redirect($url);
-                  break;
-                    
-                    // One pdf with all certificates
+                // One pdf with all certificates
                 default:
                     $pdf = $this->create_pdf_object();
                     

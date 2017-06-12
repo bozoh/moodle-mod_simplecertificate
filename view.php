@@ -83,7 +83,7 @@ $PAGE->set_heading(format_string($course->fullname));
 
 switch ($tab) {
 	case $simplecertificate::ISSUED_CERTIFCADES_VIEW :
-		$simplecertificate->view_issued_certificates($url);
+		$simplecertificate->view_issued_certificates($url, $selectedusers);
 	break;
 	
 	case $simplecertificate::BULK_ISSUE_CERTIFCADES_VIEW :

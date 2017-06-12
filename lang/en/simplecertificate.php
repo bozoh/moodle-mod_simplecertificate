@@ -235,7 +235,6 @@ $string['cantissue'] = 'The certificate can\'t be issued, because the user hasn\
 $string['onepdf'] = 'Download certificates in a one pdf file';
 $string['multipdf'] = 'Download certificates in a zip file';
 $string['sendtoemail'] = 'Send to user\'s email';
-$string['deleteissued'] = "Delete selected certificate (or all  if none is selected)";
 $string['showusers'] = 'Show';
 $string['completedusers'] = 'Users that met the activity conditions';
 $string['allusers'] = 'All users';
@@ -271,3 +270,9 @@ $string['notreceived'] = 'No issued certificate';
 //Verify envent
 $string['eventcertificate_verified'] = 'Certificate verified';
 $string['eventcertificate_verified_description'] = 'The user with id {$a->userid} verified the certificate with id {$a->certificateid}, issued to user with id {$a->certiticate_userid}.';
+$string['deleteall'] = "Delete All";
+$string['deleteselected'] = "Delete Selected";
+
+
+
+
