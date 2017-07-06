@@ -21,7 +21,7 @@ Feature: Remove an issued certificate
       | student1 | C1 | student |
       | student2 | C1 | student |
     And I log in as "teacher1"
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I turn editing mode on
     And I add a "Simple Certificate" to section "2" and I fill the form with:
       | Certificate Name | Test Simple Certificate |
@@ -36,27 +36,27 @@ Feature: Remove an issued certificate
 
   Scenario: Verify if list all user is listed
     Given I log in as "teacher1"
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test Simple Certificate"
     And I click on "Issued certificates" "link"
     Then "Tumé Arandú" "text" should exist in the ".generaltable" "css_element"
     And "Arasy Guaraní" "text" should exist in the ".generaltable" "css_element"
-    
+
+  @javascript    
   Scenario: Delete selected certificates
     Given I log in as "teacher1"
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test Simple Certificate"
     And I click on "Issued certificates" "link"
- #   And I set the field with xpath "//tr[contains(normalize-space(.), 'Arasy Guaraní')]//input[@type='checkbox']" to "1"
-    #And I set the field with xpath "//tbody//tr[1]//input[@type='checkbox']" to "1"
-    And I click on "//tbody//tr[1]//input[@type='checkbox']" "xpath"
+    # Advanced checkbox requires real browser to allow uncheck to work. MDL-58681. MDL-55386.
+    And I check 'Arasy Guaraní' on list
     And I click on "Delete Selected" "button"
     Then "Tumé Arandú" "text" should exist
     And "Arasy Guaraní" "text" should not exist
  
  Scenario: Delete All certificates
  	Given I log in as "teacher1"
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test Simple Certificate"
     And I click on "Issued certificates" "link"
     And I click on "Delete All" "button"

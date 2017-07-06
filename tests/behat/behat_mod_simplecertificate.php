@@ -210,5 +210,20 @@ class behat_mod_simplecertificate extends behat_base {
       $this->execute('behat_general::assert_page_contains_text', $code);
     
     }
+    
+    /**
+     * @Given I check :arg1 on list
+     */
+    public function iCheckOnList($name)
+    {
+      #//tbody//tr//td[contains(text(),'Arasy Guaraní')]//preceding-sibling::td//input[@type='checkbox']
+      $xpath = "//tr[contains(normalize-space(.), '$name')]//input[@type='checkbox']";
+      $node = $this->find('xpath', $xpath);
+      $this->ensure_node_is_visible($node);
+      $node->click();
+//       $field = behat_field_manager::get_form_field($node, $this->getSession());
+//       $field->set_value('checked');
+      
+    }
 
 }
