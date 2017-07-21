@@ -432,6 +432,7 @@ function simplecertificate_get_date_options() {
     require_once (dirname(__FILE__) . '/locallib.php');
     $dateoptions[simplecertificate::CERT_ISSUE_DATE] = get_string('issueddate', 'simplecertificate');
     $dateoptions[simplecertificate::COURSE_COMPLETATION_DATE] = get_string('completiondate', 'simplecertificate');
+    $dateoptions[simplecertificate::COURSE_START_DATE] = get_string('coursestartdate', 'simplecertificate');
     return $dateoptions + simplecertificate_get_mods();
 }
 

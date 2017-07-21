@@ -57,6 +57,7 @@ class simplecertificate {
     // Date Options Const
     const CERT_ISSUE_DATE = -1;
     const COURSE_COMPLETATION_DATE = -2;
+    const COURSE_START_DATE = -3;
     
     // Grade Option Const
     const NO_GRADE = 0;
@@ -1529,6 +1530,15 @@ class simplecertificate {
         // Set certificate issued date
         if ($this->get_instance()->certdate == self::CERT_ISSUE_DATE) {
             $date = $issuecert->timecreated;
+        }
+        
+        // Get the course start date
+        if ($this->get_instance()->certdate == self::COURSE_START_DATE) {
+        			$sql = "SELECT id, startdate FROM {course} c
+              WHERE c.id = :courseid";
+			
+        $coursestartdate = $DB->get_record_sql($sql, array('courseid' => $this->get_course()->id));
+        $date = $coursestartdate->startdate;
         }
         
         // Get the enrolment end date

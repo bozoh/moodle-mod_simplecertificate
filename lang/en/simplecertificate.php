@@ -69,6 +69,7 @@ $string['defaultcodey'] = 'Default Vertical QR code Position';
 ////Date options
 $string['issueddate'] = 'Date Issued';
 $string['completiondate'] = 'Course Completion';
+$string['coursestartdate'] = 'Course Start Date';
 $string['datefmt'] = 'Date Format';
 
 ////Date format options
