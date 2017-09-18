@@ -26,7 +26,8 @@ echo $OUTPUT->heading(get_string('certificateverification', 'simplecertificate')
 
 $verifyform = new verify_form();
 
-if (!$verifyform->get_data() && $code) {
+if (!$verifyform->get_data()) {
+    if ($code)
         $verifyform->set_data(array('code' => $code));
     
     $verifyform->display();

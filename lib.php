@@ -280,6 +280,7 @@ function simplecertificate_cron() {
  * @return bool nothing if file not found, does not return anything if found - just send the file
  */
 function simplecertificate_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload, array $options = array()) {
+    global $DB;
     
     if ($filearea == 'tmp') {
         //Beacuse bug #141 forceloginforprofileimage=enabled by passing
@@ -292,16 +293,24 @@ function simplecertificate_pluginfile($course, $cm, $context, $filearea, $args, 
         } 
        
     } else {
-        
         require_login($course);
         
         if ($context->contextlevel != CONTEXT_MODULE) {
             return false;
         }
+       //passing id to wmsendfile, cause a thread, because an robot can download all certificates by
+       //add a simple  number sequence (1,2,3,4....) as id value, it's better use the certificate code 
+       //instead
+       
+       //$url = new moodle_url('wmsendfile.php');
+       //$url->param('id', (int)array_shift($args));
+       //$url->param('sk', sesskey());
         
-        $url = new moodle_url('wssendfile.php');
-        $url->param('id', (int)array_shift($args));
-        $url->param('sk', sesskey());
+        if (!$issuedcert = $DB->get_record("simplecertificate_issues", array('id' => $id))) {
+            return false;
+        }
+        $url = new moodle_url('wmsendfile.php');
+        $url->param('code', $issuedcert->code);
         
         redirect($url);
     }
@@ -469,8 +478,8 @@ function simplecertificate_print_issue_certificate_file(stdClass $issuecert) {
          $file->get_mimetype() . '" />&nbsp;';
         
         $url = new moodle_url('wmsendfile.php');
-        $url->param('id', $issuecert->id);
-        $url->param('sk', sesskey());
+        $url->param('code', $issuecert->code);
+        //$url->param('sk', sesskey());
         
         $output .= '<a href="' . $url->out(true) . '" target="_blank" >' . s($file->get_filename()) . '</a>';
     
