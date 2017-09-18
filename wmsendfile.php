@@ -10,17 +10,15 @@
 
 require_once (dirname(dirname(dirname(__FILE__))) . '/config.php');
 
-$id = required_param('id', PARAM_INTEGER); // Issed Code
-$sk = required_param('sk', PARAM_RAW); // sesskey
+// $id = required_param('id', PARAM_INTEGER); // Issed Code
+// $sk = required_param('sk', PARAM_RAW); // sesskey
+$code = required_param('code', PARAM_TEXT); // Issued Code
 
-if (confirm_sesskey($sk)) {
-    if (!$issuedcert = $DB->get_record("simplecertificate_issues", array('id' => $id))) {
-        print_error(get_string('issuedcertificatenotfound', 'simplecertificate'));
-    }
-    watermark_and_sent($issuedcert);
-} else {
-    print_error('invalidsesskey');
+
+if (!$issuedcert = $DB->get_record("simplecertificate_issues", array('code' => $code))) {
+  print_error(get_string('issuedcertificatenotfound', 'simplecertificate'));
 }
+watermark_and_sent($issuedcert);
 
 function watermark_and_sent(stdClass $issuedcert) {
     global $CFG, $USER, $COURSE, $DB, $PAGE;

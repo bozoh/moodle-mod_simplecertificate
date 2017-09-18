@@ -83,11 +83,23 @@ $PAGE->set_heading(format_string($course->fullname));
 
 switch ($tab) {
 	case $simplecertificate::ISSUED_CERTIFCADES_VIEW :
-		$simplecertificate->view_issued_certificates($url, $selectedusers);
+	  //Verify if user can access this page
+	  //avoid the access by adding tab=1 in post/get 
+	  if ($canmanage) {
+		  $simplecertificate->view_issued_certificates($url);
+	  } else {
+	    print_error('nopermissiontoviewpage');
+	  }
 	break;
 	
 	case $simplecertificate::BULK_ISSUE_CERTIFCADES_VIEW :
-		$simplecertificate->view_bulk_certificates($url, $selectedusers);
+	  //Verify if user can access this page
+	  //avoid the access by adding tab=1 in post/get
+	  if ($canmanage) {
+		  $simplecertificate->view_bulk_certificates($url, $selectedusers);
+		} else {
+		  print_error('nopermissiontoviewpage');
+		}
 	break;
 	
 	default :
