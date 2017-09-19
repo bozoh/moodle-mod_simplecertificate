@@ -1,0 +1,111 @@
+diff --git a/lib.php b/lib.php
+index e74822d..06e7f0d 100644
+--- a/lib.php
++++ b/lib.php
+@@ -280,6 +280,7 @@ function simplecertificate_cron() {
+  * @return bool nothing if file not found, does not return anything if found - just send the file
+  */
+ function simplecertificate_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload, array $options = array()) {
++    global $DB;
+     
+     if ($filearea == 'tmp') {
+         //Beacuse bug #141 forceloginforprofileimage=enabled by passing
+@@ -292,16 +293,24 @@ function simplecertificate_pluginfile($course, $cm, $context, $filearea, $args,
+         } 
+        
+     } else {
+-        
+         require_login($course);
+         
+         if ($context->contextlevel != CONTEXT_MODULE) {
+             return false;
+         }
++       //passing id to wmsendfile, cause a thread, because an robot can download all certificates by
++       //add a simple  number sequence (1,2,3,4....) as id value, it's better use the certificate code 
++       //instead
++       
++       //$url = new moodle_url('wmsendfile.php');
++       //$url->param('id', (int)array_shift($args));
++       //$url->param('sk', sesskey());
+         
+-        $url = new moodle_url('wssendfile.php');
+-        $url->param('id', (int)array_shift($args));
+-        $url->param('sk', sesskey());
++        if (!$issuedcert = $DB->get_record("simplecertificate_issues", array('id' => $id))) {
++            return false;
++        }
++        $url = new moodle_url('wmsendfile.php');
++        $url->param('code', $issuedcert->code);
+         
+         redirect($url);
+     }
+@@ -469,8 +478,8 @@ function simplecertificate_print_issue_certificate_file(stdClass $issuecert) {
+          $file->get_mimetype() . '" />&nbsp;';
+         
+         $url = new moodle_url('wmsendfile.php');
+-        $url->param('id', $issuecert->id);
+-        $url->param('sk', sesskey());
++        $url->param('code', $issuecert->code);
++        //$url->param('sk', sesskey());
+         
+         $output .= '<a href="' . $url->out(true) . '" target="_blank" >' . s($file->get_filename()) . '</a>';
+     
+diff --git a/view.php b/view.php
+index 5a22511..b21d7e3 100644
+--- a/view.php
++++ b/view.php
+@@ -83,11 +83,23 @@ $PAGE->set_heading(format_string($course->fullname));
+ 
+ switch ($tab) {
+ 	case $simplecertificate::ISSUED_CERTIFCADES_VIEW :
+-		$simplecertificate->view_issued_certificates($url);
++	  //Verify if user can access this page
++	  //avoid the access by adding tab=1 in post/get 
++	  if ($canmanage) {
++		  $simplecertificate->view_issued_certificates($url);
++	  } else {
++	    print_error('nopermissiontoviewpage');
++	  }
+ 	break;
+ 	
+ 	case $simplecertificate::BULK_ISSUE_CERTIFCADES_VIEW :
+-		$simplecertificate->view_bulk_certificates($url, $selectedusers);
++	  //Verify if user can access this page
++	  //avoid the access by adding tab=1 in post/get
++	  if ($canmanage) {
++		  $simplecertificate->view_bulk_certificates($url, $selectedusers);
++		} else {
++		  print_error('nopermissiontoviewpage');
++		}
+ 	break;
+ 	
+ 	default :
+diff --git a/wmsendfile.php b/wmsendfile.php
+index 42b8929..959f6ae 100644
+--- a/wmsendfile.php
++++ b/wmsendfile.php
+@@ -10,17 +10,15 @@
+ 
+ require_once (dirname(dirname(dirname(__FILE__))) . '/config.php');
+ 
+-$id = required_param('id', PARAM_INTEGER); // Issed Code
+-$sk = required_param('sk', PARAM_RAW); // sesskey
++// $id = required_param('id', PARAM_INTEGER); // Issed Code
++// $sk = required_param('sk', PARAM_RAW); // sesskey
++$code = required_param('code', PARAM_TEXT); // Issued Code
+ 
+-if (confirm_sesskey($sk)) {
+-    if (!$issuedcert = $DB->get_record("simplecertificate_issues", array('id' => $id))) {
+-        print_error(get_string('issuedcertificatenotfound', 'simplecertificate'));
+-    }
+-    watermark_and_sent($issuedcert);
+-} else {
+-    print_error('invalidsesskey');
++
++if (!$issuedcert = $DB->get_record("simplecertificate_issues", array('code' => $code))) {
++  print_error(get_string('issuedcertificatenotfound', 'simplecertificate'));
+ }
++watermark_and_sent($issuedcert);
+ 
+ function watermark_and_sent(stdClass $issuedcert) {
+     global $CFG, $USER, $COURSE, $DB, $PAGE;
