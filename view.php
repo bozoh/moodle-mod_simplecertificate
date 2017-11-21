@@ -86,7 +86,7 @@ switch ($tab) {
 	  //Verify if user can access this page
 	  //avoid the access by adding tab=1 in post/get 
 	  if ($canmanage) {
-		  $simplecertificate->view_issued_certificates($url);
+		  $simplecertificate->view_issued_certificates($url, $selectedusers);
 	  } else {
 	    print_error('nopermissiontoviewpage');
 	  }

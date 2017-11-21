@@ -225,5 +225,13 @@ class behat_mod_simplecertificate extends behat_base {
 //       $field->set_value('checked');
       
     }
+    
+    /**
+     * @Then :certname certificate status should be :status
+     */
+    public function certificateStatusShouldBe($certname, $status)
+    {
+      throw new PendingException();
+    }
 
 }

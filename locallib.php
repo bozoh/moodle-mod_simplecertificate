@@ -1998,6 +1998,7 @@ class simplecertificate {
         } else {
             $type = $url->get_param('type');
             $url->remove_params('action', 'type', 'selectedusers');
+            //Override $users param if no user are selected, but clicks in delete selected
             switch ($action) {
                 case 'delete':
                     switch ($type) {
@@ -2009,9 +2010,9 @@ class simplecertificate {
                         break;
                         
                         case 'selected':
-                            //Override $users param if no user are selected, but clicks in delete selected
+                            //No user selected, add an empty array to avoid errors
                             if (!$selectedusers){
-                               $users = array();
+                              $users = array();
                             }
                         break;
                     }
