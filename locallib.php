@@ -1328,22 +1328,22 @@ class simplecertificate {
         $certtext = format_text($certtext, FORMAT_HTML, array('noclean' => true));
         
         $a = new stdClass();
-        $a->username = fullname($user);
-        $a->idnumber = $user->idnumber;
-        $a->firstname = $user->firstname;
-        $a->lastname = $user->lastname;
-        $a->email = $user->email;
-        $a->icq = $user->icq;
-        $a->skype = $user->skype;
-        $a->yahoo = $user->yahoo;
-        $a->aim = $user->aim;
-        $a->msn = $user->msn;
-        $a->phone1 = $user->phone1;
-        $a->phone2 = $user->phone2;
-        $a->institution = $user->institution;
-        $a->department = $user->department;
-        $a->address = $user->address;
-        $a->city = $user->city;
+        $a->username = strip_tags(fullname($user));
+        $a->idnumber = strip_tags($user->idnumber);
+        $a->firstname = strip_tags($user->firstname);
+        $a->lastname = strip_tags($user->lastname);
+        $a->email = strip_tags($user->email);
+        $a->icq = strip_tags($user->icq);
+        $a->skype = strip_tags($user->skype);
+        $a->yahoo = strip_tags($user->yahoo);
+        $a->aim = strip_tags($user->aim);
+        $a->msn = strip_tags($user->msn);
+        $a->phone1 = strip_tags($user->phone1);
+        $a->phone2 = strip_tags($user->phone2);
+        $a->institution = strip_tags($user->institution);
+        $a->department = strip_tags($user->department);
+        $a->address = strip_tags($user->address);
+        $a->city = strip_tags($user->city);
             
             // Add userimage url only if have a picture
         if ($user->picture > 0) {
@@ -1369,11 +1369,11 @@ class simplecertificate {
         $userprofilefields = $this->get_user_profile_fields($user->id);
         foreach ($userprofilefields as $key => $value) {
             $key = 'profile_' . $key;
-            $a->$key = $value;
+            $a->$key = strip_tags($value);
         }
         //The course name never change form a certificate to another, useless
         //text mark and atribbute, can be removed ....
-        $a->coursename = format_string($this->get_instance()->coursename, true);
+        $a->coursename = strip_tags($this->get_instance()->coursename); 
         $a->grade = $this->get_grade($user->id);
         $a->date = $this->get_date($issuecert, $user->id);
         $a->outcome = $this->get_outcome($user->id);
@@ -1382,7 +1382,7 @@ class simplecertificate {
         // this code stay here only beace legacy supporte, coursehours variable was removed
         //see issue 61 https://github.com/bozoh/moodle-mod_simplecertificate/issues/61
         if (isset($this->get_instance()->coursehours)) {
-            $a->hours = format_string($this->get_instance()->coursehours . ' ' . get_string('hours', 'simplecertificate'), true);
+            $a->hours = strip_tags($this->get_instance()->coursehours . ' ' . get_string('hours', 'simplecertificate'));
         } else {
             $a->hours = '';
         }
@@ -1433,15 +1433,19 @@ class simplecertificate {
             // will be replaced by actitiy link, don't make sense put activity link
             // in the certificate, only activity name and grade
             // para=> false to remove the <div> </div>  form strings
-            $replace[] = format_text((string)$value, FORMAT_MOODLE, array('filter' => false, 'para' => false));
+            $replace[] = (string)$value;
         }
         
         if ($search) {
             $certtext = str_replace($search, $replace, $certtext);
         }
         
-        //Clear not setted custom profile fiedls {PROFILE_xxxx}
-        return preg_replace('[\{PROFILE_(.*)\}]', "", $certtext);
+//         //Clear not setted custom profile fiedls {PROFILE_xxxx}
+//         $certtext = preg_replace('[\{PROFILE_(.*)\}]', "", $certtext);
+
+        //Clear not setted  textmark
+        $certtext = preg_replace('[\{(.*)\}]', "", $certtext);
+        return format_text($certtext, FORMAT_MOODLE);
     
     }
     
