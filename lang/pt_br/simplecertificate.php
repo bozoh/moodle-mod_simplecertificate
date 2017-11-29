@@ -239,7 +239,6 @@ $string['cantissue'] = 'O certificado não pode ser emitido pois o usuário não
 $string['onepdf'] = 'Download de um único arquivo pdf com todos os certificados';
 $string['multipdf'] = 'Download de um arquivo zip com os pdfs dos certidicados';
 $string['sendtoemail'] = 'Enviar os certificados para o email do usuário';
-$string['deleteselected'] = "Delete selected";
 $string['showusers'] = 'Mostrar';
 $string['completedusers'] = 'Usuários que atingiram os objetivos definidos';
 $string['allusers'] = 'Todos os usuários';
@@ -277,3 +276,5 @@ $string['notreceived'] = 'Certificado não emitido';
 $string['eventcertificate_verified'] = 'Certificado verificado';
 $string['eventcertificate_verified_description'] = 'O usuário com o id {$a->userid} verificou o certificado com o id {$a->certificateid}, emetido para o usuário com id {$a->certiticate_userid}.';
 
+$string['deleteall'] = "Remover todos";
+$string['deleteselected'] = "Remover Selecionados";
