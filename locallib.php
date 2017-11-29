@@ -36,7 +36,8 @@ require_once ($CFG->dirroot . '/user/profile/lib.php');
 
 use core_availability\info;
 use core_availability\info_module;
-//use core_availability\info_section;
+use core\message\inbound\private_files_handler;
+
 
 class simplecertificate {
     /**
@@ -56,6 +57,7 @@ class simplecertificate {
     // Date Options Const
     const CERT_ISSUE_DATE = -1;
     const COURSE_COMPLETATION_DATE = -2;
+    const COURSE_START_DATE = -3;
     
     // Grade Option Const
     const NO_GRADE = 0;
@@ -87,18 +89,6 @@ class simplecertificate {
      * @var stdClass the course this simplecertificate instance belongs to
      */
     private $course;
-    
-    /**
-     *
-     * @var stdClass the admin config for all simplecertificate instances
-     */
-    private $adminconfig;
-    
-    /**
-     *
-     * @var assign_renderer the custom renderer for this module
-     */
-    private $output;
     
     /**
      *
@@ -201,7 +191,7 @@ class simplecertificate {
     public function delete_instance() {
         global $DB;
         try {
-            if ($instance = $this->get_instance()) {
+            if ($this->get_instance()) {
                 // Delete issued certificates
                 $this->remove_issues($this->get_instance());
                 
@@ -237,7 +227,7 @@ class simplecertificate {
                                                 array('certificateid' => $certificateisntance->id))) {
                 
                 foreach ($issues as $issue) {
-                    if (!$this->remove_issue($issue, $certificateisntance)) {
+                    if (!$this->remove_issue($issue)) {
                         // TODO add exception msg
                         throw new moodle_exception('TODO');
                     }
@@ -245,7 +235,6 @@ class simplecertificate {
             }
         } catch (Exception $e) {
             throw $e;
-            return false;
         }
     }
 
@@ -253,9 +242,10 @@ class simplecertificate {
      * Remove an issue certificate
      * 
      * @param stdClass $issue Issue certificate object
+     * @param boolean $move_cert_file Move the certificate file to usuer private folder (defaul true)
      * @return bool true if removed
      */
-    protected function remove_issue(stdClass $issue, stdClass $certinstance = null) {
+    protected function remove_issue(stdClass $issue,  $move_cert_file = true) {
         global $DB;
         
         // Try to move certificate to users private file area
@@ -274,48 +264,40 @@ class simplecertificate {
                 throw new moodle_exception('usercontextnotfound', 'simplecertificate', null, null, 'userid [' . $issue->userid . ']');
             }
             
-            // Try get coursename
-            if (empty($certinstance)) {
-                if (!$coursename = $DB->get_field('simplecertificate', 'coursename', array('id' => $issue->certificateid), 
-                                                IGNORE_MISSING)) {
-                    // Can't take, try get course
-                    if (!$course = $this->get_course()) {
-                        error_log("Can't find course");
-                        // TODO add exception msg
-                        throw new moodle_exception('TODO');
+            //Check if it's to move certificate file or not
+            if ($move_cert_file) {
+                $coursename = $issue->coursename;
+            
+                $fileinfo = array(
+                        'contextid' => $userctx->id, 
+                        'component' => 'user', 
+                        'filearea' => 'private', 
+                        'itemid' => $issue->certificateid, 
+                        'filepath' => '/certificates/' . $coursename . '/', 
+                        'filename' => $file->get_filename());
+            
+                if (!$fs->file_exists($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'], $fileinfo['itemid'], 
+                                    $fileinfo['filepath'], $fileinfo['filename'])) {
+                    if ($newfile = $fs->create_file_from_storedfile($fileinfo, $file)) {
+                        $issue->pathnamehash = $newfile->get_pathnamehash();
                     } else {
-                        $coursename = $course->fullname;
+                        throw new moodle_exception('cannotsavefile', null, null, null, $file->get_filename());
                     }
                 }
             } else {
-                // Has certificate instance
-                $coursename = $certinstance->coursename;
-            }
-            
-            // Assembling users filearea fileinfo
-            $fileinfo = array(
-                    'contextid' => $userctx->id, 
-                    'component' => 'user', 
-                    'filearea' => 'private', 
-                    'itemid' => $issue->certificateid, 
-                    'filepath' => '/certificates/' . $coursename . '/', 
-                    'filename' => $file->get_filename());
-            
-            if (!$fs->file_exists($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'], $fileinfo['itemid'], 
-                                $fileinfo['filepath'], $fileinfo['filename'])) {
-                if ($newfile = $fs->create_file_from_storedfile($fileinfo, $file)) {
-                    $issue->pathnamehash = $newfile->get_pathnamehash();
-                } else {
-                    throw new moodle_exception('cannotsavefile', null, null, null, $file->get_filename());
-                }
+                $file->delete();
             }
         } catch (moodle_exception $e) {
             debugging($e->getMessage(), DEBUG_DEVELOPER, $e->getTrace());
             $issue->pathnamehash = '';
         }
         try {
-            $issue->timedeleted = time();
-            return $DB->update_record('simplecertificate_issues', $issue);
+            if ($move_cert_file) {
+                $issue->timedeleted = time();
+                return $DB->update_record('simplecertificate_issues', $issue);
+            } else {
+                return $DB->delete_records('simplecertificate_issues', array('id' => $issue->id));
+            }
         } catch (Exception $e) {
             throw $e;
         }
@@ -401,11 +383,7 @@ class simplecertificate {
             return $this->coursemodule;
         }
         
-        if (!$this->context) {
-            return null;
-        }
-        
-        if ($this->context->contextlevel == CONTEXT_MODULE) {
+        if ($this->context && $this->context->contextlevel == CONTEXT_MODULE) {
             $this->coursemodule = get_coursemodule_from_id('simplecertificate', $this->context->instanceid, 0, false, MUST_EXIST);
             return $this->coursemodule;
         }
@@ -446,9 +424,8 @@ class simplecertificate {
      * @return stdClass The simplecertificate instance object
      */
     private function populate_simplecertificate_instance(stdclass $formdata) {
-        global $USER;
-        
-        //Clear image filearea
+
+          //Clear image filearea
         $fs = get_file_storage();
         $fs->delete_area_files($this->get_context()->id, self::CERTIFICATE_COMPONENT_NAME, self::CERTIFICATE_IMAGE_FILE_AREA);
         // Creating a simplecertificate instace object.
@@ -537,13 +514,11 @@ class simplecertificate {
             $contextid = $context;
         }
         
-        $fileinfo = array('contextid' => $contextid, // ID of context
+        return array('contextid' => $contextid, // ID of context
                           'component' => self::CERTIFICATE_COMPONENT_NAME, // usually = table name
                           'filearea' => self::CERTIFICATE_IMAGE_FILE_AREA, // usually = table name
                           'itemid' => 1, // usually = ID of row in table
                           'filepath' => '/'); // any path beginning and ending in /
-        
-        return $fileinfo;
     }
 
     /**
@@ -574,22 +549,21 @@ class simplecertificate {
             $contextid = $context;
         }
     
-        $filerecord = array('contextid' => $contextid, 
+        return array('contextid' => $contextid, 
                             'component' => self::CERTIFICATE_COMPONENT_NAME, 
                             'filearea' => 'tmp', 
                             'itemid' => 0, 
                             'filepath' => '/');
-    
-        return $filerecord;
     }
 
     /**
      * Get issued certificate object, if it's not exist, it will be create
      * 
      * @param mixed User obj or id
+     * @param boolean Issue teh user certificate if it's not exists (default = true)
      * @return stdClass the issue certificate object
      */
-    public function get_issue($user = null) {
+    public function get_issue($user = null, $issue_if_empty = true) {
         global $DB, $USER;
         
         if (empty($user)) {
@@ -613,31 +587,37 @@ class simplecertificate {
                 return $this->issuecert;
             } else {
                 // haschange is maked, must update
-                $issuecert = $this->issuecert;
+                $issuedcert = $this->issuecert;
             }
             // Not in cache, trying get from database
-        } else if (!$issuecert = $DB->get_record('simplecertificate_issues', 
+        } else if (!$issuedcert = $DB->get_record('simplecertificate_issues', 
                         array('userid' => $userid, 'certificateid' => $this->get_instance()->id, 'timedeleted' => null))) {
             // Not in cache and not in DB, create new certificate issue record
+            
+            if (!$issue_if_empty) {
+                //Not create a new one, only check if exists
+                return null;
+            }
+            
             // Mark as created
             $created = true;
-            $issuecert = new stdClass();
-            $issuecert->certificateid = $this->get_instance()->id;
-            $issuecert->coursename = format_string($this->get_instance()->coursename, true);
-            $issuecert->userid = $userid;
-            $issuecert->haschange = 1;
+            $issuedcert = new stdClass();
+            $issuedcert->certificateid = $this->get_instance()->id;
+            $issuedcert->coursename = format_string($this->get_instance()->coursename, true);
+            $issuedcert->userid = $userid;
+            $issuedcert->haschange = 1;
             $formated_coursename = str_replace('-', '_', $this->get_instance()->coursename);
             $formated_certificatename = str_replace('-', '_', $this->get_instance()->name);
-            $issuecert->certificatename = format_string($formated_coursename . '-' . $formated_certificatename, true);
-            $issuecert->timecreated = time();
-            $issuecert->code = $this->get_issue_uuid();
+            $issuedcert->certificatename = format_string($formated_coursename . '-' . $formated_certificatename, true);
+            $issuedcert->timecreated = time();
+            $issuedcert->code = $this->get_issue_uuid();
             // Avoiding not null restriction;
-            $issuecert->pathnamehash = '';
+            $issuedcert->pathnamehash = '';
             
             if (has_capability('mod/simplecertificate:manage', $this->context, $userid)) {
-                $issuecert->id = 0;
+                $issuedcert->id = 0;
             } else {
-                $issuecert->id = $DB->insert_record('simplecertificate_issues', $issuecert);
+                $issuedcert->id = $DB->insert_record('simplecertificate_issues', $issuedcert);
                 
                 // Email to the teachers and anyone else
                 if (!empty($this->get_instance()->emailteachers)) {
@@ -651,16 +631,16 @@ class simplecertificate {
         }
         
         //If cache or db issued certificate is maked as haschange, must update
-        if (!empty($issuecert->haschange) && !$created) { //Check haschange, if so, reissue
+        if (!empty($issuedcert->haschange) && !$created) { //Check haschange, if so, reissue
             $formated_coursename = str_replace('-', '_', $this->get_instance()->coursename);
             $formated_certificatename = str_replace('-', '_', $this->get_instance()->name);
-            $issuecert->certificatename = format_string($formated_coursename . '-' . $formated_certificatename, true);
-            $DB->update_record('simplecertificate_issues', $issuecert);
+            $issuedcert->certificatename = format_string($formated_coursename . '-' . $formated_certificatename, true);
+            $DB->update_record('simplecertificate_issues', $issuedcert);
         }
         
         //Caching to avoid unessecery db queries
-        $this->issuecert = $issuecert;
-        return $issuecert;
+        $this->issuecert = $issuedcert;
+        return $issuedcert;
     }
 
     /**
@@ -691,7 +671,7 @@ class simplecertificate {
      * @return string the attempt table
      */
     public function print_attempts($attempts) {
-        global $OUTPUT, $DB;
+        global $OUTPUT;
         
         echo $OUTPUT->heading(get_string('summaryofattempts', 'simplecertificate'));
         
@@ -734,7 +714,7 @@ class simplecertificate {
      * @return string the grade result
      */
     protected function get_grade($userid = null) {
-        global $USER, $DB;
+        global $USER;
         
         if (empty($userid)) {
             $userid = $USER->id;
@@ -857,7 +837,7 @@ class simplecertificate {
      * @return array the teacher array
      */
     protected function get_teachers() {
-        global $CFG, $USER, $DB;
+        global $CFG, $DB;
         $teachers = array();
         
         if (!empty($CFG->coursecontact)) {
@@ -886,14 +866,13 @@ class simplecertificate {
      * First checks whether the option to email teachers is set for this certificate.
      */
     protected function send_alert_email_teachers() {
-        if (!empty($this->get_instance()->emailteachers)) {
-            if ($teachers = $this->get_teachers()) {
+        if (!empty($this->get_instance()->emailteachers) && ($teachers = $this->get_teachers())) {
                 $emailteachers = array();
                 foreach ($teachers as $teacher) {
                     $emailteachers[] = $teacher->user->email;
                 }
                 $this->send_alert_emails($emailteachers);
-            }
+            
         }
     }
 
@@ -916,7 +895,7 @@ class simplecertificate {
      * @param array $emails emails arrays
      */
     protected function send_alert_emails($emails) {
-        global $USER, $CFG, $DB;
+        global $USER, $CFG;
         
         if (!empty($emails)) {
             
@@ -993,7 +972,7 @@ class simplecertificate {
      * @return mixed PDF object or error
      */
     protected function create_pdf(stdClass $issuecert, $pdf = null, $isbulk = false) {
-        global $DB, $CFG;
+        global $CFG;
         
         //Check if certificate file is already exists, if issued has changes, it will recreated
         if (empty($issuecert->haschange) && $this->issue_file_exists($issuecert) && !$isbulk) {
@@ -1158,11 +1137,11 @@ class simplecertificate {
             $issuecert->pathnamehash = $file->get_pathnamehash();
             
             // Verify if user is a manager, if not, update issuedcert
-            if (!has_capability('mod/simplecertificate:manage', $this->context, $issuecert->userid)) {
-                if (!$DB->update_record('simplecertificate_issues', $issuecert)) {
+            if (!has_capability('mod/simplecertificate:manage', 
+                $this->context, $issuecert->userid) && !$DB->update_record('simplecertificate_issues',
+                    $issuecert)) {
                     print_error('cannotupdatemod', 'error', null, 'simplecertificate_issue');
                     return false;
-                }
             }
              return $file;
         }
@@ -1313,7 +1292,8 @@ class simplecertificate {
                     echo $OUTPUT->footer(); //send email
                 break;
                 
-                case self::OUTPUT_OPEN_IN_BROWSER:
+                //OUTPUT_OPEN_IN_BROWSER
+                default:
                     send_stored_file($file, 10, 0, false, array('dontdie' => true)); // open in browser
                 break;// open in browser
           }
@@ -1348,22 +1328,22 @@ class simplecertificate {
         $certtext = format_text($certtext, FORMAT_HTML, array('noclean' => true));
         
         $a = new stdClass();
-        $a->username = fullname($user);
-        $a->idnumber = $user->idnumber;
-        $a->firstname = $user->firstname;
-        $a->lastname = $user->lastname;
-        $a->email = $user->email;
-        $a->icq = $user->icq;
-        $a->skype = $user->skype;
-        $a->yahoo = $user->yahoo;
-        $a->aim = $user->aim;
-        $a->msn = $user->msn;
-        $a->phone1 = $user->phone1;
-        $a->phone2 = $user->phone2;
-        $a->institution = $user->institution;
-        $a->department = $user->department;
-        $a->address = $user->address;
-        $a->city = $user->city;
+        $a->username = strip_tags(fullname($user));
+        $a->idnumber = strip_tags($user->idnumber);
+        $a->firstname = strip_tags($user->firstname);
+        $a->lastname = strip_tags($user->lastname);
+        $a->email = strip_tags($user->email);
+        $a->icq = strip_tags($user->icq);
+        $a->skype = strip_tags($user->skype);
+        $a->yahoo = strip_tags($user->yahoo);
+        $a->aim = strip_tags($user->aim);
+        $a->msn = strip_tags($user->msn);
+        $a->phone1 = strip_tags($user->phone1);
+        $a->phone2 = strip_tags($user->phone2);
+        $a->institution = strip_tags($user->institution);
+        $a->department = strip_tags($user->department);
+        $a->address = strip_tags($user->address);
+        $a->city = strip_tags($user->city);
             
             // Add userimage url only if have a picture
         if ($user->picture > 0) {
@@ -1389,11 +1369,11 @@ class simplecertificate {
         $userprofilefields = $this->get_user_profile_fields($user->id);
         foreach ($userprofilefields as $key => $value) {
             $key = 'profile_' . $key;
-            $a->$key = $value;
+            $a->$key = strip_tags($value);
         }
         //The course name never change form a certificate to another, useless
         //text mark and atribbute, can be removed ....
-        $a->coursename = format_string($this->get_instance()->coursename, true);
+        $a->coursename = strip_tags($this->get_instance()->coursename); 
         $a->grade = $this->get_grade($user->id);
         $a->date = $this->get_date($issuecert, $user->id);
         $a->outcome = $this->get_outcome($user->id);
@@ -1402,7 +1382,7 @@ class simplecertificate {
         // this code stay here only beace legacy supporte, coursehours variable was removed
         //see issue 61 https://github.com/bozoh/moodle-mod_simplecertificate/issues/61
         if (isset($this->get_instance()->coursehours)) {
-            $a->hours = format_string($this->get_instance()->coursehours . ' ' . get_string('hours', 'simplecertificate'), true);
+            $a->hours = strip_tags($this->get_instance()->coursehours . ' ' . get_string('hours', 'simplecertificate'));
         } else {
             $a->hours = '';
         }
@@ -1453,15 +1433,19 @@ class simplecertificate {
             // will be replaced by actitiy link, don't make sense put activity link
             // in the certificate, only activity name and grade
             // para=> false to remove the <div> </div>  form strings
-            $replace[] = format_text((string)$value, FORMAT_MOODLE, array('filter' => false, 'para' => false));
+            $replace[] = (string)$value;
         }
         
         if ($search) {
             $certtext = str_replace($search, $replace, $certtext);
         }
         
-        //Clear not setted custom profile fiedls {PROFILE_xxxx}
-        return preg_replace('[\{PROFILE_(.*)\}]', "", $certtext);
+//         //Clear not setted custom profile fiedls {PROFILE_xxxx}
+//         $certtext = preg_replace('[\{PROFILE_(.*)\}]', "", $certtext);
+
+        //Clear not setted  textmark
+        $certtext = preg_replace('[\{(.*)\}]', "", $certtext);
+        return format_text($certtext, FORMAT_MOODLE);
     
     }
     
@@ -1498,14 +1482,11 @@ class simplecertificate {
             
             // It's enable, so i must copy the profile image to somewhere else, so i can get the image;
             // Try to get the profile image file
-            
             $fs = get_file_storage();
-            if (!$file = $fs->get_file($usercontext->id, 'user', 'icon', 0, '/', $filename . '.png')) {
-                $extension = '.jpg';
-                if (!$file = $fs->get_file($usercontext->id, 'user', 'icon', 0, '/', $filename . '.jpg')) {
+            if ((!$file = $fs->get_file($usercontext->id, 'user', 'icon', 0, '/', $filename . '.png'))
+            && (!$file = $fs->get_file($usercontext->id, 'user', 'icon', 0, '/', $filename . '.jpg'))) {
                     // I Can't get the file, sorry
                     return '';
-                }
             }
             
             // with the file, now let's copy to plugin filearea
@@ -1555,22 +1536,30 @@ class simplecertificate {
             $date = $issuecert->timecreated;
         }
         
+        // Get the course start date
+        if ($this->get_instance()->certdate == self::COURSE_START_DATE) {
+        			$sql = "SELECT id, startdate FROM {course} c
+              WHERE c.id = :courseid";
+			
+        $coursestartdate = $DB->get_record_sql($sql, array('courseid' => $this->get_course()->id));
+        $date = $coursestartdate->startdate;
+        }
+        
         // Get the enrolment end date
         if ($this->get_instance()->certdate == self::COURSE_COMPLETATION_DATE) {
             $sql = "SELECT MAX(c.timecompleted) as timecompleted FROM {course_completions} c
                  WHERE c.userid = :userid AND c.course = :courseid";
             
-            if ($timecompleted = $DB->get_record_sql($sql, 
-                                                    array('userid' => $issuecert->userid, 'courseid' => $this->get_course()->id))) {
-                if (!empty($timecompleted->timecompleted)) {
+            if ($timecompleted = $DB->get_record_sql($sql, array('userid' => $issuecert->userid,
+              'courseid' => $this->get_course()->id)) && !empty($timecompleted->timecompleted)) {
                     $date = $timecompleted->timecompleted;
-                }
+                
             }
             // Get the module grade date
-        } else if ($this->get_instance()->certdate > 0) {
-            if ($modinfo = $this->get_mod_grade($this->get_instance()->certdate, $issuecert->userid)) {
+        } else if ($this->get_instance()->certdate > 0
+            && $modinfo = $this->get_mod_grade($this->get_instance()->certdate, $issuecert->userid)) {
                 $date = $modinfo->dategraded;
-            }
+            
         }
         
         return userdate($date, $format);
@@ -1613,7 +1602,7 @@ class simplecertificate {
      * @return array
      */
     protected function get_outcomes() {
-        global $COURSE, $DB;
+        global $COURSE;
         
         // get all outcomes in course
         $grade_seq = new grade_tree($COURSE->id, false, true, '', false);
@@ -1645,20 +1634,19 @@ class simplecertificate {
      * @return string the outcome
      */
     protected function get_outcome($userid) {
-        global $USER, $DB;
+        global $USER;
         
         if (empty($userid)) {
             $userid = $USER->id;
         }
         
-        if ($this->get_instance()->outcome > 0) {
-            if ($grade_item = new grade_item(array('id' => $this->get_instance()->outcome))) {
+        if ($this->get_instance()->outcome > 0
+            && $grade_item = new grade_item(array('id' => $this->get_instance()->outcome))){ 
                 $outcomeinfo = new stdClass();
                 $outcomeinfo->name = $grade_item->get_name();
                 $outcome = new grade_grade(array('itemid' => $grade_item->id, 'userid' => $userid));
                 $outcomeinfo->grade = grade_format_gradevalue($outcome->finalgrade, $grade_item, true, GRADE_DISPLAY_TYPE_REAL);
                 return $outcomeinfo->name . ': ' . $outcomeinfo->grade;
-            }
         }
         
         return '';
@@ -1682,7 +1670,7 @@ class simplecertificate {
                         require_once ($CFG->dirroot . '/user/profile/field/' . $field->datatype . '/field.class.php');
                         $newfield = 'profile_field_' . $field->datatype;
                         $formfield = new $newfield($field->id, $userid);
-                        if ($formfield->is_visible() and !$formfield->is_empty()) {
+                        if ($formfield->is_visible() && !$formfield->is_empty()) {
                             if ($field->datatype == 'checkbox') {
                                 $usercustomfields->{$field->shortname} = ($formfield->data == 1 ? get_string('yes') : get_string(
                                                                                                                                 'no'));
@@ -1706,7 +1694,7 @@ class simplecertificate {
      * @return string null if user meet issued conditions, or an text with erro
      */
     protected function can_issue($user = null, $chkcompletation = true) {
-        global $DB, $USER, $CFG;
+        global $USER, $CFG;
         
         if (empty($user)) {
             $user = $USER;
@@ -1728,10 +1716,10 @@ class simplecertificate {
                 $completion->update_state($this->coursemodule, COMPLETION_COMPLETE, $user->id);
             }
             
-            if ($CFG->enableavailability) {
-                if (!$this->check_user_can_access_certificate_instance($user->id)) {
+            if ($CFG->enableavailability
+                && !$this->check_user_can_access_certificate_instance($user->id)) {
                     return get_string('cantissue', 'simplecertificate');
-                }
+                
             }
             return null;
         }
@@ -1816,7 +1804,6 @@ class simplecertificate {
             
             if ($this->get_instance()->delivery != 3 || $canmanage) {
                 // Create new certificate record, or return existing record
-                $certrecord = $this->get_issue();
                 switch ($this->get_instance()->delivery) {
                     case self::OUTPUT_FORCE_DOWNLOAD:
                         $str = get_string('opendownload', 'simplecertificate');
@@ -1880,10 +1867,9 @@ class simplecertificate {
         }
         
         // if groupmembersonly used, remove users who are not in any group
-        if (!empty($issedusers) and !empty($CFG->enablegroupings) and $this->coursemodule->groupmembersonly) {
-            if ($groupingusers = groups_get_grouping_members($cm->groupingid, 'u.id', 'u.id')) {
-                $issedusers = array_intersect($issedusers, array_keys($groupingusers));
-            }
+        if (!empty($issedusers) && !empty($CFG->enablegroupings) && $this->coursemodule->groupmembersonly 
+            && $groupingusers = groups_get_grouping_members($cm->groupingid, 'u.id', 'u.id')) {
+            $issedusers = array_intersect($issedusers, array_keys($groupingusers));
         }
         
         if ($groupmode) {
@@ -1905,12 +1891,10 @@ class simplecertificate {
     }
     
     // Issued certificates view
-    public function view_issued_certificates(moodle_url $url) {
-        global $OUTPUT, $DB, $CFG;
+    public function view_issued_certificates(moodle_url $url, array $selectedusers = null) {
+        global $OUTPUT, $CFG, $DB;
         
         // Declare some variables
-        $strcertificates = get_string('modulenameplural', 'simplecertificate');
-        $strcertificate = get_string('modulename', 'simplecertificate');
         $strto = html_writer::link($url->out(false, array('orderby' => 'username')), get_string('awardedto', 'simplecertificate'));
         $strdate = html_writer::link($url->out(false, array('orderby' => 'issuedate')), 
                                     get_string('receiveddate', 'simplecertificate'));
@@ -1921,15 +1905,32 @@ class simplecertificate {
         $page = $url->get_param('page');
         $perpage = $url->get_param('perpage');
         $orderby = $url->get_param('orderby');
+        $action = $url->get_param('action');
         $usercount = 0;
         
-        $users = $this->get_issued_certificate_users($orderby, $groupmode);
-        if ($users) {
+        
+        if (!$selectedusers) {
+            $users = $this->get_issued_certificate_users($orderby, $groupmode);
             $usercount = count($users);
-            $users = array_slice($users, intval($page * $perpage), $perpage);
+        } else {
+            list($sqluserids, $params) = $DB->get_in_or_equal($selectedusers);
+            $sql = "SELECT * FROM {user} WHERE id $sqluserids";
+            //Adding sort
+            $sort = '';
+            $override = new stdClass();
+            $override->firstname = 'firstname';
+            $override->lastname = 'lastname';
+            $fullnamelanguage = get_string('fullnamedisplay', '', $override);
+            if (($CFG->fullnamedisplay == 'firstname lastname') || ($CFG->fullnamedisplay == 'firstname') ||
+            ($CFG->fullnamedisplay == 'language' && $fullnamelanguage == 'firstname lastname')) {
+                $sort = " ORDER BY firstname, lastname";
+            } else { // ($CFG->fullnamedisplay == 'language' and $fullnamelanguage == 'lastname firstname')
+                $sort = " ORDER BY lastname, firstname";
+            }
+            $users = $DB->get_records_sql($sql . $sort, $params);
         }
         
-        if (!$url->get_param('action')) {
+        if (!$action) {
             echo $OUTPUT->header();
             $this->show_tabs($url);
             
@@ -1945,175 +1946,231 @@ class simplecertificate {
                 exit();
             }
             
+      
             // Create the table for the users
             $table = new html_table();
             $table->width = "95%";
             $table->tablealign = "center";
-            $table->head = array($strto, $strdate, $strgrade, $strcode);
-            $table->align = array("left", "left", "center", "center");
+            
+            //strgrade
+            $table->head = array(' ', get_string('fullname'), get_string('grade'));
+            $table->align = array("left", "left", "center");
+            $table->size = array('1%', '89%', '10%');
+            
+            
+            $table = new html_table();
+            $table->width = "95%";
+            $table->tablealign = "center";
+            $table->head = array(' ', $strto, $strdate, $strgrade, $strcode);
+            $table->align = array("left", "left", "left", "center", "center");
+            $table->size = array('1%', '54%', '10%','5%','30%');
+            
+            $users = array_slice($users, intval($page * $perpage), $perpage);
+            
             foreach ($users as $user) {
+                $chkbox = html_writer::checkbox('selectedusers[]', $user->id, false);
                 $name = $OUTPUT->user_picture($user) . fullname($user);
                 $date = userdate($user->timecreated) . simplecertificate_print_issue_certificate_file($this->get_issue($user));
                 $code = $user->code;
-                $table->data[] = array($name, $date, $this->get_grade($user->id), $code);
+                $table->data[] = array($chkbox, $name, $date, $this->get_grade($user->id), $code);
             }
             
             // Create table to store buttons
             $tablebutton = new html_table();
             $tablebutton->attributes['class'] = 'downloadreport';
             
+            $deleteselectedbutton = $OUTPUT->single_button($url->out_as_local_url(false, array('action' => 'delete', 'type' => 'selected')),
+                    get_string('deleteselected', 'simplecertificate'));
+            $deleteallbutton = $OUTPUT->single_button($url->out_as_local_url(false, array('action' => 'delete', 'type'=>'all')),
+                    get_string('deleteall', 'simplecertificate'));
             $btndownloadods = $OUTPUT->single_button($url->out_as_local_url(false, array('action' => 'download', 'type' => 'ods')), 
-                                                    get_string("downloadods"));
+                    get_string("downloadods"));
             $btndownloadxls = $OUTPUT->single_button($url->out_as_local_url(false, array('action' => 'download', 'type' => 'xls')), 
-                                                    get_string("downloadexcel"));
+                    get_string("downloadexcel"));
             $btndownloadtxt = $OUTPUT->single_button($url->out_as_local_url(false, array('action' => 'download', 'type' => 'txt')), 
-                                                    get_string("downloadtext"));
-            $tablebutton->data[] = array($btndownloadods, $btndownloadxls, $btndownloadtxt);
+                    get_string("downloadtext"));
+            $tablebutton->data[] = array($deleteselectedbutton, $deleteallbutton, $btndownloadods, $btndownloadxls, $btndownloadtxt);
             
-            echo $OUTPUT->paging_bar($usercount, $page, $perpage, $url);
+           
             echo '<br />';
+            echo '<form id="bulkissue" name="bulkissue" method="post" action="view.php">';
             echo html_writer::table($table);
+            echo $OUTPUT->paging_bar($usercount, $page, $perpage, $url);
             echo html_writer::tag('div', html_writer::table($tablebutton), array('style' => 'margin:auto; width:50%'));
-        
-            } else if ($url->get_param('action') == 'download') {
-            $page = $perpage = 0;
+            echo '</form>';
+          
+        } else {
             $type = $url->get_param('type');
-            // Calculate file name
-            $filename = clean_filename(
-                                    $this->get_instance()->coursename . '-' .
+            $url->remove_params('action', 'type', 'selectedusers');
+            //Override $users param if no user are selected, but clicks in delete selected
+            switch ($action) {
+                case 'delete':
+                    switch ($type) {
+                        case  'all':
+                            //Override $users param, if there is a selected users, but it clicks on delete all
+                            if ($selectedusers){
+                                $users = $this->get_issued_certificate_users($orderby, $groupmode);
+                            }
+                        break;
+                        
+                        case 'selected':
+                            //No user selected, add an empty array to avoid errors
+                            if (!$selectedusers){
+                              $users = array();
+                            }
+                        break;
+                    }
+                    foreach ($users as $user) {
+                        $issuedcert = $this->get_issue($user);
+                        #if it's issued, then i remove
+                        if ($issuedcert) {
+                            $this->remove_issue($issuedcert, false);
+                        }
+                    }
+                break;
+                  
+                case 'download':    
+                    $page = $perpage = 0;
+            
+                    // Calculate file name
+                    $filename = clean_filename($this->get_instance()->coursename . '-' .
                                      strip_tags(format_string($this->get_instance()->name, true)) . '.' .
                                      strip_tags(format_string($type, true)));
             
-            switch ($type) {
-                case 'ods':
-                    require_once ("$CFG->libdir/odslib.class.php");
+                    switch ($type) {
+                        case 'ods':
+                            require_once ("$CFG->libdir/odslib.class.php");
                     
-                    // Creating a workbook
-                    $workbook = new MoodleODSWorkbook("-");
-                    // Send HTTP headers
-                    $workbook->send(format_text($filename, true));
-                    // Creating the first worksheet
-                    $myxls = $workbook->add_worksheet($strreport);
-                    
-                    // Print names of all the fields
-                    $myxls->write_string(0, 0, get_string("fullname"));
-                    $myxls->write_string(0, 1, get_string("idnumber"));
-                    $myxls->write_string(0, 2, get_string("group"));
-                    $myxls->write_string(0, 3, $strdate);
-                    $myxls->write_string(0, 4, $strgrade);
-                    $myxls->write_string(0, 5, $strcode);
-                    
-                    // Generate the data for the body of the spreadsheet
-                    $i = 0;
-                    $row = 1;
-                    if ($users) {
-                        foreach ($users as $user) {
-                            $myxls->write_string($row, 0, fullname($user));
-                            $studentid = (!empty($user->idnumber)) ? $user->idnumber : " ";
-                            $myxls->write_string($row, 1, $studentid);
-                            $ug2 = '';
-                            if ($usergrps = groups_get_all_groups($this->get_course()->id, $user->id)) {
-                                foreach ($usergrps as $ug) {
-                                    $ug2 = $ug2 . $ug->name;
+                            // Creating a workbook
+                            $workbook = new MoodleODSWorkbook("-");
+                            // Send HTTP headers
+                            $workbook->send(format_text($filename, true));
+                            // Creating the first worksheet
+                            $myxls = $workbook->add_worksheet($strreport);
+                            
+                            // Print names of all the fields
+                            $myxls->write_string(0, 0, get_string("fullname"));
+                            $myxls->write_string(0, 1, get_string("idnumber"));
+                            $myxls->write_string(0, 2, get_string("group"));
+                            $myxls->write_string(0, 3, $strdate);
+                            $myxls->write_string(0, 4, $strgrade);
+                            $myxls->write_string(0, 5, $strcode);
+                            
+                            // Generate the data for the body of the spreadsheet
+                            $i = 0;
+                            $row = 1;
+                            if ($users) {
+                                foreach ($users as $user) {
+                                    $myxls->write_string($row, 0, fullname($user));
+                                    $studentid = (!empty($user->idnumber)) ? $user->idnumber : " ";
+                                    $myxls->write_string($row, 1, $studentid);
+                                    $ug2 = '';
+                                    if ($usergrps = groups_get_all_groups($this->get_course()->id, $user->id)) {
+                                        foreach ($usergrps as $ug) {
+                                            $ug2 = $ug2 . $ug->name;
+                                        }
+                                    }
+                                    $myxls->write_string($row, 2, $ug2);
+                                    $myxls->write_string($row, 3, userdate($user->timecreated));
+                                    $myxls->write_string($row, 4, $this->get_grade($user->id));
+                                    $myxls->write_string($row, 5, $user->code);
+                                    $row++;
                                 }
+                                $pos = 5;
                             }
-                            $myxls->write_string($row, 2, $ug2);
-                            $myxls->write_string($row, 3, userdate($user->timecreated));
-                            $myxls->write_string($row, 4, $this->get_grade($user->id));
-                            $myxls->write_string($row, 5, $user->code);
-                            $row++;
-                        }
-                        $pos = 5;
-                    }
-                    // Close the workbook
-                    $workbook->close();
-                break;
+                            // Close the workbook
+                            $workbook->close();
+                        break;
                 
-                case 'xls':
-                    require_once ("$CFG->libdir/excellib.class.php");
-                    
-                    // Creating a workbook
-                    $workbook = new MoodleExcelWorkbook("-");
-                    // Send HTTP headers
-                    $workbook->send(format_text($filename, true));
-                    // Creating the first worksheet
-                    $myxls = $workbook->add_worksheet($strreport);
-                    
-                    // Print names of all the fields
-                    $myxls->write_string(0, 0, get_string("fullname"));
-                    $myxls->write_string(0, 1, get_string("idnumber"));
-                    $myxls->write_string(0, 2, get_string("group"));
-                    $myxls->write_string(0, 3, $strdate);
-                    $myxls->write_string(0, 4, $strgrade);
-                    $myxls->write_string(0, 5, $strcode);
-                    
-                    // Generate the data for the body of the spreadsheet
-                    $i = 0;
-                    $row = 1;
-                    if ($users) {
-                        foreach ($users as $user) {
-                            $myxls->write_string($row, 0, fullname($user));
-                            $studentid = (!empty($user->idnumber)) ? $user->idnumber : " ";
-                            $myxls->write_string($row, 1, $studentid);
-                            $ug2 = '';
-                            if ($usergrps = groups_get_all_groups($this->get_course()->id, $user->id)) {
-                                foreach ($usergrps as $ug) {
-                                    $ug2 = $ug2 . $ug->name;
+                        case 'xls':
+                            require_once ("$CFG->libdir/excellib.class.php");
+                            
+                            // Creating a workbook
+                            $workbook = new MoodleExcelWorkbook("-");
+                            // Send HTTP headers
+                            $workbook->send(format_text($filename, true));
+                            // Creating the first worksheet
+                            $myxls = $workbook->add_worksheet($strreport);
+                            
+                            // Print names of all the fields
+                            $myxls->write_string(0, 0, get_string("fullname"));
+                            $myxls->write_string(0, 1, get_string("idnumber"));
+                            $myxls->write_string(0, 2, get_string("group"));
+                            $myxls->write_string(0, 3, $strdate);
+                            $myxls->write_string(0, 4, $strgrade);
+                            $myxls->write_string(0, 5, $strcode);
+                            
+                            // Generate the data for the body of the spreadsheet
+                            $i = 0;
+                            $row = 1;
+                            if ($users) {
+                                foreach ($users as $user) {
+                                    $myxls->write_string($row, 0, fullname($user));
+                                    $studentid = (!empty($user->idnumber)) ? $user->idnumber : " ";
+                                    $myxls->write_string($row, 1, $studentid);
+                                    $ug2 = '';
+                                    if ($usergrps = groups_get_all_groups($this->get_course()->id, $user->id)) {
+                                        foreach ($usergrps as $ug) {
+                                            $ug2 = $ug2 . $ug->name;
+                                        }
+                                    }
+                                    $myxls->write_string($row, 2, $ug2);
+                                    $myxls->write_string($row, 3, userdate($user->timecreated));
+                                    $myxls->write_string($row, 4, $this->get_grade($user->id));
+                                    $myxls->write_string($row, 5, $user->code);
+                                    $row++;
                                 }
+                                $pos = 5;
                             }
-                            $myxls->write_string($row, 2, $ug2);
-                            $myxls->write_string($row, 3, userdate($user->timecreated));
-                            $myxls->write_string($row, 4, $this->get_grade($user->id));
-                            $myxls->write_string($row, 5, $user->code);
-                            $row++;
-                        }
-                        $pos = 5;
-                    }
-                    // Close the workbook
-                    $workbook->close();
-                break;
+                            // Close the workbook
+                            $workbook->close();
+                        break;
                 
-                case 'txt':
-                    
-                    header("Content-Type: application/download\n");
-                    header("Content-Disposition: attachment; filename=\"" . format_text($filename, true) . "\"");
-                    header("Expires: 0");
-                    header("Cache-Control: must-revalidate,post-check=0,pre-check=0");
-                    header("Pragma: public");
-                    
-                    // Print names of all the fields
-                    echo get_string("fullname") . "\t" . get_string("idnumber") . "\t";
-                    echo get_string("group") . "\t";
-                    echo $strdate . "\t";
-                    echo $strgrade . "\t";
-                    echo $strcode . "\n";
-                    
-                    // Generate the data for the body of the spreadsheet
-                    $i = 0;
-                    $row = 1;
-                    if ($users)
-                        foreach ($users as $user) {
-                            echo fullname($user);
-                            $studentid = " ";
-                            if (!empty($user->idnumber)) {
-                                $studentid = $user->idnumber;
-                            }
-                            echo "\t" . $studentid . "\t";
-                            $ug2 = '';
-                            if ($usergrps = groups_get_all_groups($this->get_course()->id, $user->id)) {
-                                foreach ($usergrps as $ug) {
-                                    $ug2 = $ug2 . $ug->name;
+                        //txt
+                        default:
+                            
+                            header("Content-Type: application/download\n");
+                            header("Content-Disposition: attachment; filename=\"" . format_text($filename, true) . "\"");
+                            header("Expires: 0");
+                            header("Cache-Control: must-revalidate,post-check=0,pre-check=0");
+                            header("Pragma: public");
+                            
+                            // Print names of all the fields
+                            echo get_string("fullname") . "\t" . get_string("idnumber") . "\t";
+                            echo get_string("group") . "\t";
+                            echo $strdate . "\t";
+                            echo $strgrade . "\t";
+                            echo $strcode . "\n";
+                            
+                            // Generate the data for the body of the spreadsheet
+                            $i = 0;
+                            $row = 1;
+                            if ($users){
+                                foreach ($users as $user) {
+                                    echo fullname($user);
+                                    $studentid = " ";
+                                    if (!empty($user->idnumber)) {
+                                        $studentid = $user->idnumber;
+                                    }
+                                    echo "\t" . $studentid . "\t";
+                                    $ug2 = '';
+                                    if ($usergrps = groups_get_all_groups($this->get_course()->id, $user->id)) {
+                                        foreach ($usergrps as $ug) {
+                                            $ug2 = $ug2 . $ug->name;
+                                        }
+                                    }
+                                    echo $ug2 . "\t";
+                                    echo userdate($user->timecreated) . "\t";
+                                    echo $this->get_grade($user->id) . "\t";
+                                    echo $user->code . "\n";
+                                    $row++;
                                 }
                             }
-                            echo $ug2 . "\t";
-                            echo userdate($user->timecreated) . "\t";
-                            echo $this->get_grade($user->id) . "\t";
-                            echo $user->code . "\n";
-                            $row++;
-                        }
+                        break;
+                    }
                 break;
             }
-            exit();
+            redirect($url);
         }
         echo $OUTPUT->footer();
     }
@@ -2127,6 +2184,7 @@ class simplecertificate {
         $perpage = $url->get_param('perpage');
         $issuelist = $url->get_param('issuelist');
         $action = $url->get_param('action');
+        $type = $url->get_param('type');
         $groupid = 0;
         $groupmode = groups_get_activity_groupmode($this->coursemodule);
         if ($groupmode) {
@@ -2147,8 +2205,8 @@ class simplecertificate {
             $override->firstname = 'firstname';
             $override->lastname = 'lastname';
             $fullnamelanguage = get_string('fullnamedisplay', '', $override);
-            if (($CFG->fullnamedisplay == 'firstname lastname') or ($CFG->fullnamedisplay == 'firstname') or
-             ($CFG->fullnamedisplay == 'language' and $fullnamelanguage == 'firstname lastname')) {
+            if (($CFG->fullnamedisplay == 'firstname lastname') || ($CFG->fullnamedisplay == 'firstname') ||
+             ($CFG->fullnamedisplay == 'language' && $fullnamelanguage == 'firstname lastname')) {
                 $sort = " ORDER BY firstname, lastname";
             } else { // ($CFG->fullnamedisplay == 'language' and $fullnamelanguage == 'lastname firstname')
                 $sort = " ORDER BY lastname, firstname";
@@ -2162,6 +2220,7 @@ class simplecertificate {
             
             groups_print_activity_menu($this->coursemodule, $url);
             
+            ///Add to  values to constants
             $selectoptions = array('completed' => get_string('completedusers', 'simplecertificate'), 
                     'allusers' => get_string('allusers', 'simplecertificate'));
             $select = new single_select($url, 'issuelist', $selectoptions, $issuelist);
@@ -2172,9 +2231,11 @@ class simplecertificate {
             
             echo html_writer::label(get_string('bulkaction', 'simplecertificate'), 'menutype', true);
             echo '&nbsp;';
+            
             $selectoptions = array('pdf' => get_string('onepdf', 'simplecertificate'), 
-                    'zip' => get_string('multipdf', 'simplecertificate'), 'email' => get_string('sendtoemail', 'simplecertificate'));
-            echo html_writer::select($selectoptions, 'type', 'pdf');
+                    'zip' => get_string('multipdf', 'simplecertificate'), 
+                    'email' => get_string('sendtoemail', 'simplecertificate'));
+            echo html_writer::select($selectoptions, 'type', $type);
             $table = new html_table();
             $table->width = "95%";
             $table->tablealign = "center";
@@ -2219,38 +2280,16 @@ class simplecertificate {
                                                  strip_tags(format_string($this->get_instance()->name, true)) . '.' .
                                                  strip_tags(format_string($type, true))));
             
-            switch ($type) {
-                //One pdf with all certificates
-                case 'pdf':
-                    $pdf = $this->create_pdf_object();
-                    
-                    foreach ($users as $user) {
-                        $canissue = $this->can_issue($user, $issuelist != 'allusers');
-                        if (empty($canissue)) {
-                            //To one pdf file
-                            $issuecert = $this->get_issue($user);
-                            $this->create_pdf($issuecert, $pdf, true);
-                            
-                            //Save certificate PDF
-                            if (!$this->issue_file_exists($issuecert)) {
-                                //To force file creation
-                                $issuecert->haschage = true;
-                                $this->get_issue_file($issuecert);
-                            }
-                        }
-                    }
-                    $pdf->Output($filename, 'D');
-                
-                break;
-                
+           switch ($type) {
+              
                 //One zip with all certificates in separated files
                 case 'zip':
                     $filesforzipping = array();
                     foreach ($users as $user) {
                         $canissue = $this->can_issue($user, $issuelist != 'allusers');
                         if (empty($canissue)) {
-                            $issuecert = $this->get_issue($user);
-                            if ($file = $this->get_issue_file($issuecert)) {
+                            $issuedcert = $this->get_issue($user);
+                            if ($file = $this->get_issue_file($issuedcert)) {
                                 $fileforzipname = $file->get_filename();
                                 $filesforzipping[$fileforzipname] = $file;
                             } else {
@@ -2274,9 +2313,9 @@ class simplecertificate {
                     foreach ($users as $user) {
                         $canissue = $this->can_issue($user, $issuelist != 'allusers');
                         if (empty($canissue)) {
-                            $issuecert = $this->get_issue($user);
-                            if ($this->get_issue_file($issuecert)) {
-                                $this->send_certificade_email($issuecert);
+                            $issuedcert = $this->get_issue($user);
+                            if ($this->get_issue_file($issuedcert)) {
+                                $this->send_certificade_email($issuedcert);
                             } else {
                                 error_log(get_string('filenotfound', 'simplecertificate'));
                                 print_error('filenotfound', 'simplecertificate');
@@ -2286,6 +2325,29 @@ class simplecertificate {
                     $url->remove_params('action', 'type');
                     redirect($url, get_string('emailsent', 'simplecertificate'), 5);
                 break;
+                
+                // One pdf with all certificates
+                default:
+                    $pdf = $this->create_pdf_object();
+                    
+                    foreach ($users as $user) {
+                        $canissue = $this->can_issue($user, $issuelist != 'allusers');
+                        if (empty($canissue)) {
+                            // To one pdf file
+                            $issuedcert = $this->get_issue($user);
+                            $this->create_pdf($issuedcert, $pdf, true);
+                            
+                            // Save certificate PDF
+                            if (!$this->issue_file_exists($issuedcert)) {
+                                // To force file creation
+                                $issuedcert->haschage = true;
+                                $this->get_issue_file($issuedcert);
+                            }
+                        }
+                    }
+                    $pdf->Output($filename, 'D');
+                  
+                    break;
             }
             exit();
         }
@@ -2298,19 +2360,14 @@ class simplecertificate {
      * @param string $action Log action
      */
     private function add_to_log($action) {
-        switch ($action) {
-            default:
-                // Default is view action
-                
+        if ($action) {
                 $event = \mod_simplecertificate\event\course_module_viewed::create(
                        array(
                             'objectid' => $this->get_course_module()->instance, 
                             'context' => $this->get_context(),
                             'other' => array('certificatecode' => $this->get_issue()->code)));
                 $event->add_record_snapshot('course', $this->get_course());
-            
-            break;
-        };
+        }
         
         if (!empty($event)) {
             $event->trigger();

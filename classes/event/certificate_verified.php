@@ -31,7 +31,6 @@ class certificate_verified extends \core\event\base  {
             'certificateid' => $this->objectid,
             'certiticate_userid' => $this->relateduserid 
         ));
-         "The user with id {$a->userid} verified the certificate with id {$a->certificateid} issued to user with id {$a->certiticate_userid}.";
     }
     
     public function get_url() {
@@ -42,19 +41,4 @@ class certificate_verified extends \core\event\base  {
         return array($this->contextinstanceid, 'simplecertificate', 'verify', $this->get_url()->out_as_local_url(false), $this->objectid);
 
     }
-    
-//         public static function get_legacy_eventname() {
-//         // Override ONLY if you are migrating events_trigger() call.
-//             return 'MYPLUGIN_OLD_EVENT_NAME';
-//         }
-    
-//     protected function get_legacy_eventdata() {
-//         // Override if you migrating events_trigger() call.
-//                 $data = new \stdClass();
-//                 $data->id = $this->objectid;
-//                 $data->userid = $this->relateduserid;
-//                 return $data;
-//             }
-
-
 }

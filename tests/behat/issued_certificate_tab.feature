@@ -19,7 +19,9 @@ Feature: List issued Certificates
       | student1 | C1 | student |
       | student2 | C1 | student |
     And I log in as "teacher1"
-    And I follow "Course 1"
+    #Moodle 3.2 and below
+    #And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I turn editing mode on
     And I add a "Simple Certificate" to section "1" and I fill the form with:
       | Certificate Name | Test Simple Certificate |
@@ -28,13 +30,17 @@ Feature: List issued Certificates
 
   Scenario: Verify if issued certificates are displyed
     Given I log in as "student1"
-    And I follow "Course 1"
+    #Moodle 3.2 and below
+    #And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test Simple Certificate"
     And I press "Get Certificate"
     And I am on site homepage
     And I log out
     Then I log in as "teacher1"
-    And I follow "Course 1"
+    #Moodle 3.2 and below
+    #And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test Simple Certificate"
     And I click on "Issued certificates" "link"
     And I should see "Tumé Arandú"
@@ -42,13 +48,17 @@ Feature: List issued Certificates
     And I am on site homepage
     And I log out
     And I log in as "student2"
-    And I follow "Course 1"
+    #Moodle 3.2 and below
+    #And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test Simple Certificate"
     And I press "Get Certificate"
     And I am on site homepage
     And I log out
     And I log in as "teacher1"
-    And I follow "Course 1"
+    #Moodle 3.2 and below
+    #And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test Simple Certificate"
     And I click on "Issued certificates" "link"
     Then I should see "Tumé Arandú"

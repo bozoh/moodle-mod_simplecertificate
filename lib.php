@@ -54,7 +54,7 @@ function simplecertificate_add_instance(stdclass $data) {
  * @return bool true
  */
 function simplecertificate_update_instance(stdclass $data) {
-    global $DB, $CFG;
+    global $CFG;
     require_once ($CFG->dirroot . '/mod/simplecertificate/locallib.php');
     
     $context = context_module::instance($data->coursemodule);
@@ -73,9 +73,8 @@ function simplecertificate_update_instance(stdclass $data) {
  * @return bool true if successful
  */
 function simplecertificate_delete_instance($id) {
-    global $DB, $CFG;
-    
     global $CFG;
+        
     require_once ($CFG->dirroot . '/mod/simplecertificate/locallib.php');
     $cm = get_coursemodule_from_instance('simplecertificate', $id, 0, false, MUST_EXIST);
     $context = context_module::instance($cm->id);
@@ -208,17 +207,11 @@ function simplecertificate_get_participants($certificateid) {
 function simplecertificate_supports($feature) {
     switch ($feature) {
         case FEATURE_GROUPS:
-            return true;
         case FEATURE_GROUPINGS:
-            return true;
         case FEATURE_GROUPMEMBERSONLY:
-            return true;
         case FEATURE_MOD_INTRO:
-            return true;
         case FEATURE_COMPLETION_TRACKS_VIEWS:
-            return true;
         case FEATURE_COMPLETION_HAS_RULES:
-            return true;
         case FEATURE_BACKUP_MOODLE2:
             return true;
         
@@ -329,7 +322,7 @@ function simplecertificate_pluginfile($course, $cm, $context, $filearea, $args, 
  * @return array
  */
 function simplecertificate_get_outcomes() {
-    global $COURSE, $DB;
+    global $COURSE;
     
     // get all outcomes in course
     $grade_seq = new grade_tree($COURSE->id, false, true, '', false);
@@ -414,7 +407,7 @@ function simplecertificate_get_editor_options(stdclass $context) {
  *
  */
 function simplecertificate_get_mods() {
-    global $COURSE, $CFG, $DB;
+    global $COURSE, $CFG;
     
     $grademodules = array();
     
@@ -448,6 +441,7 @@ function simplecertificate_get_date_options() {
     require_once (dirname(__FILE__) . '/locallib.php');
     $dateoptions[simplecertificate::CERT_ISSUE_DATE] = get_string('issueddate', 'simplecertificate');
     $dateoptions[simplecertificate::COURSE_COMPLETATION_DATE] = get_string('completiondate', 'simplecertificate');
+    $dateoptions[simplecertificate::COURSE_START_DATE] = get_string('coursestartdate', 'simplecertificate');
     return $dateoptions + simplecertificate_get_mods();
 }
 
@@ -477,10 +471,11 @@ function simplecertificate_print_issue_certificate_file(stdClass $issuecert) {
     try {
         $fs = get_file_storage();
         if (!$fs->file_exists_by_hash($issuecert->pathnamehash)) {
-            throw new Exception();
+            throw new moodle_exception('filenotfound', 'simplecertificate', null, null, '');
         }
         $file = $fs->get_file_by_hash($issuecert->pathnamehash);
-        $output = '<img src="' . $OUTPUT->pix_url(file_mimetype_icon($file->get_mimetype())) . '" height="16" width="16" alt="' .
+        #$output = '<img src="' . $OUTPUT->pix_url(file_mimetype_icon($file->get_mimetype())) . '" height="16" width="16" alt="' .
+        $output = '<img src="' . $OUTPUT->image_url(file_mimetype_icon($file->get_mimetype())) . '" height="16" width="16" alt="' .
          $file->get_mimetype() . '" />&nbsp;';
         
         $url = new moodle_url('wmsendfile.php');

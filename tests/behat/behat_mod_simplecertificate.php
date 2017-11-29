@@ -2,7 +2,7 @@
 
 use Behat\Mink\Exception\ElementNotFoundException;
 use Behat\Mink\Exception\ElementException;
-#use Behat\Mink\Exception\Exception;
+use Behat\Mink\Exception\Exception;
 use Behat\Mink\Exception\ExpectationException;
 
 // This file is part of Moodle - http://moodle.org/
@@ -209,6 +209,29 @@ class behat_mod_simplecertificate extends behat_base {
       $code = $issuecert->code;
       $this->execute('behat_general::assert_page_contains_text', $code);
     
+    }
+    
+    /**
+     * @Given I check :arg1 on list
+     */
+    public function iCheckOnList($name)
+    {
+      #//tbody//tr//td[contains(text(),'Arasy Guaraní')]//preceding-sibling::td//input[@type='checkbox']
+      $xpath = "//tr[contains(normalize-space(.), '$name')]//input[@type='checkbox']";
+      $node = $this->find('xpath', $xpath);
+      $this->ensure_node_is_visible($node);
+      $node->click();
+//       $field = behat_field_manager::get_form_field($node, $this->getSession());
+//       $field->set_value('checked');
+      
+    }
+    
+    /**
+     * @Then :certname certificate status should be :status
+     */
+    public function certificateStatusShouldBe($certname, $status)
+    {
+      throw new PendingException();
     }
 
 }

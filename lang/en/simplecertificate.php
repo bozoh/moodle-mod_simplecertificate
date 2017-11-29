@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Language strings for the simplecertificate module
  *
@@ -9,8 +8,6 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-
-//-----
 $string['modulename'] = 'Simple Certificate';
 $string['modulenameplural'] = 'Simple Certificates';
 $string['pluginname'] = 'Simple Certificate';
@@ -72,6 +69,7 @@ $string['defaultcodey'] = 'Default Vertical QR code Position';
 ////Date options
 $string['issueddate'] = 'Date Issued';
 $string['completiondate'] = 'Course Completion';
+$string['coursestartdate'] = 'Course Start Date';
 $string['datefmt'] = 'Date Format';
 
 ////Date format options
@@ -273,3 +271,9 @@ $string['notreceived'] = 'No issued certificate';
 //Verify envent
 $string['eventcertificate_verified'] = 'Certificate verified';
 $string['eventcertificate_verified_description'] = 'The user with id {$a->userid} verified the certificate with id {$a->certificateid}, issued to user with id {$a->certiticate_userid}.';
+$string['deleteall'] = "Delete All";
+$string['deleteselected'] = "Delete Selected";
+
+
+
+

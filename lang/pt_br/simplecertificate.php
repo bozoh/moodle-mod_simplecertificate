@@ -276,3 +276,5 @@ $string['notreceived'] = 'Certificado não emitido';
 $string['eventcertificate_verified'] = 'Certificado verificado';
 $string['eventcertificate_verified_description'] = 'O usuário com o id {$a->userid} verificou o certificado com o id {$a->certificateid}, emetido para o usuário com id {$a->certiticate_userid}.';
 
+$string['deleteall'] = "Remover todos";
+$string['deleteselected'] = "Remover Selecionados";
