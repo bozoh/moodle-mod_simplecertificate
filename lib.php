@@ -23,7 +23,6 @@
  * @copyright Carlos Fonseca <carlos.alexandre@outlook.com>, Mark Nelson <mark@moodle.com.au>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
 require_once ($CFG->dirroot . '/course/lib.php');
 require_once ($CFG->dirroot . '/grade/lib.php');
 require_once ($CFG->dirroot . '/grade/querylib.php');
@@ -32,8 +31,8 @@ require_once ($CFG->dirroot . '/grade/querylib.php');
  * Adds a simplecertificate instance
  * This is done by calling the add_instance() method of the assignment type class
  * 
- * @param stdClass $data
- * @param mod_assign_mod_form $form
+ * @param stdClass $data        
+ * @param mod_assign_mod_form $form        
  * @return int The instance id of the new simplecertificate
  */
 function simplecertificate_add_instance(stdclass $data) {
@@ -44,13 +43,12 @@ function simplecertificate_add_instance(stdclass $data) {
     $simplecertificate = new simplecertificate($context, null, null);
     
     return $simplecertificate->add_instance($data);
-
 }
 
 /**
  * Update certificate instance.
  * 
- * @param stdClass $certificate
+ * @param stdClass $certificate        
  * @return bool true
  */
 function simplecertificate_update_instance(stdclass $data) {
@@ -61,7 +59,6 @@ function simplecertificate_update_instance(stdclass $data) {
     $simplecertificate = new simplecertificate($context, null, null);
     
     return $simplecertificate->update_instance($data);
-
 }
 
 /**
@@ -69,12 +66,12 @@ function simplecertificate_update_instance(stdclass $data) {
  * this function will permanently delete the instance
  * and any data that depends on it.
  * 
- * @param int $id
+ * @param int $id        
  * @return bool true if successful
  */
 function simplecertificate_delete_instance($id) {
     global $CFG;
-        
+    
     require_once ($CFG->dirroot . '/mod/simplecertificate/locallib.php');
     $cm = get_coursemodule_from_instance('simplecertificate', $id, 0, false, MUST_EXIST);
     $context = context_module::instance($cm->id);
@@ -89,7 +86,8 @@ function simplecertificate_delete_instance($id) {
  * and clean up any related data.
  * Written by Jean-Michel Vedrine
  * 
- * @param $data the data submitted from the reset course.
+ * @param $data the
+ *        data submitted from the reset course.
  * @return array status array
  */
 function simplecertificate_reset_userdata($data) {
@@ -114,7 +112,7 @@ function simplecertificate_reset_userdata($data) {
             }
         }
         $status[] = array('component' => $componentstr, 'item' => get_string('modulenameplural', 'simplecertificate'), 
-                'error' => false);
+            'error' => false);
     }
     
     // Updating dates - shift may be negative too
@@ -131,7 +129,8 @@ function simplecertificate_reset_userdata($data) {
  * whether the course reset functionality affects the certificate.
  * Written by Jean-Michel Vedrine
  * 
- * @param $mform form passed by reference
+ * @param $mform form
+ *        passed by reference
  */
 function simplecertificate_reset_course_form_definition(&$mform) {
     $mform->addElement('header', 'simplecertificateheader', get_string('modulenameplural', 'simplecertificate'));
@@ -142,7 +141,7 @@ function simplecertificate_reset_course_form_definition(&$mform) {
  * Course reset form defaults.
  * Written by Jean-Michel Vedrine
  * 
- * @param stdClass $course
+ * @param stdClass $course        
  * @return array
  */
 function simplecertificate_reset_course_form_defaults($course) {
@@ -153,10 +152,10 @@ function simplecertificate_reset_course_form_defaults($course) {
  * Returns information about received certificate.
  * Used for user activity reports.
  * 
- * @param stdClass $course
- * @param stdClass $user
- * @param stdClass $mod
- * @param stdClass $certificate
+ * @param stdClass $course        
+ * @param stdClass $user        
+ * @param stdClass $mod        
+ * @param stdClass $certificate        
  * @return stdClass the user outline object
  */
 function simplecertificate_user_outline($course, $user, $mod, $certificate) {
@@ -178,7 +177,7 @@ function simplecertificate_user_outline($course, $user, $mod, $certificate) {
  * Must return an array of user records (all data) who are participants
  * for a given instance of certificate.
  * 
- * @param int $certificateid
+ * @param int $certificateid        
  * @return stdClass list of participants
  */
 function simplecertificate_get_participants($certificateid) {
@@ -201,7 +200,8 @@ function simplecertificate_get_participants($certificateid) {
  * @uses FEATURE_COMPLETION_TRACKS_VIEWS
  * @uses FEATURE_GRADE_HAS_GRADE
  * @uses FEATURE_GRADE_OUTCOMES
- * @param string $feature FEATURE_xx constant for requested feature
+ * @param string $feature
+ *        FEATURE_xx constant for requested feature
  * @return mixed True if module supports feature, null if doesn't know
  */
 function simplecertificate_supports($feature) {
@@ -224,10 +224,14 @@ function simplecertificate_supports($feature) {
  * Obtains the automatic completion state for this forum based on any conditions
  * in simplecertificate settings.
  * 
- * @param object $course Course
- * @param object $cm Course-module
- * @param int $userid User ID
- * @param bool $type Type of comparison (or/and; can be used as return value if no conditions)
+ * @param object $course
+ *        Course
+ * @param object $cm
+ *        Course-module
+ * @param int $userid
+ *        User ID
+ * @param bool $type
+ *        Type of comparison (or/and; can be used as return value if no conditions)
  * @return bool True if completed, false if not, $type if conditions not set.
  */
 function simplecertificate_get_completion_state($course, $cm, $userid, $type) {
@@ -236,7 +240,7 @@ function simplecertificate_get_completion_state($course, $cm, $userid, $type) {
     
     $context = context_module::instance($cm->id);
     $simplecertificate = new simplecertificate($context, $cm, $course);
-   
+    
     if ($requiredtime = $simplecertificate->get_instance()->requiredtime) {
         return ($simplecertificate->get_course_time($userid) >= $requiredtime);
     }
@@ -271,40 +275,39 @@ function simplecertificate_cron() {
 /**
  * Serves certificate issues files, only in admin page.
  * 
- * @param stdClass $course
- * @param stdClass $cm
- * @param stdClass $context
- * @param string $filearea
- * @param array $args
- * @param bool $forcedownload
+ * @param stdClass $course        
+ * @param stdClass $cm        
+ * @param stdClass $context        
+ * @param string $filearea        
+ * @param array $args        
+ * @param bool $forcedownload        
  * @return bool nothing if file not found, does not return anything if found - just send the file
  */
 function simplecertificate_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload, array $options = array()) {
     global $DB;
     
     if ($filearea == 'tmp') {
-        //Beacuse bug #141 forceloginforprofileimage=enabled by passing
+        // Beacuse bug #141 forceloginforprofileimage=enabled by passing
         
-        $filename=array_shift($args);
+        $filename = array_shift($args);
         $fs = get_file_storage();
         
-        if ($file=$fs->get_file($context->id, 'mod_simplecertificate', 'tmp', 0, '/', $filename)) {
+        if ($file = $fs->get_file($context->id, 'mod_simplecertificate', 'tmp', 0, '/', $filename)) {
             send_stored_file($file, null, 0, false);
-        } 
-       
+        }
     } else {
         require_login($course);
         
         if ($context->contextlevel != CONTEXT_MODULE) {
             return false;
         }
-       //passing id to wmsendfile, cause a thread, because an robot can download all certificates by
-       //add a simple  number sequence (1,2,3,4....) as id value, it's better use the certificate code 
-       //instead
-       
-       //$url = new moodle_url('wmsendfile.php');
-       //$url->param('id', (int)array_shift($args));
-       //$url->param('sk', sesskey());
+        // passing id to wmsendfile, cause a thread, because an robot can download all certificates by
+        // add a simple number sequence (1,2,3,4....) as id value, it's better use the certificate code
+        // instead
+        
+        // $url = new moodle_url('wmsendfile.php');
+        // $url->param('id', (int)array_shift($args));
+        // $url->param('sk', sesskey());
         
         if (!$issuedcert = $DB->get_record("simplecertificate_issues", array('id' => $id))) {
             return false;
@@ -392,12 +395,13 @@ function simplecertificate_send_event($certificate) {
 /**
  * Returns certificate text options
  * 
- * @param module context
+ * @param
+ *        module context
  * @return array
  */
 function simplecertificate_get_editor_options(stdclass $context) {
     return array('subdirs' => 0, 'maxbytes' => 0, 'maxfiles' => 0, 'changeformat' => 0, 'context' => $context, 'noclean' => 0, 
-            'trusttext' => 0);
+        'trusttext' => 0);
 }
 
 /**
@@ -411,21 +415,21 @@ function simplecertificate_get_mods() {
     
     $grademodules = array();
     
-    //If in settings page, i don't have any grade_item or should not list them
+    // If in settings page, i don't have any grade_item or should not list them
     if ($COURSE->id == SITEID) {
-      return $grademodules;
+        return $grademodules;
     }
     
     $items = grade_item::fetch_all(array('courseid' => $COURSE->id));
     $items = $items ? $items : array();
     
     foreach ($items as $id => $item) {
-      // Do not include grades for course itens
-      if ($item->itemtype != 'mod') {
-        continue;
-      }
-      $cm = get_coursemodule_from_instance($item->itemmodule, $item->iteminstance);
-      $grademodules[$cm->id] = $item->get_name();
+        // Do not include grades for course itens
+        if ($item->itemtype != 'mod') {
+            continue;
+        }
+        $cm = get_coursemodule_from_instance($item->itemmodule, $item->iteminstance);
+        $grademodules[$cm->id] = $item->get_name();
     }
     asort($grademodules);
     return $grademodules;
@@ -460,34 +464,33 @@ function simplecertificate_get_grade_options() {
 /**
  * Print issed file certificate link
  * 
- * @param stdClass $issuecert The issued certificate object
+ * @param stdClass $issuecert
+ *        The issued certificate object
  * @return string file link url
  */
 function simplecertificate_print_issue_certificate_file(stdClass $issuecert) {
     global $CFG, $OUTPUT;
     require_once (dirname(__FILE__) . '/locallib.php');
     
-    // Trying to cath course module context
+    // Trying to catch course module context
     try {
         $fs = get_file_storage();
         if (!$fs->file_exists_by_hash($issuecert->pathnamehash)) {
             throw new moodle_exception('filenotfound', 'simplecertificate', null, null, '');
         }
         $file = $fs->get_file_by_hash($issuecert->pathnamehash);
-        #$output = '<img src="' . $OUTPUT->pix_url(file_mimetype_icon($file->get_mimetype())) . '" height="16" width="16" alt="' .
-        $output = '<img src="' . $OUTPUT->image_url(file_mimetype_icon($file->get_mimetype())) . '" height="16" width="16" alt="' .
-         $file->get_mimetype() . '" />&nbsp;';
+        $output = '<img src="' . $OUTPUT->pix_url(file_mimetype_icon($file->get_mimetype())) . '" height="16" width="16" alt="' .
+             $file->get_mimetype() . '" />&nbsp;';
         
         $url = new moodle_url('wmsendfile.php');
         $url->param('code', $issuecert->code);
-        //$url->param('sk', sesskey());
+        // $url->param('sk', sesskey());
         
         $output .= '<a href="' . $url->out(true) . '" target="_blank" >' . s($file->get_filename()) . '</a>';
-    
-    } catch (Exception $e) {
+    }
+    catch (Exception $e) {
         $output = get_string('filenotfound', 'simplecertificate', '');
     }
     
     return '<div class="files">' . $output . '<br /> </div>';
-
 }
