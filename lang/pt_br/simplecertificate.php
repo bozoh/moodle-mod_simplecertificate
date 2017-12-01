@@ -1,4 +1,18 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * Language strings for the simplecertificate module
@@ -9,8 +23,6 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-
-//-----
 $string['modulename'] = 'Certificado Simples';
 $string['modulenameplural'] = 'Certificados Simples';
 $string['pluginname'] = 'Certificado Simples';
@@ -33,7 +45,7 @@ $string['pluginadministration'] = 'Administração de Certificado';
 $string['deletissuedcertificates'] = 'Remover os certificados emitidos';
 $string['nocertificatesissued'] = 'Nenhum certificado emitido';
 
-//Form
+// Form.
 $string['certificatename'] = 'Nome do certificado';
 $string['certificateimage'] = 'Arquivo de Imagem do Certificado';
 $string['certificatetext'] = 'Texto do Certificado';
@@ -46,7 +58,7 @@ $string['intro'] = 'Introdução';
 $string['printoutcome'] = 'Imprimir resultado (Outcome)';
 $string['printdate'] = 'Tipo de data do certificado';
 
-//Second Page
+// Second Page.
 $string['secondpageoptions'] = 'Página de Verso do certificado';
 $string['enablesecondpage'] = 'Ativar o verso do Certificado';
 $string['enablesecondpage_help'] = 'Ativa a edição do verso do certificado, se estiver desativado, somente o código QR do certificado será impresso (se código QR estiver ativo)';
@@ -58,7 +70,7 @@ $string['secondpagey'] = 'Posição Vertical do texto do verso';
 $string['secondtextposition'] = 'Posição do texto do verso';
 $string['secondtextposition_help'] = 'As coordenadas XY (em milímetros) do texto do verso';
 
-//QR Code
+// QR Code.
 $string['printqrcode'] = 'Imprimir o QR Code do certificado';
 $string['printqrcode_help'] = 'Habilita ou desabilita a impressão do QR Code do certificado';
 $string['codex'] = 'Posição Horizontal do QR Code do Certificado';
@@ -68,17 +80,17 @@ $string['qrcodeposition_help'] = 'Essas são as coordenadas XY (em milímetros) 
 $string['defaultcodex'] = 'Posição Horizontal padrão do QR code do certificado';
 $string['defaultcodey'] = 'Posição Vertical padrão do QR code do certificado';
 
-////Date options
+// Date options.
 $string['issueddate'] = 'Data da emissão';
 $string['completiondate'] = 'Data do fim do curso';
 $string['datefmt'] = 'Formato da Data';
 
-////Date format options
+// Date format options.
 $string['userdateformat'] = 'Formato definido pelas definições do usuário';
 
 $string['printgrade'] = 'Tipo de nota do certificado';
 $string['gradefmt'] = 'Formato da nota';
-////Grade format options
+// Grade format options.
 $string['gradeletter'] = 'Nota por Conceito';
 $string['gradepercent'] = 'Nota por perrcentual';
 $string['gradepoints'] = 'Nota por pontos';
@@ -87,13 +99,13 @@ $string['emailteachers'] = 'Enviar email para os Professores';
 $string['emailothers'] = 'Enviar email para outros';
 $string['emailfrom'] = 'Nome alternativo do remetente do email';
 $string['delivery'] = 'Envio';
-//Delivery options
+// Delivery options.
 $string['openbrowser'] = 'Visualizar em uma nova janela';
 $string['download'] = 'Forçar o download';
 $string['emailcertificate'] = 'por Email';
 $string['nodelivering'] = 'Sem envio, o usuário vai receber o certificado por outros meios';
 
-////Form options help text
+// Form options help text.
 
 $string['certificatename_help'] = 'Nome do certificado';
 $string['certificatetext_help'] = 'Este é o texto que será usado no certificado, algums marcadores especiais serão substituidos por variáveis do certificado, como o nome do curos, nome do estudante, notas...
@@ -169,18 +181,18 @@ $string['delivery_help'] = 'Escolha como o certificado deve ser entregue aos alu
 Depois que estudante emite seu certificado, se ele clicar na atividade certificado aparecerá a data de emissão do certificado e ele poderá revisar ocertificado emitido</p>';
 
 
-////Form Sections
+// Form Sections.
 $string['issueoptions'] = 'Opções de Emissão';
 $string['designoptions'] = 'Opções de Design';
 
-//Emails text
+// Emails text.
 $string['emailstudentsubject'] = 'Seu certificado do curso {$a->course}';
 $string['emailstudenttext'] = '
-Olá {$a->username}, 
-		
+Olá {$a->username},
+
 	Segue em anexo o certificado do curso: {$a->course}.
-		
-		
+
+
 ESTA É UMA MENSAGEM AUTOMÁTICA, NÃO RESPONDA POR FAVOR';
 
 $string['emailteachermail'] = '
@@ -200,21 +212,18 @@ Você pode vê-lo aqui:
     <a href="{$a->url}">Certificate Report</a>.';
 
 
-
-//Admin settings page
+// Admin settings page.
 $string['defaultwidth'] = 'Largura Padrão';
 $string['defaultheight'] = 'Altura Padrão';
 $string['defaultcertificatetextx'] = 'Posição Horizontal padrão do texto do certificado';
 $string['defaultcertificatetexty'] = 'Posição Vertical padrão do texto do certificado';
 
-
-//Erros
+// Erros.
 $string['filenotfound'] = 'Arquivo não encontrado';
 $string['cantdeleteissue'] = 'Ocorreu um erro ao remover os certificados emitidos';
 $string['requiredtimenotmet'] = 'Você precisa ter ao menos {$a->requiredtime} minutos nesse curso para emitir este certificado';
 
-
-//Settings
+// Settings.
 $string['certlifetime'] = 'Manter os certificados emitidos por: (em Meses)';
 $string['certlifetime_help'] = 'Está opção especifica por quanto tempo deve ser guardado um certificado emitido. Certificados emitidos mais velhos que o tempo determinado nesta opção será automaticamente removidos.';
 $string['neverdeleteoption'] = 'Nunca remover';
@@ -226,16 +235,14 @@ $string['verifycertificate'] = 'Verificar Certificado';
 $string['qrcodefirstpage'] = 'Imprimir o código QR na primeira página';
 $string['qrcodefirstpage_help'] = 'Imprime o código QR na primeira página';
 
-
-//Tabs String
+// Tabs String.
 $string['standardview'] = 'Emitir um certificado de teste';
 $string['issuedview'] = 'Certificados emitidos';
 $string['bulkview'] = 'Operações em lote';
 
 $string['cantissue'] = 'O certificado não pode ser emitido pois o usuário não atigiu a meta da atividade';
 
-//Bulk Texts
-
+// Bulk Texts.
 $string['onepdf'] = 'Download de um único arquivo pdf com todos os certificados';
 $string['multipdf'] = 'Download de um arquivo zip com os pdfs dos certidicados';
 $string['sendtoemail'] = 'Enviar os certificados para o email do usuário';
@@ -252,12 +259,10 @@ $string['defaultperpage_help'] = 'Quantidade de certificados exibidos por págin
 $string['certificateverification'] = 'Verificação do Certificado';
 $string['invalidcode'] = 'Código do certificado é inválido';
 
-// For Capabilities
+// For Capabilities.
 $string['simplecertificate:addinstance'] = "Adicionar uma atividade cerfiticado simples";
 $string['simplecertificate:manage'] = "Gerenciar uma atividade certificado simples";
 $string['simplecertificate:view'] = "Visualizar um certificado simples";
-
-//----
 
 $string['usercontextnotfound'] = 'Contexto de usuário não encontrado';
 $string['usernotfound'] = 'Usuário não encontrado';
@@ -265,14 +270,14 @@ $string['coursenotfound'] = 'Curso não encontrado';
 $string['issuedcertificatenotfound'] = 'Certificado não encontrado';
 $string['awardedsubject'] = 'Notificão de obtenção de certificado: {$a->certificate} emitido para {$a->student}';
 $string['certificatenot'] = 'Simple certificate instance not found';
-$string['modulename_help']='A atividade certificado simples possibilita que seja criado certificados costumisáveis que podem ser emitidos pelos participantes que completaram os requerimentos espicificados.';
+$string['modulename_help'] = 'A atividade certificado simples possibilita que seja criado certificados costumisáveis que podem ser emitidos pelos participantes que completaram os requerimentos espicificados.';
 $string['timestartdatefmt'] = 'Formato da data de inicio da inscrição';
 $string['timestartdatefmt_help'] = 'Coloque um formato de data válido aceito pelo PHP (<a href="http://www.php.net/manual/pt_BR/function.strftime.php">Formato de datas</a>). ou deixe-o em branco para usar o valor de formatação padrão definido pela a configuração de idioma do usuário.';
 $string['certificatecopy'] = 'CÓPIA';
 $string['upgradeerror'] = 'Erro durante o upgrade $a';
 $string['notreceived'] = 'Certificado não emitido';
 
-//Verify envent
+// Verify envent.
 $string['eventcertificate_verified'] = 'Certificado verificado';
 $string['eventcertificate_verified_description'] = 'O usuário com o id {$a->userid} verificou o certificado com o id {$a->certificateid}, emetido para o usuário com id {$a->certiticate_userid}.';
 

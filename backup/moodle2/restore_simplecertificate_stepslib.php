@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -21,7 +20,7 @@
  * @copyright 2010 onwards Eloy Lafuente (stronk7) {@link http://stronk7.com}
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
+defined('MOODLE_INTERNAL') || die;
 /**
  * Define all the restore steps that will be used by the restore_simplecertificate_activity_task
  */
@@ -30,7 +29,7 @@
  * Structure step to restore one simplecertificate activity
  */
 class restore_simplecertificate_activity_structure_step extends restore_activity_structure_step {
-    
+
     protected function define_structure() {
 
         $paths = array();
@@ -42,7 +41,7 @@ class restore_simplecertificate_activity_structure_step extends restore_activity
             $paths[] = new restore_path_element('simplecertificate_issue', '/activity/simplecertificate/issues/issue');
         }
 
-        // Return the paths wrapped into standard activity structure
+        // Return the paths wrapped into standard activity structure.
         return $this->prepare_activity_structure($paths);
     }
 
@@ -52,42 +51,43 @@ class restore_simplecertificate_activity_structure_step extends restore_activity
         $olddata = (object)$olddata;
         $data = new stdClass();
         $data = $olddata;
-        
+
         $data->course = $this->get_courseid();
         $data->timemodified = $this->apply_date_offset($olddata->timemodified);
-       
+
         if (isset($olddata->outcame) && !empty($olddata->outcame)) {
             $data->outcame = $this->get_mappingid('outcome', $olddata->outcame);
         }
-        
-        //Verifing if certdate it's from a module
+
+        // Verifing if certdate it's from a module.
         if (isset($olddata->certdate) && $olddata->certdate > 0) {
-            //Try to get new module id, but could be not set
+            // Try to get new module id, but could be not set.
             if (!$certdate = $this->get_mappingid('course_module', $olddata->certdate)) {
-                //Add this ugly hack to mark not sucefully, try in after_restorke in TASK lib
-                // as sugested in http://docs.moodle.org/dev/Restore_2.0_for_developers
+                // Add this ugly hack to mark not sucefully, try in after_restorke in TASK lib
+                // as sugested in http://docs.moodle.org/dev/Restore_2.0_for_developers.
                 $certdate = -1000 * $olddata->certdate;
             }
-            
+
             $data->certdate = $certdate;
         }
-        
-        //Verifing if certgrade it's from a module
+
+        // Verifing if certgrade it's from a module.
         if (isset($olddata->certgrade) && $olddata->certgrade > 0) {
-            //an odd error, i think,  it's don't set correct CERTGRADE if it's equals CERTDATE
+            // An odd error, i think,  it's don't set correct CERTGRADE if it's equals CERTDATE.
             if ($olddata->certdate == $olddata->certgrade) {
-                $certgrade =  $data->certdate;
-            } else if (!$certgrade = $this->get_mappingid('course_module', $olddata->certgrade)) { //Try to get new module id, but could be not set
-                //Add this ugly hack to mark not sucefully, try in after_restorke in TASK lib
-                // as sugested in http://docs.moodle.org/dev/Restore_2.0_for_developers
+                $certgrade = $data->certdate;
+            } else if (!$certgrade = $this->get_mappingid('course_module', $olddata->certgrade)) {
+                // Try to get new module id, but could be not set.
+                // Add this ugly hack to mark not sucefully, try in after_restorke in TASK lib
+                // as sugested in http://docs.moodle.org/dev/Restore_2.0_for_developers.
                 $certgrade = -1000 * $olddata->certgrade;
             }
             $data->certgrade = $certgrade;
         }
 
-        // insert the simplecertificate record
+        // Insert the simplecertificate record.
         $newitemid = $DB->insert_record('simplecertificate', $data);
-        // immediately after inserting "activity" record, call this
+        // Immediately after inserting "activity" record, call this.
         $this->apply_activity_instance($newitemid);
     }
 
@@ -96,7 +96,7 @@ class restore_simplecertificate_activity_structure_step extends restore_activity
 
         $data = (object)$data;
         $oldid = $data->id;
-        
+
         $data->pathnamehash = $oldid;
         $data->certificateid = $this->get_new_parentid('simplecertificate');
         $data->userid = $this->get_mappingid('user', $data->userid);
@@ -110,10 +110,10 @@ class restore_simplecertificate_activity_structure_step extends restore_activity
     }
 
     protected function after_execute() {
-        // Add simplecertificate related files, no need to match by itemname (just internally handled context)
+        // Add simplecertificate related files, no need to match by itemname (just internally handled context).
         $this->add_related_files('mod_simplecertificate', 'intro', null);
         $this->add_related_files('mod_simplecertificate', 'image', null);
         $this->add_related_files('mod_simplecertificate', 'issues', null);
     }
-    
+
 }

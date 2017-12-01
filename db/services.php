@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -23,6 +22,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+defined('MOODLE_INTERNAL') || die();
+
 $functions = array(
     'mod_simplecertificate_verify_code' => array(
         'classname' => 'mod_simplecertificate_external',
@@ -37,9 +38,9 @@ $functions = array(
 $services = array(
         'Simplecertificate plugin webservices' => array(
                 'functions' => array ('mod_simplecertificate_verify_code'),
-                'restrictedusers' => 0, // if 1, the administrator must manually select which user can use this service.
-                // (Administration > Plugins > Web services > Manage services > Authorised users)
-                'enabled'=>0, // if 0, then token linked to this service won't work
+                'restrictedusers' => 0, // ...if 1, the administrator must manually select which user can use this service.
+                // ... (Administration > Plugins > Web services > Manage services > Authorised users).
+                'enabled' => 0, // ... if 0, then token linked to this service won't work.
                 'shortname' => 'mod_simplecertificate_ws'
         )
 );
