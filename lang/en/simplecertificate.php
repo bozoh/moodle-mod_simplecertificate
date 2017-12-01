@@ -1,4 +1,19 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
  * Language strings for the simplecertificate module
  *
@@ -30,7 +45,7 @@ $string['pluginadministration'] = 'Certificate administration';
 $string['deletissuedcertificates'] = 'Delete issued certificates';
 $string['nocertificatesissued'] = 'There are no certificates that have been issued';
 
-//Form
+// Form.
 $string['certificatename'] = 'Certificate Name';
 $string['certificateimage'] = 'Certificate Image File';
 $string['certificatetext'] = 'Certificate Text';
@@ -43,7 +58,7 @@ $string['intro'] = 'Introduction';
 $string['printoutcome'] = 'Print Outcome';
 $string['printdate'] = 'Print Date';
 
-//Second Page
+// Second Page.
 $string['secondpageoptions'] = 'Certificate Back page';
 $string['enablesecondpage'] = 'Enable Certificate Back page';
 $string['enablesecondpage_help'] = 'Enable Certificate Back page edition, if is disabled, only certificate QR code will be printed in back page (if the QR code is enabled)';
@@ -56,7 +71,7 @@ $string['secondpagey'] = 'Certificate Back Text Vertical Position';
 $string['secondtextposition'] = 'Certificate Back Text Position';
 $string['secondtextposition_help'] = 'These are the XY coordinates (in millimeters) of the certificate back page text';
 
-//QR Code
+// QR Code.
 $string['printqrcode'] = 'Print Certificate QR Code';
 $string['printqrcode_help'] = 'Print (or not) certificate QR Code';
 $string['codex'] = 'Certificate QR Code Horizontal Position';
@@ -66,18 +81,18 @@ $string['qrcodeposition_help'] = 'These are the XY coordinates (in millimeters) 
 $string['defaultcodex'] = 'Default Horizontal QR code Position';
 $string['defaultcodey'] = 'Default Vertical QR code Position';
 
-////Date options
+// Date options.
 $string['issueddate'] = 'Date Issued';
 $string['completiondate'] = 'Course Completion';
 $string['coursestartdate'] = 'Course Start Date';
 $string['datefmt'] = 'Date Format';
 
-////Date format options
+// Date format options.
 $string['userdateformat'] = 'User\'s Language Date Format';
 
 $string['printgrade'] = 'Print Grade';
 $string['gradefmt'] = 'Grade Format';
-////Grade format options
+// Grade format options.
 $string['gradeletter'] = 'Letter Grade';
 $string['gradepercent'] = 'Percentage Grade';
 $string['gradepoints'] = 'Points Grade';
@@ -86,16 +101,12 @@ $string['emailteachers'] = 'Email Teachers';
 $string['emailothers'] = 'Email Others';
 $string['emailfrom'] = 'Email From name';
 $string['delivery'] = 'Delivery';
-//Delivery options
+// Delivery options.
 $string['openbrowser'] = 'Open in new window';
 $string['download'] = 'Force download';
 $string['emailcertificate'] = 'Email';
 $string['nodelivering'] = 'No delivering, user will receive this certificate using others ways';
-
-
-
-////Form options help text
-
+// Form options help text.
 $string['certificatename_help'] = 'Certificate Name';
 $string['certificatetext_help'] = 'This is the text that will be used in the certificate back, some special words will be replaced with variables such as course name, student\'s name, grade ...
 These are:
@@ -163,11 +174,11 @@ $string['delivery_help'] = 'Choose here how you would like your students to get 
 <li>After a user receives their certificate, if they click on the certificate link from the course homepage, they will see the date they received their certificate and will be able to review their received certificate.</li>
 </ul>';
 
-////Form Sections
+// Form Sections.
 $string['issueoptions'] = 'Issue Options';
 $string['designoptions'] = 'Design Options';
 
-//Emails text
+// Emails text.
 $string['emailstudentsubject'] = 'Your certificate for {$a->course}';
 $string['emailstudenttext'] = '
 Hello {$a->username},
@@ -193,26 +204,22 @@ You can review it here:
 
     <a href="{$a->url}">Certificate Report</a>.';
 
-
-
-//Admin settings page
+// Admin settings page.
 $string['defaultwidth'] = 'Default Width';
 $string['defaultheight'] = 'Default Height';
 $string['defaultcertificatetextx'] = 'Default Horizontal Text Position';
 $string['defaultcertificatetexty'] = 'Default Vertical Text Position';
 
-
-//Erros
+// Erros.
 $string['filenotfound'] = 'File not Found';
 $string['invalidcode'] = 'Invalid certificate code';
 $string['cantdeleteissue'] = 'Error removing issued certificates';
 $string['requiredtimenotmet'] = 'You must have at least {$a->requiredtime} minutes in this course to issue this certificate';
 
-
-//Verify certificate page
+// Verify certificate page.
 $string['certificateverification'] = 'Certificate Verification';
 
-//Settings
+// Settings.
 $string['certlifetime'] = 'Keep issued certificates for: (in Months)';
 $string['certlifetime_help'] = 'This specifies the length of time you want to keep issued certificates. Issued certificates that are older than this age are automatically deleted.';
 $string['neverdeleteoption'] = 'Never delete';
@@ -224,15 +231,14 @@ $string['verifycertificate'] = 'Verify Certificate';
 $string['qrcodefirstpage'] = 'Print QR Code in the first page';
 $string['qrcodefirstpage_help'] = 'Print QR Code in the first page';
 
-
-//Tabs String
+// Tabs String.
 $string['standardview'] = 'Issue a test certificate';
 $string['issuedview'] = 'Issued certificates';
 $string['bulkview'] = 'Bulk operations';
 
 $string['cantissue'] = 'The certificate can\'t be issued, because the user hasn\'t met activity conditions';
 
-//Bulk texts
+// Bulk texts.
 $string['onepdf'] = 'Download certificates in a one pdf file';
 $string['multipdf'] = 'Download certificates in a zip file';
 $string['sendtoemail'] = 'Send to user\'s email';
@@ -248,12 +254,10 @@ $string['issueddownload'] = 'Issued certificate [id: {$a}] downloaded';
 $string['defaultperpage'] = 'Per page';
 $string['defaultperpage_help'] = 'Number of certificate to show per page (Max. 200)';
 
-// For Capabilities
+// For Capabilities.
 $string['simplecertificate:addinstance'] = "Add Simple Certificate Activity";
 $string['simplecertificate:manage'] = "Manage Simple Certificate Activity";
 $string['simplecertificate:view'] = "View Simple Certificate Activity";
-
-//----
 
 $string['usercontextnotfound'] = 'User context not found';
 $string['usernotfound'] = 'User not found';
@@ -266,9 +270,9 @@ $string['timestartdatefmt'] = 'Enrollment start date format';
 $string['timestartdatefmt_help'] = 'Enter a valid PHP date format pattern (<a href="http://www.php.net/manual/en/function.strftime.php"> Date Formats</a>). Or, leave it empty to use the format of the user\'s chosen language.';
 $string['certificatecopy'] = 'COPY';
 $string['upgradeerror'] = 'Error while upgrading $a';
-$string['notreceived'] = 'No issued certificate'; 
+$string['notreceived'] = 'No issued certificate';
 
-//Verify envent
+// Verify envent.
 $string['eventcertificate_verified'] = 'Certificate verified';
 $string['eventcertificate_verified_description'] = 'The user with id {$a->userid} verified the certificate with id {$a->certificateid}, issued to user with id {$a->certiticate_userid}.';
 $string['deleteall'] = "Delete All";

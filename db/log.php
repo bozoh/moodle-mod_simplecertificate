@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -15,21 +14,21 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/** 
+/**
  * Definition of log events
  *
  * @package    mod
  * @subpackage simplecertificate
- * @copyright  2010 Petr Skoda (http://skodak.org)
+ * @copyright  Carlos Alexandre Fonseca <carlos.alexandre@outlook.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
 $logs = array(
-    array('module'=>'simplecertificate', 'action'=>'view', 'mtable'=>'simplecertificate', 'field'=>'name'),
-    array('module'=>'simplecertificate', 'action'=>'add', 'mtable'=>'simplecertificate', 'field'=>'name'),
-    array('module'=>'simplecertificate', 'action'=>'update', 'mtable'=>'simplecertificate', 'field'=>'name'),
-    array('module'=>'simplecertificate', 'action'=>'received', 'mtable'=>'simplecertificate', 'field'=>'name'),
-	array('module'=>'simplecertificate', 'action'=>'download', 'mtable'=>'simplecertificate_issues', 'field'=>'name'),
+    array('module' => 'simplecertificate', 'action' => 'view', 'mtable' => 'simplecertificate', 'field' => 'name'),
+    array('module' => 'simplecertificate', 'action' => 'add', 'mtable' => 'simplecertificate', 'field' => 'name'),
+    array('module' => 'simplecertificate', 'action' => 'update', 'mtable' => 'simplecertificate', 'field' => 'name'),
+    array('module' => 'simplecertificate', 'action' => 'received', 'mtable' => 'simplecertificate', 'field' => 'name'),
+    array('module' => 'simplecertificate', 'action' => 'download', 'mtable' => 'simplecertificate_issues', 'field' => 'name'),
 );

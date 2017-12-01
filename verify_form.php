@@ -1,6 +1,21 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
 if (!defined('MOODLE_INTERNAL')) {
-    die('Direct access to this script is forbidden.');    ///  It must be included from a Moodle page
+    die('Direct access to this script is forbidden.');    // It must be included from a Moodle page.
 }
 
 require_once($CFG->dirroot.'/lib/formslib.php');
@@ -8,33 +23,33 @@ require_once($CFG->dirroot.'/lib/formslib.php');
 
 class verify_form extends moodleform {
 
-    // Define the form
-    function definition () {
+    // Define the form.
+    public function definition () {
         global $CFG;
 
         $mform =& $this->_form;
-        $mform->addElement('text', 'code', get_string('code', 'simplecertificate'), array('size'=>'36'));
+        $mform->addElement('text', 'code', get_string('code', 'simplecertificate'), array('size' => '36'));
         $mform->setType('code', PARAM_ALPHANUMEXT);
         $mform->addRule('code', null, 'required', null, 'client');
 
-        //Add recaptcha if enabeld
+        // Add recaptcha if enabeld.
         if ($this->is_recaptcha_enabled()) {
-            $mform->addElement('recaptcha', 'recaptcha_element', get_string('recaptcha', 'auth'), array('https' => $CFG->loginhttps));
+            $mform->addElement('recaptcha', 'recaptcha_element',
+                            get_string('recaptcha', 'auth'), array('https' => $CFG->loginhttps));
             $mform->addHelpButton('recaptcha_element', 'recaptcha', 'auth');
         }
 
-
-        $this->add_action_buttons(false, get_string('verifycertificate','simplecertificate'));
+        $this->add_action_buttons(false, get_string('verifycertificate', 'simplecertificate'));
     }
 
-    function validation($data, $files) {
+    public function validation($data, $files) {
         $errors = parent::validation($data, $files);
         if ($this->is_recaptcha_enabled()) {
-            $recaptcha_element = $this->_form->getElement('recaptcha_element');
+            $recaptchaelement = $this->_form->getElement('recaptcha_element');
             if (!empty($this->_form->_submitValues['recaptcha_challenge_field'])) {
-                $challenge_field = $this->_form->_submitValues['recaptcha_challenge_field'];
-                $response_field = $this->_form->_submitValues['recaptcha_response_field'];
-                if (true !== ($result = $recaptcha_element->verify($challenge_field, $response_field))) {
+                $challengefld = $this->_form->_submitValues['recaptcha_challenge_field'];
+                $responsefld = $this->_form->_submitValues['recaptcha_response_field'];
+                if (true !== ($result = $recaptchaelement->verify($challengefld, $responsefld))) {
                     $errors['recaptcha'] = $result;
                 }
             } else {
@@ -44,7 +59,7 @@ class verify_form extends moodleform {
         return $errors;
     }
 
-    function is_recaptcha_enabled() {
+    private function is_recaptcha_enabled() {
         global $CFG;
         return (!empty($CFG->recaptchapublickey) && !empty($CFG->recaptchaprivatekey));
     }
