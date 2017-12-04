@@ -132,7 +132,7 @@ function watermark_and_sent(stdClass $issuedcert) {
                                         'phase' => $fontsize / $$mdlx)
             );
 
-            $pdf->Cell($size['w'], $fontsize, get_string('certificatecopy', 'simplecertificate'), $bbodersytle 0, 'C', false, '',
+            $pdf->Cell($size['w'], $fontsize, get_string('certificatecopy', 'simplecertificate'), $bbodersytle, 0, 'C', false, '',
                     4, true, 'C', 'C');
             $pdf->StopTransform();
 
