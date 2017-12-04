@@ -1443,11 +1443,41 @@ class simplecertificate {
 
         // Clear not setted  textmark.
         $certtext = preg_replace('[\{(.*)\}]', "", $certtext);
-        return format_text($certtext, FORMAT_MOODLE);
+        return $this->remove_links(format_text($certtext, FORMAT_MOODLE));
 
     }
 
-
+    // Auto link filter puts links in the certificate text,
+    // and it's must be removed. See #111
+    protected function remove_links($htmltext) {
+        global $CFG;
+        require_once($CFG->libdir.'/htmlpurifier/HTMLPurifier.safe-includes.php');
+        require_once($CFG->libdir.'/htmlpurifier/locallib.php');
+    
+        // This code is in weblib.php (purify_html function).
+        $config = HTMLPurifier_Config::createDefault();
+        $version = empty($CFG->version) ? 0 : $CFG->version;
+        $cachedir = "$CFG->localcachedir/htmlpurifier/$version";
+        $version = empty($CFG->version) ? 0 : $CFG->version;
+        $cachedir = "$CFG->localcachedir/htmlpurifier/$version";
+        if (!file_exists($cachedir)) {
+            // Purging of caches may remove the cache dir at any time,
+            // luckily file_exists() results should be cached for all existing directories.
+            $purifiers = array();
+            $caches = array();
+            gc_collect_cycles();
+    
+            make_localcache_directory('htmlpurifier', false);
+            check_dir_exists($cachedir);
+        }
+        $config->set('Cache.SerializerPath', $cachedir);
+        $config->set('Cache.SerializerPermissions', $CFG->directorypermissions);
+        $config->set('HTML.ForbiddenElements', array('script','style','applet','a'));
+        $purifier = new HTMLPurifier($config);
+        return $purifier->purify($htmltext);
+    
+    }
+    
     protected function remove_user_image($userid) {
         $filename = 'f1-' . $userid;
 
