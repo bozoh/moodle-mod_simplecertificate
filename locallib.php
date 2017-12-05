@@ -818,7 +818,7 @@ class simplecertificate {
     }
 
     /**
-     * Generate a UUID 
+     * Generate a UUID
      * you can verify the generated code in:
      * http://www.famkruithof.net/uuid/uuidgen?typeReq=-1
      *
