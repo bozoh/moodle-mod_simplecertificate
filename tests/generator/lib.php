@@ -35,94 +35,84 @@ defined('MOODLE_INTERNAL') || die();
  */
 class mod_simplecertificate_generator extends testing_module_generator {
 
-        /**
-     * To be called from data reset code only,
-     * do not use in tests.
-     * @return void
-     */
-    public function reset() {
-        parent::reset();
-    }
-    
-
     public function create_instance($record = null, array $options = null) {
-    	global $CFG, $USER;
-    	$record = (object)(array)$record;
-    	$record->images = array();
-    	$user_context = context_user::instance($USER->id);
-    	$fileinfo = array(
-    	               'contextid' => $user_context->id, 
-    	               'component' => 'user', 
-    	               'filearea' => 'draft', 
-    	               'filepath' => '/'
-    	);
- 
-    	$defaultsettings = array(
-    	        'name'             => 'Unit Case Test Certificate',
-    	        'intro'            => '<h1>Unit Case Test Certificate</h1>',
-    	        'introformat'      => FORMAT_HTML,
-    	        'certificatetextx' => 0,
-    	        'certificatetexty' => 50,
-    	        'enablesecondpage' => 1,
-    	        'secondpagex'      => 0,
-    	        'secondpagey'      => 50,
-    	        'width'            => get_config('simplecertificate','width'),
-    	        'height'           => get_config('simplecertificate','height'), 
-    	        'printqrcode'      => 1,
-    	        'codex'            => 30,
-    	        'codey'            => 130,
-    	        'certdatefmt'      => 'Rio de Janeiro, %d de %B de %Y',
-    	        'qrcodefirstpage'  => 1
-    	);
-    	
-    	foreach ($defaultsettings as $name => $value) {
-    	    if (!isset($record->{$name})) {
-    	        $record->{$name} = $value;
-    	    }
-    	}
-    	
-    	if (!isset($record->certificatetext['text'])) {
-    		$record->certificatetext['text'] = file_get_contents("$CFG->dirroot/mod/simplecertificate/tests/fixtures/firstpage.html");
-    		$record->certificatetextformat = FORMAT_HTML;
-    		
-    	}
-    	
-    	if (!isset($record->secondpagetext['text'])) {
-    	   $record->secondpagetext['text'] = file_get_contents("$CFG->dirroot/mod/simplecertificate/tests/fixtures/secondpage.html");
-    	   $record->secondpagetextformat = FORMAT_HTML;
-    	}
-    	
-    	if (!isset($record->certificatetextformat)){
-    		$record->certificatetextformat = FORMAT_HTML;
-    	}
-    	
-    	if (!isset($record->certificateimage)) {
-    	    $record->certificateimage = $CFG->dirroot . '/mod/simplecertificate/tests/fixtures/firstpagetestimage.jpg';
-    	}
-    	
-    	if (!isset($record->secondimage)) {
-    	    $record->secondimage = $CFG->dirroot . '/mod/simplecertificate/tests/fixtures/secondpagetestimage.jpg'; 
-    	}
-    	
-    	$fs = get_file_storage();
-    	if (!empty($record->certificateimage)) {
-            // Firstpage image
+        global $CFG, $USER;
+        $record = (object)(array)$record;
+        $record->images = array();
+        $userctx = context_user::instance($USER->id);
+        $fileinfo = array(
+                       'contextid' => $userctx->id,
+                       'component' => 'user',
+                       'filearea' => 'draft',
+                       'filepath' => '/'
+        );
+
+        $defaultsettings = array(
+                'name'             => 'Unit Case Test Certificate',
+                'intro'            => '<h1>Unit Case Test Certificate</h1>',
+                'introformat'      => FORMAT_HTML,
+                'certificatetextx' => 0,
+                'certificatetexty' => 50,
+                'enablesecondpage' => 1,
+                'secondpagex'      => 0,
+                'secondpagey'      => 50,
+                'width'            => get_config('simplecertificate', 'width'),
+                'height'           => get_config('simplecertificate', 'height'),
+                'printqrcode'      => 1,
+                'codex'            => 30,
+                'codey'            => 130,
+                'certdatefmt'      => 'Rio de Janeiro, %d de %B de %Y',
+                'qrcodefirstpage'  => 1
+        );
+
+        foreach ($defaultsettings as $name => $value) {
+            if (!isset($record->{$name})) {
+                $record->{$name} = $value;
+            }
+        }
+
+        if (!isset($record->certificatetext['text'])) {
+            $record->certificatetext['text'] = file_get_contents("$CFG->dirroot/mod/simplecertificate/tests/fixtures/firstpage.html");
+            $record->certificatetextformat = FORMAT_HTML;
+
+        }
+
+        if (!isset($record->secondpagetext['text'])) {
+            $record->secondpagetext['text'] = file_get_contents("$CFG->dirroot/mod/simplecertificate/tests/fixtures/secondpage.html");
+            $record->secondpagetextformat = FORMAT_HTML;
+        }
+
+        if (!isset($record->certificatetextformat)) {
+            $record->certificatetextformat = FORMAT_HTML;
+        }
+
+        if (!isset($record->certificateimage)) {
+            $record->certificateimage = $CFG->dirroot . '/mod/simplecertificate/tests/fixtures/firstpagetestimage.jpg';
+        }
+
+        if (!isset($record->secondimage)) {
+            $record->secondimage = $CFG->dirroot . '/mod/simplecertificate/tests/fixtures/secondpagetestimage.jpg';
+        }
+
+        $fs = get_file_storage();
+        if (!empty($record->certificateimage)) {
+            // Firstpage image.
             $fileinfo['itemid'] = rand(1, 10);
             $fileinfo['filename'] = basename($record->certificateimage);
             $file = $fs->create_file_from_pathname($fileinfo, $record->certificateimage);
             $record->certificateimage = $fileinfo['itemid'];
             $record->images[0] = $fileinfo['filename'];
         }
-    	
-    	if (!empty($record->secondimage)) {
-            // Secondpage image
+
+        if (!empty($record->secondimage)) {
+            // Secondpage image.
             $fileinfo['itemid'] = rand(11, 21);
             $fileinfo['filename'] = basename($record->secondimage);
             $file = $fs->create_file_from_pathname($fileinfo, $record->secondimage);
             $record->secondimage = $fileinfo['itemid'];
             $record->images[1] = $fileinfo['filename'];
         }
-        
-       return parent::create_instance($record, (array)$options);
+
+        return parent::create_instance($record, (array)$options);
     }
 }

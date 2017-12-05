@@ -19,7 +19,7 @@
  *
  * @package    mod_simplecertificate
  * @category   phpunit
- * @copyright  2013 onwards Carlos Alexandre S. da Fonseca  
+ * @copyright  2013 onwards Carlos Alexandre S. da Fonseca
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -28,7 +28,7 @@ defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
 require_once($CFG->dirroot . '/mod/simplecertificate/locallib.php');
-//require_once($CFG->dirroot . '/mod/simplecertificate/upgradelib.php');
+// ...require_once($CFG->dirroot . '/mod/simplecertificate/upgradelib.php');.
 
 /**
  * Unit tests for (some of) mod/simplecertificate/locallib.php.
@@ -108,10 +108,10 @@ class mod_simplecertificate_base_testcase extends advanced_testcase {
 
         $this->groups = array();
         for ($i = 0; $i < self::GROUP_COUNT; $i++) {
-            array_push($this->groups, $this->getDataGenerator()->create_group(array('courseid'=>$this->course->id)));
+            array_push($this->groups, $this->getDataGenerator()->create_group(array('courseid' => $this->course->id)));
         }
 
-        $teacherrole = $DB->get_record('role', array('shortname'=>'teacher'));
+        $teacherrole = $DB->get_record('role', array('shortname' => 'teacher'));
         foreach ($this->teachers as $i => $teacher) {
             $this->getDataGenerator()->enrol_user($teacher->id,
                                                   $this->course->id,
@@ -119,7 +119,7 @@ class mod_simplecertificate_base_testcase extends advanced_testcase {
             groups_add_member($this->groups[$i % self::GROUP_COUNT], $teacher);
         }
 
-        $editingteacherrole = $DB->get_record('role', array('shortname'=>'editingteacher'));
+        $editingteacherrole = $DB->get_record('role', array('shortname' => 'editingteacher'));
         foreach ($this->editingteachers as $i => $editingteacher) {
             $this->getDataGenerator()->enrol_user($editingteacher->id,
                                                   $this->course->id,
@@ -127,7 +127,7 @@ class mod_simplecertificate_base_testcase extends advanced_testcase {
             groups_add_member($this->groups[$i % self::GROUP_COUNT], $editingteacher);
         }
 
-        $studentrole = $DB->get_record('role', array('shortname'=>'student'));
+        $studentrole = $DB->get_record('role', array('shortname' => 'student'));
         foreach ($this->students as $i => $student) {
             $this->getDataGenerator()->enrol_user($student->id,
                                                   $this->course->id,
@@ -161,7 +161,7 @@ class mod_simplecertificate_base_testcase extends advanced_testcase {
             array_push($this->extrasuspendedstudents, $this->getDataGenerator()->create_user());
         }
 
-        $teacherrole = $DB->get_record('role', array('shortname'=>'teacher'));
+        $teacherrole = $DB->get_record('role', array('shortname' => 'teacher'));
         foreach ($this->extrateachers as $i => $teacher) {
             $this->getDataGenerator()->enrol_user($teacher->id,
                                                   $this->course->id,
@@ -169,7 +169,7 @@ class mod_simplecertificate_base_testcase extends advanced_testcase {
             groups_add_member($this->groups[$i % self::GROUP_COUNT], $teacher);
         }
 
-        $editingteacherrole = $DB->get_record('role', array('shortname'=>'editingteacher'));
+        $editingteacherrole = $DB->get_record('role', array('shortname' => 'editingteacher'));
         foreach ($this->extraeditingteachers as $i => $editingteacher) {
             $this->getDataGenerator()->enrol_user($editingteacher->id,
                                                   $this->course->id,
@@ -177,7 +177,7 @@ class mod_simplecertificate_base_testcase extends advanced_testcase {
             groups_add_member($this->groups[$i % self::GROUP_COUNT], $editingteacher);
         }
 
-        $studentrole = $DB->get_record('role', array('shortname'=>'student'));
+        $studentrole = $DB->get_record('role', array('shortname' => 'student'));
         foreach ($this->extrastudents as $i => $student) {
             $this->getDataGenerator()->enrol_user($student->id,
                                                   $this->course->id,
@@ -207,7 +207,7 @@ class mod_simplecertificate_base_testcase extends advanced_testcase {
         $this->setAdminUser();
         $generator = $this->getDataGenerator()->get_plugin_generator('mod_simplecertificate');
         $params['course'] = $this->course->id;
-       
+
         $instance = $generator->create_instance($params, $options);
         $cm = get_coursemodule_from_instance('simplecertificate', $instance->id);
         $context = context_module::instance($cm->id);
@@ -233,88 +233,83 @@ class testable_simplecertificate extends simplecertificate {
      */
     public function update_instance(stdClass $instance) {
         global $CFG, $USER;
-        
-        //usercontext
-        $user_context = context_user::instance($USER->id);
-        
-        // Draft fileinfo
+
+        $usercontext = context_user::instance($USER->id);
+
+        // Draft fileinfo.
         $fileinfo = array(
-                'contextid' => $user_context->id,
+                'contextid' => $usercontext->id,
                 'component' => 'user',
                 'filearea' => 'draft',
                 'filepath' => '/'
         );
-               
+
         $formdata = clone $instance;
         unset($formdata->certificatetext);
         unset($formdata->certificatetextformat);
-        
-               
+
         $formdata->certificatetext['text'] = $instance->certificatetext;
         $formdata->certificatetext['format'] = $instance->certificatetextformat;
-        
-        
+
         if (!empty($instance->secondpagetext)) {
             unset($formdata->secondpagetext);
             unset($formdata->secondpagetextformat);
             $formdata->secondpagetext['text'] = $instance->secondpagetext;
             $formdata->secondpagetext['format'] = $instance->secondpagetextformat;
         }
-        
+
         $fs = get_file_storage();
         if (!empty($instance->certificateimage)) {
             $imagefileinfo = self::get_certificate_image_fileinfo($this->get_context()->id);
-            $imagefile = $fs->get_file($imagefileinfo['contextid'], $imagefileinfo['component'], $imagefileinfo['filearea'], 
+            $imagefile = $fs->get_file($imagefileinfo['contextid'], $imagefileinfo['component'], $imagefileinfo['filearea'],
                                     $imagefileinfo['itemid'], $imagefileinfo['filepath'], $instance->certificateimage);
-            
+
             $fileinfo['itemid'] = rand(1, 10);
             $fs->delete_area_files($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'], $fileinfo['itemid']);
             $fs->create_file_from_storedfile($fileinfo, $imagefile);
-            
+
             $formdata->certificateimage = $fileinfo['itemid'];
             $imagefileinfo = null;
         }
-        
+
         if (!empty($instance->secondimage)) {
             $imagefileinfo = self::get_certificate_secondimage_fileinfo($this->get_context()->id);
-            $imagefile = $fs->get_file($imagefileinfo['contextid'], $imagefileinfo['component'], $imagefileinfo['filearea'], 
+            $imagefile = $fs->get_file($imagefileinfo['contextid'], $imagefileinfo['component'], $imagefileinfo['filearea'],
                                     $imagefileinfo['itemid'], $imagefileinfo['filepath'], $instance->secondimage);
-            
+
             $fileinfo['itemid'] = rand(11, 21);
             $fs->delete_area_files($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'], $fileinfo['itemid']);
             $fs->create_file_from_storedfile($fileinfo, $imagefile);
-            
+
             $formdata->secondimage = $fileinfo['itemid'];
             $imagefileinfo = null;
         }
 
         parent::update_instance($formdata);
     }
-    
-    //For mocking
-    function check_user_can_access_certificate_instance($userid) {
+
+    // For mocking.
+    public function check_user_can_access_certificate_instance($userid) {
          return $this->testable_check_user_can_access_certificate_instance($userid);
     }
-    
+
     public function testable_check_user_can_access_certificate_instance($userid) {
         return  parent::check_user_can_access_certificate_instance($userid);
     }
-   
-    
+
+
     /**
-	 * Prepare to print an activity grade.
-	 *
-	 * @param int $moduleid        	
-	 * @param int $userid        	
-	 * @return stdClass bool the mod object if it exists, false otherwise
-	 */
-	public function testable_get_mod_grade($moduleid, $userid) {
-		return parent::get_mod_grade($moduleid, $userid);
-	}
-	
-	
-	
-	 /**
+     * Prepare to print an activity grade.
+     *
+     * @param int $moduleid
+     * @param int $userid
+     * @return stdClass bool the mod object if it exists, false otherwise
+     */
+    public function testable_get_mod_grade($moduleid, $userid) {
+        return parent::get_mod_grade($moduleid, $userid);
+    }
+
+    /**
      * Returns a list of teachers by group
      * for sending email alerts to teachers
      *
@@ -323,9 +318,9 @@ class testable_simplecertificate extends simplecertificate {
     public function testable_get_teachers() {
         return parent::get_teachers();
     }
-    
+
     public function testable_create_pdf($issuecert, $pdf = null, $isbulk = false) {
-    	return parent::create_pdf($issuecert, $pdf, $isbulk);
+        return parent::create_pdf($issuecert, $pdf, $isbulk);
     }
 
     /**
@@ -336,8 +331,8 @@ class testable_simplecertificate extends simplecertificate {
      * @return mixed return string with filename if successful, null otherwise
      */
     public function testable_save_pdf($issuecert) {
-		return parent::save_pdf($issuecert);
-	}
+        return parent::save_pdf($issuecert);
+    }
 
     /**
      * Sends the student their issued certificate from moddata as an email
@@ -349,17 +344,17 @@ class testable_simplecertificate extends simplecertificate {
      * @param stdClass $context
      */
     public function testable_send_certificade_email($issuecert) {
-    	return parent::send_certificade_email($issuecert);
+        return parent::send_certificade_email($issuecert);
     }
 
     public function testable_get_issue_file ($issuecert) {
-    	return parent::get_issue_file($issuecert);
+        return parent::get_issue_file($issuecert);
     }
-    
+
     public function testable_get_certificate_text($issuecert, $certtext = null) {
         return parent::get_certificate_text($issuecert, $certtext);
     }
-    
+
     /**
      * Returns the date to display for the certificate.
      *
@@ -379,7 +374,7 @@ class testable_simplecertificate extends simplecertificate {
      * @return array
      */
     public function testable_get_outcomes() {
-    	return parent::get_outcomes();
+        return parent::get_outcomes();
     }
 
     /**
@@ -388,26 +383,26 @@ class testable_simplecertificate extends simplecertificate {
      * @return string the outcome
      */
     public function testable_get_outcome($userid) {
-    	return parent::get_outcome($userid);
+        return parent::get_outcome($userid);
     }
 
-        
+
     /**
      * Verify if user meet issue conditions
-     * 
+     *
      * @param int $userid User id
      * @return string null if user meet issued conditions, or an text with erro
      */
     public function testable_can_issue($user = null, $chkcompletation = true) {
-    	return parent::can_issue($user, $chkcompletation);
+        return parent::can_issue($user, $chkcompletation);
     }
-    
+
     /**
-     * 
+     *
      * @param unknown $issuecertid
      * @param string $user
-     * @return true if exist 
-     * 
+     * @return true if exist
+     *
      */
     public function testable_issue_file_exists($issuecert) {
         if (!parent::issue_file_exists($issuecert)) {
@@ -417,8 +412,10 @@ class testable_simplecertificate extends simplecertificate {
         return true;
     }
 
-   	public function testable_get_issued_certificate_users ($sort="ci.timecreated ASC", $groupmode=0, $page = 0, $perpage = self::SIMPLECERT_MAX_PER_PAGE) {
-   		return parent::get_issued_certificate_users($sort, $groupmode, $page, $perpage);
-	}
-    
+    public function testable_get_issued_certificate_users ($sort="ci.timecreated ASC", $groupmode=0, $page = 0,
+                    $perpage = self::SIMPLECERT_MAX_PER_PAGE) {
+
+        return parent::get_issued_certificate_users($sort, $groupmode, $page, $perpage);
+    }
+
 }
