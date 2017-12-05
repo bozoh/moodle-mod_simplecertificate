@@ -1448,12 +1448,11 @@ class simplecertificate {
     }
     
     // Auto link filter puts links in the certificate text,
-    // and it's must be removed.
+    // and it's must be removed. See #111.
     protected function remove_links($htmltext) {
         global $CFG;
         require_once($CFG->libdir.'/htmlpurifier/HTMLPurifier.safe-includes.php');
         require_once($CFG->libdir.'/htmlpurifier/locallib.php');
-        
         // This code is in weblib.php (purify_html function).
         $config = HTMLPurifier_Config::createDefault();
         $version = empty($CFG->version) ? 0 : $CFG->version;
@@ -1466,13 +1465,12 @@ class simplecertificate {
             $purifiers = array();
             $caches = array();
             gc_collect_cycles();
-        
             make_localcache_directory('htmlpurifier', false);
             check_dir_exists($cachedir);
         }
         $config->set('Cache.SerializerPath', $cachedir);
         $config->set('Cache.SerializerPermissions', $CFG->directorypermissions);
-        $config->set('HTML.ForbiddenElements', array('script','style','applet','a'));
+        $config->set('HTML.ForbiddenElements', array('script', 'style', 'applet', 'a'));
         $purifier = new HTMLPurifier($config);
         return $purifier->purify($htmltext);
         
