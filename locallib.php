@@ -819,17 +819,16 @@ class simplecertificate {
     }
 
     /**
-     * Generate a version 1 UUID (time based)
+     * Generate a UUID 
      * you can verify the generated code in:
      * http://www.famkruithof.net/uuid/uuidgen?typeReq=-1
-     * 
-     * @return string UUID_v1
+     *
+     * @return string UUID
      */
     protected function get_issue_uuid() {
         global $CFG;
-        require_once ($CFG->dirroot . '/mod/simplecertificate/lib/lib.uuid.php');
-        $UUID = UUID::mint(UUID::VERSION_1, self::CERTIFICATE_COMPONENT_NAME);
-        return $UUID->__toString();
+        require_once($CFG->libdir . '/horde/framework/Horde/Support/Uuid.php');
+        return (string)new Horde_Support_Uuid();
     }
 
     /**
