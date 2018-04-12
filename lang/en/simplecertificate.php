@@ -179,6 +179,7 @@ $string['issueoptions'] = 'Issue Options';
 $string['designoptions'] = 'Design Options';
 
 // Emails text.
+$string['notifyoncoursecompletion'] = 'Email students on Course completion';
 $string['emailstudentsubject'] = 'Your certificate for {$a->course}';
 $string['emailstudenttext'] = '
 Hello {$a->username},
@@ -195,6 +196,14 @@ for {$a->course}.
 You can review it here:
 
     {$a->url}';
+
+
+$string['emailcoursecompletionsubject'] = 'You have got an Certificate';
+$string['emailcoursecompletioncontent'] = 'Hello {$a->name},
+You have got an Certificate for completing the course {$a->coursename}
+view it here : {$a->url}';
+
+
 
 $string['emailteachermailhtml'] = '
 {$a->student} has received their certificate: \'<i>{$a->certificate}</i>\'
@@ -278,6 +287,6 @@ $string['eventcertificate_verified_description'] = 'The user with id {$a->userid
 $string['deleteall'] = "Delete All";
 $string['deleteselected'] = "Delete Selected";
 
-
+$string['nocertificateavailable'] = 'You got no Certificate, pleas finish the course first';
 
 

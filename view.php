@@ -82,8 +82,16 @@ $PAGE->set_cm($cm);
 require_login( $course->id, false, $cm);
 require_capability('mod/simplecertificate:view', $context);
 $canmanage = has_capability('mod/simplecertificate:manage', $context);
-
-
+$canviewcertificate = true;
+if($certificate && ($certificate->notifyoncoursecompletion && $certificate->notifyoncoursecompletion!=0)){
+    //SELECT * from {course_completions} cc WHERE cc.course=? AND cc.userid=?
+    $records = $DB->get_records('course_completions', array("course"=>$course->id,"userid"=>$USER->id));
+    if(empty($records)){
+        // do something like an error
+        $canviewcertificate = false;
+    }
+    //check if the user have completed the current course.
+}
 
 // Log update.
 $simplecertificate = new simplecertificate($context, $cm, $course);
@@ -94,29 +102,34 @@ $completion->set_module_viewed($cm);
 
 $PAGE->set_title(format_string($certificate->name));
 $PAGE->set_heading(format_string($course->fullname));
+if(!$canviewcertificate){
+    echo $OUTPUT->header();
+    echo get_string('nocertificateavailable','mod_simplecertificate');
+    echo $OUTPUT->footer();
+}else{
+    switch ($tab) {
+        case $simplecertificate::ISSUED_CERTIFCADES_VIEW :
+            // Verify if user can access this page
+            // avoid the access by adding tab=1 in post/get.
+            if ($canmanage) {
+                $simplecertificate->view_issued_certificates($url, $selectedusers);
+            } else {
+                print_error('nopermissiontoviewpage');
+            }
+            break;
 
-switch ($tab) {
-    case $simplecertificate::ISSUED_CERTIFCADES_VIEW :
-        // Verify if user can access this page
-        // avoid the access by adding tab=1 in post/get.
-        if ($canmanage) {
-            $simplecertificate->view_issued_certificates($url, $selectedusers);
-        } else {
-            print_error('nopermissiontoviewpage');
-        }
-    break;
+        case $simplecertificate::BULK_ISSUE_CERTIFCADES_VIEW :
+            // Verify if user can access this page
+            // avoid the access by adding tab=1 in post/get.
+            if ($canmanage) {
+                $simplecertificate->view_bulk_certificates($url, $selectedusers);
+            } else {
+                print_error('nopermissiontoviewpage');
+            }
+            break;
+        default :
+            $simplecertificate->view_default($url, $canmanage);
+            break;
+    }
 
-    case $simplecertificate::BULK_ISSUE_CERTIFCADES_VIEW :
-        // Verify if user can access this page
-        // avoid the access by adding tab=1 in post/get.
-        if ($canmanage) {
-            $simplecertificate->view_bulk_certificates($url, $selectedusers);
-        } else {
-            print_error('nopermissiontoviewpage');
-        }
-    break;
-
-    default :
-        $simplecertificate->view_default($url, $canmanage);
-    break;
 }
