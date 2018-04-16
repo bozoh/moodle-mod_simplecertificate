@@ -102,7 +102,7 @@ $completion->set_module_viewed($cm);
 
 $PAGE->set_title(format_string($certificate->name));
 $PAGE->set_heading(format_string($course->fullname));
-if(!$canviewcertificate){
+if(!$canviewcertificate && !$canmanage){
     echo $OUTPUT->header();
     echo get_string('nocertificateavailable','mod_simplecertificate');
     echo $OUTPUT->footer();

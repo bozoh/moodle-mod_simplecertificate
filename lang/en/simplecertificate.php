@@ -198,10 +198,13 @@ You can review it here:
     {$a->url}';
 
 
-$string['emailcoursecompletionsubject'] = 'You have got an Certificate';
+$string['emailcoursecompletionsubject'] = 'You got a certificate';
 $string['emailcoursecompletioncontent'] = 'Hello {$a->name},
-You have got an Certificate for completing the course {$a->coursename}
-view it here : {$a->url}';
+
+you got a certificate for the course {$a->coursename}.
+
+Please download it:
+{$a->url}';
 
 
 
@@ -287,6 +290,6 @@ $string['eventcertificate_verified_description'] = 'The user with id {$a->userid
 $string['deleteall'] = "Delete All";
 $string['deleteselected'] = "Delete Selected";
 
-$string['nocertificateavailable'] = 'You got no Certificate, pleas finish the course first';
+$string['nocertificateavailable'] = 'Please finish the course in order to get your certificate.';
 
 

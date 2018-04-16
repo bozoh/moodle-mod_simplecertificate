@@ -1156,7 +1156,7 @@ class simplecertificate {
      *
      * @param $issuecert The issue certificate object
      */
-    protected function send_certificade_email(stdClass $issuecert) {
+    public function send_certificade_email(stdClass $issuecert) {
         global $DB, $CFG;
 
         if (!$user = $DB->get_record('user', array('id' => $issuecert->userid))) {
@@ -1190,7 +1190,6 @@ class simplecertificate {
             } else {
                 $from = format_string($this->get_instance()->emailfrom, true);
             }
-
             $ret = email_to_user($user, $from, $subject, $message, $messagehtml, $relativefilepath, $file->get_filename());
             @unlink($fullfilepath);
 
