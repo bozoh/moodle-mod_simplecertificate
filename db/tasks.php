@@ -1,7 +1,12 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: vincent
- * Date: 20.04.18
- * Time: 14:26
- */
+$tasks = array(
+array(
+'classname' => 'mod_simplecertificate\task\checkforcompletion',
+'blocking' => 0,
+'minute' => 'R',
+'hour' => '*',
+'day' => '*',
+'dayofweek' => '*',
+'month' => '*'
+)
+);

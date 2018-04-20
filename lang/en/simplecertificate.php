@@ -291,5 +291,5 @@ $string['deleteall'] = "Delete All";
 $string['deleteselected'] = "Delete Selected";
 
 $string['nocertificateavailable'] = 'Please finish the course in order to get your certificate.';
-
+$string['checkforcompletion'] = 'Restriction Event Task';
 

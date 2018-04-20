@@ -96,12 +96,11 @@ if($certificate && ($certificate->notifyoncoursecompletion && $certificate->noti
 // Log update.
 $simplecertificate = new simplecertificate($context, $cm, $course);
 $simplecertificate->set_instance($certificate);
-
 $completion = new completion_info($course);
 $completion->set_module_viewed($cm);
-
 $PAGE->set_title(format_string($certificate->name));
 $PAGE->set_heading(format_string($course->fullname));
+
 if(!$canviewcertificate && !$canmanage){
     echo $OUTPUT->header();
     echo get_string('nocertificateavailable','mod_simplecertificate');
@@ -128,6 +127,7 @@ if(!$canviewcertificate && !$canmanage){
             }
             break;
         default :
+
             $simplecertificate->view_default($url, $canmanage);
             break;
     }
