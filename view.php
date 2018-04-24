@@ -83,15 +83,7 @@ require_login( $course->id, false, $cm);
 require_capability('mod/simplecertificate:view', $context);
 $canmanage = has_capability('mod/simplecertificate:manage', $context);
 $canviewcertificate = true;
-if($certificate && ($certificate->notifyoncoursecompletion && $certificate->notifyoncoursecompletion!=0)){
-    //SELECT * from {course_completions} cc WHERE cc.course=? AND cc.userid=?
-    $records = $DB->get_records('course_completions', array("course"=>$course->id,"userid"=>$USER->id));
-    if(empty($records)){
-        // do something like an error
-        $canviewcertificate = false;
-    }
-    //check if the user have completed the current course.
-}
+
 
 // Log update.
 $simplecertificate = new simplecertificate($context, $cm, $course);

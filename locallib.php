@@ -1189,7 +1189,6 @@ class simplecertificate {
             } else {
                 $from = format_string($this->get_instance()->emailfrom, true);
             }
-            echo "schblaaa" . var_dump($from);
             $ret = email_to_user($user, $from, $subject, $message, $messagehtml, $relativefilepath, $file->get_filename());
             @unlink($fullfilepath);
             return $ret;

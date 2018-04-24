@@ -186,6 +186,7 @@ $string['issueoptions'] = 'Opções de Emissão';
 $string['designoptions'] = 'Opções de Design';
 
 // Emails text.
+$string['notifyonrestriction'] = 'E-Mail students with attached certificate, when access restrictions are met.';
 $string['emailstudentsubject'] = 'Seu certificado do curso {$a->course}';
 $string['emailstudenttext'] = '
 Olá {$a->username},

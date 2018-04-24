@@ -179,7 +179,7 @@ $string['issueoptions'] = 'Issue Options';
 $string['designoptions'] = 'Design Options';
 
 // Emails text.
-$string['notifyoncoursecompletion'] = 'Email students on Course completion';
+$string['notifyonrestriction'] = 'E-Mail students with attached certificate, when access restrictions are met.';
 $string['emailstudentsubject'] = 'Your certificate for {$a->course}';
 $string['emailstudenttext'] = '
 Hello {$a->username},

@@ -203,10 +203,9 @@ class mod_simplecertificate_mod_form extends moodleform_mod {
         $mform->setDefault('emailteachers', 0);
         $mform->addHelpButton('emailteachers', 'emailteachers', 'simplecertificate');
 
-        // Email to student on course COmpletion
-        $mform->addElement('selectyesno', 'notifyoncoursecompletion', get_string('notifyoncoursecompletion', 'simplecertificate'));
-        $mform->setDefault('notifyoncoursecompletion', 0);
-        $mform->addHelpButton('notifyoncoursecompletion', 'notifyoncoursecompletion', 'simplecertificate');
+        // Email to student on module restriction
+        $mform->addElement('selectyesno', 'notifyonrestriction', get_string('notifyonrestriction', 'simplecertificate'));
+        $mform->setDefault('notifyonrestriction', 0);
 
         // Email Others.
         $mform->addElement('text', 'emailothers', get_string('emailothers', 'simplecertificate'),
