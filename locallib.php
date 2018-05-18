@@ -732,11 +732,13 @@ class simplecertificate {
                     $grade = new grade_grade(array('itemid' => $courseitem->id, 'userid' => $userid));
                     $courseitem->gradetype = GRADE_TYPE_VALUE;
                     $coursegrade = new stdClass();
+
+                    $decimals = $courseitem->get_decimals();
                     // String used.
                     $coursegrade->points = grade_format_gradevalue($grade->finalgrade, $courseitem, true, GRADE_DISPLAY_TYPE_REAL,
-                                                                $decimals = 2);
+                                                                $decimals);
                     $coursegrade->percentage = grade_format_gradevalue($grade->finalgrade, $courseitem, true,
-                                                                    GRADE_DISPLAY_TYPE_PERCENTAGE, $decimals = 2);
+                                                                    GRADE_DISPLAY_TYPE_PERCENTAGE, $decimals);
                     $coursegrade->letter = grade_format_gradevalue($grade->finalgrade, $courseitem, true,
                                                                 GRADE_DISPLAY_TYPE_LETTER, $decimals = 0);
                 }
