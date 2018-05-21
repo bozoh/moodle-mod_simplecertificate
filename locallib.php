@@ -1577,12 +1577,12 @@ class simplecertificate {
             $sql = "SELECT MAX(c.timecompleted) as timecompleted FROM {course_completions} c
                  WHERE c.userid = :userid AND c.course = :courseid";
 
-            if ($timecompleted = $DB->get_record_sql($sql, array('userid' => $issuecert->userid,
-              'courseid' => $this->get_course()->id)) && !empty($timecompleted->timecompleted)) {
-                    $date = $timecompleted->timecompleted;
-
+            $timecompleted = $DB->get_record_sql($sql, array('userid' => $issuecert->userid,
+                            'courseid' => $this->get_course()->id));
+            if ($timecompleted && !empty($timecompleted->timecompleted)) {
+                $date = $timecompleted->timecompleted;
             }
-            // Get the module grade date.
+        // Get the module grade date.
         } else if ($this->get_instance()->certdate > 0
             && $modinfo = $this->get_mod_grade($this->get_instance()->certdate, $issuecert->userid)) {
                 $date = $modinfo->dategraded;
