@@ -1993,9 +1993,10 @@ class simplecertificate {
             $users = array_slice($users, intval($page * $perpage), $perpage);
             
             foreach ($users as $user) {
-                $chkbox = html_writer::checkbox('selectedusers[]', $user->id, false);
+                $user_cert = $this->get_issue($user);
                 $name = $OUTPUT->user_picture($user) . fullname($user);
-                $date = userdate($user->timecreated) . simplecertificate_print_issue_certificate_file($this->get_issue($user));
+                $chkbox = html_writer::checkbox('selectedusers[]', $user->id, false);
+                $date = userdate($user_cert->timecreated) . simplecertificate_print_issue_certificate_file($user_cert);
                 $code = $user->code;
                 $table->data[] = array($chkbox, $name, $date, $this->get_grade($user->id), $code);
             }
