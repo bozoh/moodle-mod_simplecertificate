@@ -1612,6 +1612,16 @@ class simplecertificate {
             return '';
         }
 
+        //Sorting grade itens by sortorder
+        usort($items, function($a, $b) {
+            $a_sortorder = $a->sortorder;
+            $b_sortorder = $b->sortorder;
+            if ($a_sortorder == $b_sortorder) {
+                return 0;
+            }
+            return ($a_sortorder < $b_sortorder) ? -1 : 1;
+        });
+
         $retval = '';
         foreach ($items as $id => $item) {
             // Do not include grades for course itens.
