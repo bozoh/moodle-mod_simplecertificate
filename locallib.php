@@ -2067,8 +2067,11 @@ class simplecertificate {
                   
                 case 'download':    
                     $page = $perpage = 0;
-            
-                    // Calculate file name
+
+                    // Override $users param, if there is a selected users.
+                    $users = $this->get_issued_certificate_users($orderby, $groupmode);
+
+                    // Calculate file name.
                     $filename = clean_filename($this->get_instance()->coursename . '-' .
                                      strip_tags(format_string($this->get_instance()->name, true)) . '.' .
                                      strip_tags(format_string($type, true)));
