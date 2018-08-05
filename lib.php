@@ -301,10 +301,6 @@ function simplecertificate_pluginfile($course, $cm, $context, $filearea, $args, 
         // add a simple  number sequence (1,2,3,4....) as id value, it's better use the certificate code
         // instead.
 
-        // ...$url = new moodle_url('wmsendfile.php');
-        // ...$url->param('id', (int)array_shift($args));
-        // ...$url->param('sk', sesskey()); .
-
         if (!$issuedcert = $DB->get_record("simplecertificate_issues", array('id' => $id))) {
             return false;
         }
@@ -478,7 +474,6 @@ function simplecertificate_print_issue_certificate_file(stdClass $issuecert) {
 
         $url = new moodle_url('wmsendfile.php');
         $url->param('code', $issuecert->code);
-        // ...$url->param('sk', sesskey());.
 
         $output .= '<a href="' . $url->out(true) . '" target="_blank" >' . s($file->get_filename()) . '</a>';
 

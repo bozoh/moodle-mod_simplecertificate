@@ -1475,9 +1475,8 @@ class simplecertificate {
         $config->set('HTML.ForbiddenElements', array('script', 'style', 'applet', 'a'));
         $purifier = new HTMLPurifier($config);
         return $purifier->purify($htmltext);
-    
     }
-    
+
     protected function remove_user_image($userid) {
         $filename = 'f1-' . $userid;
 
@@ -1583,7 +1582,7 @@ class simplecertificate {
             if ($timecompleted && !empty($timecompleted->timecompleted)) {
                 $date = $timecompleted->timecompleted;
             }
-        // Get the module grade date.
+            // Get the module grade date.
         } else if ($this->get_instance()->certdate > 0
             && $modinfo = $this->get_mod_grade($this->get_instance()->certdate, $issuecert->userid)) {
                 $date = $modinfo->dategraded;
@@ -1611,14 +1610,14 @@ class simplecertificate {
             return '';
         }
 
-        //Sorting grade itens by sortorder
+        // Sorting grade itens by sortorder.
         usort($items, function($a, $b) {
-            $a_sortorder = $a->sortorder;
-            $b_sortorder = $b->sortorder;
-            if ($a_sortorder == $b_sortorder) {
+            $asortorder = $a->sortorder;
+            $bsortorder = $b->sortorder;
+            if ($asortorder == $bsortorder) {
                 return 0;
             }
-            return ($a_sortorder < $b_sortorder) ? -1 : 1;
+            return ($asortorder < $bsortorder) ? -1 : 1;
         });
 
         $retval = '';
@@ -1711,7 +1710,9 @@ class simplecertificate {
                         $formfield = new $newfield($field->id, $userid);
                         if ($formfield->is_visible() && !$formfield->is_empty()) {
                             if ($field->datatype == 'checkbox') {
-                                $usercustomfields->{$field->shortname} = ($formfield->data == 1 ? get_string('yes') : get_string('no'));
+                                $usercustomfields->{$field->shortname} = (
+                                    $formfield->data == 1 ? get_string('yes') : get_string('no')
+                                );
                             } else {
                                 $usercustomfields->{$field->shortname} = $formfield->display_data();
                             }
@@ -1959,7 +1960,7 @@ class simplecertificate {
             if (($CFG->fullnamedisplay == 'firstname lastname') || ($CFG->fullnamedisplay == 'firstname') ||
             ($CFG->fullnamedisplay == 'language' && $fullnamelanguage == 'firstname lastname')) {
                 $sort = " ORDER BY firstname, lastname";
-            } else { // ...($CFG->fullnamedisplay == 'language' and $fullnamelanguage == 'lastname firstname').
+            } else {
                 $sort = " ORDER BY lastname, firstname";
             }
             $users = $DB->get_records_sql($sql . $sort, $params);
@@ -2000,10 +2001,10 @@ class simplecertificate {
             $users = array_slice($users, intval($page * $perpage), $perpage);
 
             foreach ($users as $user) {
-                $user_cert = $this->get_issue($user);
+                $usercert = $this->get_issue($user);
                 $name = $OUTPUT->user_picture($user) . fullname($user);
                 $chkbox = html_writer::checkbox('selectedusers[]', $user->id, false);
-                $date = userdate($user_cert->timecreated) . simplecertificate_print_issue_certificate_file($user_cert);
+                $date = userdate($usercert->timecreated) . simplecertificate_print_issue_certificate_file($usercert);
                 $code = $user->code;
                 $table->data[] = array($chkbox, $name, $date, $this->get_grade($user->id), $code);
             }

@@ -24,8 +24,6 @@
  */
 
 require_once(dirname(dirname(dirname(__FILE__))) . '/config.php');
-// ... $id = required_param('id', PARAM_INTEGER); // Issed Code.
-// ... $sk = required_param('sk', PARAM_RAW); // sesskey.
 $code = required_param('code', PARAM_TEXT); // Issued Code.
 
 
@@ -171,7 +169,7 @@ function put_watermark($file) {
                         null
     );
 
-    // For DEGUG
+    // For DEBUG
     // $pdf->Output($file->get_filename(), 'I');.
 
     // Save and send tmpfiles.

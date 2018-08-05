@@ -72,13 +72,17 @@ class mod_simplecertificate_generator extends testing_module_generator {
         }
 
         if (!isset($record->certificatetext['text'])) {
-            $record->certificatetext['text'] = file_get_contents("$CFG->dirroot/mod/simplecertificate/tests/fixtures/firstpage.html");
+            $record->certificatetext['text'] = file_get_contents(
+                "$CFG->dirroot/mod/simplecertificate/tests/fixtures/firstpage.html"
+            );
             $record->certificatetextformat = FORMAT_HTML;
 
         }
 
         if (!isset($record->secondpagetext['text'])) {
-            $record->secondpagetext['text'] = file_get_contents("$CFG->dirroot/mod/simplecertificate/tests/fixtures/secondpage.html");
+            $record->secondpagetext['text'] = file_get_contents(
+                "$CFG->dirroot/mod/simplecertificate/tests/fixtures/secondpage.html"
+            );
             $record->secondpagetextformat = FORMAT_HTML;
         }
 

@@ -27,7 +27,6 @@ defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
 require_once($CFG->dirroot . '/mod/simplecertificate/locallib.php');
-// ...require_once($CFG->dirroot . '/mod/simplecertificate/upgradelib.php');.
 require_once($CFG->dirroot . '/mod/simplecertificate/tests/base_test.php');
 
 /**
