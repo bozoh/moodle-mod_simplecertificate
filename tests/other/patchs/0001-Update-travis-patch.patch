@@ -1,0 +1,244 @@
+From 93880c8b9b9b4b25cb4519dece65bafdd6dca7a7 Mon Sep 17 00:00:00 2001
+From: "Carlos Alexandre S. da Fonseca" <bozohhot@hotmail.com>
+Date: Sat, 4 Aug 2018 19:22:16 -0300
+Subject: [PATCH 1/2] Update travis patch
+
+---
+ tests/other/patchs/travis-behat-patch.patch | 196 ++++++++++++----------------
+ 1 file changed, 85 insertions(+), 111 deletions(-)
+
+diff --git a/tests/other/patchs/travis-behat-patch.patch b/tests/other/patchs/travis-behat-patch.patch
+index 2145461..0ef159f 100644
+--- a/tests/other/patchs/travis-behat-patch.patch
++++ b/tests/other/patchs/travis-behat-patch.patch
+@@ -1,142 +1,116 @@
+ diff --git a/.travis.yml b/.travis.yml
+-index 54b7b79..310b64f 100644
++index 222010f..2fde521 100644
+ --- a/.travis.yml
+ +++ b/.travis.yml
+-@@ -7,7 +7,9 @@ sudo: required
++@@ -7,9 +7,8 @@ sudo: required
+  # We currently disable Travis notifications entirely until https://github.com/travis-ci/travis-ci/issues/4976
+  # is fixed.
+  notifications:
+--  email: false
+-+  email:
+-+    on_success: change #never # default: change
+-+    on_failure: always # default: always
++-  email:
++-    on_success: change #never # default: change
++-    on_failure: always # default: always
+++  on_success: change #never # default: change
+++  on_failure: always # default: always
+  
+  language: php
+  
+-@@ -17,6 +19,8 @@ php:
+-     - 7.0
+- 
+- addons:
+-+  hosts:
+-+    - smpl-cert.dev
++@@ -22,16 +21,12 @@ addons:
++   hosts:
++     - smpl-cert.dev
+    postgresql: "9.6"
+-   packages:
+-     - mysql-server-5.6
+-@@ -26,6 +30,8 @@ addons:
++-  packages:
++-    - mysql-server-5.6
++-    - mysql-client-core-5.6
++-    - mysql-client-5.6
+++  services:
+++    - docker
++ 
+  # Redis tests are currently failing on php 7.2 due to https://bugs.php.net/bug.php?id=75628
+  # services:
+  #     - redis-server
+-+services:
+-+    - docker
++-services:
++-    - docker
+  
+  env:
+      # Although we want to run these jobs and see failures as quickly as possible, we also want to get the slowest job to
+-@@ -43,6 +49,9 @@ env:
++@@ -41,20 +36,8 @@ env:
++     # CI Tests should be second-highest in priority as these only take <= 60 seconds to run under normal circumstances.
++     # Postgres is significantly is pretty reasonable in its run-time.
+  
++-    # Run unit tests on MySQL
++-    - DB=mysqli   TASK=PHPUNIT
++-
++-    # Run CI Tests without running PHPUnit.
++-    - DB=none     TASK=CITEST
++-
++-    # Run unit tests on Postgres
++-    - DB=pgsql    TASK=PHPUNIT
++-    
+      # Run unit tests on Postgres
+-     - DB=pgsql    TASK=PHPUNIT
+-+    
+-+    # Run unit tests on Postgres
+-+    - DB=pgsql    TASK=BEHAT   MOODLE_VER=MOODLE_34
+- 
+-     # Perform an upgrade test too.
+-     - DB=pgsql    TASK=UPGRADE
+-@@ -69,6 +78,7 @@ cache:
+-     directories:
+-       - $HOME/.composer/cache
+-       - $HOME/.npm
+-+      - $HOME/.docker/cache
++-    - DB=pgsql    TASK=BEHAT   MOODLE_VER=MOODLE_35_STABLE PLUGIN_VER=MOODLE_34
++-
++-    # Perform an upgrade test too.
++-    - DB=pgsql    TASK=UPGRADE
+++    - DB=pgsql    TASK=BEHAT   PLUGIN_VER=MOODLE_35
+  
+- install:
+-     - >
+-@@ -111,6 +121,15 @@ install:
++ matrix:
++     # Enable fast finish.
++@@ -119,16 +102,15 @@ install:
++             # Typically it should be able to use the Composer cache if any other job has already completed before we started here.
++             travis_retry composer install --prefer-dist --no-interaction;
+          fi
+- 
++-
+      - >
+-+        if [ "$TASK" = 'BEHAT' ];
+-+        then
+-+            if [ ! -e "$HOME/.docker/cache/image.tar" ]; then
+-+                docker pull selenium/standalone-firefox:2.53.1-beryllium;
+-+                docker save selenium/standalone-firefox:2.53.1-beryllium -o $HOME/.docker/cache/image.tar;
+-+            fi
+-+            docker load -i $HOME/.docker/cache/image.tar
+-+        fi
+-+    - >
+-         if [ "$TASK" = 'GRUNT' ];
++         if [ "$TASK" = 'BEHAT' ];
+          then
+-             nvm install $NVM_VERSION ;
+-@@ -120,9 +139,10 @@ install:
+- before_script:
+-     - phpenv config-rm xdebug.ini
++-            if [ ! -e "$HOME/.docker/cache/image.tar" ]; then
++-                docker pull selenium/standalone-firefox:2.53.1-beryllium;
++-                docker save selenium/standalone-firefox:2.53.1-beryllium -o $HOME/.docker/cache/image.tar;
++-            fi
++-            docker load -i $HOME/.docker/cache/image.tar
++-        fi
+++          if [ ! -e "$HOME/.docker/cache/image.tar" ]; then
+++            docker pull selenium/standalone-firefox:2.53.1-beryllium;
+++            docker save selenium/standalone-firefox:2.53.1-beryllium -o $HOME/.docker/cache/image.tar;
+++          fi
+++          docker load -i $HOME/.docker/cache/image.tar
+++        fi      
+      - >
+--      if [ "$TASK" = 'PHPUNIT' -o "$TASK" = 'UPGRADE' ];
+-+      if [ "$TASK" = 'PHPUNIT' -o "$TASK" = 'UPGRADE' -o "$TASK" = 'BEHAT'  ];
+-       then
+-         # Copy generic configuration in place.
+-+        rm -rf config.php
+-         cp config-dist.php config.php ;
+- 
+-         # Create the moodledata directory.
+-@@ -183,6 +203,49 @@ before_script:
++         if [ "$TASK" = 'GRUNT' ];
++         then
++@@ -203,7 +185,7 @@ before_script:
+          # Initialise PHPUnit for Moodle.
+          php admin/tool/phpunit/cli/init.php
+        fi
+-+      
+-+    - >
+-+      if [ "$TASK" = 'BEHAT' ];
+-+      then
+-+        #Change php.ini to avoid error on php 5.6
+-+        echo 'always_populate_raw_post_data="-1"' > /tmp/travis-php.ini
+-+        phpenv config-add /tmp/travis-php.ini
+-+        #Add simplecertificate
+-+        git clone -b $MOODLE_VER --single-branch https://github.com/bozoh/moodle-mod_simplecertificate.git mod/simplecertificate
+-+        
+-+        # Create a directory for the phpunit dataroot.
+-+        mkdir -p "$HOME"/roots/behat
+-+
+-+        # The behat dataroot and prefix..
+-+        sed -i \
+-+          -e "/require_once/i \\\$CFG->behat_dataroot = '\/home\/travis\/roots\/behat';" \
+-+          -e "/require_once/i \\\$CFG->behat_prefix = 'behat_';" \
+-+          -e "/require_once/i \\\$CFG->behat_wwwroot='http://smpl-cert.dev:8000';"\
+-+          -e "/require_once/i \\\$CFG->behat_debug = (E_ALL | E_STRICT);"\
+-+          -e "/require_once/i \\\$CFG->behat_debugdisplay = 1;"\
+-+          -e "/require_once/i \\\$CFG->behat_yuiloglevel = 'debug';"\
+-+          -e "/require_once/i \\\$CFG->behat_langstringcache = false;"\
+-+          -e "/require_once/i \\\$CFG->behat_noemailever = true;"\
+-+          -e "/require_once/i \\\$CFG->behat_showcrondebugging = true;"\
+-+          -e "/require_once/i \\\$CFG->behat_themedesignermode = true;"\
+-+          -e "/require_once/i \\\$CFG->behat_cachejs = false;"\
+-+          -e "/require_once/i \\\$CFG->behat_enablecompletion = true;"\
+-+          -e "/require_once/i \\\$CFG->behat_enableavailability = true;"\
+-+          -e "/require_once/i \\\$CFG->behat_moodlecourse_enablecompletion = true;"\
+-+          config.php ;
++-      
+ +
+-+        #Start php build in http server
+-+        cd $TRAVIS_BUILD_DIR
+-+        php -S smpl-cert.dev:8000 &> /dev/null &
+-+        # Initialise Behat for Moodle.        
+-+        php admin/tool/behat/cli/init.php
+-+        curl -s http://smpl-cert.dev:8000 &> /dev/null
+-+        #Enable docker with mozilla.
+-+        docker run --net=host -d -p4444:4444 selenium/standalone-firefox:2.53.1-beryllium
+-+        sleep 5
+-+        php admin/tool/behat/cli/util.php --enable
+-+        
+-+      fi
+- 
+      - >
+-       if [ "$TASK" = 'GRUNT' ];
+-@@ -246,6 +309,12 @@ before_script:
++       if [ "$TASK" = 'BEHAT' ];
++       then
++@@ -211,7 +193,7 @@ before_script:
++         echo 'always_populate_raw_post_data="-1"' > /tmp/travis-php.ini
++         phpenv config-add /tmp/travis-php.ini
++         #Add simplecertificate
++-        git clone -b $PLUGIN_VER --single-branch https://github.com/bozoh/moodle-mod_simplecertificate.git mod/simplecertificate
+++        git clone -b $MOODLE_VER --single-branch https://github.com/bozoh/moodle-mod_simplecertificate.git mod/simplecertificate
++         
++         # Create a directory for the phpunit dataroot.
++         mkdir -p "$HOME"/roots/behat
++@@ -270,7 +252,7 @@ before_script:
++         # We need the official upstream for comparison
++         git remote add upstream https://github.com/moodle/moodle.git;
+  
+- script:
++-        git fetch upstream MOODLE_34_STABLE;
+++        git fetch upstream MOODLE_35_STABLE;
++         export GIT_PREVIOUS_COMMIT="`git merge-base FETCH_HEAD $TRAVIS_COMMIT`";
++         export GIT_COMMIT="$TRAVIS_COMMIT";
++         export UPSTREAM_FETCH_HEAD=`git rev-parse FETCH_HEAD`
++@@ -325,7 +307,7 @@ script:
++       then
++         bash local/ci/php_lint/php_lint.sh;
++       fi
++-
+++  
+      - >
+-+      if [ "$TASK" = 'BEHAT' ];
+-+      then
+-+        vendor/bin/behat --config /home/travis/roots/behat/behatrun/behat/behat.yml --tags @mod_simplecertificate
+-+      fi
+-+
+-+    - >
+-       if [ "$TASK" = 'PHPUNIT' ];
++       if [ "$TASK" = 'GRUNT' ];
+        then
+-         vendor/bin/phpunit;
+-- 
+2.7.4
+
