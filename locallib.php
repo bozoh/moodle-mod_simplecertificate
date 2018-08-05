@@ -1475,8 +1475,9 @@ class simplecertificate {
         $config->set('HTML.ForbiddenElements', array('script', 'style', 'applet', 'a'));
         $purifier = new HTMLPurifier($config);
         return $purifier->purify($htmltext);
+    
     }
-
+    
     protected function remove_user_image($userid) {
         $filename = 'f1-' . $userid;
 
@@ -1609,6 +1610,16 @@ class simplecertificate {
         if (empty($items)) {
             return '';
         }
+
+        //Sorting grade itens by sortorder
+        usort($items, function($a, $b) {
+            $a_sortorder = $a->sortorder;
+            $b_sortorder = $b->sortorder;
+            if ($a_sortorder == $b_sortorder) {
+                return 0;
+            }
+            return ($a_sortorder < $b_sortorder) ? -1 : 1;
+        });
 
         $retval = '';
         foreach ($items as $id => $item) {
@@ -1989,9 +2000,10 @@ class simplecertificate {
             $users = array_slice($users, intval($page * $perpage), $perpage);
 
             foreach ($users as $user) {
-                $chkbox = html_writer::checkbox('selectedusers[]', $user->id, false);
+                $user_cert = $this->get_issue($user);
                 $name = $OUTPUT->user_picture($user) . fullname($user);
-                $date = userdate($user->timecreated) . simplecertificate_print_issue_certificate_file($this->get_issue($user));
+                $chkbox = html_writer::checkbox('selectedusers[]', $user->id, false);
+                $date = userdate($user_cert->timecreated) . simplecertificate_print_issue_certificate_file($user_cert);
                 $code = $user->code;
                 $table->data[] = array($chkbox, $name, $date, $this->get_grade($user->id), $code);
             }
@@ -2061,6 +2073,9 @@ class simplecertificate {
 
                 case 'download':
                     $page = $perpage = 0;
+
+                    // Override $users param, if there is a selected users.
+                    $users = $this->get_issued_certificate_users($orderby, $groupmode);
 
                     // Calculate file name.
                     $filename = clean_filename($this->get_instance()->coursename . '-' .

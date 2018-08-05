@@ -19,7 +19,7 @@
  *
  * @package    mod
  * @subpackage simplecertificate
- * @author       Carlos Alexandre S. da Fonseca
+ * @author     Carlos Alexandre S. da Fonseca
  * @copyright  2013 - Carlos Alexandre S. da Fonseca
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or late
  */
