@@ -49,7 +49,8 @@ class verify_form extends moodleform {
             if (!empty($this->_form->_submitValues['recaptcha_challenge_field'])) {
                 $challengefld = $this->_form->_submitValues['recaptcha_challenge_field'];
                 $responsefld = $this->_form->_submitValues['recaptcha_response_field'];
-                if (true !== ($result = $recaptchaelement->verify($challengefld, $responsefld))) {
+                $result = $recaptchaelement->verify($challengefld, $responsefld);
+                if (true !== $result) {
                     $errors['recaptcha'] = $result;
                 }
             } else {

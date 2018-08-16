@@ -26,8 +26,8 @@
 require_once(dirname(dirname(dirname(__FILE__))) . '/config.php');
 $code = required_param('code', PARAM_TEXT); // Issued Code.
 
-
-if (!$issuedcert = $DB->get_record("simplecertificate_issues", array('code' => $code))) {
+$issuedcert = $DB->get_record("simplecertificate_issues", array('code' => $code));
+if (!$issuedcert) {
     print_error(get_string('issuedcertificatenotfound', 'simplecertificate'));
 } else {
     send_certificate_file($issuedcert);
@@ -74,7 +74,8 @@ function send_certificate_file(stdClass $issuedcert) {
     }
 
     $canmanage = false;
-    if ($cm = get_coursemodule_from_instance('simplecertificate', $issuedcert->certificateid)) {
+    $cm = get_coursemodule_from_instance('simplecertificate', $issuedcert->certificateid);
+    if ($cm) {
         $canmanage = has_capability('mod/simplecertificate:manage', context_course::instance($cm->course));
     }
 

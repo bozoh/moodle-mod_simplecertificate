@@ -50,7 +50,8 @@ if (!$verifyform->get_data()) {
 } else {
     $issuedcert = get_issued_cert($code);
 
-    if ($user = $DB->get_record('user', array('id' => $issuedcert->userid))) {
+    $user = $DB->get_record('user', array('id' => $issuedcert->userid));
+    if ($user) {
         $username = fullname($user);
     } else {
         $username = get_string('notavailable');
@@ -88,7 +89,8 @@ echo $OUTPUT->footer();
 function get_issued_cert($code = null) {
     global $DB;
 
-    if (!$issuedcert = $DB->get_record("simplecertificate_issues", array('code' => $code))) {
+    $issuedcert = $DB->get_record("simplecertificate_issues", array('code' => $code));
+    if (!$issuedcert) {
         print_error(get_string('invalidcode', 'simplecertificate'));
     }
     return $issuedcert;
@@ -106,8 +108,10 @@ function get_course_name($issuedcert) {
         return $issuedcert->coursename;
     }
 
-    if ($cm = get_coursemodule_from_instance('simplecertificate', $issuedcert->certificateid)) {
-        if ($course = $DB->get_record('coruse', array('id' => $cm->course))) {
+    $cm = get_coursemodule_from_instance('simplecertificate', $issuedcert->certificateid);
+    if ($cm) {
+        $course = $DB->get_record('coruse', array('id' => $cm->course));
+        if ($course) {
             return $course->fullname;
         }
     }

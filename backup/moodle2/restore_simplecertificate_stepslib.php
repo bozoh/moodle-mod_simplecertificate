@@ -62,7 +62,8 @@ class restore_simplecertificate_activity_structure_step extends restore_activity
         // Verifing if certdate it's from a module.
         if (isset($olddata->certdate) && $olddata->certdate > 0) {
             // Try to get new module id, but could be not set.
-            if (!$certdate = $this->get_mappingid('course_module', $olddata->certdate)) {
+            $certdate = $this->get_mappingid('course_module', $olddata->certdate);
+            if (!$certdate) {
                 // Add this ugly hack to mark not sucefully, try in after_restorke in TASK lib
                 // as sugested in http://docs.moodle.org/dev/Restore_2.0_for_developers.
                 $certdate = -1000 * $olddata->certdate;
@@ -76,11 +77,14 @@ class restore_simplecertificate_activity_structure_step extends restore_activity
             // An odd error, i think,  it's don't set correct CERTGRADE if it's equals CERTDATE.
             if ($olddata->certdate == $olddata->certgrade) {
                 $certgrade = $data->certdate;
-            } else if (!$certgrade = $this->get_mappingid('course_module', $olddata->certgrade)) {
-                // Try to get new module id, but could be not set.
-                // Add this ugly hack to mark not sucefully, try in after_restorke in TASK lib
-                // as sugested in http://docs.moodle.org/dev/Restore_2.0_for_developers.
-                $certgrade = -1000 * $olddata->certgrade;
+            } else {
+                $certgrade = $this->get_mappingid('course_module', $olddata->certgrade);
+                if (!$certgrade) {
+                    // Try to get new module id, but could be not set.
+                    // Add this ugly hack to mark not sucefully, try in after_restorke in TASK lib
+                    // as sugested in http://docs.moodle.org/dev/Restore_2.0_for_developers.
+                    $certgrade = -1000 * $olddata->certgrade;
+                }
             }
             $data->certgrade = $certgrade;
         }
