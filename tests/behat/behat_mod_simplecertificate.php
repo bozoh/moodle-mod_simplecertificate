@@ -74,7 +74,7 @@ class behat_mod_simplecertificate extends behat_base {
 
     /**
      * Add grade restriction to an activity
-     * @Given /^I put a grade restrinction to "(?P<activity_string>(?:[^"]|\\")*)" with "(?P<grade_activity_string>(?:[^"]|\\")*)" min grade "(?P<mingrade_string>(?:[^"]|\\")*)"$/
+     * @Given /^I setup a grade restrinction to "(?P<activity_string>(?:[^"]|\\")*)" with "(?P<grade_activity_string>(?:[^"]|\\")*)" min grade "(?P<mingrade_string>(?:[^"]|\\")*)"$/
      *
      * @param unknown $activity
      * @param unknown $mingrade
@@ -82,13 +82,39 @@ class behat_mod_simplecertificate extends behat_base {
     public function add_grade_restriction($activity, $gradeactivity, $mingrade) {
         $this->execute('behat_general::click_link', array($this->escape($activity)));
         $this->execute('behat_navigation::i_navigate_to_node_in', array("Edit settings", "Certificate administration"));
+
+        // Add min grade restrinction step by step see: 
+        // availability/condition/grade/tests/behat/availability_grade.feature
+
+        // And I expand all fieldsets
         $this->execute('behat_forms::i_expand_all_fieldsets');
+
+        // And I click on "Add restriction..." "button"
         $this->execute('behat_general::i_click_on', array("Add restriction...", "button"));
+
+        // And I click on "Grade" "button" in the "Add restriction..." "dialogue"
         $this->execute('behat_general::i_click_on_in_the', array("Grade", "button", "Add restriction...", "dialogue"));
-        $this->execute('behat_general::i_click_on', array("min", "checkbox"));
+
+        // This not necessary , only if i want not display the resctriction warning to user
+        // And I click on ".availability-item .availability-eye img" "css_element"
+        // $this->execute('behat_general::i_click_on', array(".availability-item .availability-eye img", "css_element"));
+
+        // And I set the field "Grade" to "A1"
         $this->select_option_from($this->escape($gradeactivity), 'id');
-        $this->execute('behat_forms::i_set_the_field_to', array('minval', $this->escape($mingrade)));
-        $this->execute('behat_forms::press_button', array("Save and return to course"));
+        // This simple not work at all so i create a new function to do this
+        // $this->execute('behat_forms::i_set_the_field_to', array('Grade', $this->escape($gradeactivity)));
+
+        // And I click on "min" "checkbox" in the ".availability-item" "css_element"
+        $this->execute('behat_general::i_click_on_in_the', array("min", "checkbox", ".availability-item", "css_element"));
+
+        // And I set the field "Minimum grade percentage (inclusive)" to "10"
+        $this->execute('behat_forms::i_set_the_field_to', array('Minimum grade percentage (inclusive)', $this->escape($mingrade)));
+
+        // Set print grade to modle
+        // And I select "Grade assignment" from the "Print Grade" singleselect
+        $this->execute('behat_forms::i_select_from_the_singleselect',
+            array($this->escape($gradeactivity), get_string('printgrade', 'simplecertificate'))
+        );
     }
 
     /**
