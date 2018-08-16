@@ -26,7 +26,7 @@ cache:
 env:
   global:
     - MOODLE_START_BEHAT_SERVERS=NO
-    - MOODLE_BRANCH=MOODLE_35_STABLE
+    - MOODLE_BRANCH=MOODLE_34_STABLE
     - DB=pgsql
     - DOCKER_IMAGE=selenium/standalone-chrome
     - DOCKER_TAG_VERSION=3.14.0-arsenic
