@@ -60,7 +60,6 @@ class mod_simplecertificate_mod_form extends moodleform_mod {
             get_string('certificatetext', 'simplecertificate'), null,
             simplecertificate_get_editor_options($this->context)
         );
-        #$mform->setType('certificatetext', PARAM_RAW);
         $mform->addRule('certificatetext', get_string('error'), 'required', null, 'client');
         $mform->addHelpButton('certificatetext', 'certificatetext', 'simplecertificate');
 
@@ -111,7 +110,6 @@ class mod_simplecertificate_mod_form extends moodleform_mod {
         $mform->addElement('editor', 'secondpagetext',
             get_string('secondpagetext', 'simplecertificate'), null,
             simplecertificate_get_editor_options($this->context));
-        # $mform->setType('secondpagetext', PARAM_RAW);
         $mform->addHelpButton('secondpagetext', 'certificatetext', 'simplecertificate');
         $mform->disabledIf('secondpagetext', 'enablesecondpage', 'eq', 0);
 
