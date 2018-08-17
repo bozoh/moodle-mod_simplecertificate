@@ -38,24 +38,29 @@ class mod_simplecertificate_mod_form extends moodleform_mod {
         if (!empty($CFG->formatstringstriptags)) {
             $mform->setType('name', PARAM_TEXT);
         } else {
-            $mform->setType('name', PARAM_CLEAN);
+            $mform->setType('name', PARAM_CLEANHTML);
         }
         $mform->addRule('name', null, 'required', null, 'client');
         $mform->addHelpButton('name', 'certificatename', 'simplecertificate');
+
         $this->standard_intro_elements(get_string('intro', 'simplecertificate'));
 
         // Design Options.
         $mform->addElement('header', 'designoptions', get_string('designoptions', 'simplecertificate'));
 
         // Certificate image file.
-        $mform->addElement('filemanager', 'certificateimage', get_string('certificateimage', 'simplecertificate'), null,
-                $this->get_filemanager_options_array());
+        $mform->addElement('filemanager', 'certificateimage',
+            get_string('certificateimage', 'simplecertificate'), null,
+            $this->get_filemanager_options_array()
+        );
         $mform->addHelpButton('certificateimage', 'certificateimage', 'simplecertificate');
 
         // Certificate Text HTML editor.
-        $mform->addElement('editor', 'certificatetext', get_string('certificatetext', 'simplecertificate'),
-                simplecertificate_get_editor_options($this->context));
-        $mform->setType('certificatetext', PARAM_RAW);
+        $mform->addElement('editor', 'certificatetext',
+            get_string('certificatetext', 'simplecertificate'), null,
+            simplecertificate_get_editor_options($this->context)
+        );
+        #$mform->setType('certificatetext', PARAM_RAW);
         $mform->addRule('certificatetext', get_string('error'), 'required', null, 'client');
         $mform->addHelpButton('certificatetext', 'certificatetext', 'simplecertificate');
 
@@ -96,15 +101,17 @@ class mod_simplecertificate_mod_form extends moodleform_mod {
         $mform->addHelpButton('enablesecondpage', 'enablesecondpage', 'simplecertificate');
 
         // Certificate secondimage file.
-        $mform->addElement('filemanager', 'secondimage', get_string('secondimage', 'simplecertificate'), null,
-                $this->get_filemanager_options_array());
+        $mform->addElement('filemanager', 'secondimage',
+            get_string('secondimage', 'simplecertificate'), null,
+            $this->get_filemanager_options_array());
         $mform->addHelpButton('secondimage', 'secondimage', 'simplecertificate');
         $mform->disabledIf('secondimage', 'enablesecondpage', 'eq', 0);
 
         // Certificate secondText HTML editor.
-        $mform->addElement('editor', 'secondpagetext', get_string('secondpagetext', 'simplecertificate'),
-                simplecertificate_get_editor_options($this->context));
-        $mform->setType('secondpagetext', PARAM_RAW);
+        $mform->addElement('editor', 'secondpagetext',
+            get_string('secondpagetext', 'simplecertificate'), null,
+            simplecertificate_get_editor_options($this->context));
+        # $mform->setType('secondpagetext', PARAM_RAW);
         $mform->addHelpButton('secondpagetext', 'certificatetext', 'simplecertificate');
         $mform->disabledIf('secondpagetext', 'enablesecondpage', 'eq', 0);
 
@@ -318,16 +325,7 @@ class mod_simplecertificate_mod_form extends moodleform_mod {
         return (!empty($data['completiontimeenabled']) && $data['requiredtime'] != 0);
     }
 
-    public function get_data() {
-        global $CFG;
-        require_once(dirname(__FILE__) . '/locallib.php');
-
-        $data = parent::get_data();
-
-        if (empty($data)) {
-            return false;
-        }
-
+    public function data_postprocessing($data) {
         // For Completion Rules.
         if (!empty($data->completionunlocked)) {
             // Turn off completion settings if the checkboxes aren't ticked.
@@ -349,8 +347,6 @@ class mod_simplecertificate_mod_form extends moodleform_mod {
                 $data->secondimage = null;
 
         }
-
-        return $data;
     }
 
     /**
@@ -387,7 +383,9 @@ class mod_simplecertificate_mod_form extends moodleform_mod {
     }
 
     private function get_filemanager_options_array () {
-        return array('subdirs' => 0, 'maxbytes' => 0, 'maxfiles' => 1,
+        global $COURSE;
+
+        return array('subdirs' => 0, 'maxbytes' => $COURSE->maxbytes, 'maxfiles' => 1,
                 'accepted_types' => array('image'));
     }
 
