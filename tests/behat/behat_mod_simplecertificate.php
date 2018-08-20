@@ -80,14 +80,30 @@ class behat_mod_simplecertificate extends behat_base {
      * @param unknown $mingrade
      */
     public function add_grade_restriction($activity, $gradeactivity, $mingrade) {
+        // Look at completion/tests/behat/restrict_activity_by_grade.feature .
+
         $this->execute('behat_general::click_link', array($this->escape($activity)));
         $this->execute('behat_navigation::i_navigate_to_node_in', array("Edit settings", "Certificate administration"));
+
+        // And I expand all fieldsets.
         $this->execute('behat_forms::i_expand_all_fieldsets');
+
+        // And I click on "Add restriction..." "button".
         $this->execute('behat_general::i_click_on', array("Add restriction...", "button"));
+
+        // And I click on "Grade" "button" in the "Add restriction..." "dialogue".
         $this->execute('behat_general::i_click_on_in_the', array("Grade", "button", "Add restriction...", "dialogue"));
+
+        // And I click on "min" "checkbox".
         $this->execute('behat_general::i_click_on', array("min", "checkbox"));
-        $this->select_option_from($this->escape($gradeactivity), 'id');
+
+        // And I set the following fields to these values:
+        // | id | Grade assignment |
+        // | minval | 20 |.
         $this->execute('behat_forms::i_set_the_field_to', array('minval', $this->escape($mingrade)));
+        $this->select_option_from($this->escape($gradeactivity), 'id');
+
+        // And I press "Save and return to course".
         $this->execute('behat_forms::press_button', array("Save and return to course"));
     }
 

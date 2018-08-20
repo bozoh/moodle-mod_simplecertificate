@@ -19,8 +19,6 @@ Feature: Verify bulk operations
       | student1 | C1 | student |
       | student2 | C1 | student |
     And I log in as "teacher1"
-    #Moodle 3.2 and below
-    #And I follow "Course 1"
     And I am on "Course 1" course homepage
     And I turn editing mode on
     And I add a "Assignment" to section "1" and I fill the form with:
@@ -35,8 +33,6 @@ Feature: Verify bulk operations
 
   Scenario: Verify if list all user without any grading restrictions
     Given I log in as "teacher1"
-    #Moodle 3.2 and below
-    #And I follow "Course 1"
     And I am on "Course 1" course homepage
     And I follow "Test Simple Certificate"
     And I click on "Bulk operations" "link"
@@ -48,13 +44,9 @@ Feature: Verify bulk operations
   @javascript  
   Scenario: Verify if list all user with grading restrictions
     Given I log in as "teacher1"
-    #Moodle 3.2 and below
-    #And I follow "Course 1"
     And I am on "Course 1" course homepage
     And I put a grade restrinction to "Test Simple Certificate" with "Grade assignment" min grade "70"
     And I follow "Grade assignment"
-      #	Old version 3.1 or less
-#    And I follow "View all submissions"
     And I navigate to "View all submissions" in current page administration
     And I click on "Grade" "link" in the "Tumé Arandú" "table_row"
     And I set the following fields to these values:
@@ -64,8 +56,6 @@ Feature: Verify bulk operations
     And I follow "Edit settings"
     And I press "Cancel"
     And I follow "Grade assignment"
-    #	Old version 3.1 or less
-#    And I follow "View all submissions"
     And I navigate to "View all submissions" in current page administration
     And I click on "Grade" "link" in the "Arasy Guaraní" "table_row"
     And I set the following fields to these values:
@@ -74,8 +64,6 @@ Feature: Verify bulk operations
     And I press "Ok"
     And I follow "Edit settings"
     And I press "Cancel"
-    #Moodle 3.2 and below
-    #And I follow "Course 1"
     And I am on "Course 1" course homepage
     And I follow "Test Simple Certificate"
     And I click on "Bulk operations" "link"
@@ -86,13 +74,9 @@ Feature: Verify bulk operations
   @javascript  
   Scenario: Verify if list only user whose match grading restrictions
   	Given I log in as "teacher1"
-    #Moodle 3.2 and below
-    #And I follow "Course 1"
     And I am on "Course 1" course homepage
     And I put a grade restrinction to "Test Simple Certificate" with "Grade assignment" min grade "70"
     And I follow "Grade assignment"
-  #	Old version 3.1 or less
-#    And I follow "View all submissions"
     And I navigate to "View all submissions" in current page administration
     And I click on "Grade" "link" in the "Tumé Arandú" "table_row"
     And I set the following fields to these values:
@@ -102,8 +86,6 @@ Feature: Verify bulk operations
     And I follow "Edit settings"
     And I press "Cancel"
     And I follow "Grade assignment"
-      #	Old version 3.1 or less
-#    And I follow "View all submissions"
     And I navigate to "View all submissions" in current page administration
     And I click on "Grade" "link" in the "Arasy Guaraní" "table_row"
     And I set the following fields to these values:
@@ -112,8 +94,6 @@ Feature: Verify bulk operations
     And I press "Ok"
     And I follow "Edit settings"
     And I press "Cancel"
-    #Moodle 3.2 and below
-    #And I follow "Course 1"
     And I am on "Course 1" course homepage
     And I follow "Test Simple Certificate"
     And I click on "Bulk operations" "link"
