@@ -48,13 +48,6 @@ class mod_simplecertificate_mod_form extends moodleform_mod {
         // Design Options.
         $mform->addElement('header', 'designoptions', get_string('designoptions', 'simplecertificate'));
 
-        // Certificate image file.
-        $mform->addElement('filemanager', 'certificateimage',
-            get_string('certificateimage', 'simplecertificate'), null,
-            $this->get_filemanager_options_array()
-        );
-        $mform->addHelpButton('certificateimage', 'certificateimage', 'simplecertificate');
-
         // Certificate Text HTML editor.
         $mform->addElement('editor', 'certificatetext',
             get_string('certificatetext', 'simplecertificate'), null,
@@ -62,6 +55,13 @@ class mod_simplecertificate_mod_form extends moodleform_mod {
         );
         $mform->addRule('certificatetext', get_string('error'), 'required', null, 'client');
         $mform->addHelpButton('certificatetext', 'certificatetext', 'simplecertificate');
+
+        // Certificate image file.
+        $mform->addElement('filemanager', 'certificateimage',
+            get_string('certificateimage', 'simplecertificate'), null,
+            $this->get_filemanager_options_array()
+        );
+        $mform->addHelpButton('certificateimage', 'certificateimage', 'simplecertificate');
 
         // Certificate Width.
         $mform->addElement('text', 'width', get_string('width', 'simplecertificate'), array('size' => '5'));
@@ -92,19 +92,14 @@ class mod_simplecertificate_mod_form extends moodleform_mod {
         $mform->addHelpButton('certificatetexty', 'textposition', 'simplecertificate');
 
         // Second page.
-        $mform->addElement('header', 'secondpageoptions', get_string('secondpageoptions', 'simplecertificate'));
+        $mform->addElement('header', 'secondpageoptions', get_string(
+            'secondpageoptions', 'simplecertificate')
+        );
         // Enable back page text.
 
         $mform->addElement('selectyesno', 'enablesecondpage', get_string('enablesecondpage', 'simplecertificate'));
         $mform->setDefault('enablesecondpage', get_config('simplecertificate', 'enablesecondpage'));
         $mform->addHelpButton('enablesecondpage', 'enablesecondpage', 'simplecertificate');
-
-        // Certificate secondimage file.
-        $mform->addElement('filemanager', 'secondimage',
-            get_string('secondimage', 'simplecertificate'), null,
-            $this->get_filemanager_options_array());
-        $mform->addHelpButton('secondimage', 'secondimage', 'simplecertificate');
-        $mform->disabledIf('secondimage', 'enablesecondpage', 'eq', 0);
 
         // Certificate secondText HTML editor.
         $mform->addElement('editor', 'secondpagetext',
@@ -112,6 +107,14 @@ class mod_simplecertificate_mod_form extends moodleform_mod {
             simplecertificate_get_editor_options($this->context));
         $mform->addHelpButton('secondpagetext', 'certificatetext', 'simplecertificate');
         $mform->disabledIf('secondpagetext', 'enablesecondpage', 'eq', 0);
+
+        // Certificate secondimage file.
+        $mform->addElement('filemanager', 'secondimage',
+            get_string('secondimage', 'simplecertificate'), null,
+            $this->get_filemanager_options_array()
+        );
+        $mform->addHelpButton('secondimage', 'secondimage', 'simplecertificate');
+        // ...$mform->disabledIf('secondimage', 'enablesecondpage', 'eq', 0);.
 
         // Certificate Position X.
         $mform->addElement('text', 'secondpagex', get_string('secondpagex', 'simplecertificate'), array('size' => '5'));
