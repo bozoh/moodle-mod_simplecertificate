@@ -1,9 +1,6 @@
-* v.2.2.7 for moodle 3.5 
-[![Build Status](https://travis-ci.org/bozoh/moodle.svg?branch=simple_certificate_MOODLE_35_STABLE)](https://travis-ci.org/bozoh/moodle)
-* v.2.2.7 for moodle 3.4 
-[![Build Status](https://travis-ci.org/bozoh/moodle.svg?branch=simple_certificate_MOODLE_34_STABLE)](https://travis-ci.org/bozoh/moodle/builds/)
-* v.2.2.7 for moodle 3.3
-[![Build Status](https://travis-ci.org/bozoh/moodle.svg?branch=simple_certificate_MOODLE_33_STABLE)](https://travis-ci.org/bozoh/moodle/builds/)
+* [![Build Status](https://travis-ci.org/bozoh/moodle-mod_simplecertificate.svg?branch=MOODLE_35)](https://travis-ci.org/bozoh/moodle-mod_simplecertificate) - Moodle 3.5
+* [![Build Status](https://travis-ci.org/bozoh/moodle-mod_simplecertificate.svg?branch=MOODLE_34)](https://travis-ci.org/bozoh/moodle-mod_simplecertificate) - Moodle 3.4
+* [![Build Status](https://travis-ci.org/bozoh/moodle-mod_simplecertificate.svg?branch=MOODLE_33)](https://travis-ci.org/bozoh/moodle-mod_simplecertificate) - Moodle 3.3
 
 ## ATTENTION
 ---
