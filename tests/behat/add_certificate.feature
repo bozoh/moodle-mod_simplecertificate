@@ -36,7 +36,6 @@ Feature: Add a simplecertificate
   @javascript
   Scenario: Show certificate greyed-out to students when grade condition is not satisfied
     Given  I log in as "teacher1"
-    #And I am on site homepage
     And I am on "Course 1" course homepage
     And I turn editing mode on
     And I add a "Assignment" to section "1" and I fill the form with:
@@ -48,7 +47,6 @@ Feature: Add a simplecertificate
     And I press "Save and return to course"
     And I log out
     When I log in as "student1"
-    And I am on site homepage
     And I am on "Course 1" course homepage
     Then I should see "Not available unless: You achieve a required score in Grade assignment"
     And "Test Simple Certificate" activity should be dimmed
