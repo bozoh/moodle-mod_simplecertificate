@@ -69,4 +69,4 @@ install:
 
 script:
   #- moodle-plugin-ci behat --moodle=${MOODLE_DIR} --auto-rerun=0
-  - moodle-plugin-ci behat --profile='chrome' --moodle=${MOODLE_DIR} --auto-rerun=0
+  - moodle-plugin-ci behat --profile='chrome' --moodle=${MOODLE_DIR}
