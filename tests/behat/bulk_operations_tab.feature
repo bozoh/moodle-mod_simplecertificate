@@ -77,6 +77,5 @@ Feature: Verify bulk operations
     And I click on "Bulk operations" "link"
     And I set the field "issuelist" to "Users that met the activity conditions"
     Then I should see "Tumé Arandú" in the ".generaltable" "css_element"
-    But I should not see "Tumé Arandú" in the ".generaltable" "css_element"
-    #And "Arasy Guaraní" "text" should not exist in the ".generaltable" "css_element"
+    But I should not see "Arasy Guaraní" in the ".generaltable" "css_element"
   
