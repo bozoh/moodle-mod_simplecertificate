@@ -23,15 +23,13 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+// NOTE: no MOODLE_INTERNAL test here, this file may be required by behat before including /config.php.
+require_once(__DIR__ . '/../../../../lib/behat/behat_base.php');
 
 use Behat\Mink\Exception\ElementException;
 use Behat\Mink\Exception\ElementNotFoundException;
 use Behat\Mink\Exception\Exception;
 use Behat\Mink\Exception\ExpectationException;
-
-// NOTE: no MOODLE_INTERNAL test here, this file may be required by behat before including /config.php.
-
-require_once(__DIR__ . '/../../../../lib/behat/behat_base.php');
 
 class behat_mod_simplecertificate extends behat_base {
     // Just a memo note.
@@ -108,7 +106,7 @@ class behat_mod_simplecertificate extends behat_base {
         $this->execute('behat_general::i_click_on_in_the', array("min", "checkbox", ".availability-item", "css_element"));
 
         // And I set the field "Minimum grade percentage (inclusive)" to "10"
-        $this->execute('behat_forms::i_set_the_field_to', array('Minimum grade percentage (inclusive)', $this->escape($mingrade)));
+        $this->execute('behat_forms::i_set_the_field_to', array("Minimum grade percentage (inclusive)", $this->escape($mingrade)));
 
         // Set print grade to modle
         // And I select "Grade assignment" from the "Print Grade" singleselect
