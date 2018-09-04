@@ -40,17 +40,18 @@ Feature: Add a simplecertificate
     And I turn editing mode on
     And I add a "Assignment" to section "1" and I fill the form with:
       | Assignment name | Grade assignment |
-      | Description | Grade this assignment to revoke restriction on restricted assignment |
+      | Description | Grade this assignment to revoke restriction https://github.com/CLAMP-IT/moodlegiston restricted assignment |
       | assignsubmission_onlinetext_enabled | 1 |
       | assignsubmission_file_enabled | 0 |
     And I setup a grade restrinction to "Test Simple Certificate" with "Grade assignment" min grade "20"
     And I press "Save and return to course"
+    And I should not see "Please set"
     And I log out
     When I log in as "student1"
     And I am on "Course 1" course homepage
-    Then I should see "Not available unless: You achieve a required score in Grade assignment"
-    And "Test Simple Certificate" activity should be dimmed
+    Then "Test Simple Certificate" activity should be dimmed
     And "Test Simple Certificate" "link" should not exist
+    And I should see "Restricted Not available unless: You achieve a required score in Grade assignment"
     And I follow "Grade assignment"
     And I press "Add submission"
     And I set the following fields to these values:

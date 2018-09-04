@@ -79,7 +79,8 @@ class behat_mod_simplecertificate extends behat_base {
      */
     public function add_grade_restriction($activity, $gradeactivity, $mingrade) {
         $this->execute('behat_general::click_link', array($this->escape($activity)));
-        $this->execute('behat_navigation::i_navigate_to_node_in', array("Edit settings", "Certificate administration"));
+        // I navigate to "PATH" in current page administration.
+        $this->execute('behat_navigation::i_navigate_to_in_current_page_administration', array("Edit settings"));
 
         // Add min grade restrinction step by step see: 
         // availability/condition/grade/tests/behat/availability_grade.feature
@@ -106,7 +107,10 @@ class behat_mod_simplecertificate extends behat_base {
         $this->execute('behat_general::i_click_on_in_the', array("min", "checkbox", ".availability-item", "css_element"));
 
         // And I set the field "Minimum grade percentage (inclusive)" to "10"
-        $this->execute('behat_forms::i_set_the_field_to', array("Minimum grade percentage (inclusive)", $this->escape($mingrade)));
+        $fieldxpath = '//input[@name="minval"]';
+        $this->execute('behat_forms::i_set_the_field_with_xpath_to',
+            array($fieldxpath, $this->escape($mingrade))
+        );
 
         // Set print grade to modle
         // And I select "Grade assignment" from the "Print Grade" singleselect
