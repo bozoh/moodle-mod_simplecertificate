@@ -38,6 +38,27 @@ class simplecertificatetextmark_username_locallib_testcase extends advanced_test
     // Use the generator helper.
     use mod_simplecertificate_generator;
 
+    private $student;
+    private $course;
+
+    protected function setUp() {
+        $course = $this->getDataGenerator()->create_course();
+        $student = $this->getDataGenerator()->create_and_enrol($course, 'student');
+        $this->resetAfterTest();
+    }
+
+    public function test_username_textmark_get_name($certificatetext) {
+        $smplcert = $this->create_instance($course);
+        $plugin = $smplcert->get_textmark_plugin('username');
+        $this->assertEquals('Username Textmark Plugin', $plugin->get_name());
+    }
+
+    public function test_username_textmark_get_type($certificatetext) {
+        $smplcert = $this->create_instance($course);
+        $plugin = $smplcert->get_textmark_plugin('username');
+        $this->assertEquals('username', $plugin->get_type());
+    }
+
     /**
      * Test submission_is_empty
      *
@@ -45,35 +66,16 @@ class simplecertificatetextmark_username_locallib_testcase extends advanced_test
      * @param string $certificatetext The certificate text
      * @param bool $expected The expected return value
      */
-    public function test_username_textmark($certificatetext) {
-        $this->resetAfterTest();
-
-        $course = $this->getDataGenerator()->create_course();
-        $student = $this->getDataGenerator()->create_and_enrol($course, 'student');
-
-        $expected = null;
-        switch($certificatetext) {
-            case "{USERNAME:firstname}":
-                $expected = $student->firstname;
-            break;
-            case "{USERNAME:lastname}":
-                $expected = $student->lastname;
-            break;
-            // ...{USERNAME}
-            default:
-                $expected = fullname($student);
-            break;
-        }
+    public function test_username_textmark_get_text($certificatetext, $expected) {
+        $this->setUser($student->id);
         $smplcert = $this->create_instance($course, [
                 'certificatetext' => $certificatetext,
             ]
         );
 
-        $this->setUser($student->id);
-
         $plugin = $smplcert->get_textmark_plugin('username');
         $result = $plugin->get_text();
-        $this->assertTrue($result === $expected);
+        $this->assertEquals($result === $expected);
     }
 
     /**
@@ -83,9 +85,9 @@ class simplecertificatetextmark_username_locallib_testcase extends advanced_test
      */
     public function username_testcases() {
         return [
-            '{USERNAME}' => ['{USERNAME}'],
-            '{USERNAME:firstname}' => ['{USERNAME:firstname}', true],
-            '{USERNAME:lastname}' => ['{USERNAME:lastname}', true],
+            '{USERNAME}' => ['{USERNAME}', fullname($student)],
+            '{USERNAME:firstname}' => ['{USERNAME:firstname}', $student->firstname],
+            '{USERNAME:lastname}' => ['{USERNAME:lastname}', $student->lastname],
             // 'Value 0' => [0, false],
             // 'String 0' => ['0', false],
             // 'Text' => ['Ai! laurië lantar lassi súrinen, yéni únótimë ve rámar aldaron!', false]
