@@ -15,25 +15,14 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * The module simple certificate tests
+ * Definition of sub-plugins
  *
- * @package    mod_simplecertificate
- * @copyright  2018 Carlos Alexandre S. da Fonseca
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package   mod_simplecertificate
+ * @copyright 2018 Carlos Alexandre S. da Fonseca
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
-
-
-/**
- * Tests for textmarks conveters subplugins.
- */
-class mod_chat_format_message_testcase extends advanced_testcase {
-    public function test_textmarks_converters() {
-        $this->resetAfterTest();
-        $course = $this->getDataGenerator()->create_course();
-        $currentuser = $this->getDataGenerator()->create_user();
-        $this->setUser($currentuser);
-        $otheruser = $this->getDataGenerator()->create_user();
-    }
-}
+$subplugins = array(
+    'simplecertificatetextmark' => 'mod/simplecertificate/textmarks'
+);

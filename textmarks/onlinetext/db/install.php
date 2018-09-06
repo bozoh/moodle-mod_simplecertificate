@@ -15,25 +15,29 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * The module simple certificate tests
+ * Post-install code for the submission_onlinetext module.
  *
- * @package    mod_simplecertificate
- * @copyright  2018 Carlos Alexandre S. da Fonseca
+ * @package assignsubmission_onlinetext
+ * @copyright 2012 NetSpot {@link http://www.netspot.com.au}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
 defined('MOODLE_INTERNAL') || die();
 
 
 /**
- * Tests for textmarks conveters subplugins.
+ * Code run after the assignsubmission_onlinetext module database tables have been created.
+ * Moves the plugin to the top of the list (of 3)
+ * @return bool
  */
-class mod_chat_format_message_testcase extends advanced_testcase {
-    public function test_textmarks_converters() {
-        $this->resetAfterTest();
-        $course = $this->getDataGenerator()->create_course();
-        $currentuser = $this->getDataGenerator()->create_user();
-        $this->setUser($currentuser);
-        $otheruser = $this->getDataGenerator()->create_user();
-    }
+function xmldb_assignsubmission_onlinetext_install() {
+    global $CFG;
+
+    // Set the correct initial order for the plugins.
+    require_once($CFG->dirroot . '/mod/assign/adminlib.php');
+    $pluginmanager = new assign_plugin_manager('assignsubmission');
+
+    $pluginmanager->move_plugin('onlinetext', 'up');
+    $pluginmanager->move_plugin('onlinetext', 'up');
+
+    return true;
 }

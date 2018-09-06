@@ -15,25 +15,14 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * The module simple certificate tests
+ * This file defines the admin settings for this plugin
  *
- * @package    mod_simplecertificate
- * @copyright  2018 Carlos Alexandre S. da Fonseca
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package   assignsubmission_onlinetext
+ * @copyright 2012 NetSpot {@link http://www.netspot.com.au}
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
+$settings->add(new admin_setting_configcheckbox('assignsubmission_onlinetext/default',
+                   new lang_string('default', 'assignsubmission_onlinetext'),
+                   new lang_string('default_help', 'assignsubmission_onlinetext'), 0));
 
-
-/**
- * Tests for textmarks conveters subplugins.
- */
-class mod_chat_format_message_testcase extends advanced_testcase {
-    public function test_textmarks_converters() {
-        $this->resetAfterTest();
-        $course = $this->getDataGenerator()->create_course();
-        $currentuser = $this->getDataGenerator()->create_user();
-        $this->setUser($currentuser);
-        $otheruser = $this->getDataGenerator()->create_user();
-    }
-}

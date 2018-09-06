@@ -36,17 +36,8 @@ defined('MOODLE_INTERNAL') || die();
 class mod_simplecertificate_generator extends testing_module_generator {
 
     public function create_instance($record = null, array $options = null) {
-        global $CFG, $USER;
+        global $CFG;
         $record = (object)(array)$record;
-        $record->images = array();
-        $userctx = context_user::instance($USER->id);
-        $fileinfo = array(
-                       'contextid' => $userctx->id,
-                       'component' => 'user',
-                       'filearea' => 'draft',
-                       'filepath' => '/'
-        );
-
         $defaultsettings = array(
                 'name'             => 'Unit Case Test Certificate',
                 'intro'            => '<h1>Unit Case Test Certificate</h1>',
@@ -76,7 +67,6 @@ class mod_simplecertificate_generator extends testing_module_generator {
                 "$CFG->dirroot/mod/simplecertificate/tests/fixtures/firstpage.html"
             );
             $record->certificatetextformat = FORMAT_HTML;
-
         }
 
         if (!isset($record->secondpagetext['text'])) {
@@ -88,33 +78,6 @@ class mod_simplecertificate_generator extends testing_module_generator {
 
         if (!isset($record->certificatetextformat)) {
             $record->certificatetextformat = FORMAT_HTML;
-        }
-
-        if (!isset($record->certificateimage)) {
-            $record->certificateimage = $CFG->dirroot . '/mod/simplecertificate/tests/fixtures/firstpagetestimage.jpg';
-        }
-
-        if (!isset($record->secondimage)) {
-            $record->secondimage = $CFG->dirroot . '/mod/simplecertificate/tests/fixtures/secondpagetestimage.jpg';
-        }
-
-        $fs = get_file_storage();
-        if (!empty($record->certificateimage)) {
-            // Firstpage image.
-            $fileinfo['itemid'] = rand(1, 10);
-            $fileinfo['filename'] = basename($record->certificateimage);
-            $file = $fs->create_file_from_pathname($fileinfo, $record->certificateimage);
-            $record->certificateimage = $fileinfo['itemid'];
-            $record->images[0] = $fileinfo['filename'];
-        }
-
-        if (!empty($record->secondimage)) {
-            // Secondpage image.
-            $fileinfo['itemid'] = rand(11, 21);
-            $fileinfo['filename'] = basename($record->secondimage);
-            $file = $fs->create_file_from_pathname($fileinfo, $record->secondimage);
-            $record->secondimage = $fileinfo['itemid'];
-            $record->images[1] = $fileinfo['filename'];
         }
 
         return parent::create_instance($record, (array)$options);
