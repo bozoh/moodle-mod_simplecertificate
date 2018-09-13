@@ -1344,6 +1344,8 @@ class simplecertificate {
     protected function get_certificate_text($issuecert, $certtext = null) {
         global $DB, $CFG;
 
+        $this->get_textmark_plugin('username');
+
         $user = get_complete_user_data('id', $issuecert->userid);
         if (!$user) {
             print_error('nousersfound', 'moodle');
@@ -2453,5 +2455,40 @@ class simplecertificate {
         if (!empty($event)) {
             $event->trigger();
         }
+    }
+
+    /**
+     * Get a textmark plugin
+     *
+     * @param string $type textmark plugin type
+     * @return textmarkplugin a textmark plugin
+     */
+    protected function get_textmark_plugin($type) {
+        global $CFG;
+        $result = array();
+
+        $names = core_component::get_plugin_list('simplecertificatetextmark');
+
+        $path = $CFG->dirroot . '/mod/simplecertificate/textmarks/' . $type . '/locallib.php';
+        if (file_exists($path)) {
+            require_once($path);
+        }
+
+        $pluginclass = 'simplecertificate_textmark_' . $type;
+
+        $plugin = new $pluginclass($this);
+        return $plugin;
+
+        // if ($plugin instanceof simplecertificatetextmark) {
+        //                 $idx = $plugin->get_sort_order();
+        //                 while (array_key_exists($idx, $result)) {
+        //                     $idx +=1;
+        //                 }
+        //                 $result[$idx] = $plugin;
+        //             }
+        //         }
+        //     }
+        //     ksort($result);
+
     }
 }

@@ -15,15 +15,12 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * This file contains the version information for the onlinetext submission plugin
+ * Strings for component 'simplecertificatetextmark_username', language 'en'
  *
- * @package    assignsubmission_onlinetext
- * @copyright 2012 NetSpot {@link http://www.netspot.com.au}
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package   simplecertificatetextmark_username
+ * @copyright 2018 Carlos Alexandre S. da Fonseca
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
-
-$plugin->version   = 2018051400;
-$plugin->requires  = 2018050800;
-$plugin->component = 'assignsubmission_onlinetext';
+$string['name'] = 'Username Textmark Plugin';
+$string['pluginname'] = 'Username textmark';

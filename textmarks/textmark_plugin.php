@@ -26,7 +26,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once($CFG->dirroot . '/mod/assign/assignmentplugin.php');
+require_once($CFG->dirroot . '/mod/simplecertificate/locallib.php');
 
 /**
  * Abstract base class for textmark plugin types.
@@ -36,6 +36,18 @@ require_once($CFG->dirroot . '/mod/assign/assignmentplugin.php');
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 abstract class simplecertificate_textmark_plugin {
+    protected $smplcert;
+
+    /**
+     * Constructor for the abstract plugin type class
+     *
+     * @param simplecertificate $smplcert
+     *
+     */
+    public final function __construct(simplecertificate $smplcert) {
+        $this->smplcert = $smplcert;
+    }
+
 
     /**
      * Should return the name of this plugin.
