@@ -90,10 +90,7 @@ class simplecertificatetextmark_username_locallib_testcase extends advanced_test
         $this->setUser($this->student->id);
         $mocksmplcert = $this->create_mock_instance($this->course, [
                 'get_textmark_plugin'
-            ], [
-                'certificatetext' => array('text' => $certificatetext),
-            ]
-        );
+        ]);
         $mocksmplcert->expects($this->once())
             ->method('get_textmark_plugin')
             ->with($this->equalTo('username'));
@@ -101,7 +98,7 @@ class simplecertificatetextmark_username_locallib_testcase extends advanced_test
         $mocksmplcert->testable_get_certificate_text($mocksmplcert->get_issue());
         $this->markTestIncomplete(
             'O teste está pronto, mas o get certificate text não'
-          );
+        );
     }
 
     /**
@@ -120,12 +117,13 @@ class simplecertificatetextmark_username_locallib_testcase extends advanced_test
         ]);
         $this->getDataGenerator()->enrol_user($this->course->id, $user->id, 'student');
         $this->setUser($user);
-        $smplcert = $this->create_instance($this->course, [
-            'certificatetext' => array('text' => $certificatetext),
-        ]);
+        $smplcert = $this->create_instance($this->course);
+        // , [
+        //     'certificatetext' => array('text' => $certificatetext),
+        // ]);
         $plugin = $smplcert->testable_get_textmark_plugin('username');
-        $result = $plugin->get_text();
-        $this->assertEquals($result, $expected);
+        $result = $plugin->get_text($certificatetext);
+        $this->assertEquals($expected, $result);
     }
 
     /**
@@ -156,6 +154,18 @@ class simplecertificatetextmark_username_locallib_testcase extends advanced_test
                 $user3->firstname,
                 $user3->lastname,
                 $user3->lastname
+            ],
+            'Test username: {USERNAME} ok' => [
+                'Test username: {USERNAME} ok',
+                $user3->firstname,
+                $user3->lastname,
+                'Test username: ' . $user3->fullname . ' ok',
+            ],
+            'Test username: {USERNAME:lastname} {USERNAME:firstname} {OTHERTEXTMARK} ok' => [
+                'Test username: {USERNAME:lastname} {USERNAME:firstname} {OTHERTEXTMARK} ok',
+                $user2->firstname,
+                $user2->lastname,
+                'Test username: ' . $user2->lastname . ' ' . $user2->firstname . ' {OTHERTEXTMARK} ok',
             ]
         );
         // 'Value 0' => [0, false],
@@ -174,6 +184,7 @@ class simplecertificatetextmark_username_locallib_testcase extends advanced_test
         $retval = array(
             '{USERNAME}' => ['{USERNAME}'],
             '{USERNAME:firstname}' => ['{USERNAME:firstname}'],
+            '{USERNAME:lastname}' => ['{USERNAME:lastname}'],
             '{USERNAME:lastname}' => ['{USERNAME:lastname}'],
         );
         // 'Value 0' => [0, false],

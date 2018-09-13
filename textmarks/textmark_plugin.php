@@ -75,10 +75,11 @@ abstract class simplecertificate_textmark_plugin {
 
     /**
      * Should return the parsed certificate text
+     * @param string $text The certificate text
      *
-     * @return string parsed certificar text
+     * @return string parsed certificate text
      */
-    public abstract function get_text();
+    public abstract function get_text($text = null);
 
     /**
      * Get the settings for textmark plugin

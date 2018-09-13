@@ -48,14 +48,58 @@ class simplecertificate_textmark_username extends simplecertificate_textmark_plu
         return true;
     }
 
-    public function get_text() {
+    public function get_text($text = null) {
         $issuecert = $this->smplcert->get_issue();
         $user = get_complete_user_data('id', $issuecert->userid);
         if (!$user) {
             print_error('nousersfound', 'moodle');
             return;
         }
-        return strip_tags(fullname($user));
+        $a = $this->get_substution_array($user);
+
+        foreach ($a as $key => $value) {
+            $search[] = $key;
+            $replace[] = (string)$value;
+        }
+
+        return str_replace($search, $replace, $text);
+    }
+
+    private function get_substution_array($user) {
+        $firstname = strip_tags($user->firstname);
+        $lastname = strip_tags($user->lastname);
+        $fullname = strip_tags(fullname($user));
+
+        return array(
+            '{USERNAME}' => $fullname,
+            '{USERNAME:fullname}' => $fullname,
+            '{FULLNAME}' => $fullname,
+            '{USERNAME:fullname:ucase}' => strtoupper($fullname),
+            '{USERNAME:fullname:lcase}' => strtolower($fullname),
+            '{USERNAME:fullname:ucasefirst}' => ucwords($fullname),
+            '{FULLNAME:ucase}' => strtoupper($fullname),
+            '{FULLNAME:lcase}' => strtolower($fullname),
+            '{FULLNAME:ucasefirst}' => ucwords($fullname),
+
+            '{USERNAME:firstname}' => $firstname,
+            '{FIRSTNAME}' => $firstname,
+            '{USERNAME:firstname:ucase}' => strtoupper($firstname),
+            '{USERNAME:firstname:lcase}' => strtolower($firstname),
+            '{USERNAME:firstname:ucasefirst}' => ucwords($firstname),
+            '{FIRSTNAME:ucase}' => strtoupper($firstname),
+            '{FIRSTNAME:lcase}' => strtolower($firstname),
+            '{FIRSTNAME:ucasefirst}' => ucwords($firstname),
+
+            '{USERNAME:lastname}' => $lastname,
+            '{LASTNAME}' => $lastname,
+            '{USERNAME:lastname:ucase}' => strtoupper($lastname),
+            '{USERNAME:lastname:lcase}' => strtolower($lastname),
+            '{USERNAME:lastname:ucasefirst}' => ucwords($lastname),
+            '{LASTNAME:ucase}' => strtoupper($lastname),
+            '{LASTNAME:lcase}' => strtolower($lastname),
+            '{LASTNAME:ucasefirst}' => ucwords($lastname),
+        );
+
     }
 
 }
