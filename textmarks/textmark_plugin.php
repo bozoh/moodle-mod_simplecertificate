@@ -134,7 +134,16 @@ abstract class simplecertificate_textmark_plugin {
      *
      * @return string - The textmark if is valid, or null if is not
      */
-    protected abstract function is_valid_textmark($name, $attribute = null, $formatter = null);
+    protected function is_valid_textmark($name, $attribute = null, $formatter = null) {
+        if (
+            (empty($name) || !in_array($name, $this->get_names())) &&
+            (!empty($attribute) && !in_array($attribute, $this->get_attributes())) &&
+            (!empty($formatter) && !in_array($formatter, $this->get_formatters()))
+        ) {
+            //TODO improve errors msg
+            print_error('invalid_textmark_name');
+        }
+    }
 
     /**
      * Should return if this plugin is enable or not.

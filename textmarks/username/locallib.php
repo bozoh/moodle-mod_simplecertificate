@@ -43,11 +43,8 @@ class simplecertificate_textmark_username extends simplecertificate_textmark_plu
         return get_string('name', 'simplecertificatetextmark_username');
     }
 
-    protected function is_valid_textmark($name, $attribute = null, $formatter = null){
-        if (empty($name)) {
-            //TODO improve errors msg
-            print_error('invalid_textmark_name');
-        }
+    protected function is_valid_textmark($name, $attribute = null, $formatter = null) {
+        parent::is_valid_textmark($name, $attribute, $formatter);
         switch($name) {
             case 'FULLNAME':
             case 'FIRSTNAME':
