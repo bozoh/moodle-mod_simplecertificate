@@ -63,6 +63,78 @@ abstract class simplecertificate_textmark_plugin {
      */
     public abstract function get_type();
 
+    /**
+     * Should return all textmarks of the plugin.
+     *
+     * @return array - array of textmarks
+     */
+    public function get_textmarks() {
+        $names = $this->get_names();
+        $attrs = (array)$this->get_attributes();
+        $attrs[] = '';
+        $fmts = (array)$this->get_formatters();
+        $fmts[] = '';
+
+        $textmarks = array();
+
+        foreach ($names as $name) {
+            foreach ($attrs as $attr) {
+                foreach ($fmts as $fmt) {
+                    $tm = $this->is_valid_textmark($name, $attr, $fmt);
+                    if ($tm !== null) {
+                        $textmarks[] = $tm;
+                    }
+                }
+            }
+        }
+        return $textmarks;
+    }
+
+    protected function get_textmark_text($name, $attribute = null, $formatter = null) {
+        if (empty($name)) {
+            //TODO improve errors msg
+            print_error('invalid_textmark_name');
+        }
+        $tmstr = '{' . strtoupper($name);
+
+        if (!empty($attribute)) {
+            $tmstr .= ':' . $attribute;
+        }
+
+        if (!empty($formatter)) {
+            $tmstr .= ':' . $formatter;
+        }
+        return $tmstr . '}';
+    }
+
+
+    /**
+     * Should return all textmarks names.
+     *
+     * @return array - array of textmarks names
+     */
+    protected abstract function get_names();
+
+    /**
+     * Should return all attributes for this plugin.
+     *
+     * @return array - array of allowed attributes
+     */
+    protected abstract function get_attributes();
+
+    /**
+     * Should return all allowed formatters for this plugin.
+     *
+     * @return array - array of allowed formatters
+     */
+    protected abstract function get_formatters();
+
+    /**
+     * Check if a textmark is valid for this plugin
+     *
+     * @return string - The textmark if is valid, or null if is not
+     */
+    protected abstract function is_valid_textmark($name, $attribute = null, $formatter = null);
 
     /**
      * Should return if this plugin is enable or not.

@@ -50,7 +50,7 @@ class simplecertificatetextmark_username_locallib_testcase extends advanced_test
     }
 
     /**
-     * Tests if get_textmark_plugin get the right textmark plugin
+     * Tests if get_textmark_plugin get the right plugin
      */
     public function test_testable_get_textmark_plugin_get_username_plugin() {
         $smplcert = $this->create_instance($this->course);
@@ -76,6 +76,20 @@ class simplecertificatetextmark_username_locallib_testcase extends advanced_test
         $smplcert = $this->create_instance($this->course);
         $plugin = $smplcert->testable_get_textmark_plugin('username');
         $this->assertEquals('username', $plugin->get_type());
+    }
+
+    /**
+     * Test if get the right plugin textmarks
+     */
+    public function test_textmarks() {
+        $smplcert = $this->create_instance($this->course);
+        $plugin = $smplcert->testable_get_textmark_plugin('username');
+        $expected = $this->get_all_plugins_textmarks();
+        $textmarks = $plugin->get_textmarks();
+        $this->assertCount(count($expected), $textmarks);
+        foreach ($textmarks as $tm) {
+            $this->assertContains($tm, $expected);
+        }
     }
 
     /**
@@ -118,9 +132,6 @@ class simplecertificatetextmark_username_locallib_testcase extends advanced_test
         $this->getDataGenerator()->enrol_user($this->course->id, $user->id, 'student');
         $this->setUser($user);
         $smplcert = $this->create_instance($this->course);
-        // , [
-        //     'certificatetext' => array('text' => $certificatetext),
-        // ]);
         $plugin = $smplcert->testable_get_textmark_plugin('username');
         $result = $plugin->get_text($certificatetext);
         $this->assertEquals($expected, $result);
@@ -132,46 +143,151 @@ class simplecertificatetextmark_username_locallib_testcase extends advanced_test
      * @return array of testcases
      */
     public function username_testcases() {
-        $user1 = $this->get_rnd_names();
-        $user2 = $this->get_rnd_names();;
-        $user3 = $this->get_rnd_names();;
+        $textmarks = $this->get_all_plugins_textmarks();
+        $testcases = array();
+        foreach ($textmarks as $tm) {
+            $user = $this->get_rnd_names();
 
-        $retval = array(
-            '{USERNAME}' => [
-                '{USERNAME}',
-                $user1->firstname,
-                $user1->lastname,
-                $user1->fullname
-            ],
-            '{USERNAME:firstname}' => [
-                '{USERNAME:firstname}',
-                $user2->firstname,
-                $user2->lastname,
-                $user2->firstname
-            ],
-            '{USERNAME:lastname}' => [
-                '{USERNAME:lastname}',
-                $user3->firstname,
-                $user3->lastname,
-                $user3->lastname
-            ],
-            'Test username: {USERNAME} ok' => [
-                'Test username: {USERNAME} ok',
-                $user3->firstname,
-                $user3->lastname,
-                'Test username: ' . $user3->fullname . ' ok',
-            ],
-            'Test username: {USERNAME:lastname} {USERNAME:firstname} {OTHERTEXTMARK} ok' => [
-                'Test username: {USERNAME:lastname} {USERNAME:firstname} {OTHERTEXTMARK} ok',
-                $user2->firstname,
-                $user2->lastname,
-                'Test username: ' . $user2->lastname . ' ' . $user2->firstname . ' {OTHERTEXTMARK} ok',
-            ]
+            switch($tm) {
+                // Test All fullname Textmark.
+                case '{USERNAME}':
+                case '{USERNAME:fullname}':
+                case '{FULLNAME}':
+                    $testcases[$tm] = array(
+                        $tm,
+                        $user->firstname,
+                        $user->lastname,
+                        $user->fullname
+                    );
+                break;
+                case '{USERNAME:ucase}':
+                case '{USERNAME:fullname:ucase}':
+                case '{FULLNAME:ucase}':
+                    $testcases[$tm] = array(
+                        $tm,
+                        $user->firstname,
+                        $user->lastname,
+                        strtoupper($user->fullname)
+                    );
+                break;
+                case '{USERNAME:lcase}':
+                case '{USERNAME:fullname:lcase}':
+                case '{FULLNAME:lcase}':
+                    $testcases[$tm] = array(
+                        $tm,
+                        $user->firstname,
+                        $user->lastname,
+                        strtolower($user->fullname)
+                    );
+                break;
+                case '{USERNAME:ucasefirst}':
+                case '{USERNAME:fullname:ucasefirst}':
+                case '{FULLNAME:ucasefirst}':
+                    $testcases[$tm] = array(
+                        $tm,
+                        $user->firstname,
+                        $user->lastname,
+                        ucwords($user->fullname)
+                    );
+                break;
+
+                // Test All firstname Textmark.
+                case '{USERNAME:firstname}':
+                case '{FIRSTNAME}':
+                    $testcases[$tm] = array(
+                        $tm,
+                        $user->firstname,
+                        $user->lastname,
+                        $user->firstname
+                    );
+                break;
+                case '{USERNAME:firstname:ucase}':
+                case '{FIRSTNAME:ucase}':
+                    $testcases[$tm] = array(
+                        $tm,
+                        $user->firstname,
+                        $user->lastname,
+                        strtoupper($user->firstname)
+                    );
+                break;
+                case '{USERNAME:firstname:lcase}':
+                case '{FIRSTNAME:lcase}':
+                    $testcases[$tm] = array(
+                        $tm,
+                        $user->firstname,
+                        $user->lastname,
+                        strtolower($user->firstname)
+                    );
+                break;
+                case '{USERNAME:firstname:ucasefirst}':
+                case '{FIRSTNAME:ucasefirst}':
+                    $testcases[$tm] = array(
+                        $tm,
+                        $user->firstname,
+                        $user->lastname,
+                        ucwords($user->firstname)
+                    );
+                break;
+
+                // Test All lastname Textmark.
+                case '{USERNAME:lastname}':
+                case '{lastname}':
+                    $testcases[$tm] = array(
+                        $tm,
+                        $user->firstname,
+                        $user->lastname,
+                        $user->lastname
+                    );
+                break;
+                case '{USERNAME:lastname:ucase}':
+                case '{lastname:ucase}':
+                    $testcases[$tm] = array(
+                        $tm,
+                        $user->firstname,
+                        $user->lastname,
+                        strtoupper($user->lastname)
+                    );
+                break;
+                case '{USERNAME:lastname:lcase}':
+                case '{lastname:lcase}':
+                    $testcases[$tm] = array(
+                        $tm,
+                        $user->firstname,
+                        $user->lastname,
+                        strtolower($user->lastname)
+                    );
+                break;
+                case '{USERNAME:lastname:ucasefirst}':
+                case '{lastname:ucasefirst}':
+                    $testcases[$tm] = array(
+                        $tm,
+                        $user->firstname,
+                        $user->lastname,
+                        ucwords($user->lastname)
+                    );
+                break;
+            }
+        }
+
+        // Test textmark with other text.
+        $user = $this->get_rnd_names();
+        $testcases['Test textmark with other text'] = array(
+            'Test username: {USERNAME} ok',
+            $user->firstname,
+            $user->lastname,
+            'Test username: ' . $user->fullname . ' ok'
         );
-        // 'Value 0' => [0, false],
-        // 'String 0' => ['0', false],
-        // 'Text' => ['Ai! laurië lantar lassi súrinen, yéni únótimë ve rámar aldaron!', false]
-        return $retval;
+
+        // Test textmarks with other textmarks.
+        $user = $this->get_rnd_names();
+        $testcases['Test textmarks with other textmarks'] = array(
+            'Test username: {USERNAME:lastname:ucase}, {USERNAME:firstname} {OTHERTEXTMARK} ok',
+            $user->firstname,
+            $user->lastname,
+            'Test username: ' . strtoupper($user->lastname) . ', ' . $user->firstname . ' {OTHERTEXTMARK} ok',
+        );
+
+        return $testcases;
     }
 
     /**
@@ -181,18 +297,46 @@ class simplecertificatetextmark_username_locallib_testcase extends advanced_test
      * @return array of testcases
      */
     public function textmark_testcases() {
-        $retval = array(
-            '{USERNAME}' => ['{USERNAME}'],
-            '{USERNAME:firstname}' => ['{USERNAME:firstname}'],
-            '{USERNAME:lastname}' => ['{USERNAME:lastname}'],
-            '{USERNAME:lastname}' => ['{USERNAME:lastname}'],
-        );
-        // 'Value 0' => [0, false],
-        // 'String 0' => ['0', false],
-        // 'Text' => ['Ai! laurië lantar lassi súrinen, yéni únótimë ve rámar aldaron!', false]
-        return $retval;
+        $textmarks = $this->get_all_plugins_textmarks();
+        $testcases = array();
+        foreach ($textmarks as $tm) {
+            $testcases[$tm] = [$tm];
+        }
+        return $testcases;
     }
 
+    private function get_all_plugins_textmarks() {
+        return array(
+            '{USERNAME}',
+            '{USERNAME:ucase}',
+            '{USERNAME:lcase}',
+            '{USERNAME:ucasefirst}',
+            '{USERNAME:fullname}',
+            '{USERNAME:fullname:ucase}',
+            '{USERNAME:fullname:lcase}',
+            '{USERNAME:fullname:ucasefirst}',
+            '{FULLNAME}',
+            '{FULLNAME:ucase}',
+            '{FULLNAME:lcase}',
+            '{FULLNAME:ucasefirst}',
+            '{USERNAME:firstname}',
+            '{USERNAME:firstname:ucase}',
+            '{USERNAME:firstname:lcase}',
+            '{USERNAME:firstname:ucasefirst}',
+            '{FIRSTNAME}',
+            '{FIRSTNAME:ucase}',
+            '{FIRSTNAME:lcase}',
+            '{FIRSTNAME:ucasefirst}',
+            '{USERNAME:lastname}',
+            '{USERNAME:lastname:ucase}',
+            '{USERNAME:lastname:lcase}',
+            '{USERNAME:lastname:ucasefirst}',
+            '{LASTNAME}',
+            '{LASTNAME:ucase}',
+            '{LASTNAME:lcase}',
+            '{LASTNAME:ucasefirst}'
+        );
+    }
 
     private function get_rnd_names() {
             $gen = $this->getDataGenerator();

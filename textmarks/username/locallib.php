@@ -43,6 +43,48 @@ class simplecertificate_textmark_username extends simplecertificate_textmark_plu
         return get_string('name', 'simplecertificatetextmark_username');
     }
 
+    protected function is_valid_textmark($name, $attribute = null, $formatter = null){
+        if (empty($name)) {
+            //TODO improve errors msg
+            print_error('invalid_textmark_name');
+        }
+        switch($name) {
+            case 'FULLNAME':
+            case 'FIRSTNAME':
+            case 'LASTNAME':
+                if (!empty($attribute)) {
+                    return null;
+                }
+
+        }
+        return $this->get_textmark_text($name, $attribute, $formatter);
+    }
+
+    protected function get_names() {
+        return array(
+            'USERNAME',
+            'FULLNAME',
+            'FIRSTNAME',
+            'LASTNAME'
+        );
+    }
+
+    protected function get_attributes() {
+        return array(
+            'fullname',
+            'firstname',
+            'lastname'
+        );
+    }
+
+    protected function get_formatters() {
+        return array(
+            'ucase',
+            'lcase',
+            'ucasefirst'
+        );
+    }
+
     public function is_enabled() {
         //TODO get from settings
         return true;
@@ -55,51 +97,76 @@ class simplecertificate_textmark_username extends simplecertificate_textmark_plu
             print_error('nousersfound', 'moodle');
             return;
         }
-        $a = $this->get_substution_array($user);
 
-        foreach ($a as $key => $value) {
-            $search[] = $key;
-            $replace[] = (string)$value;
+        foreach ($this->get_textmarks() as $textmark) {
+            $search[] = $textmark;
+            $replace[] = (string)$this->get_replace_value($textmark, $user);
         }
 
         return str_replace($search, $replace, $text);
     }
 
-    private function get_substution_array($user) {
+    private function get_replace_value($textmark, $user) {
         $firstname = strip_tags($user->firstname);
         $lastname = strip_tags($user->lastname);
         $fullname = strip_tags(fullname($user));
 
-        return array(
-            '{USERNAME}' => $fullname,
-            '{USERNAME:fullname}' => $fullname,
-            '{FULLNAME}' => $fullname,
-            '{USERNAME:fullname:ucase}' => strtoupper($fullname),
-            '{USERNAME:fullname:lcase}' => strtolower($fullname),
-            '{USERNAME:fullname:ucasefirst}' => ucwords($fullname),
-            '{FULLNAME:ucase}' => strtoupper($fullname),
-            '{FULLNAME:lcase}' => strtolower($fullname),
-            '{FULLNAME:ucasefirst}' => ucwords($fullname),
-
-            '{USERNAME:firstname}' => $firstname,
-            '{FIRSTNAME}' => $firstname,
-            '{USERNAME:firstname:ucase}' => strtoupper($firstname),
-            '{USERNAME:firstname:lcase}' => strtolower($firstname),
-            '{USERNAME:firstname:ucasefirst}' => ucwords($firstname),
-            '{FIRSTNAME:ucase}' => strtoupper($firstname),
-            '{FIRSTNAME:lcase}' => strtolower($firstname),
-            '{FIRSTNAME:ucasefirst}' => ucwords($firstname),
-
-            '{USERNAME:lastname}' => $lastname,
-            '{LASTNAME}' => $lastname,
-            '{USERNAME:lastname:ucase}' => strtoupper($lastname),
-            '{USERNAME:lastname:lcase}' => strtolower($lastname),
-            '{USERNAME:lastname:ucasefirst}' => ucwords($lastname),
-            '{LASTNAME:ucase}' => strtoupper($lastname),
-            '{LASTNAME:lcase}' => strtolower($lastname),
-            '{LASTNAME:ucasefirst}' => ucwords($lastname),
-        );
-
+        switch($textmark) {
+            // All fullname Textmark.
+            case '{USERNAME}':
+            case '{USERNAME:fullname}':
+            case '{FULLNAME}':
+                return $fullname;
+            break;
+            case '{USERNAME:ucase}':
+            case '{USERNAME:fullname:ucase}':
+            case '{FULLNAME:ucase}':
+                return strtoupper($fullname);
+            break;
+            case '{USERNAME:lcase}':
+            case '{USERNAME:fullname:lcase}':
+            case '{FULLNAME:lcase}':
+                return strtolower($fullname);
+            break;
+            case '{USERNAME:ucasefirst}':
+            case '{USERNAME:fullname:ucasefirst}':
+            case '{FULLNAME:ucasefirst}':
+                return ucwords($fullname);
+            break;
+            // All firstname Textmark.
+            case '{USERNAME:firstname}':
+            case '{FIRSTNAME}':
+                return $firstname;
+            break;
+            case '{USERNAME:firstname:ucase}':
+            case '{FIRSTNAME:ucase}':
+                return strtoupper($firstname);
+            break;
+            case '{USERNAME:firstname:lcase}':
+            case '{FIRSTNAME:lcase}':
+                return strtolower($firstname);
+            break;
+            case '{USERNAME:firstname:ucasefirst}':
+            case '{FIRSTNAME:ucasefirst}':
+                return ucwords($firstname);
+            break;
+            // All lastname Textmark.
+            case '{USERNAME:lastname}':
+            case '{lastname}':
+                return $lastname;
+            break;
+            case '{USERNAME:lastname:ucase}':
+            case '{lastname:ucase}':
+                return strtoupper($lastname);
+            break;
+            case '{USERNAME:lastname:lcase}':
+            case '{lastname:lcase}':
+                return strtolower($lastname);
+            break;
+            case '{USERNAME:lastname:ucasefirst}':
+            case '{lastname:ucasefirst}':
+                return ucwords($lastname);
+            break;
+        }
     }
-
 }
