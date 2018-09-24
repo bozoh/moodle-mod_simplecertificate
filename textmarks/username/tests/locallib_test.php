@@ -25,8 +25,8 @@
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
-// require_once($CFG->dirroot . '/mod/simplecertificate/textmarks/textmark_plugin.php');
-// require_once($CFG->dirroot . '/mod/simplecertificate/textmarks/username/locallib.php');
+require_once($CFG->dirroot . '/mod/simplecertificate/textmarks/textmark_plugin.php');
+require_once($CFG->dirroot . '/mod/simplecertificate/textmarks/username/locallib.php');
 require_once($CFG->dirroot . '/mod/simplecertificate/tests/generator.php');
 
 /**
@@ -102,17 +102,24 @@ class simplecertificatetextmark_username_locallib_testcase extends advanced_test
      */
     public function test_if_get_textmark_plugin_is_callabed_with_username_param($certificatetext) {
         $this->setUser($this->student->id);
+        $pluginmock = $this->createMock(simplecertificate_textmark_username::class);
+
         $mocksmplcert = $this->create_mock_instance($this->course, [
-                'get_textmark_plugin'
+            'get_textmark_plugin'
+        ], [
+            'certificatetext' => ['text' => $certificatetext]
         ]);
+
         $mocksmplcert->expects($this->once())
             ->method('get_textmark_plugin')
-            ->with($this->equalTo('username'));
+            ->with($this->equalTo('username'))
+            ->willReturn($pluginmock);
+
+        $pluginmock->expects($this->once())
+            ->method('get_text')
+            ->with($this->equalTo($certificatetext));
 
         $mocksmplcert->testable_get_certificate_text($mocksmplcert->get_issue());
-        $this->markTestIncomplete(
-            'O teste está pronto, mas o get certificate text não'
-        );
     }
 
     /**

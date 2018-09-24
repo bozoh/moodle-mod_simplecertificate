@@ -113,7 +113,7 @@ abstract class simplecertificate_textmark_plugin {
      *
      * @return array - array of textmarks names
      */
-    protected abstract function get_names();
+    public abstract function get_names();
 
     /**
      * Should return all attributes for this plugin.
@@ -133,17 +133,45 @@ abstract class simplecertificate_textmark_plugin {
      * Check if a textmark is valid for this plugin
      *
      * @return string - The textmark if is valid, or null if is not
+     * @throws simplecertificate_textmark_plugin_exception - if textmark is not from this plugin
      */
     protected function is_valid_textmark($name, $attribute = null, $formatter = null) {
-        if (
-            (empty($name) || !in_array($name, $this->get_names())) &&
+        if (empty($name)) {
+            //TODO improve errors msg
+            print_error('invalid_textmark_name');
+        }
+
+        if (!in_array($name, $this->get_names()) &&
             (!empty($attribute) && !in_array($attribute, $this->get_attributes())) &&
             (!empty($formatter) && !in_array($formatter, $this->get_formatters()))
         ) {
             //TODO improve errors msg
-            print_error('invalid_textmark_name');
+            throw new simplecertificate_textmark_plugin_exception('TODO');
         }
     }
+
+    /**
+     * Should return the parsed text.
+     *
+     * @param string $text Text with textmarks, to be parsed.
+     * @return string The parsed text.
+     */
+    public function get_text($text = null) {
+        foreach ($this->get_textmarks() as $textmark) {
+            $search[] = $textmark;
+            $replace[] = (string)$this->get_replace_text($textmark);
+        }
+
+        return str_replace($search, $replace, $text);
+    }
+
+    /**
+     * Get the textmark value, to be parsed
+     *
+     * @param string $textmark A textmark
+     * @return string Textmark value, to be used in text
+     */
+    protected abstract function get_replace_text($textmark);
 
     /**
      * Should return if this plugin is enable or not.
@@ -153,15 +181,6 @@ abstract class simplecertificate_textmark_plugin {
     // TODO tirar o abstract, usar um código padrão
     public abstract function is_enabled();
 
-
-    /**
-     * Should return the parsed certificate text
-     * @param string $text The certificate text
-     *
-     * @return string parsed certificate text
-     */
-    public abstract function get_text($text = null);
-
     /**
      * Get the settings for textmark plugin
      *
@@ -170,4 +189,8 @@ abstract class simplecertificate_textmark_plugin {
      */
     public function get_settings(MoodleQuickForm $mform) {
     }
+}
+
+class simplecertificate_textmark_plugin_exception extends moodle_exception {
+
 }

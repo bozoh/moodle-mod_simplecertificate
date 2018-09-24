@@ -35,6 +35,9 @@ require_once($CFG->dirroot . '/mod/simplecertificate/textmarks/textmark_plugin.p
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class simplecertificate_textmark_username extends simplecertificate_textmark_plugin {
+    private $user;
+
+
     public function get_type() {
         return 'username';
     }
@@ -44,7 +47,12 @@ class simplecertificate_textmark_username extends simplecertificate_textmark_plu
     }
 
     protected function is_valid_textmark($name, $attribute = null, $formatter = null) {
-        parent::is_valid_textmark($name, $attribute, $formatter);
+        try {
+            parent::is_valid_textmark($name, $attribute, $formatter);
+        } catch (Exception $e) {
+            return null;
+        }
+
         switch($name) {
             case 'FULLNAME':
             case 'FIRSTNAME':
@@ -57,7 +65,7 @@ class simplecertificate_textmark_username extends simplecertificate_textmark_plu
         return $this->get_textmark_text($name, $attribute, $formatter);
     }
 
-    protected function get_names() {
+    public function get_names() {
         return array(
             'USERNAME',
             'FULLNAME',
@@ -87,26 +95,19 @@ class simplecertificate_textmark_username extends simplecertificate_textmark_plu
         return true;
     }
 
-    public function get_text($text = null) {
-        $issuecert = $this->smplcert->get_issue();
-        $user = get_complete_user_data('id', $issuecert->userid);
-        if (!$user) {
-            print_error('nousersfound', 'moodle');
-            return;
+    public function get_replace_text($textmark) {
+        if (empty($this->user)) {
+            $issuecert = $this->smplcert->get_issue();
+            $this->user = get_complete_user_data('id', $issuecert->userid);
+            if (!$this->user) {
+                print_error('nousersfound', 'moodle');
+                return;
+            }
         }
 
-        foreach ($this->get_textmarks() as $textmark) {
-            $search[] = $textmark;
-            $replace[] = (string)$this->get_replace_value($textmark, $user);
-        }
-
-        return str_replace($search, $replace, $text);
-    }
-
-    private function get_replace_value($textmark, $user) {
-        $firstname = strip_tags($user->firstname);
-        $lastname = strip_tags($user->lastname);
-        $fullname = strip_tags(fullname($user));
+        $firstname = strip_tags($this->user->firstname);
+        $lastname = strip_tags($this->user->lastname);
+        $fullname = strip_tags(fullname($this->user));
 
         switch($textmark) {
             // All fullname Textmark.
