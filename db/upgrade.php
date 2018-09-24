@@ -33,7 +33,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 function xmldb_simplecertificate_upgrade($oldversion = 0) {
-    global $DB;
+    global $DB, $CFG;
 
     $dbman = $DB->get_manager();
     if ($oldversion < 2013053102) {
@@ -435,5 +435,9 @@ function xmldb_simplecertificate_upgrade($oldversion = 0) {
         // Simplecertificate savepoint reached.
         upgrade_mod_savepoint(true, 2017013001, 'simplecertificate');
     }
-    return true;
+
+    if ($oldversion < 2018050940) {
+        require($CFG->dirroot . '/mod/simplecertificate/db/install.php');
+        upgrade_mod_savepoint(update_textmark_plugins(), 2018050938, 'simplecertificate');
+    }
 }
