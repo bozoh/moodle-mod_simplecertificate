@@ -109,6 +109,12 @@ class simplecertificate {
     private $issuecert;
 
     /**
+     *
+     * @var array an array with plugins names
+     */
+    private $pluginnames;
+
+    /**
      * Constructor for the base simplecertificate class.
      *
      * @param mixed $coursemodulecontext context|null the course module context
@@ -125,6 +131,7 @@ class simplecertificate {
         $this->course = $course;
         // Temporary cache only lives for a single request - used to reduce db lookups.
         $this->cache = array();
+        $this->pluginnames = $this->get_plugins_names();
     }
 
     /**
@@ -1344,8 +1351,6 @@ class simplecertificate {
     protected function get_certificate_text($issuecert, $certtext = null) {
         global $DB, $CFG;
 
-        $this->get_textmark_plugin('username');
-
         $user = get_complete_user_data('id', $issuecert->userid);
         if (!$user) {
             print_error('nousersfound', 'moodle');
@@ -1356,6 +1361,21 @@ class simplecertificate {
             $certtext = $this->get_instance()->certificatetext;
         }
         $certtext = format_text($certtext, FORMAT_HTML, array('noclean' => true));
+
+        $textmark = $this->get_next_textmark($certtext);
+        while (!empty($textmark)) {
+            if (empty($textmark) || empty($this->pluginnames[$textmark])) {
+                //TODO exception ?
+                print_error('todo');
+            }
+            $plugin = $this->get_textmark_plugin($this->pluginnames[$textmark]);
+            $certtext = $plugin->get_text($certtext);
+            $textmark = $this->get_next_textmark($certtext);
+        }
+
+        // Clear not setted  textmark.
+        // $certtext = preg_replace('[\{(.*)\}]', "", $certtext);
+        return $this->remove_links(format_text($certtext, FORMAT_MOODLE));
 
         $a = new stdClass();
         $a->username = strip_tags(fullname($user));
@@ -2458,6 +2478,19 @@ class simplecertificate {
     }
 
     /**
+     * Get the next textmark in the text
+     */
+    protected function get_next_textmark($text) {
+        $re = '/\{(.+?)(?:\:(.+?))?(?:\:(.+?))?\}/m';
+        $matches = array();
+        preg_match_all($re, $text, $matches, PREG_SET_ORDER, 0);
+        if (count($matches) <= 0) {
+            return null;
+        }
+        return strtoupper($matches[0][1]);
+    }
+
+    /**
      * Get a textmark plugin
      *
      * @param string $type textmark plugin type
@@ -2465,9 +2498,9 @@ class simplecertificate {
      */
     protected function get_textmark_plugin($type) {
         global $CFG;
-        $result = array();
-
-        $names = core_component::get_plugin_list('simplecertificatetextmark');
+        // $result = array();
+       // $plugins = core_plugin_manager::instance()->get_installed_plugins('simplecertificatetextmark');
+        // $names = core_component::get_plugin_list('simplecertificatetextmark');
 
         $path = $CFG->dirroot . '/mod/simplecertificate/textmarks/' . $type . '/locallib.php';
         if (file_exists($path)) {
@@ -2478,17 +2511,44 @@ class simplecertificate {
 
         $plugin = new $pluginclass($this);
         return $plugin;
+    }
 
-        // if ($plugin instanceof simplecertificatetextmark) {
-        //                 $idx = $plugin->get_sort_order();
-        //                 while (array_key_exists($idx, $result)) {
-        //                     $idx +=1;
-        //                 }
-        //                 $result[$idx] = $plugin;
-        //             }
-        //         }
-        //     }
-        //     ksort($result);
+    /**
+     * Get plugins names
+     *
+     * @return array An array with plugins names
+     */
+    protected function get_plugins_names() {
+        global $DB;
 
+        $plugins = core_plugin_manager::instance()->get_installed_plugins('simplecertificatetextmark');
+        if (!$plugins) {
+            return array();
+        }
+        $installed = array();
+        foreach ($plugins as $plugin => $version) {
+            $p = $DB->get_record('config_plugins', array(
+                'plugin' => 'simplecertificatetextmark_'.$plugin,
+                'name' => 'names'
+            ));
+            $names = explode(',', $p->value);
+            foreach ($names as $name) {
+                $installed[$name] = $plugin;
+            }
+        }
+
+        return $installed;
+    }
+
+    /**
+     * Returns the  course name or alternative coursename
+     * 
+     */
+    public function get_coursename() {
+        if (!empty($this->coursename)) {
+            return $this->coursename;
+        }
+        $this->coursename = $this->get_course()->fullname;
+        return $this->coursename;
     }
 }
