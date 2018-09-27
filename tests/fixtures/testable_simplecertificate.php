@@ -15,10 +15,10 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * The testable assign class.
+ * The testable simplecertificate class.
  *
- * @package   mod_assign
- * @copyright 2014 Adrian Greeve <adrian@moodle.com>
+ * @package   mod_simplecertificate
+ * @copyright 2018 Carlos Alexandre S. da Fonseca
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
