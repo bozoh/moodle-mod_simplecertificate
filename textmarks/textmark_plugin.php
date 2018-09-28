@@ -36,6 +36,12 @@ require_once($CFG->dirroot . '/mod/simplecertificate/locallib.php');
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 abstract class simplecertificate_textmark_plugin {
+    // Default formatters.
+    public const LOWER_CASE_FORMATTER = 'lcase'; // It's uses strtolower.
+    public const UPPER_CASE_FORMATTER = 'ucase'; // It's uses strtoupper.
+    public const UPPER_CASE_FIRST_FORMATTER = 'ucasefirst'; // It's uses ucwords.
+
+
     protected $smplcert;
 
     /**
@@ -68,29 +74,29 @@ abstract class simplecertificate_textmark_plugin {
      *
      * @return array - array of textmarks
      */
-    public function get_textmarks() {
-        $names = $this->get_names();
-        $attrs = (array)$this->get_attributes();
-        $attrs[] = '';
-        $fmts = (array)$this->get_formatters();
-        $fmts[] = '';
+    // public function get_textmarks() {
+    //     $names = $this->get_names();
+    //     $attrs = (array)$this->get_attributes();
+    //     $attrs[] = '';
+    //     $fmts = (array)$this->get_formatters();
+    //     $fmts[] = '';
 
-        $textmarks = array();
+    //     $textmarks = array();
 
-        foreach ($names as $name) {
-            foreach ($attrs as $attr) {
-                foreach ($fmts as $fmt) {
-                    $tm = $this->is_valid_textmark($name, $attr, $fmt);
-                    if ($tm !== null) {
-                        $textmarks[] = $tm;
-                    }
-                }
-            }
-        }
-        return $textmarks;
-    }
+    //     foreach ($names as $name) {
+    //         foreach ($attrs as $attr) {
+    //             foreach ($fmts as $fmt) {
+    //                 $tm = $this->is_valid_textmark($name, $attr, $fmt);
+    //                 if ($tm !== null) {
+    //                     $textmarks[] = $tm;
+    //                 }
+    //             }
+    //         }
+    //     }
+    //     return $textmarks;
+    // }
 
-    protected function get_textmark_text($name, $attribute = null, $formatter = null) {
+    protected function get_textmark_formated_text($name, $attribute = null, $formatter = null) {
         if (empty($name)) {
             //TODO improve errors msg
             print_error('invalid_textmark_name');
@@ -98,11 +104,11 @@ abstract class simplecertificate_textmark_plugin {
         $tmstr = '{' . strtoupper($name);
 
         if (!empty($attribute)) {
-            $tmstr .= ':' . $attribute;
+            $tmstr .= ':' . strtolower($attribute);
         }
 
         if (!empty($formatter)) {
-            $tmstr .= ':' . $formatter;
+            $tmstr .= ':' . strtolower($formatter);
         }
         return $tmstr . '}';
     }
@@ -127,7 +133,13 @@ abstract class simplecertificate_textmark_plugin {
      *
      * @return array - array of allowed formatters
      */
-    protected abstract function get_formatters();
+    protected function get_formatters() {
+        return array(
+            self::LOWER_CASE_FORMATTER,
+            self::UPPER_CASE_FORMATTER,
+            self::UPPER_CASE_FIRST_FORMATTER
+        );
+    }
 
     /**
      * Check if a textmark is valid for this plugin
@@ -157,11 +169,27 @@ abstract class simplecertificate_textmark_plugin {
      * @return string The parsed text.
      */
     public function get_text($text = null) {
-        foreach ($this->get_textmarks() as $textmark) {
-            $search[] = $textmark;
-            $replace[] = (string)$this->get_replace_text($textmark);
-        }
+        $names = $this->get_names();
+        $attrs = (array)$this->get_attributes();
+        $attrs[] = '';
+        $fmts = (array)$this->get_formatters();
+        $fmts[] = '';
 
+        $search = array();
+        $replace = array();
+
+        foreach ($names as $name) {
+            foreach ($attrs as $attr) {
+                foreach ($fmts as $fmt) {
+                    $tm = $this->is_valid_textmark($name, $attr, $fmt);
+                    if (empty($tm)) {
+                        continue;
+                    }
+                    $search[] = $tm;
+                    $replace[] = (string)$this->get_replace_text($name, $attr, $fmt);
+                }
+            }
+        }
         return str_replace($search, $replace, $text);
     }
 
@@ -171,7 +199,7 @@ abstract class simplecertificate_textmark_plugin {
      * @param string $textmark A textmark
      * @return string Textmark value, to be used in text
      */
-    protected abstract function get_replace_text($textmark);
+    protected abstract function get_replace_text($name, $attribute = null, $formatter = null);
 
     /**
      * Should return if this plugin is enable or not.
