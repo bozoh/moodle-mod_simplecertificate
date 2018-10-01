@@ -108,6 +108,7 @@ class mod_simplecertificate_mod_form extends moodleform_mod {
         $mform->addHelpButton('secondpagetext', 'certificatetext', 'simplecertificate');
         $mform->disabledIf('secondpagetext', 'enablesecondpage', 'eq', 0);
 
+
         // Certificate secondimage file.
         $mform->addElement('filemanager', 'secondimage',
             get_string('secondimage', 'simplecertificate'), null,
