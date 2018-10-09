@@ -25,6 +25,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
+require_once($CFG->dirroot . '/mod/simplecertificate/textmarks/tests/lib_test.php');
 require_once($CFG->dirroot . '/mod/simplecertificate/textmarks/textmark_plugin.php');
 require_once($CFG->dirroot . '/mod/simplecertificate/textmarks/coursename/locallib.php');
 require_once($CFG->dirroot . '/mod/simplecertificate/tests/generator.php');
@@ -36,6 +37,7 @@ require_once($CFG->dirroot . '/mod/simplecertificate/tests/generator.php');
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class simplecertificatetextmark_coursename_locallib_testcase extends advanced_testcase {
+    use simplecertificatetextmark_test_tools;
 
     // Use the generator helper.
     use mod_simplecertificate_test_generator;
@@ -80,16 +82,16 @@ class simplecertificatetextmark_coursename_locallib_testcase extends advanced_te
 
     /**
      * Test if get the right plugin textmarks
+     * 
+     * @dataProvider get_all_textmarks
      */
-    public function test_textmarks() {
+    public function test_textmarks($name, $attribute, $formatter, $expected) {
         $smplcert = $this->create_instance($this->course);
-        $plugin = $smplcert->testable_get_textmark_plugin('coursename');
-        $expected = $this->get_all_plugins_textmarks();
-        $textmarks = $plugin->get_textmarks();
-        $this->assertCount(count($expected), $textmarks);
-        foreach ($textmarks as $tm) {
-            $this->assertContains($tm, $expected);
-        }
+        $plugin = new testable_simplecertificate_textmark_coursename($smplcert);
+        $this->assertEquals(
+            $expected, !empty(
+                $plugin->testable_is_valid_textmark($name, $attribute, $formatter)
+            ));
     }
 
     /**
@@ -122,6 +124,19 @@ class simplecertificatetextmark_coursename_locallib_testcase extends advanced_te
         $mocksmplcert->testable_get_certificate_text($mocksmplcert->get_issue());
     }
 
+
+    // =================================================
+    // ================= DATA PROVIDERS ================
+    // =================================================
+
+    public function get_all_textmarks() {
+        return $this->get_all_plugins_textmarks(__DIR__ . '/fixtures/all_textmarks_matrix.csv');
+    }
+
+    public function get_valid_textmarks() {
+        return $this->get_valid_plugins_textmarks(__DIR__ . '/fixtures/all_textmarks_matrix.csv');
+    }
+
     /**
      * Test submission_is_empty
      *
@@ -152,9 +167,9 @@ class simplecertificatetextmark_coursename_locallib_testcase extends advanced_te
      * @return array of testcases
      */
     public function coursename_testcases() {
-        $textmarks = $this->get_all_plugins_textmarks();
+        $textmarks = $this->get_all_textmarks();
         $testcases = array();
-        foreach ($textmarks as $tm) {
+        foreach ($textmarks as $tm => $value) {
             $coursename = $this->get_rnd()->fullname;
 
             switch($tm) {
@@ -217,24 +232,34 @@ class simplecertificatetextmark_coursename_locallib_testcase extends advanced_te
      * @return array of testcases
      */
     public function textmark_testcases() {
-        $textmarks = $this->get_all_plugins_textmarks();
+        $textmarks = $this->get_all_textmarks();
         $testcases = array();
-        foreach ($textmarks as $tm) {
-            $testcases[$tm] = [$tm];
+        foreach ($textmarks as $tm => $value) {
+            $testcases[$tm] = array('{'. $tm . '}');
         }
         return $testcases;
     }
 
-    private function get_all_plugins_textmarks() {
-        return array(
-            '{COURSENAME}',
-            '{COURSENAME:ucase}',
-            '{COURSENAME:lcase}',
-            '{COURSENAME:ucasefirst}',
-        );
-    }
-
     private function get_rnd() {
             return $this->getDataGenerator()->create_course();
+    }
+}
+
+class testable_simplecertificate_textmark_coursename extends simplecertificate_textmark_coursename {
+
+    public function testable_is_valid_textmark($name, $attribute = null, $formatter = null) {
+        return $this->is_valid_textmark($name, $attribute, $formatter);
+    }
+
+    public function testable_get_attributes() {
+        return $this->get_attributes();
+    }
+
+    public function testable_get_formatters() {
+        return $this->get_formatters();
+    }
+
+    public function testable_get_replace_text($name, $attribute = null, $formatter = null) {
+        return $this->get_formatters($name, $attribute, $formatter);
     }
 }

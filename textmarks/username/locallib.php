@@ -62,7 +62,7 @@ class simplecertificate_textmark_username extends simplecertificate_textmark_plu
                 }
 
         }
-        return $this->get_textmark_text($name, $attribute, $formatter);
+        return $this->get_textmark_formated_text($name, $attribute, $formatter);
     }
 
     public function get_names() {
@@ -82,20 +82,12 @@ class simplecertificate_textmark_username extends simplecertificate_textmark_plu
         );
     }
 
-    protected function get_formatters() {
-        return array(
-            'ucase',
-            'lcase',
-            'ucasefirst'
-        );
-    }
-
     public function is_enabled() {
         //TODO get from settings
         return true;
     }
 
-    public function get_replace_text($textmark) {
+    public function get_replace_text($name, $attribute = null, $formatter = null) {
         if (empty($this->user)) {
             $issuecert = $this->smplcert->get_issue();
             $this->user = get_complete_user_data('id', $issuecert->userid);
@@ -108,6 +100,8 @@ class simplecertificate_textmark_username extends simplecertificate_textmark_plu
         $firstname = strip_tags($this->user->firstname);
         $lastname = strip_tags($this->user->lastname);
         $fullname = strip_tags(fullname($this->user));
+
+        $textmark = $this->get_textmark_formated_text($name, $attribute, $formatter);
 
         switch($textmark) {
             // All fullname Textmark.
@@ -150,19 +144,19 @@ class simplecertificate_textmark_username extends simplecertificate_textmark_plu
             break;
             // All lastname Textmark.
             case '{USERNAME:lastname}':
-            case '{lastname}':
+            case '{LASTNAME}':
                 return $lastname;
             break;
             case '{USERNAME:lastname:ucase}':
-            case '{lastname:ucase}':
+            case '{LASTNAME:ucase}':
                 return strtoupper($lastname);
             break;
             case '{USERNAME:lastname:lcase}':
-            case '{lastname:lcase}':
+            case '{LASTNAME:lcase}':
                 return strtolower($lastname);
             break;
             case '{USERNAME:lastname:ucasefirst}':
-            case '{lastname:ucasefirst}':
+            case '{LASTNAME:ucasefirst}':
                 return ucwords($lastname);
             break;
         }

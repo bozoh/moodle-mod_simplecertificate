@@ -1,47 +1,21 @@
 <?php
 
 $textmarks = array(
-    'PROFILE',
-    'EMAIL',
-    'ICQ',
-    'SKYPE',
-    'YAHOO',
-    'AIM',
-    'MSN',
-    'PHONE1',
-    'PHONE2',
-    'INSTITUTION',
-    'DEPARTMENT',
-    'ADDRESS',
-    'CITY',
-    'COUNTRY',
-    'URL',
-    'USERIMAGE'
+    'COURSENAME',
 );
-$attributes = array(
-    '',
-    'email',
-    'icq',
-    'skype',
-    'yahoo',
-    'aim',
-    'msn',
-    'phone1',
-    'phone2',
-    'institution',
-    'department',
-    'address',
-    'city',
-    'country',
-    'url',
-    'userimage'
-);
+
+$attributes = array();
+
 $formatters = array(
-    '',
     'ucase',
     'lcase',
     'ucasefirst'
 );
+
+// --------------  do not modify
+
+$attributes[] = '';
+$formatters[] = '';
 
 foreach ($textmarks as $tm) {
     foreach ($attributes as $attr) {
@@ -61,6 +35,7 @@ foreach ($textmarks as $tm) {
 echo "------------------\n";
 
 $file = fopen(__DIR__.'/test.csv', 'w');
+fputcsv($file, [ 'textmark', 'name', 'attribute', 'formatter', 'expected']);
 foreach ($textmarks as $tm) {
     foreach ($attributes as $attr) {
         foreach ($formatters as $fmt) {

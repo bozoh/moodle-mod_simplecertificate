@@ -53,7 +53,7 @@ class simplecertificate_textmark_coursename extends simplecertificate_textmark_p
         if ($name != 'COURSENAME') {
             return null;
         }
-        return $this->get_textmark_text($name, $attribute, $formatter);
+        return $this->get_textmark_formated_text($name, $attribute, $formatter);
     }
 
     public function get_names() {
@@ -65,22 +65,15 @@ class simplecertificate_textmark_coursename extends simplecertificate_textmark_p
         return array();
     }
 
-    protected function get_formatters() {
-        return array(
-            'ucase',
-            'lcase',
-            'ucasefirst'
-        );
-    }
-
     public function is_enabled() {
         //TODO get from settings
         return true;
     }
 
-    protected function get_replace_text($textmark) {
+    protected function get_replace_text($name, $attribute = null, $formatter = null) {
         $coursename = strip_tags($this->smplcert->get_coursename());
 
+        $textmark = $this->get_textmark_formated_text($name, $attribute, $formatter);
         switch($textmark) {
             case '{COURSENAME}':
                 return $coursename;

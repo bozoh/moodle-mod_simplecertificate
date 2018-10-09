@@ -1,0 +1,5 @@
+textmark,name,attribute,formatter,expected
+COURSENAME:ucase,COURSENAME,,ucase,true
+COURSENAME:lcase,COURSENAME,,lcase,true
+COURSENAME:ucasefirst,COURSENAME,,ucasefirst,true
+COURSENAME,COURSENAME,,,true
