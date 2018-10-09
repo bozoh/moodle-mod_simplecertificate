@@ -25,6 +25,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
+require_once($CFG->dirroot . '/mod/simplecertificate/textmarks/tests/lib_test.php');
 require_once($CFG->dirroot . '/mod/simplecertificate/textmarks/textmark_plugin.php');
 require_once($CFG->dirroot . '/mod/simplecertificate/textmarks/profile/locallib.php');
 require_once($CFG->dirroot . '/mod/simplecertificate/tests/generator.php');
@@ -36,14 +37,16 @@ require_once($CFG->dirroot . '/mod/simplecertificate/tests/generator.php');
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class simplecertificatetextmark_profile_locallib_testcase extends advanced_testcase {
-
+    use simplecertificatetextmark_test_tools;
     // Use the generator helper.
     use mod_simplecertificate_test_generator;
 
     private $student;
     private $course;
+    private $csvmatrixfilename;
 
     protected function setUp() {
+        global $CFG;
         $this->course = $this->getDataGenerator()->create_course();
         $this->resetAfterTest();
     }
@@ -78,7 +81,7 @@ class simplecertificatetextmark_profile_locallib_testcase extends advanced_testc
     }
 
     /**
-     * @dataProvider get_all_plugins_textmarks
+     * @dataProvider get_all_textmarks
      * Test if has the right plugin textmarks
      */
     public function test_textmarks($name, $attribute, $formatter, $expected) {
@@ -96,7 +99,7 @@ class simplecertificatetextmark_profile_locallib_testcase extends advanced_testc
      * Test in get_certificate_text call get_textmark_plugin with
      * 'profile'
      *
-     * @dataProvider valid_textmark_testcases
+     * @dataProvider get_valid_textmarks
      * @param string $certificatetext The certificate text
      * @param bool $expected The expected return value
      */
@@ -148,21 +151,12 @@ class simplecertificatetextmark_profile_locallib_testcase extends advanced_testc
 
     // ================= DATA PROVIDERS ================
 
-    /**
-     * Dataprovider for the test_if_get_textmark_plugin_is_callabed_with_profile_param
-     * testcase
-     *
-     * @return array of testcases
-     */
-    public function valid_textmark_testcases() {
-        $textmarks = $this->get_all_plugins_textmarks();
-        $testcases = array();
-        foreach ($textmarks as $tm => $value) {
-            if ($value[3]) {
-                $testcases[$tm] = [$tm];
-            }
-        }
-        return $testcases;
+    public function get_all_textmarks() {
+        return $this->get_all_plugins_textmarks(__DIR__ . '/fixtures/all_textmarks_matrix.csv');
+    }
+
+    public function get_valid_textmarks() {
+        return $this->get_valid_plugins_textmarks(__DIR__ . '/fixtures/all_textmarks_matrix.csv');
     }
 
     /**
@@ -171,12 +165,9 @@ class simplecertificatetextmark_profile_locallib_testcase extends advanced_testc
      * @return array of testcases
      */
     public function profile_testcases() {
-        $textmarks = $this->get_all_plugins_textmarks();
+        $textmarks = $this->get_valid_textmarks();
         $testcases = array();
         foreach ($textmarks as $tm => [$name, $attr, $fmt, $valid]) {
-            if (!$valid) {
-                continue;
-            }
             // TODO
             // I don't know how to test user image.
             if ($name == 'USERIMAGE' || $attr == 'userimage') {
@@ -262,26 +253,6 @@ class simplecertificatetextmark_profile_locallib_testcase extends advanced_testc
         return $testcases;
     }
 
-    public function get_all_plugins_textmarks() {
-        $dataset = $this->createCsvDataSet(array(
-            'textmarks' => __DIR__.'/fixtures/all_textmarks_matrix.csv'
-        ));
-
-        $testcases = array ();
-        $table = $dataset->getTable('textmarks');
-        for ($r = 0; $r < $table->getRowCount(); $r++) {
-            $record = (object)$table->getRow($r);
-            // textmark,name,attribute,formatter,expected
-            $testcases[$record->textmark] = [
-                $record->name,
-                $record->attribute,
-                $record->formatter,
-                $record->expected == 'true'
-            ];
-        }
-
-        return $testcases;
-    }
 
 }
 
