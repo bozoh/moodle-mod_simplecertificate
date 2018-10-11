@@ -69,33 +69,6 @@ abstract class simplecertificate_textmark_plugin {
      */
     public abstract function get_type();
 
-    /**
-     * Should return all textmarks of the plugin.
-     *
-     * @return array - array of textmarks
-     */
-    // public function get_textmarks() {
-    //     $names = $this->get_names();
-    //     $attrs = (array)$this->get_attributes();
-    //     $attrs[] = '';
-    //     $fmts = (array)$this->get_formatters();
-    //     $fmts[] = '';
-
-    //     $textmarks = array();
-
-    //     foreach ($names as $name) {
-    //         foreach ($attrs as $attr) {
-    //             foreach ($fmts as $fmt) {
-    //                 $tm = $this->is_valid_textmark($name, $attr, $fmt);
-    //                 if ($tm !== null) {
-    //                     $textmarks[] = $tm;
-    //                 }
-    //             }
-    //         }
-    //     }
-    //     return $textmarks;
-    // }
-
     protected function get_textmark_formated_text($name, $attribute = null, $formatter = null) {
         if (empty($name)) {
             //TODO improve errors msg

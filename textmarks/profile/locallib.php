@@ -36,6 +36,8 @@ require_once($CFG->dirroot . '/mod/simplecertificate/textmarks/textmark_plugin.p
  */
 class simplecertificate_textmark_profile extends simplecertificate_textmark_plugin {
     private $user;
+    private $customattrb;
+    private $attributes;
 
     public function get_type() {
         return 'profile';
@@ -159,7 +161,14 @@ class simplecertificate_textmark_profile extends simplecertificate_textmark_plug
     }
 
     protected function get_attributes() {
-        return array(
+        if (!empty($this->attributes)) {
+            return $this->attributes;
+        }
+        if (empty($this->customattrb)) {
+            $this->customattrb = $this->get_user_custom_fields();
+        }
+
+        $this->attributes = array(
             'email',
             'icq',
             'skype',
@@ -176,6 +185,24 @@ class simplecertificate_textmark_profile extends simplecertificate_textmark_plug
             'url',
             'userimage'
         );
+
+        if (!empty($this->customattrb)) {
+            $this->attributes = array_merge($this->attributes, $this->customattrb);
+        }
+
+        return $this->attributes;
+    }
+
+    private function get_user_custom_fields() {
+        $issuecert = $this->smplcert->get_issue();
+        $customfields = profile_get_user_fields_with_data($issuecert->userid);
+        $attrb = array();
+        foreach ($customfields as $field) {
+            if ($field->is_user_object_data()) {
+                $attrb[] = strtolower($field->field->shortname);
+            }
+        }
+        return $attrb;
     }
 
     protected function get_formatters() {
@@ -225,6 +252,23 @@ class simplecertificate_textmark_profile extends simplecertificate_textmark_plug
                 }
             break;
         }
+        if (!empty($attribute) && in_array($attribute, $this->customattrb)) {
+            // Custom fields
+            $customfields = profile_get_user_fields_with_data($user->id);
+            $value = null;
+
+            foreach ($customfields as $customfield) {
+                if ($customfield->field->shortname === $attribute) {
+                    $isexception = true;
+                    $value = $customfield->display_data();
+                    break;
+                }
+            }
+            if (empty($value)) {
+                //TODO invalid attribute
+                print_error('invalid attribute');
+            }
+        }
 
         if (!$isexception) {
             if (!empty($attribute)) {
@@ -259,5 +303,11 @@ class simplecertificate_textmark_profile extends simplecertificate_textmark_plug
     private function get_user_image($user) {
         //TODO
         return '';
+    }
+
+    private function get_user_custom_profiles_fields($user) {
+        // global $CFG;
+
+        return profile_user_record($user->id);
     }
 }

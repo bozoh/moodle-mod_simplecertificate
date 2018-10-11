@@ -99,16 +99,18 @@ class simplecertificatetextmark_profile_locallib_testcase extends advanced_testc
      * Test in get_certificate_text call get_textmark_plugin with
      * 'profile'
      *
-     * @dataProvider get_valid_textmarks
+     * @dataProvider get_textmarks
      * @param string $certificatetext The certificate text
      * @param bool $expected The expected return value
      */
     public function test_if_get_textmark_plugin_is_callabed_with_profile_param($certificatetext) {
-        // $this->setUser($this->student->id);
+        $student = $this->getDataGenerator()->create_and_enrol($this->course, 'student');
+        $this->setUser($student->id);
+
         $pluginmock = $this->createMock(simplecertificate_textmark_profile::class);
 
-        $mocksmplcert = $this->create_mock_instance($this->course, 
-            [ 'get_textmark_plugin' ], 
+        $mocksmplcert = $this->create_mock_instance($this->course,
+            [ 'get_textmark_plugin' ],
             [ 'certificatetext' => ['text' => $certificatetext]]
         );
 
@@ -149,6 +151,44 @@ class simplecertificatetextmark_profile_locallib_testcase extends advanced_testc
         $this->assertEquals($expected, $result);
     }
 
+    public function test_profile_textmark_get_text_custom_fields() {
+        global $CFG, $DB;
+
+        $this->resetAfterTest();
+
+        $DB->insert_record('user_info_field', [
+            'shortname' => 'nickname', 'name' => 'Nickname', 'required' => 0,
+            'visible' => 1, 'locked' => 0, 'categoryid' => 1, 'datatype' => 'text'
+        ]);
+
+        // Create some student accounts.
+        $user = $this->getDataGenerator()->create_user();
+
+        $nickname = random_string(random_int(3, 20));
+
+        // Hermione has all available custom fields filled (of course she has).
+        profile_save_data((object)['id' => $user->id, 'profile_field_nickname' => $nickname]);
+
+        $this->getDataGenerator()->enrol_user($this->course->id, $user->id, 'student');
+        $this->setUser($user);
+
+        $smplcert = $this->create_instance($this->course);
+        $plugin = $smplcert->testable_get_textmark_plugin('profile');
+
+        $result = $plugin->get_text("{PROFILE:nickname}");
+        $this->assertEquals($nickname, $result);
+
+        $result = $plugin->get_text("{PROFILE:nickname:ucase}");
+        $this->assertEquals(strtoupper($nickname), $result);
+
+        $result = $plugin->get_text("{PROFILE:nickname:lcase}");
+        $this->assertEquals(strtolower($nickname), $result);
+
+        $result = $plugin->get_text("{PROFILE:nickname:ucasefirst}");
+        $this->assertEquals(ucwords($nickname), $result);
+
+    }
+
     // ================= DATA PROVIDERS ================
 
     public function get_all_textmarks() {
@@ -157,6 +197,20 @@ class simplecertificatetextmark_profile_locallib_testcase extends advanced_testc
 
     public function get_valid_textmarks() {
         return $this->get_valid_plugins_textmarks(__DIR__ . '/fixtures/all_textmarks_matrix.csv');
+    }
+
+    /**
+     * Dataprovider for the test_if_get_textmark_plugin_is_callabed_with_profile_param testcase
+     *
+     * @return array of testcases
+     */
+    public function get_textmarks() {
+        $textmarks = $this->get_valid_textmarks();
+        $testcases = array();
+        foreach ($textmarks as $tm => [$name, $attr, $fmt, $valid]) {
+            $testcases[$tm] = array('{' . $tm . '}');
+        }
+        return $testcases;
     }
 
     /**
@@ -175,6 +229,7 @@ class simplecertificatetextmark_profile_locallib_testcase extends advanced_testc
             }
             $user = $this->getDataGenerator()->create_user();
             $value = null;
+            $expected = null;
             $attribute = null;
 
             if (!empty($attr)) {
@@ -187,46 +242,37 @@ class simplecertificatetextmark_profile_locallib_testcase extends advanced_testc
             }
 
             if (empty($value)) {
-                $value = random_string(random_int(3, 20));
+                if ($attribute === 'country') {
+                    $value = 'BR';
+                    $expected = get_string('BR', 'countries');
+                } else {
+                    $value = random_string(random_int(3, 10));
+                }
+            }
+
+            if (empty($expected)) {
+                $expected = $value;
             }
 
             switch ($fmt) {
                 case simplecertificate_textmark_profile::LOWER_CASE_FORMATTER:
-                    $testcases[$tm] = array(
-                        $tm,
-                        $attribute,
-                        $value,
-                        strtolower($value)
-                    );
+                    $expected = strtolower($expected);
                 break;
 
                 case simplecertificate_textmark_profile::UPPER_CASE_FORMATTER:
-                    $testcases[$tm] = array(
-                        $tm,
-                        $attribute,
-                        $value,
-                        strtoupper($value)
-                    );
+                    $expected = strtoupper($expected);
                 break;
 
                 case simplecertificate_textmark_profile::UPPER_CASE_FIRST_FORMATTER:
-                    $testcases[$tm] = array(
-                        $tm,
-                        $attribute,
-                        $value,
-                        ucwords($value)
-                    );
-                break;
-
-                default:
-                    $testcases[$tm] = array(
-                        $tm,
-                        $attribute,
-                        $value,
-                        $value
-                    );
+                    $expected = ucwords($expected);
                 break;
             }
+            $testcases[$tm] = array(
+                '{' . $tm . '}',
+                $attribute,
+                $value,
+                $expected
+            );
         }
 
         // Test textmark with other text.
