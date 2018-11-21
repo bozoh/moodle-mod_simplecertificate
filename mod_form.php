@@ -223,10 +223,12 @@ class mod_simplecertificate_mod_form extends moodleform_mod {
         $mform->setAdvanced('emailfrom');
 
         // Delivery Options (Email, Download,...).
-        $deliveryoptions = array( 0 => get_string('openbrowser', 'simplecertificate'),
-                           1 => get_string('download', 'simplecertificate'),
-                           2 => get_string('emailcertificate', 'simplecertificate'),
-                           3 => get_string('nodelivering', 'simplecertificate')
+        $deliveryoptions = array(
+            0 => get_string('openbrowser', 'simplecertificate'),
+            1 => get_string('download', 'simplecertificate'),
+            2 => get_string('emailcertificate', 'simplecertificate'),
+            3 => get_string('nodelivering','simplecertificate'),
+            4 => get_string('emailoncompletion', 'simplecertificate'),
         );
         $mform->addElement('select', 'delivery', get_string('delivery', 'simplecertificate'), $deliveryoptions);
         $mform->setDefault('delivery', 0);

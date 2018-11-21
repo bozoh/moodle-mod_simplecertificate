@@ -106,6 +106,7 @@ $string['openbrowser'] = 'Open in new window';
 $string['download'] = 'Force download';
 $string['emailcertificate'] = 'Email';
 $string['nodelivering'] = 'No delivering, user will receive this certificate using others ways';
+$string['emailoncompletion'] = 'Email on course completion';
 // Form options help text.
 $string['certificatename_help'] = 'Certificate Name';
 $string['certificatetext_help'] = 'This is the text that will be used in the certificate back, some special words will be replaced with variables such as course name, student\'s name, grade ...

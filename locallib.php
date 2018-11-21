@@ -1177,7 +1177,7 @@ class simplecertificate {
      *
      * @param $issuecert The issue certificate object
      */
-    protected function send_certificade_email(stdClass $issuecert) {
+    public function send_certificade_email(stdClass $issuecert) { // previously protected
         global $DB, $CFG;
 
         $user = $DB->get_record('user', array('id' => $issuecert->userid));
