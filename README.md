@@ -1,6 +1,8 @@
 * [![Build Status](https://travis-ci.org/bozoh/moodle-mod_simplecertificate.svg?branch=MOODLE_35)](https://travis-ci.org/bozoh/moodle-mod_simplecertificate) - Moodle 3.5
 * [![Build Status](https://travis-ci.org/bozoh/moodle-mod_simplecertificate.svg?branch=MOODLE_34)](https://travis-ci.org/bozoh/moodle-mod_simplecertificate) - Moodle 3.4
 * [![Build Status](https://travis-ci.org/bozoh/moodle-mod_simplecertificate.svg?branch=MOODLE_33)](https://travis-ci.org/bozoh/moodle-mod_simplecertificate) - Moodle 3.3
+* [![Analytics](https://ga-beacon.appspot.com/UA-162885832-1/welcome-page)](https://github.com/igrigorik/ga-beacon)
+
 
 ## CLONE
 
