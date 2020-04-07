@@ -2135,7 +2135,7 @@ class simplecertificate {
                             $myxls->write_string(0, 0, get_string("fullname"));
                             $myxls->write_string(0, 1, get_string("idnumber"));
                             $myxls->write_string(0, 2, get_string("group"));
-                            $myxls->write_string(0, 3, $strdate);
+                            $myxls->write_string(0, 3, format_string($strdate));
                             $myxls->write_string(0, 4, $strgrade);
                             $myxls->write_string(0, 5, $strcode);
 
@@ -2144,7 +2144,7 @@ class simplecertificate {
                             $row = 1;
                             if ($users) {
                                 foreach ($users as $user) {
-                                    $myxls->write_string($ro6w, 0, fullname($user));
+                                    $myxls->write_string($row, 0, fullname($user));
                                     $studentid = (!empty($user->idnumber)) ? $user->idnumber : " ";
                                     $myxls->write_string($row, 1, $studentid);
                                     $ug2 = '';
