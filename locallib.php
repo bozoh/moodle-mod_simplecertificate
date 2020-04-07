@@ -2135,7 +2135,7 @@ class simplecertificate {
                             $myxls->write_string(0, 0, get_string("fullname"));
                             $myxls->write_string(0, 1, get_string("idnumber"));
                             $myxls->write_string(0, 2, get_string("group"));
-                            $myxls->write_string(0, 3, $strdate);
+                            $myxls->write_string(0, 3, format_string($strdate));
                             $myxls->write_string(0, 4, $strgrade);
                             $myxls->write_string(0, 5, $strcode);
 
@@ -2144,7 +2144,7 @@ class simplecertificate {
                             $row = 1;
                             if ($users) {
                                 foreach ($users as $user) {
-                                    $myxls->write_string($ro6w, 0, fullname($user));
+                                    $myxls->write_string($row, 0, fullname($user));
                                     $studentid = (!empty($user->idnumber)) ? $user->idnumber : " ";
                                     $myxls->write_string($row, 1, $studentid);
                                     $ug2 = '';
@@ -2160,7 +2160,7 @@ class simplecertificate {
                                     $myxls->write_string($row, 5, $user->code);
                                     $row++;
                                 }
-                                $pos = 5;
+                                //$pos = 5;
                             }
                             // Close the workbook.
                             $workbook->close();
@@ -2172,7 +2172,7 @@ class simplecertificate {
                             // Creating a workbook.
                             $workbook = new MoodleExcelWorkbook("-");
                             // Send HTTP headers.
-                            $workbook->send(format_text($filename, true));
+                            $workbook->send($filename);
                             // Creating the first worksheet.
                             $myxls = $workbook->add_worksheet($strreport);
 
@@ -2180,7 +2180,7 @@ class simplecertificate {
                             $myxls->write_string(0, 0, get_string("fullname"));
                             $myxls->write_string(0, 1, get_string("idnumber"));
                             $myxls->write_string(0, 2, get_string("group"));
-                            $myxls->write_string(0, 3, $strdate);
+                            $myxls->write_string(0, 3, format_string($strdate));
                             $myxls->write_string(0, 4, $strgrade);
                             $myxls->write_string(0, 5, $strcode);
 
@@ -2223,7 +2223,7 @@ class simplecertificate {
                             // Print names of all the fields.
                             echo get_string("fullname") . "\t" . get_string("idnumber") . "\t";
                             echo get_string("group") . "\t";
-                            echo $strdate . "\t";
+                            echo format_string($strdate) . "\t";
                             echo $strgrade . "\t";
                             echo $strcode . "\n";
 
@@ -2254,6 +2254,7 @@ class simplecertificate {
                             }
                         break;
                     }
+                    exit;
                 break;
             }
             redirect($url);
