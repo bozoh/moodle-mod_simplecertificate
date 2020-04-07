@@ -22,6 +22,7 @@
  * @copyright 2014 © Carlos Alexandre Soares da Fonseca
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+use setasign\Fpdi\TcpdfFpdi;
 
 require_once(dirname(dirname(dirname(__FILE__))) . '/config.php');
 $code = required_param('code', PARAM_TEXT); // Issued Code.
@@ -99,16 +100,20 @@ function send_certificate_file(stdClass $issuedcert) {
  */
 
 function put_watermark($file) {
+    
     global $CFG;
 
     require_once($CFG->libdir.'/pdflib.php');
-    require_once($CFG->dirroot.'/mod/assign/feedback/editpdf/fpdi/fpdi.php');
+    require_once($CFG->dirroot.'/mod/assign/feedback/editpdf/fpdi/autoload.php');
+    // require_once($CFG->dirroot.'/mod/assign/feedback/editpdf/fpdi/FpdfTpl.php');
+    // require_once($CFG->dirroot.'/mod/assign/feedback/editpdf/fpdi/Fpdi.php');
+    
 
     // Copy to a tmp file.
     $tmpfile = $file->copy_content_to_temp();
 
     // TCPF doesn't import files yet, so i must use FPDI.
-    $pdf = new FPDI();
+    $pdf = new TcpdfFpdi();
     $pagecount = $pdf->setSourceFile($tmpfile);
 
     for ($pgnum = 1; $pgnum <= $pagecount; $pgnum++) {
@@ -118,24 +123,24 @@ function put_watermark($file) {
         $size = $pdf->getTemplateSize($templateid);
 
         // Create a page (landscape or portrait depending on the imported page size).
-        if ($size['w'] > $size['h']) {
-            $pdf->AddPage('L', array($size['w'], $size['h']));
+        if ($size['width'] > $size['height']) {
+            $pdf->AddPage('L', array($size['width'], $size['height']));
             // Font size 1/3 Height if it landscape.
-            $fontsize = $size['h'] / 3;
+            $fontsize = $size['height'] / 3;
         } else {
-            $pdf->AddPage('P', array($size['w'], $size['h']));
+            $pdf->AddPage('P', array($size['width'], $size['height']));
             // Font size 1/3 Width if it portrait.
-            $fontsize = $size['w'] / 3;
+            $fontsize = $size['width'] / 3;
         }
 
         // Use the imported page.
         $pdf->useTemplate($templateid);
 
         // Calculating the rotation angle.
-        $rotangle = (atan($size['h'] / $size['w']) * 180) / pi();
+        $rotangle = (atan($size['height'] / $size['width']) * 180) / pi();
         // Find the middle of the page to use as a pivot at rotation.
-        $mdlx = ($size['w'] / 2);
-        $mdly = ($size['h'] / 2);
+        $mdlx = ($size['width'] / 2);
+        $mdly = ($size['height'] / 2);
 
         // Set the transparency of the text to really light.
         $pdf->SetAlpha(0.25);
@@ -151,7 +156,7 @@ function put_watermark($file) {
                                     'phase' => $fontsize / $mdlx)
         );
 
-        $pdf->Cell($size['w'], $fontsize, get_string('certificatecopy', 'simplecertificate'), $bodersytle, 0, 'C', false, '',
+        $pdf->Cell($size['width'], $fontsize, get_string('certificatecopy', 'simplecertificate'), $bodersytle, 0, 'C', false, '',
                 4, true, 'C', 'C');
         $pdf->StopTransform();
 
