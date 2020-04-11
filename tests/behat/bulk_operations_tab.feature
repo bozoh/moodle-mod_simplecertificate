@@ -58,18 +58,15 @@ Feature: Verify bulk operations
       | Certificate Name | Test Simple Certificate |
       | Certificate Text | Test Simple Certificate |
     And I setup a grade restrinction to "Test Simple Certificate" with "Grade assignment" min grade "70"
-    And I press "Save and return to course"
-    And I should not see "Please set"
-    And I am on "Course Test 1" course homepage
-    And I follow "Test Simple Certificate"
-    And I click on "Bulk operations" "link"
-    And I set the field "issuelist" to "All users"
-    Then I should see "Tumé Arandú" in the ".generaltable" "css_element"
-    And I should see "Arasy Guaraní" in the ".generaltable" "css_element"
     And I am on "Course Test 1" course homepage
     And I follow "Test Simple Certificate"
     And I click on "Bulk operations" "link"
     And I set the field "issuelist" to "Users that met the activity conditions"
-    Then I should see "Tumé Arandú" in the ".generaltable" "css_element"
-    But I should not see "Arasy Guaraní" in the ".generaltable" "css_element"
-  
+    Then I should see "Tumé Arandú"
+    And I should not see "Arasy Guaraní"
+    Then I am on "Course Test 1" course homepage
+    And I follow "Test Simple Certificate"
+    And I click on "Bulk operations" "link"
+    And I set the field "issuelist" to "All users"
+    Then I should see "Arasy Guaraní"
+    And I should see "Tumé Arandú"
