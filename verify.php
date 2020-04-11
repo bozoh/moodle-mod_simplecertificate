@@ -91,7 +91,7 @@ function get_issued_cert($code = null) {
 
     $issuedcert = $DB->get_record("simplecertificate_issues", array('code' => $code));
     if (!$issuedcert) {
-        print_error(get_string('invalidcode', 'simplecertificate'));
+        print_error('invalidcode', 'simplecertificate');
     }
     return $issuedcert;
 }
