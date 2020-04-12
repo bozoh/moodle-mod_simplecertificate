@@ -26,7 +26,7 @@ cache:
 env:
   global:
     - MOODLE_START_BEHAT_SERVERS=NO
-    - MOODLE_BRANCH=master
+    - MOODLE_BRANCH=MOODLE_37_STABLE
     - DB=pgsql
     - DOCKER_IMAGE=selenium/standalone-chrome
     - DOCKER_TAG_VERSION=latest
@@ -43,9 +43,7 @@ matrix:
   exclude:
     # New behat version only work with php 7.2
     - php: 5.6
-    - php: 7.0
-    - php: 7.1
-
+    
 before_install:
   - >
       IMAGE_FILE=image-$(echo "${DOCKER_IMAGE}" | sed  -e "s|/|-|g")-${DOCKER_TAG_VERSION}.tar;
