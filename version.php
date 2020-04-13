@@ -33,4 +33,4 @@ $plugin->component = 'mod_simplecertificate';
 $plugin->dependencies = array();
 $plugin->release  = '2.2.10';     // Human-friendly version name.
 // MATURITY_ALPHA, MATURITY_BETA, MATURITY_RC, MATURITY_STABLE.
-$plugin->maturity = MATURITY_RC;
+$plugin->maturity = MATURITY_STABLE;

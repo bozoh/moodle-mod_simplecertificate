@@ -1,4 +1,4 @@
-* [![Build Status](https://travis-ci.org/bozoh/moodle-mod_simplecertificate.svg?branch=release/MOODLE_38_DEV)](https://travis-ci.org/bozoh/moodle-mod_simplecertificate) - Moodle 3.8 dev
+* [![Build Status](https://travis-ci.org/bozoh/moodle-mod_simplecertificate.svg?branch=release/MOODLE_38_STABLE)](https://travis-ci.org/bozoh/moodle-mod_simplecertificate) - Moodle 3.8
 * [![Analytics](https://ga-beacon.appspot.com/UA-162885832-2/simplecerticate/plugin/readme?pixel)](https://github.com/bozoh/moodle-mod_simplecertificate)
 
 
