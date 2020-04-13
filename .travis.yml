@@ -27,7 +27,7 @@ env:
   global:
     - MOODLE_START_BEHAT_SERVERS=NO
     - MOODLE_BRANCH=MOODLE_38_STABLE
-    - DB=pgsq
+    - DB=pgsql
     - DOCKER_IMAGE=selenium/standalone-chrome
     - DOCKER_TAG_VERSION=latest
     - MOODLE_CI_VER=2
