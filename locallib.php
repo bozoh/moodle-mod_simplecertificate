@@ -1415,6 +1415,18 @@ class simplecertificate {
             $a->hours = '';
         }
 
+        // Getting custom course fields.
+        $coursectx = $this->get_course_context();
+        if (isset($this->context) && isset($this->context->instanceid) && $coursectx && isset($coursectx->instanceid)) {
+            $customcoursefields = $this->get_custom_course_fields($coursectx->instanceid);
+            if ($customcoursefields) {
+                foreach ($customcoursefields as $key => $value) {
+                    $key = 'course_' . $key;
+                    $a->$key = strip_tags($value);
+                }
+            }
+        }
+
         $teachers = $this->get_teachers();
         if (empty($teachers)) {
             $teachers = '';
@@ -1759,6 +1771,16 @@ class simplecertificate {
             }
         }
         return $usercustomfields;
+    }
+
+    protected function get_custom_course_fields($courseid) {
+        global $DB;
+        $records = $DB->get_records_sql('SELECT d.id, f.shortname, d.value FROM {customfield_data} d INNER JOIN {customfield_field} f ON f.id = d.fieldid WHERE d.instanceid = :instanceid', array('instanceid' => $courseid));
+        $customcoursefields = [];
+        foreach ($records as $record) {
+            $customcoursefields[$record->shortname] = $record->value;
+        }
+        return $customcoursefields;
     }
 
     /**

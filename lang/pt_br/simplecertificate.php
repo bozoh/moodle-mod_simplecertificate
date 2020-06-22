@@ -140,11 +140,11 @@ Os marcadores são:
 <li>{TIMESTART} -> Data de inscrição do usuário no curso</li>
 <li>{USERIMAGE} -> Imagem do perfil do usuário</li>
 <li>{USERRESULTS} -> Resultados (notas) dos usuarios de outras atividades do curso</li>
-<li>{PROFILE_xxxx} -> Campos personalizados</li>
+<li>{PROFILE_xxxx} -> Campos personalizados do perfil do usuário</li>
+<li>{COURSE_xxxx} -> Campos personalizados do curso</li>
 </ul>
 <p>
-Para usar campos personalizados deve usar o prefixo "PROFILE_", por exemplo, se criar um campo com a abreviação (shortname) de aniversario, então deve-se usar o marcador
-"PROFILE_ANIVERSARIO"
+Para usar campos personalizados deve usar o prefixo "PROFILE_", por exemplo, se criar um campo com a abreviação (shortname) de aniversario, então deve-se usar o marcador "PROFILE_ANIVERSARIO". A mesma regra se aplica aos campos do tipo COURSE_.
 O texto pode ser um HTML básico, com fontes básicas do HTLM, tabelas, mas evitar o uso de posicionamento.</p>';
 
 
