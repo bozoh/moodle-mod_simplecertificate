@@ -435,5 +435,28 @@ function xmldb_simplecertificate_upgrade($oldversion = 0) {
         // Simplecertificate savepoint reached.
         upgrade_mod_savepoint(true, 2017013001, 'simplecertificate');
     }
+    if ($oldversion < 2020091500) {
+
+        // Define index course (not unique) to be added to simplecertificate.
+        $table = new xmldb_table('simplecertificate');
+        $index = new xmldb_index('course', XMLDB_INDEX_NOTUNIQUE, ['course']);
+
+        // Conditionally launch add index course.
+        if (!$dbman->index_exists($table, $index)) {
+            $dbman->add_index($table, $index);
+        }
+
+        // Define index certificate_user (not unique) to be added to simplecertificate_issues.
+        $table = new xmldb_table('simplecertificate_issues');
+        $index = new xmldb_index('certificate_user', XMLDB_INDEX_NOTUNIQUE, ['certificateid', 'userid']);
+
+        // Conditionally launch add index certificate_user.
+        if (!$dbman->index_exists($table, $index)) {
+            $dbman->add_index($table, $index);
+        }
+
+        // Simplecertificate savepoint reached.
+        upgrade_mod_savepoint(true, 2020091500, 'simplecertificate');
+    }
     return true;
 }
