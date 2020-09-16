@@ -279,6 +279,9 @@ $string['eventcertificate_verified_description'] = 'The user with id {$a->userid
 $string['deleteall'] = "Delete All";
 $string['deleteselected'] = "Delete Selected";
 
-
-
+// GDPR.
+$string['privacy:metadata:simplecertificate_issues'] = "Issues of simplecertificate module";
+$string['privacy:metadata:userid'] = "User ID";
+$string['privacy:metadata:certificatename'] = "Certificate Name";
+$string['privacy:metadata:code'] = "Code";
 
