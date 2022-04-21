@@ -1397,7 +1397,7 @@ class simplecertificate {
         $userprofilefields = $this->get_user_profile_fields($user->id);
         foreach ($userprofilefields as $key => $value) {
             $key = 'profile_' . $key;
-            $a->$key = strip_tags($value);
+            $a->$key = $value;
         }
         // The course name never change form a certificate to another, useless
         // text mark and atribbute, can be removed.
