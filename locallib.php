@@ -2024,7 +2024,7 @@ class simplecertificate {
             $table->width = "95%";
             $table->tablealign = "center";
 
-            $table->head = array(' ', get_string('fullname'), get_string('grade'));
+            $table->head = array(' ', get_string('fullname'), get_string('grade', 'simplecertificate'));
             $table->align = array("left", "left", "center");
             $table->size = array('1%', '89%', '10%');
 
