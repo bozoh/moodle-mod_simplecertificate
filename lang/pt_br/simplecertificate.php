@@ -196,6 +196,7 @@ $string['issueoptions'] = 'Opções de Emissão';
 $string['designoptions'] = 'Opções de Design';
 
 // Emails text.
+$string['notifyonrestriction'] = 'E-Mail students with attached certificate, when access restrictions are met.';
 $string['emailstudentsubject'] = 'Seu certificado do curso {$a->course}';
 $string['emailstudenttext'] = '
 Olá {$a->username},
@@ -293,3 +294,6 @@ $string['eventcertificate_verified_description'] = 'O usuário com o id {$a->use
 
 $string['deleteall'] = "Remover todos";
 $string['deleteselected'] = "Remover Selecionados";
+
+$string['nocertificateavailable'] = 'Please finish the course in order to get your certificate.';
+$string['checkforcompletion'] = 'Restriction Event Task';

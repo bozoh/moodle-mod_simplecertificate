@@ -20,7 +20,6 @@ if (!defined('MOODLE_INTERNAL')) {
 
 require_once($CFG->dirroot.'/lib/formslib.php');
 
-
 class verify_form extends moodleform {
 
     // Define the form.
