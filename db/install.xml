@@ -42,12 +42,13 @@
                 <FIELD NAME="secondpagetextformat" TYPE="text" NOTNULL="false" SEQUENCE="false" PREVIOUS="secondpagetext" NEXT="secondimage"/>
                 <FIELD NAME="secondimage" TYPE="text" NOTNULL="false" SEQUENCE="false" PREVIOUS="secondpagetextformat" NEXT="timestartdatefmt"/>
                 <FIELD NAME="timestartdatefmt" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" PREVIOUS="secondpagetextformat" />
+                <FIELD NAME="notifyonrestriction" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="timestartdatefmt"/>
             </FIELDS>
             <KEYS>
                 <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
             </KEYS>
         </TABLE>
-                
+
         <TABLE NAME="simplecertificate_issues" COMMENT="Issues of simplecertificate module"
                PREVIOUS="simplecertificate">
             <FIELDS>

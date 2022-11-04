@@ -180,6 +180,7 @@ $string['issueoptions'] = 'Issue Options';
 $string['designoptions'] = 'Design Options';
 
 // Emails text.
+$string['notifyonrestriction'] = 'E-Mail students with attached certificate, when access restrictions are met.';
 $string['emailstudentsubject'] = 'Your certificate for {$a->course}';
 $string['emailstudenttext'] = '
 Hello {$a->username},
@@ -196,6 +197,17 @@ for {$a->course}.
 You can review it here:
 
     {$a->url}';
+
+
+$string['emailcoursecompletionsubject'] = 'You got a certificate';
+$string['emailcoursecompletioncontent'] = 'Hello {$a->name},
+
+you got a certificate for the course {$a->coursename}.
+
+Please download it:
+{$a->url}';
+
+
 
 $string['emailteachermailhtml'] = '
 {$a->student} has received their certificate: \'<i>{$a->certificate}</i>\'
@@ -279,9 +291,14 @@ $string['eventcertificate_verified_description'] = 'The user with id {$a->userid
 $string['deleteall'] = "Delete All";
 $string['deleteselected'] = "Delete Selected";
 
+
+$string['nocertificateavailable'] = 'Please finish the course in order to get your certificate.';
+$string['checkforcompletion'] = 'Restriction Event Task';
+
 // GDPR.
 $string['privacy:metadata:simplecertificate_issues'] = "Issues of simplecertificate module";
 $string['privacy:metadata:userid'] = "User ID";
 $string['privacy:metadata:certificatename'] = "Certificate Name";
 $string['privacy:metadata:code'] = "Code";
+
 
