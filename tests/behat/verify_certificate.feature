@@ -32,5 +32,4 @@ Feature: Verify certificate  authenticity by code, in verification page
     Then I should see "Tumé Arandú"
     And I should see the "student1" certificate "Test Simple Certificate" code
     And I should see "Course Verify"
-    #But "Tupã Xingú" "text" should not exist in the ".generaltable" "css_element" 
 	

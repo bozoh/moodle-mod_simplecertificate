@@ -12,118 +12,61 @@ Feature: Verify bulk operations
       | student2 | Arasy     | Guaraní  | student2@example.com |
     And the following "courses" exist:
       | fullname | shortname | category |
-      | Course 1 | C1 | 0 |
+      | Course Test 1 | C1 | 0 |
     And the following "course enrolments" exist:
       | user | course | role |
       | teacher1 | C1 | editingteacher |
       | student1 | C1 | student |
       | student2 | C1 | student |
     And I log in as "teacher1"
-    #Moodle 3.2 and below
-    #And I follow "Course 1"
-    And I am on "Course 1" course homepage
+    And I am on "Course Test 1" course homepage
     And I turn editing mode on
     And I add a "Assignment" to section "1" and I fill the form with:
       | Assignment name | Grade assignment |
       | Description | Grade this assignment to revoke restriction on restricted assignment |
       | assignsubmission_onlinetext_enabled | 0 |
       | assignsubmission_file_enabled | 0 |
-    And I add a "Simple Certificate" to section "2" and I fill the form with:
-      | Certificate Name | Test Simple Certificate |
-      | Certificate Text | Test Simple Certificate |
-	And I log out
+    
+    And I log out
 
   Scenario: Verify if list all user without any grading restrictions
     Given I log in as "teacher1"
-    #Moodle 3.2 and below
-    #And I follow "Course 1"
-    And I am on "Course 1" course homepage
+    And I am on "Course Test 1" course homepage
+    And I turn editing mode on
+    And I add a "Simple Certificate" to section "2" and I fill the form with:
+      | Certificate Name | Test Simple Certificate |
+      | Certificate Text | Test Simple Certificate |
+    And I turn editing mode off
     And I follow "Test Simple Certificate"
     And I click on "Bulk operations" "link"
     And I set the field "issuelist" to "All users"
     Then "Tumé Arandú" "text" should exist in the ".generaltable" "css_element"
     And "Arasy Guaraní" "text" should exist in the ".generaltable" "css_element"
     
-  
   @javascript  
-  Scenario: Verify if list all user with grading restrictions
-    Given I log in as "teacher1"
-    #Moodle 3.2 and below
-    #And I follow "Course 1"
-    And I am on "Course 1" course homepage
-    And I put a grade restrinction to "Test Simple Certificate" with "Grade assignment" min grade "70"
-    And I follow "Grade assignment"
-      #	Old version 3.1 or less
-#    And I follow "View all submissions"
-    And I navigate to "View all submissions" in current page administration
-    And I click on "Grade" "link" in the "Tumé Arandú" "table_row"
-    And I set the following fields to these values:
-      | Grade | 70 |
-    And I press "Save changes"
-    And I press "Ok"
-    And I follow "Edit settings"
-    And I press "Cancel"
-    And I follow "Grade assignment"
-    #	Old version 3.1 or less
-#    And I follow "View all submissions"
-    And I navigate to "View all submissions" in current page administration
-    And I click on "Grade" "link" in the "Arasy Guaraní" "table_row"
-    And I set the following fields to these values:
-      | Grade | 69 |
-    And I press "Save changes"
-    And I press "Ok"
-    And I follow "Edit settings"
-    And I press "Cancel"
-    #Moodle 3.2 and below
-    #And I follow "Course 1"
-    And I am on "Course 1" course homepage
-    And I follow "Test Simple Certificate"
-    And I click on "Bulk operations" "link"
-    And I set the field "issuelist" to "All users"
-    Then "Tumé Arandú" "text" should exist in the ".generaltable" "css_element"
-    And "Arasy Guaraní" "text" should exist in the ".generaltable" "css_element"
-       
-  @javascript  
-  Scenario: Verify if list only user whose match grading restrictions
+  Scenario: Verify options: list all users,  Users that met the activity conditions with grading restrictions
   	Given I log in as "teacher1"
-    #Moodle 3.2 and below
-    #And I follow "Course 1"
-    And I am on "Course 1" course homepage
-    And I put a grade restrinction to "Test Simple Certificate" with "Grade assignment" min grade "70"
-    And I follow "Grade assignment"
-  #	Old version 3.1 or less
-#    And I follow "View all submissions"
-    And I navigate to "View all submissions" in current page administration
-    And I click on "Grade" "link" in the "Tumé Arandú" "table_row"
-    And I set the following fields to these values:
-      | Grade | 70 |
+    And I am on "Course Test 1" course homepage
+    And I navigate to "View > Grader report" in the course gradebook
+    And I turn editing mode on
+    And I give the grade "70" to the user "Tumé Arandú" for the grade item "Grade assignment"
+    And I give the grade "69" to the user "Arasy Guaraní" for the grade item "Grade assignment"
     And I press "Save changes"
-    And I press "Ok"
-    And I follow "Edit settings"
-    And I press "Cancel"
-    And I follow "Grade assignment"
-      #	Old version 3.1 or less
-#    And I follow "View all submissions"
-    And I navigate to "View all submissions" in current page administration
-    And I click on "Grade" "link" in the "Arasy Guaraní" "table_row"
-    And I set the following fields to these values:
-      | Grade | 69 |
-    And I press "Save changes"
-    And I press "Ok"
-    And I follow "Edit settings"
-    And I press "Cancel"
-    #Moodle 3.2 and below
-    #And I follow "Course 1"
-    And I am on "Course 1" course homepage
+    And I am on "Course Test 1" course homepage
+    And I turn editing mode on
+    And I add a "Simple Certificate" to section "2" and I fill the form with:
+      | Certificate Name | Test Simple Certificate |
+      | Certificate Text | Test Simple Certificate |
+    And I setup a grade restrinction to "Test Simple Certificate" with "Grade assignment" min grade "70"
+    And I am on "Course Test 1" course homepage
     And I follow "Test Simple Certificate"
     And I click on "Bulk operations" "link"
     And I set the field "issuelist" to "Users that met the activity conditions"
-    Then "Tumé Arandú" "text" should exist in the ".generaltable" "css_element"
-    But "Arasy Guaraní" "text" should not exist in the ".generaltable" "css_element"
-  
-  
-  
-    
-    
-    
-	
+    Then I should see "Tumé Arandú"
+    And I should not see "Arasy Guaraní"
+    Then I am on "Course Test 1" course homepage
+    And I follow "Test Simple Certificate"
+    And I click on "Bulk operations" "link"
+    And I set the field "issuelist" to "All users"
+    Then I should see "Arasy Guaraní"
+    And I should see "Tumé Arandú"

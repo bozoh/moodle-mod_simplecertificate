@@ -19,18 +19,19 @@
  *
  * @package    mod
  * @subpackage simplecertificate
- * @author       Carlos Alexandre S. da Fonseca
+ * @author     Carlos Alexandre S. da Fonseca
  * @copyright  2013 - Carlos Alexandre S. da Fonseca
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or late
  */
 
 
 defined('MOODLE_INTERNAL') || die();
-$plugin->version  = 2018120402;  // The current module version (Date: YYYYMMDDXX).
-$plugin->requires = 2016111300;  // Requires this Moodle version (moodle 3.4.x).
+
+$plugin->version  = 2020041239;  // The current module version (Date: YYYYMMDDXX).
+$plugin->requires = 2020040800;  // Requires this Moodle version (moodle 3.9.x).
 $plugin->cron     = 4 * 3600;    // Period for cron to check this module (secs).
 $plugin->component = 'mod_simplecertificate';
 $plugin->dependencies = array();
-$plugin->release  = '2.2.7';     // Human-friendly version name.
+$plugin->release  = '2.2.10';     // Human-friendly version name.
 // MATURITY_ALPHA, MATURITY_BETA, MATURITY_RC, MATURITY_STABLE.
-$plugin->maturity = MATURITY_STABLE;
+$plugin->maturity = MATURITY_ALPHA;

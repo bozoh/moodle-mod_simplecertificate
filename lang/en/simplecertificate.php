@@ -32,7 +32,7 @@ $string['issued'] = 'Issued';
 $string['coursegrade'] = 'Course Grade';
 $string['getcertificate'] = 'Get your certificate';
 $string['awardedto'] = 'Awarded To';
-$string['receiveddate'] = 'Date Received';
+$string['receiveddate'] = 'Issued Date';
 $string['grade'] = 'Grade';
 $string['code'] = 'Code';
 $string['report'] = 'Report';
@@ -106,6 +106,7 @@ $string['openbrowser'] = 'Open in new window';
 $string['download'] = 'Force download';
 $string['emailcertificate'] = 'Email';
 $string['nodelivering'] = 'No delivering, user will receive this certificate using others ways';
+$string['emailoncompletion'] = 'Email on course completion';
 // Form options help text.
 $string['certificatename_help'] = 'Certificate Name';
 $string['certificatetext_help'] = 'This is the text that will be used in the certificate back, some special words will be replaced with variables such as course name, student\'s name, grade ...
@@ -290,6 +291,14 @@ $string['eventcertificate_verified_description'] = 'The user with id {$a->userid
 $string['deleteall'] = "Delete All";
 $string['deleteselected'] = "Delete Selected";
 
+
 $string['nocertificateavailable'] = 'Please finish the course in order to get your certificate.';
 $string['checkforcompletion'] = 'Restriction Event Task';
+
+// GDPR.
+$string['privacy:metadata:simplecertificate_issues'] = "Issues of simplecertificate module";
+$string['privacy:metadata:userid'] = "User ID";
+$string['privacy:metadata:certificatename'] = "Certificate Name";
+$string['privacy:metadata:code'] = "Code";
+
 

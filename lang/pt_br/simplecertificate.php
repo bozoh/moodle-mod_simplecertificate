@@ -32,7 +32,7 @@ $string['issued'] = 'Emitidos';
 $string['coursegrade'] = 'Nota do curso';
 $string['getcertificate'] = 'Obtenha seu certificado';
 $string['awardedto'] = 'Obtido para';
-$string['receiveddate'] = 'Data de Recebimento';
+$string['receiveddate'] = 'Data de Criação';
 $string['grade'] = 'Nota';
 $string['code'] = 'Código';
 $string['report'] = 'Relatório';
@@ -152,7 +152,17 @@ $string['textposition'] = 'Posicionamento do Texto do Certificado';
 $string['textposition_help'] = 'Essas são as coordenadas XY (em milímetros) do texto do certificado';
 $string['size'] = 'Tamanho do Certificado';
 $string['size_help'] = 'Esse é o tamanho, Largura e Altura (em milímetros) do certificado, o padrão é A4 paisagem';
-$string['coursename_help'] = 'Nome alternativo do curso que vai ser impresso no certificado';
+$string['coursename_help'] = 'Nome Alternativo do curso.<br>
+<p>O nome alternativo do curso irá substituir o nome do curso no textmark
+<pre>{COURSENAME}</pre>, e também no nome do arquivo gerado para download.</p>
+<p>Muito útil quando um curso tem um nome, mas no certificado deveria parecer outro nome.</p>
+<br><br>
+<p>Por exemplo:<br><br>
+<pre>Nome do curso: "Trabalho de final de curso"</pre><br>
+<pre>Nome alternativo "Português Instrumental"</pre><br><br>
+<p>Então, no texto de certificado, a textmark <pre>{COURSENAME}</pre> vai ser substituída por
+<pre>"Português Instrumental"</pre>, e o nome do arquivo do certificado será
+<pre>portuges_instrumental-<NOME_DO_CERIFICADO>.pdf</pre></p>';
 $string['certificateimage_help'] = 'Esta figura será usada no certificado';
 
 $string['printoutcome_help'] = 'Você pode escolher qualquer resultado (outcome) definido neste curso. Será impresso o nome do resultado e o resultado recebido  pelo usuário. Um exemplo poderia ser: Resultado: Proficiente.';

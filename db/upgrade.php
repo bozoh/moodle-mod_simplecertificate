@@ -333,7 +333,8 @@ function xmldb_simplecertificate_upgrade($oldversion = 0) {
                 $cm = get_coursemodule_from_instance('simplecertificate', $issued->certificateid, $courseid, false, MUST_EXIST);
                 $context = context_module::instance($cm->id);
 
-                if ($user = $DB->get_record("user", array('id' => $issued->userid))) {
+                $user = $DB->get_record("user", array('id' => $issued->userid));
+                if ($user) {
                     $filename = str_replace(' ', '_',
                                             clean_filename(
                                                $issued->certificatename . ' ' . fullname($user) . ' ' . $issued->id . '.pdf'));
@@ -347,13 +348,17 @@ function xmldb_simplecertificate_upgrade($oldversion = 0) {
                 if ($fs->file_exists($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'], $fileinfo['itemid'],
                                     $fileinfo['filepath'], $fileinfo['filename'])) {
 
-                    $file = $fs->get_file($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'],
-                                        $fileinfo['itemid'], $fileinfo['filepath'], $fileinfo['filename']);
+                    $file = $fs->get_file(
+                        $fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'],
+                        $fileinfo['itemid'], $fileinfo['filepath'], $fileinfo['filename']
+                    );
 
-                    $fileinfo['filename'] = str_replace(' ', '_',
-                                                        clean_filename($issued->certificatename . ' ' . $issued->id . '.pdf'));
+                    $fileinfo['filename'] = str_replace(
+                        ' ', '_', clean_filename($issued->certificatename . ' ' . $issued->id . '.pdf')
+                    );
 
-                    if ($newfile = $fs->create_file_from_storedfile($fileinfo, $file)) {
+                    $newfile = $fs->create_file_from_storedfile($fileinfo, $file);
+                    if ($newfile) {
                         $file->delete();
                         $issued->pathnamehash = $newfile->get_pathnamehash();
                     }
@@ -405,10 +410,12 @@ function xmldb_simplecertificate_upgrade($oldversion = 0) {
             $count = 0;
             $pbar = new progress_bar('simplecertificateupdate', 500, true);
             foreach ($issuedcerts as $issued) {
-                if (!$coursename = $DB->get_field('simplecertificate', 'coursename', array('id' => $issued->certificateid))) {
+                $coursename = $DB->get_field('simplecertificate', 'coursename', array('id' => $issued->certificateid));
+                if (!$coursename) {
                     try {
-                        $courseid = $DB->get_field('simplecertificate', 'course', array('id' => $issued->certificateid),
-                                        MUST_EXIST);
+                        $courseid = $DB->get_field(
+                            'simplecertificate', 'course', array('id' => $issued->certificateid), MUST_EXIST
+                        );
                         $coursename = $DB->get_field('course', 'fullname', array('id' => $courseid), MUST_EXIST);
                     } catch (Exception $e) {
                         if (empty($issued->timedeleted)) {

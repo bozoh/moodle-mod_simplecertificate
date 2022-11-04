@@ -1,0 +1,75 @@
+sudo: required
+
+notifications:
+  on_success: never #change #never # default: change
+  on_failure: never #always # default: always
+
+language: php
+
+php:
+  - 5.6
+  - 7.0
+  - 7.1
+  - 7.2
+
+addons:
+  postgresql: "9.6"
+  services:
+    - docker
+
+cache:
+  directories:
+    - $HOME/.composer/cache
+    - $HOME/.npm
+    - $HOME/.docker/cache
+
+env:
+  global:
+    - MOODLE_START_BEHAT_SERVERS=NO
+    - MOODLE_BRANCH=master
+    - DB=pgsql
+    - DOCKER_IMAGE=selenium/standalone-chrome
+    - DOCKER_TAG_VERSION=latest
+    - MOODLE_CI_VER=2
+    - MOODLE_DIR=/home/travis/build/moodle
+  
+
+matrix:
+  # include:
+  #   - php: 7.0
+  #     env: MOODLE_BRANCH=MOODLE_33_STABLE
+  # - env: MOODLE_BRANCH=MOODLE_34_STABLE MOODLE_CI_VER=2
+  # - env: MOODLE_BRANCH=MOODLE_35_STABLE MOODLE_CI_VER=2
+  exclude:
+    # New behat version only work with php 7.2
+    - php: 5.6
+    - php: 7.0
+    - php: 7.1
+
+before_install:
+  - >
+      IMAGE_FILE=image-$(echo "${DOCKER_IMAGE}" | sed  -e "s|/|-|g")-${DOCKER_TAG_VERSION}.tar;
+      echo ${IMAGE_FILE};
+      if [ ! -e "${HOME}/.docker/cache/${IMAGE_FILE}" ]; then
+        rm -rf ${HOME}/.docker/cache/image*.tar;
+        docker pull ${DOCKER_IMAGE}:${DOCKER_TAG_VERSION};
+        docker save ${DOCKER_IMAGE}:${DOCKER_TAG_VERSION} -o ${HOME}/.docker/cache/${IMAGE_FILE};
+      fi;
+      docker load -i ${HOME}/.docker/cache/${IMAGE_FILE}
+
+  - phpenv config-rm xdebug.ini
+  - cd ../..
+  - composer selfupdate
+  - composer create-project -n --no-dev --prefer-dist moodlerooms/moodle-plugin-ci ci ^${MOODLE_CI_VER}
+  - export PATH="$(cd ci/bin; pwd):$(cd ci/vendor/bin; pwd):$PATH"
+  - sleep 10
+
+install:
+  - moodle-plugin-ci install
+  - docker run --rm --net=host -d -p4444:4444 ${DOCKER_IMAGE}:${DOCKER_TAG_VERSION}
+  - php -t ${MOODLE_DIR} -S localhost:8000 &>/tmp/www.log &
+  - sleep 20s
+
+script:
+  #- moodle-plugin-ci behat --moodle=${MOODLE_DIR} --auto-rerun=0
+  - moodle-plugin-ci behat --profile='chrome' --moodle=${MOODLE_DIR}

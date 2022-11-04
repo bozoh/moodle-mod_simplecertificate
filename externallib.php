@@ -52,11 +52,14 @@ class mod_simplecertificate_external extends external_api {
         if (empty($code)) {
             throw new invalid_parameter_exception('Empty code');
         }
-        if (!$issuecert = $DB->get_record('simplecertificate_issues', array('code' => $code))) {
+
+        $issuecert = $DB->get_record('simplecertificate_issues', array('code' => $code));
+        if (!$issuecert) {
             throw new invalid_parameter_exception('Invalid code');
         }
 
-        if (!$user = get_complete_user_data('id', $issuecert->userid)) {
+        $user = get_complete_user_data('id', $issuecert->userid);
+        if (!$user) {
             throw new moodle_exception('cannotfinduser', 'error', null, '');
         }
 
