@@ -691,7 +691,7 @@ class simplecertificate {
         $gradecolumn = $this->get_instance()->certgrade;
 
         if ($gradecolumn) {
-            $table->head[] = get_string('grade');
+            $table->head[] = get_string('grade', 'simplecertificate');
             $table->align[] = 'center';
             $table->size[] = '';
         }
@@ -2021,7 +2021,7 @@ class simplecertificate {
             $table->width = "95%";
             $table->tablealign = "center";
 
-            $table->head = array(' ', get_string('fullname'), get_string('grade'));
+            $table->head = array(' ', get_string('fullname'), get_string('grade', 'simplecertificate'));
             $table->align = array("left", "left", "center");
             $table->size = array('1%', '89%', '10%');
 
@@ -2323,7 +2323,7 @@ class simplecertificate {
             $table = new html_table();
             $table->width = "95%";
             $table->tablealign = "center";
-            $table->head = array(' ', get_string('fullname'), get_string('grade'));
+            $table->head = array(' ', get_string('fullname'), get_string('grade', 'simplecertificate'));
             $table->align = array("left", "left", "center");
             $table->size = array('1%', '89%', '10%');
 
