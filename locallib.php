@@ -691,7 +691,7 @@ class simplecertificate {
         $gradecolumn = $this->get_instance()->certgrade;
 
         if ($gradecolumn) {
-            $table->head[] = get_string('grade');
+            $table->head[] = get_string('grade', 'simplecertificate');
             $table->align[] = 'center';
             $table->size[] = '';
         }
@@ -991,7 +991,7 @@ class simplecertificate {
      * @param bool $isbulk Tell if it is a bulk operation or not
      * @return mixed PDF object or error
      */
-    protected function create_pdf(stdClass $issuecert, $pdf = null, $isbulk = false) {
+    public function create_pdf(stdClass $issuecert, $pdf = null, $isbulk = false) {
         global $CFG;
 
         // Check if certificate file is already exists, if issued has changes, it will recreated.
@@ -1103,7 +1103,7 @@ class simplecertificate {
      * @param stdClass $issuecert the certificate issue record
      * @return mixed return stored_file if successful, false otherwise
      */
-    protected function save_pdf(stdClass $issuecert) {
+    public function save_pdf(stdClass $issuecert) {
         global $DB, $CFG;
 
         // Check if file exist.
@@ -1177,14 +1177,13 @@ class simplecertificate {
      *
      * @param $issuecert The issue certificate object
      */
-    public function send_certificade_email(stdClass $issuecert) { // previously protected
+    public function send_certificade_email(stdClass $issuecert) {
         global $DB, $CFG;
 
         $user = $DB->get_record('user', array('id' => $issuecert->userid));
         if (!$user) {
             print_error('nousersfound', 'moodle');
         }
-
         $info = new stdClass();
         $info->username = format_string(fullname($user), true);
         $info->certificate = format_string($issuecert->certificatename, true);
@@ -1213,10 +1212,8 @@ class simplecertificate {
             } else {
                 $from = format_string($this->get_instance()->emailfrom, true);
             }
-
             $ret = email_to_user($user, $from, $subject, $message, $messagehtml, $relativefilepath, $file->get_filename());
             @unlink($fullfilepath);
-
             return $ret;
         } else {
             print_error(get_string('filenotfound', 'simplecertificate'));
@@ -2024,7 +2021,7 @@ class simplecertificate {
             $table->width = "95%";
             $table->tablealign = "center";
 
-            $table->head = array(' ', get_string('fullname'), get_string('grade'));
+            $table->head = array(' ', get_string('fullname'), get_string('grade', 'simplecertificate'));
             $table->align = array("left", "left", "center");
             $table->size = array('1%', '89%', '10%');
 
@@ -2326,7 +2323,7 @@ class simplecertificate {
             $table = new html_table();
             $table->width = "95%";
             $table->tablealign = "center";
-            $table->head = array(' ', get_string('fullname'), get_string('grade'));
+            $table->head = array(' ', get_string('fullname'), get_string('grade', 'simplecertificate'));
             $table->align = array("left", "left", "center");
             $table->size = array('1%', '89%', '10%');
 

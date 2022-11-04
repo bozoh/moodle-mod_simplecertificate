@@ -1,70 +1,76 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="mod/simplecertificate/db" VERSION="20121203"
-       COMMENT="XMLDB file for Moodle mod/simplecertificate" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd">
-    <TABLES>
-        <TABLE NAME="simplecertificate" COMMENT="Simple Certificate" NEXT="simplecertificate_issues">
-            <FIELDS>
-                <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" NEXT="course"/>
-                <FIELD NAME="course" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="id" NEXT="name"/>
-                <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" PREVIOUS="course" NEXT="intro"/>
-                <FIELD NAME="intro" TYPE="text" NOTNULL="true" SEQUENCE="false" PREVIOUS="name" NEXT="introformat"/>
-                <FIELD NAME="introformat" TYPE="int" LENGTH="4" NOTNULL="false" DEFAULT="0" SEQUENCE="false" PREVIOUS="intro" NEXT="timecreated"/>
-                <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="introformat" NEXT="timemodified"/>
-                <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false" PREVIOUS="timecreated" NEXT="width"/>
-                <FIELD NAME="width" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="297" SEQUENCE="false" PREVIOUS="timemodified" NEXT="height"/>
-                <FIELD NAME="height" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="210" SEQUENCE="false" PREVIOUS="width" NEXT="certificateimage"/>
-                <FIELD NAME="certificateimage" TYPE="text" NOTNULL="false" SEQUENCE="false" PREVIOUS="height" NEXT="certificatetext"/>
-                <FIELD NAME="certificatetext" TYPE="text" NOTNULL="true" SEQUENCE="false" PREVIOUS="certificateimage" NEXT="certificatetextformat"/>
-                <FIELD NAME="certificatetextformat" TYPE="text" NOTNULL="true" SEQUENCE="false" PREVIOUS="certificatetext" NEXT="certificatetextx"/>
-                <FIELD NAME="certificatetextx" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="10" SEQUENCE="false" PREVIOUS="certificatetextformat" NEXT="certificatetexty"/>
-                <FIELD NAME="certificatetexty" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="50" SEQUENCE="false" PREVIOUS="certificatetextx" NEXT="coursename"/>
-                <FIELD NAME="coursename" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" PREVIOUS="certificatetexty" NEXT="outcome"/>
-                <FIELD NAME="outcome" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="coursename" NEXT="certdate"/>
-                <FIELD NAME="certdate" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="-2" SEQUENCE="false" PREVIOUS="outcome" NEXT="certdatefmt"/>
-                <FIELD NAME="certdatefmt" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" PREVIOUS="certdate" NEXT="certgrade"/>
-                <FIELD NAME="certgrade" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="certdatefmt" NEXT="gradefmt"/>
-                <FIELD NAME="gradefmt" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="certgrade" NEXT="emailfrom"/>
-                <FIELD NAME="emailfrom" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" PREVIOUS="gradefmt" NEXT="emailothers"/>
-                <FIELD NAME="emailothers" TYPE="text" NOTNULL="false" SEQUENCE="false" PREVIOUS="emailfrom" NEXT="emailteachers"/>
-                <FIELD NAME="emailteachers" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="emailothers" NEXT="reportcert"/>
-                <FIELD NAME="reportcert" TYPE="int" LENGTH="1" NOTNULL="false" DEFAULT="0" SEQUENCE="false" PREVIOUS="emailteachers" NEXT="delivery"/>
-                <FIELD NAME="delivery" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="reportcert" NEXT="requiredtime"/>
-                <FIELD NAME="requiredtime" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="delivery" NEXT="printqrcode"/>
-                <FIELD NAME="printqrcode" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false" PREVIOUS="requiredtime" NEXT="qrcodefirstpage"/>
-                <FIELD NAME="qrcodefirstpage" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="printqrcode" NEXT="codex"/>
-                <FIELD NAME="codex" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="10" SEQUENCE="false" PREVIOUS="qrcodefirstpage" NEXT="codey"/>
-                <FIELD NAME="codey" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="10" SEQUENCE="false" PREVIOUS="codex" NEXT="enablesecondpage"/>
-                <FIELD NAME="enablesecondpage" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="codey" NEXT="secondpagex"/>
-                <FIELD NAME="secondpagex" TYPE="int" LENGTH="4" NOTNULL="false" DEFAULT="10" SEQUENCE="false" PREVIOUS="enablesecondpage" NEXT="secondpagey"/>
-                <FIELD NAME="secondpagey" TYPE="int" LENGTH="4" NOTNULL="false" DEFAULT="50" SEQUENCE="false" PREVIOUS="secondpagex" NEXT="secondpagetext"/>
-                <FIELD NAME="secondpagetext" TYPE="text" NOTNULL="false" SEQUENCE="false" PREVIOUS="secondpagey" NEXT="secondpagetextformat"/>
-                <FIELD NAME="secondpagetextformat" TYPE="text" NOTNULL="false" SEQUENCE="false" PREVIOUS="secondpagetext" NEXT="secondimage"/>
-                <FIELD NAME="secondimage" TYPE="text" NOTNULL="false" SEQUENCE="false" PREVIOUS="secondpagetextformat" NEXT="timestartdatefmt"/>
-                <FIELD NAME="timestartdatefmt" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" PREVIOUS="secondpagetextformat" />
-            </FIELDS>
-            <KEYS>
-                <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
-            </KEYS>
-        </TABLE>
-                
-        <TABLE NAME="simplecertificate_issues" COMMENT="Issues of simplecertificate module"
-               PREVIOUS="simplecertificate">
-            <FIELDS>
-                <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" NEXT="certificateid"/>
-                <FIELD NAME="certificateid" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="id" NEXT="userid"/>
-                <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="certificateid" NEXT="certificatename"/>
-                <FIELD NAME="certificatename" TYPE="text" NOTNULL="true" SEQUENCE="false" PREVIOUS="userid" NEXT="code"/>
-                <FIELD NAME="code" TYPE="char" LENGTH="36" NOTNULL="true" SEQUENCE="false" PREVIOUS="certificatename" NEXT="timecreated"/>
-                <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="code" NEXT="timedeleted"/>
-                <FIELD NAME="timedeleted" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" SEQUENCE="false" PREVIOUS="timecreated" NEXT="haschange"/>
-                <FIELD NAME="haschange" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="timedeleted" NEXT="pathnamehash"/>
-                <FIELD NAME="pathnamehash" TYPE="char" LENGTH="40" NOTNULL="true" SEQUENCE="false" PREVIOUS="haschange" NEXT="coursename"/>
-                <FIELD NAME="coursename" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" DEFAULT="--" PREVIOUS="pathnamehash" />
-            </FIELDS>
-            <KEYS>
-                <KEY NAME="primary" TYPE="primary" FIELDS="id" />
-            </KEYS>
-        </TABLE>
-    </TABLES>
+<XMLDB PATH="mod/simplecertificate/db" VERSION="20200915" COMMENT="XMLDB file for Moodle mod/simplecertificate"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
+>
+  <TABLES>
+    <TABLE NAME="simplecertificate" COMMENT="Simple Certificate">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="course" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="intro" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="introformat" TYPE="int" LENGTH="4" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="width" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="297" SEQUENCE="false"/>
+        <FIELD NAME="height" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="210" SEQUENCE="false"/>
+        <FIELD NAME="certificateimage" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="certificatetext" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="certificatetextformat" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="certificatetextx" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="10" SEQUENCE="false"/>
+        <FIELD NAME="certificatetexty" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="50" SEQUENCE="false"/>
+        <FIELD NAME="coursename" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="outcome" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="certdate" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="-2" SEQUENCE="false"/>
+        <FIELD NAME="certdatefmt" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="certgrade" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="gradefmt" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="emailfrom" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="emailothers" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="emailteachers" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="reportcert" TYPE="int" LENGTH="1" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="delivery" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="requiredtime" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="printqrcode" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false"/>
+        <FIELD NAME="qrcodefirstpage" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="codex" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="10" SEQUENCE="false"/>
+        <FIELD NAME="codey" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="10" SEQUENCE="false"/>
+        <FIELD NAME="enablesecondpage" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="secondpagex" TYPE="int" LENGTH="4" NOTNULL="false" DEFAULT="10" SEQUENCE="false"/>
+        <FIELD NAME="secondpagey" TYPE="int" LENGTH="4" NOTNULL="false" DEFAULT="50" SEQUENCE="false"/>
+        <FIELD NAME="secondpagetext" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="secondpagetextformat" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="secondimage" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="timestartdatefmt" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="notifyonrestriction" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="course" UNIQUE="false" FIELDS="course"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="simplecertificate_issues" COMMENT="Issues of simplecertificate module">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="certificateid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="certificatename" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="code" TYPE="char" LENGTH="36" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timedeleted" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="haschange" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="pathnamehash" TYPE="char" LENGTH="40" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="coursename" TYPE="char" LENGTH="255" NOTNULL="true" DEFAULT="--" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="certificate_user" UNIQUE="false" FIELDS="certificateid, userid"/>
+      </INDEXES>
+    </TABLE>
+  </TABLES>
 </XMLDB>

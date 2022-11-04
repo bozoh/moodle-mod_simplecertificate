@@ -20,7 +20,6 @@ if (!defined('MOODLE_INTERNAL')) {
 
 require_once($CFG->dirroot.'/lib/formslib.php');
 
-
 class verify_form extends moodleform {
 
     // Define the form.
@@ -34,9 +33,9 @@ class verify_form extends moodleform {
 
         // Add recaptcha if enabeld.
         if ($this->is_recaptcha_enabled()) {
-            $mform->addElement('recaptcha', 'recaptcha_element',
-                            get_string('recaptcha', 'auth'), array('https' => $CFG->loginhttps));
+            $mform->addElement('recaptcha', 'recaptcha_element', get_string('security_question', 'auth'));
             $mform->addHelpButton('recaptcha_element', 'recaptcha', 'auth');
+            $mform->closeHeaderBefore('recaptcha_element');
         }
 
         $this->add_action_buttons(false, get_string('verifycertificate', 'simplecertificate'));
@@ -46,15 +45,13 @@ class verify_form extends moodleform {
         $errors = parent::validation($data, $files);
         if ($this->is_recaptcha_enabled()) {
             $recaptchaelement = $this->_form->getElement('recaptcha_element');
-            if (!empty($this->_form->_submitValues['recaptcha_challenge_field'])) {
-                $challengefld = $this->_form->_submitValues['recaptcha_challenge_field'];
-                $responsefld = $this->_form->_submitValues['recaptcha_response_field'];
-                $result = $recaptchaelement->verify($challengefld, $responsefld);
-                if (true !== $result) {
-                    $errors['recaptcha'] = $result;
+            if (!empty($this->_form->_submitValues['g-recaptcha-response'])) {
+                $response = $this->_form->_submitValues['g-recaptcha-response'];
+                if (!$recaptchaelement->verify($response)) {
+                    $errors['recaptcha_element'] = get_string('incorrectpleasetryagain', 'auth');
                 }
             } else {
-                $errors['recaptcha'] = get_string('missingrecaptchachallengefield');
+                $errors['recaptcha_element'] = get_string('missingrecaptchachallengefield');
             }
         }
         return $errors;

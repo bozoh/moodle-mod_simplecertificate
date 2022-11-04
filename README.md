@@ -1,6 +1,6 @@
-* [![Build Status](https://travis-ci.org/bozoh/moodle-mod_simplecertificate.svg?branch=MOODLE_35)](https://travis-ci.org/bozoh/moodle-mod_simplecertificate) - Moodle 3.5
-* [![Build Status](https://travis-ci.org/bozoh/moodle-mod_simplecertificate.svg?branch=MOODLE_34)](https://travis-ci.org/bozoh/moodle-mod_simplecertificate) - Moodle 3.4
-* [![Build Status](https://travis-ci.org/bozoh/moodle-mod_simplecertificate.svg?branch=MOODLE_33)](https://travis-ci.org/bozoh/moodle-mod_simplecertificate) - Moodle 3.3
+* [![Build Status](https://travis-ci.org/bozoh/moodle-mod_simplecertificate.svg?branch=master)](https://travis-ci.org/bozoh/moodle-mod_simplecertificate) - Moodle 3.9 dev
+* [![Build Status](https://travis-ci.org/bozoh/moodle-mod_simplecertificate.svg?branch=MOODLE_38_STABLE)](https://travis-ci.org/bozoh/moodle-mod_simplecertificate) - Moodle 3.8
+* [![Build Status](https://travis-ci.org/bozoh/moodle-mod_simplecertificate.svg?branch=MOODLE_37_STABLE)](https://travis-ci.org/bozoh/moodle-mod_simplecertificate) - Moodle 3.7
 * [![Analytics](https://ga-beacon.appspot.com/UA-162885832-2/simplecerticate/plugin/readme?pixel)](https://github.com/bozoh/moodle-mod_simplecertificate)
 
 
