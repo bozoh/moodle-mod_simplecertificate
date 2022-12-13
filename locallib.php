@@ -1483,8 +1483,6 @@ class simplecertificate {
         $config = HTMLPurifier_Config::createDefault();
         $version = empty($CFG->version) ? 0 : $CFG->version;
         $cachedir = "$CFG->localcachedir/htmlpurifier/$version";
-        $version = empty($CFG->version) ? 0 : $CFG->version;
-        $cachedir = "$CFG->localcachedir/htmlpurifier/$version";
         if (!file_exists($cachedir)) {
             // Purging of caches may remove the cache dir at any time,
             // luckily file_exists() results should be cached for all existing directories.
@@ -1497,7 +1495,22 @@ class simplecertificate {
         }
         $config->set('Cache.SerializerPath', $cachedir);
         $config->set('Cache.SerializerPermissions', $CFG->directorypermissions);
-        $config->set('HTML.ForbiddenElements', array('script', 'style', 'applet', 'a'));
+        $config->set('HTML.ForbiddenElements', array('script', 'style', 'applet'));
+        $config->set('URI.AllowedSchemes', array(
+            'http' => true,
+            'https' => true,
+            'ftp' => true,
+            'irc' => true,
+            'nntp' => true,
+            'news' => true,
+            'rtsp' => true,
+            'rtmp' => true,
+            'teamspeak' => true,
+            'gopher' => true,
+            'mms' => true,
+            'mailto' => true
+        ));
+        $config->set('Attr.AllowedFrameTargets', array('_blank'));
         $purifier = new HTMLPurifier($config);
         return $purifier->purify($htmltext);
     }
