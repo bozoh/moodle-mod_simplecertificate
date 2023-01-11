@@ -1403,7 +1403,9 @@ class simplecertificate {
         $a->date = $this->get_date($issuecert, $user->id);
         $a->outcome = $this->get_outcome($user->id);
         $a->certificatecode = $issuecert->code;
-
+        $a->coursestart = $this->get_course()->startdate ? date('d/m/Y', $this->get_course()->startdate): '';
+        $a->courseend = $this->get_course()->enddate ? date('d/m/Y', $this->get_course()->enddate): '';
+        
         // This code stay here only beace legacy support, coursehours variable was removed
         // see issue 61 https://github.com/bozoh/moodle-mod_simplecertificate/issues/61.
         if (isset($this->get_instance()->coursehours)) {
