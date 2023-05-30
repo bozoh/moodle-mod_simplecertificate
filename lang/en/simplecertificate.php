@@ -277,5 +277,5 @@ $string['certificates'] = 'Certificates';
 $string['certificatestitle'] = 'My certificates';
 $string['subtitleallcertificates'] = 'Certificates from all courses';
 $string['subtitlecoursecertificates'] = 'Course certificates';
-$string['nohavecertificates'] = 'You no have certificates yet';
+$string['nohavecertificates'] = 'You don\'t have certificates yet';
 $string['coursesections'] = 'Course sections';
