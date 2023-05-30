@@ -1361,11 +1361,6 @@ class simplecertificate {
         $a->firstname = strip_tags($user->firstname);
         $a->lastname = strip_tags($user->lastname);
         $a->email = strip_tags($user->email);
-        $a->icq = strip_tags($user->icq);
-        $a->skype = strip_tags($user->skype);
-        $a->yahoo = strip_tags($user->yahoo);
-        $a->aim = strip_tags($user->aim);
-        $a->msn = strip_tags($user->msn);
         $a->phone1 = strip_tags($user->phone1);
         $a->phone2 = strip_tags($user->phone2);
         $a->institution = strip_tags($user->institution);
@@ -1385,13 +1380,6 @@ class simplecertificate {
         } else {
             $a->country = '';
         }
-
-        // Formatting URL, if needed.
-        $url = $user->url;
-        if (!empty($url) && strpos($url, '://') === false) {
-            $url = 'http://' . $url;
-        }
-        $a->url = $url;
 
         // Getting user custom profiles fields.
         $userprofilefields = $this->get_user_profile_fields($user->id);
