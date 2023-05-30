@@ -1864,11 +1864,6 @@ class simplecertificate {
                 die();
             }
 
-            if (!empty($this->get_instance()->intro)) {
-                echo $OUTPUT->box(format_module_intro('simplecertificate', $this->get_instance(), $this->coursemodule->id),
-                                'generalbox', 'intro');
-            }
-
             $attempts = $this->get_attempts();
             if ($attempts) {
                 echo $this->print_attempts($attempts);
