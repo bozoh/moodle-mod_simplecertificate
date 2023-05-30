@@ -26,10 +26,10 @@ require_once('../../config.php');
 
 $courseid = optional_param('id', 0, PARAM_INT);
 
-require_login();
-
 $title = get_string('certificatestitle', 'mod_simplecertificate');
 if (!$courseid) {
+    require_login(null, false);
+
     $PAGE->set_context(context_system::instance());
     $PAGE->set_pagelayout('standard');
     $PAGE->set_heading($SITE->fullname);
