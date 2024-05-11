@@ -1,11 +1,7 @@
 # COMPATIBILITY
 ---
 
-This repository is a fork of the original project from https://github.com/bozoh/moodle-mod_simplecertificate
-The original developer no longer maintains it but it is important to us so we will try to support it as long as possible.
-
 Current version tested on Moodle 4.1.
-
 
 # QUICK INSTALL
 ---
@@ -21,12 +17,12 @@ not necessary to set up the SSH Keys. This is only needed if you are going to
 create a repository of your own on github.com.
 
 Once you have git installed, simply visit the Moodle mod directory and clone
-https://github.com/davidherney/moodle-mod_simplecertificate/, remember to
-rename the folder to certificate if you do not specify this in the clone command
+git://github.com/bozoh/moodle-mod_simplecertificate.git, remember to
+rename the folder to certificate if you do not specify this in the clone command.
 
 Eg. Linux command line would be as follow -
 
-git clone https://github.com/davidherney/moodle-mod_simplecertificate/ simplecertificate
+git clone git://github.com/bozoh/moodle-mod_simplecertificate.git simplecertificate
 
 Once cloned, checkout the branch that is specific to your Moodle version.
 eg, MOODLE_22 is for Moodle 2.2, MOODLE_23 is for 2.3
@@ -35,7 +31,7 @@ Use git pull to update this branch periodically to ensure you have the latest ve
 
 ## Download the simplecertificate module.
 
-Visit https://github.com/davidherney/moodle-mod_simplecertificate/, choose the branch
+Visit https://github.com/bozoh/moodle-mod_simplecertificate, choose the branch
 that matches your Moodle version (eg. MOODLE_22 is for Moodle 2.2, MOODLE_23 is for 2.3)
 and download the zip, uncompress this zip and extract the folder. The folder will have a name similar to moodle-mod_simplecertificate-c9fbadb, you MUST rename this to simplecertificate.
 Place this folder in your mod folder in your Moodle directory.
