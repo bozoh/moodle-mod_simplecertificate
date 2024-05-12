@@ -122,11 +122,6 @@ These are:
 <li>{FIRSTNAME} -> User first name</li>
 <li>{LASTNAME} -> User last name</li>
 <li>{EMAIL} -> User e-mail</li>
-<li>{ICQ} -> User ICQ</li>
-<li>{SKYPE} -> User Skype</li>
-<li>{YAHOO} -> User yahoo messenger</li>
-<li>{AIM} -> User AIM</li>
-<li>{MSN} -> User MSN</li>
 <li>{PHONE1} -> User 1° Phone Number</li>
 <li>{PHONE2} -> User 2° Phone Number</li>
 <li>{INSTITUTION} -> User institution</li>
@@ -134,7 +129,6 @@ These are:
 <li>{ADDRESS} -> User address</li>
 <li>{CITY} -> User city</li>
 <li>{COUNTRY} -> User country</li>
-<li>{URL} -> User Home-page</li>
 <li>{CERTIFICATECODE} -> Unique certificate code text</li>
 <li>{USERROLENAME} -> User role name in course</li>
 <li>{TIMESTART} -> User Enrollment start date in course</li>
@@ -279,6 +273,9 @@ $string['eventcertificate_verified_description'] = 'The user with id {$a->userid
 $string['deleteall'] = "Delete All";
 $string['deleteselected'] = "Delete Selected";
 
-
-
-
+$string['certificates'] = 'Certificates';
+$string['certificatestitle'] = 'My certificates';
+$string['subtitleallcertificates'] = 'Certificates from all courses';
+$string['subtitlecoursecertificates'] = 'Course certificates';
+$string['nohavecertificates'] = 'You don\'t have certificates yet';
+$string['coursesections'] = 'Course sections';

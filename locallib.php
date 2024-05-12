@@ -691,7 +691,7 @@ class simplecertificate {
         $gradecolumn = $this->get_instance()->certgrade;
 
         if ($gradecolumn) {
-            $table->head[] = get_string('grade');
+            $table->head[] = get_string('grade', 'grades');
             $table->align[] = 'center';
             $table->size[] = '';
         }
@@ -1361,11 +1361,6 @@ class simplecertificate {
         $a->firstname = strip_tags($user->firstname);
         $a->lastname = strip_tags($user->lastname);
         $a->email = strip_tags($user->email);
-        $a->icq = strip_tags($user->icq);
-        $a->skype = strip_tags($user->skype);
-        $a->yahoo = strip_tags($user->yahoo);
-        $a->aim = strip_tags($user->aim);
-        $a->msn = strip_tags($user->msn);
         $a->phone1 = strip_tags($user->phone1);
         $a->phone2 = strip_tags($user->phone2);
         $a->institution = strip_tags($user->institution);
@@ -1385,13 +1380,6 @@ class simplecertificate {
         } else {
             $a->country = '';
         }
-
-        // Formatting URL, if needed.
-        $url = $user->url;
-        if (!empty($url) && strpos($url, '://') === false) {
-            $url = 'http://' . $url;
-        }
-        $a->url = $url;
 
         // Getting user custom profiles fields.
         $userprofilefields = $this->get_user_profile_fields($user->id);
@@ -1864,11 +1852,6 @@ class simplecertificate {
                 die();
             }
 
-            if (!empty($this->get_instance()->intro)) {
-                echo $OUTPUT->box(format_module_intro('simplecertificate', $this->get_instance(), $this->coursemodule->id),
-                                'generalbox', 'intro');
-            }
-
             $attempts = $this->get_attempts();
             if ($attempts) {
                 echo $this->print_attempts($attempts);
@@ -2024,7 +2007,7 @@ class simplecertificate {
             $table->width = "95%";
             $table->tablealign = "center";
 
-            $table->head = array(' ', get_string('fullname'), get_string('grade'));
+            $table->head = array(' ', get_string('fullname'), get_string('grade', 'grades'));
             $table->align = array("left", "left", "center");
             $table->size = array('1%', '89%', '10%');
 
@@ -2326,7 +2309,7 @@ class simplecertificate {
             $table = new html_table();
             $table->width = "95%";
             $table->tablealign = "center";
-            $table->head = array(' ', get_string('fullname'), get_string('grade'));
+            $table->head = array(' ', get_string('fullname'), get_string('grade', 'grades'));
             $table->align = array("left", "left", "center");
             $table->size = array('1%', '89%', '10%');
 

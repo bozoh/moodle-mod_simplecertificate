@@ -36,7 +36,6 @@ $PAGE->set_title(get_string('certificateverification', 'simplecertificate'));
 $PAGE->set_heading(get_string('certificateverification', 'simplecertificate'));
 $PAGE->set_pagelayout('base');
 echo $OUTPUT->header();
-echo $OUTPUT->heading(get_string('certificateverification', 'simplecertificate'));
 
 $verifyform = new verify_form();
 
