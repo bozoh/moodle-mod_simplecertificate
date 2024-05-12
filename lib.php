@@ -195,11 +195,13 @@ function simplecertificate_get_participants($certificateid) {
  *
  * @uses FEATURE_GROUPS
  * @uses FEATURE_GROUPINGS
- * @uses FEATURE_GROUPMEMBERSONLY
  * @uses FEATURE_MOD_INTRO
  * @uses FEATURE_COMPLETION_TRACKS_VIEWS
  * @uses FEATURE_GRADE_HAS_GRADE
  * @uses FEATURE_GRADE_OUTCOMES
+ * @uses FEATURE_BACKUP_MOODLE2
+ * @uses FEATURE_SHOW_DESCRIPTION
+ * @uses FEATURE_MOD_PURPOSE
  * @param string $feature FEATURE_xx constant for requested feature
  * @return mixed True if module supports feature, null if doesn't know
  */
@@ -207,13 +209,14 @@ function simplecertificate_supports($feature) {
     switch ($feature) {
         case FEATURE_GROUPS:
         case FEATURE_GROUPINGS:
-        case FEATURE_GROUPMEMBERSONLY:
         case FEATURE_MOD_INTRO:
         case FEATURE_COMPLETION_TRACKS_VIEWS:
         case FEATURE_COMPLETION_HAS_RULES:
         case FEATURE_BACKUP_MOODLE2:
+        case FEATURE_SHOW_DESCRIPTION:
             return true;
-
+        case FEATURE_MOD_PURPOSE:
+            return MOD_PURPOSE_CONTENT;
         default:
             return null;
     }

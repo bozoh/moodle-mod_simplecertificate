@@ -1,6 +1,12 @@
-Silk icon set 1.3
+Icon for Moodle > 4.0:
+https://uxwing.com/certified-icon/
+https://uxwing.com/license/
 
-_________________________________________
+________________________________________
+
+
+Original: Silk icon set 1.3
+________________________________________
 Mark James
 http://www.famfamfam.com/lab/icons/silk/
 _________________________________________
