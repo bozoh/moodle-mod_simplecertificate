@@ -3,6 +3,11 @@
 
 Current version tested on Moodle 4.1.
 
+## ABOUT
+* **Developed by:**  Carlos Alexandre S. da Fonseca - bozoh. Currently maintained by David Herney - davidherney at gmail dot com
+* **GIT:** https://github.com/bozoh/moodle-mod_simplecertificate
+* **Powered by:** Moodle > 4 by [BambuCo](https://bambuco.co/)
+
 # QUICK INSTALL
 ---
 

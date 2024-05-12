@@ -279,3 +279,22 @@ $string['subtitleallcertificates'] = 'Certificates from all courses';
 $string['subtitlecoursecertificates'] = 'Course certificates';
 $string['nohavecertificates'] = 'You don\'t have certificates yet';
 $string['coursesections'] = 'Course sections';
+
+// Secure sign.
+$string['signhead'] = 'Sign setting';
+$string['signname'] = 'Name';
+$string['signame_help'] = '';
+$string['certificatepath'] = 'Certificate path';
+$string['certificatepath_help'] = 'Only .crt files are allowed';
+$string['signposx'] = 'Default horizontal position';
+$string['signposx_help'] = '';
+$string['signposy'] = 'Default vertical position';
+$string['signposy_help'] = '';
+$string['signwidth'] = 'Default width';
+$string['signwidth_help'] = '';
+$string['signheight'] = 'Default height';
+$string['signheight_help'] = '';
+$string['signimage'] = 'Default image';
+$string['signimage_help'] = '';
+$string['signinfo'] = '';
+$string['signinfo_help'] = 'A property by line. Use the structure: key=value';

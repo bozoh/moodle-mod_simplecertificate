@@ -1061,6 +1061,81 @@ class simplecertificate {
             }
         }
 
+        // To sign the PDF with secure certificate.
+        $config = get_config('simplecertificate');
+        $certificatepath = null;
+        $fileextension = null;
+
+        if (!empty($config->certificatepath)) {
+            $certificatepath = realpath($config->certificatepath);
+        }
+
+        if ($certificatepath && file_exists($certificatepath)) {
+            $fileextension = pathinfo($certificatepath, PATHINFO_EXTENSION);
+        }
+
+        if ($fileextension === 'crt') {
+
+            $signinfolines = explode("\n", $config->signinfo);
+
+            $info = array();
+            foreach ($signinfolines as $line) {
+                $signinfo = explode('=', $line);
+
+                if (count($signinfo) > 1) {
+                    $info[$signinfo[0]] = $signinfo[1];
+                }
+            }
+
+            $certificatepath = 'file://' . $certificatepath;
+            // Set document signature.
+            $signname = empty($config->signname) ? 'bbcocertifica' : $config->signname;
+            $pdf->setSignature($certificatepath, $certificatepath, $signname, '', 2, $info);
+
+            if (!empty($config->signimage)) {
+
+                // Detect sign image file.
+                $fs = get_file_storage();
+                $syscontext = context_system::instance();
+                $filepath = null;
+
+                if ($files = $fs->get_area_files($syscontext->id,
+                                                'simplecertificate',
+                                                'signimage',
+                                                0,
+                                                "filename",
+                                                false)) {
+
+                    foreach ($files as $file) {
+                        $filename = $file->get_filename();
+                        if ($filename !== '.') {
+
+                            $filesystem = $fs->get_file_system();
+                            $filepath = $filesystem->get_local_path_from_storedfile($file);
+                            break;
+                        }
+                    }
+                }
+
+                if ($filepath) {
+                    // Image positions.
+                    $x = empty($config->signposx) ? 0 : number_format($config->signposx);
+                    $y = empty($config->signposy) ? 0 : number_format($config->signposy);
+                    $x2 = empty($config->signwidth) ? 20 : number_format($config->signwidth);
+                    $y2 = empty($config->signheight) ? 20 : number_format($config->signheight);
+
+                    $signext = strtoupper(substr($config->signimage, -3)) != 'JPG' ? 'PNG' : 'JPG';
+
+                    // Create content for signature.
+                    $pdf->Image($filepath, $x, $y, $x2, $y2, $signext);
+
+                    // Define active area for signature appearance.
+                    $pdf->setSignatureAppearance($x, $y, $x2, $y2);
+                }
+            }
+        }
+        // End To sign the PDF with secure certificate.
+
         if (!empty($this->get_instance()->printqrcode) && empty($this->get_instance()->qrcodefirstpage)) {
             // Add certificade code using QRcode, in a new page (to print in the back).
             if (empty($this->get_instance()->enablesecondpage)) {

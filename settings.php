@@ -66,6 +66,35 @@ if ($ADMIN->fulltree) {
     $settings->add(new admin_setting_configtext('simplecertificate/perpage', get_string('defaultperpage', 'simplecertificate'),
             get_string('defaultperpage_help', 'simplecertificate'), 30, PARAM_INT));
 
+    // Secure sign.
+    $settings->add(new admin_setting_heading('simplecertificate/signhead', null,
+            format_text(get_string('signhead', 'simplecertificate'))));
+
+    $settings->add(new admin_setting_configtext('simplecertificate/signname', get_string('signname', 'simplecertificate'),
+            get_string('signame_help', 'simplecertificate'), ''));
+
+    $settings->add(new admin_setting_configfile('simplecertificate/certificatepath',
+            get_string('certificatepath', 'simplecertificate'),
+            get_string('certificatepath_help', 'simplecertificate'), ''));
+
+    $settings->add(new admin_setting_configtext('simplecertificate/signposx', get_string('signposx', 'simplecertificate'),
+            get_string('signposx_help', 'simplecertificate'), 0, PARAM_INT));
+
+    $settings->add(new admin_setting_configtext('simplecertificate/signposy', get_string('signposy', 'simplecertificate'),
+            get_string('signposy_help', 'simplecertificate'), 0, PARAM_INT));
+
+    $settings->add(new admin_setting_configtext('simplecertificate/signwidth', get_string('signwidth', 'simplecertificate'),
+            get_string('signwidth_help', 'simplecertificate'), 0, PARAM_INT));
+
+    $settings->add(new admin_setting_configtext('simplecertificate/signheight', get_string('signheight', 'simplecertificate'),
+            get_string('signheight_help', 'simplecertificate'), 0, PARAM_INT));
+
+    $opts = ['accepted_types' => ['.png', '.jpg']];
+    $settings->add(new admin_setting_configstoredfile('simplecertificate/signimage', get_string('signimage', 'simplecertificate'),
+            get_string('signimage_help', 'simplecertificate'), 'signimage', 0, $opts));
+
+    $settings->add(new admin_setting_configtextarea('simplecertificate/signinfo', get_string('signinfo', 'simplecertificate'),
+            get_string('signinfo_help', 'simplecertificate'), "Name=\nLocation=\nReason=\nContactInfo="));
 
 }
 
