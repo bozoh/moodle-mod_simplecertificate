@@ -373,7 +373,7 @@ function xmldb_simplecertificate_upgrade($oldversion = 0) {
             }
             $pbar->update($i, $countcerts, "Moving Issued certificate files  ($i/$countcerts)");
             if (!$DB->update_record('simplecertificate_issues', $issued)) {
-                print_error('upgradeerror', 'simplecertificate', null, "Can't update an issued certificate [id->$issued->id]");
+                throw new moodle_exception('upgradeerror', 'simplecertificate', null, "Can't update an issued certificate [id->$issued->id]");
             }
         }
 
@@ -426,7 +426,7 @@ function xmldb_simplecertificate_upgrade($oldversion = 0) {
                 }
                 $issued->coursename = $coursename;
                 if (!$DB->update_record('simplecertificate_issues', $issued)) {
-                    print_error('upgradeerror', 'simplecertificate', null, "Can't update an issued certificate [id->$issued->id]");
+                    throw new moodle_exception('upgradeerror', 'simplecertificate', null, "Can't update an issued certificate [id->$issued->id]");
                 }
                 $count++;
                 $pbar->update($count, $countcerts, "Moving Issued certificate files  ($i/$countcerts)");

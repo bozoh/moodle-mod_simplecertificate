@@ -148,7 +148,7 @@ class simplecertificate {
 
         $this->instance = $DB->get_record('simplecertificate', array('id' => $returnid), '*', MUST_EXIST);
         if (!$this->instance) {
-            print_error('certificatenot', 'simplecertificate');
+            throw new moodle_exception('certificatenot', 'simplecertificate');
         }
 
         return $returnid;
@@ -171,14 +171,14 @@ class simplecertificate {
         if (!$DB->execute(
                         'UPDATE {simplecertificate_issues} SET haschange = 1 WHERE timedeleted is NULL AND certificateid = :certid',
                         array('certid' => $this->get_instance()->id))) {
-            print_error('cannotupdatemod', '', '', self::CERTIFICATE_COMPONENT_NAME,
+            throw new moodle_exception('cannotupdatemod', '', '', self::CERTIFICATE_COMPONENT_NAME,
                         'Error update simplecertificate, markig issues
                      with has change');
         }
 
         $this->instance = $DB->get_record('simplecertificate', array('id' => $update->id), '*', MUST_EXIST);
         if (!$this->instance) {
-            print_error('certificatenot', 'simplecertificate');
+            throw new moodle_exception('certificatenot', 'simplecertificate');
         }
 
         return $result;
@@ -207,7 +207,7 @@ class simplecertificate {
             }
             return true;
         } catch (moodle_exception $e) {
-            print_error($e->errorcode, $e->module, $e->link, $e->a, $e->debuginfo);
+            throw new moodle_exception($e->errorcode, $e->module, $e->link, $e->a, $e->debuginfo);
         }
     }
 
@@ -1022,7 +1022,7 @@ class simplecertificate {
                 $pdf->Image($tmpfilename, 0, 0, $this->get_instance()->width, $this->get_instance()->height);
                 @unlink($tmpfilename);
             } else {
-                print_error(get_string('filenotfound', 'simplecertificate', $this->get_instance()->certificateimage));
+                throw new moodle_exception(get_string('filenotfound', 'simplecertificate', $this->get_instance()->certificateimage));
             }
         }
 
@@ -1051,7 +1051,7 @@ class simplecertificate {
                     $pdf->Image($tmpfilename, 0, 0, $this->get_instance()->width, $this->get_instance()->height);
                     @unlink($tmpfilename);
                 } else {
-                    print_error(get_string('filenotfound', 'simplecertificate', $this->get_instance()->secondimage));
+                    throw new moodle_exception(get_string('filenotfound', 'simplecertificate', $this->get_instance()->secondimage));
                 }
             }
             if (!empty($this->get_instance()->secondpagetext)) {
@@ -1187,7 +1187,7 @@ class simplecertificate {
             if ($this->issue_file_exists($issuecert)) {
                 return $this->get_issue_file($issuecert);
             } else {
-                print_error(get_string('filenotfound', 'simplecertificate'));
+                throw new moodle_exception(get_string('filenotfound', 'simplecertificate'));
                 return false;
             }
         } else {
@@ -1196,7 +1196,7 @@ class simplecertificate {
             $pdf = $this->create_pdf($this->get_issue($issuecert->userid));
             if (!$pdf) {
                 // TODO add can't create certificate file error.
-                print_error('TODO');
+                throw new moodle_exception('TODO');
                 return false;
             }
 

@@ -29,7 +29,7 @@ $code = required_param('code', PARAM_TEXT); // Issued Code.
 
 $issuedcert = $DB->get_record("simplecertificate_issues", array('code' => $code));
 if (!$issuedcert) {
-    print_error(get_string('issuedcertificatenotfound', 'simplecertificate'));
+    throw new moodle_exception(get_string('issuedcertificatenotfound', 'simplecertificate'));
 } else {
     send_certificate_file($issuedcert);
 }
@@ -68,7 +68,7 @@ function send_certificate_file(stdClass $issuedcert) {
     if (empty($file)) {
         $fs = get_file_storage();
         if (!$fs->file_exists_by_hash($issuedcert->pathnamehash)) {
-            print_error(get_string('filenotfound', 'simplecertificate', ''));
+            throw new moodle_exception(get_string('filenotfound', 'simplecertificate', ''));
         }
 
         $file = $fs->get_file_by_hash($issuedcert->pathnamehash);
@@ -100,14 +100,14 @@ function send_certificate_file(stdClass $issuedcert) {
  */
 
 function put_watermark($file) {
-    
+
     global $CFG;
 
     require_once($CFG->libdir.'/pdflib.php');
     require_once($CFG->dirroot.'/mod/assign/feedback/editpdf/fpdi/autoload.php');
     // require_once($CFG->dirroot.'/mod/assign/feedback/editpdf/fpdi/FpdfTpl.php');
     // require_once($CFG->dirroot.'/mod/assign/feedback/editpdf/fpdi/Fpdi.php');
-    
+
 
     // Copy to a tmp file.
     $tmpfile = $file->copy_content_to_temp();

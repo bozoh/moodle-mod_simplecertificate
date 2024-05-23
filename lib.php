@@ -108,7 +108,7 @@ function simplecertificate_reset_userdata($data) {
             foreach ($issuecertificates as $issuecertificate) {
                 $issuecertificate->timedeleted = $timedeleted;
                 if (!$DB->update_record('simplecertificate_issues', $issuecertificate)) {
-                    print_error(get_string('cantdeleteissue', 'simplecertificate'));
+                    throw new moodle_exception(get_string('cantdeleteissue', 'simplecertificate'));
                 }
             }
         }

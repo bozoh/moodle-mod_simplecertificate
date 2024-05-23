@@ -90,7 +90,7 @@ function get_issued_cert($code = null) {
 
     $issuedcert = $DB->get_record("simplecertificate_issues", array('code' => $code));
     if (!$issuedcert) {
-        print_error('invalidcode', 'simplecertificate');
+        throw new moodle_exception('invalidcode', 'simplecertificate');
     }
     return $issuedcert;
 }

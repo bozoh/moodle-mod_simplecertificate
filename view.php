@@ -39,26 +39,26 @@ $selectedusers = optional_param_array('selectedusers', null, PARAM_INT);
 
 $cm = get_coursemodule_from_id( 'simplecertificate', $id);
 if (!$cm) {
-    print_error('Course Module ID was incorrect');
+    throw new moodle_exception('Course Module ID was incorrect');
 }
 
-$course = $DB->get_record('course', array('id' => $cm->course));
+$course = $DB->get_record('course', ['id' => $cm->course]);
 if (!$course) {
-    print_error('course is misconfigured');
+    throw new moodle_exception('course is misconfigured');
 }
 
-$certificate = $DB->get_record('simplecertificate', array('id' => $cm->instance));
+$certificate = $DB->get_record('simplecertificate', ['id' => $cm->instance]);
 if (!$certificate) {
-    print_error('course module is incorrect');
+    throw new moodle_exception('course module is incorrect');
 }
 
 $context = context_module::instance ($cm->id);
-$url = new moodle_url('/mod/simplecertificate/view.php', array (
+$url = new moodle_url('/mod/simplecertificate/view.php', [
         'id' => $cm->id,
         'tab' => $tab,
         'page' => $page,
         'perpage' => $perpage,
-));
+]);
 
 if ($type) {
     $url->param('type', $type);
@@ -104,7 +104,7 @@ switch ($tab) {
         if ($canmanage) {
             $simplecertificate->view_issued_certificates($url, $selectedusers);
         } else {
-            print_error('nopermissiontoviewpage');
+            throw new moodle_exception('nopermissiontoviewpage');
         }
     break;
 
@@ -114,7 +114,7 @@ switch ($tab) {
         if ($canmanage) {
             $simplecertificate->view_bulk_certificates($url, $selectedusers);
         } else {
-            print_error('nopermissiontoviewpage');
+            throw new moodle_exception('nopermissiontoviewpage');
         }
     break;
 
