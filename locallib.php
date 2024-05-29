@@ -1225,8 +1225,7 @@ class simplecertificate {
             $fs = get_file_storage();
             $file = $fs->create_file_from_string($fileinfo, $pdf->Output('', 'S'));
             if (!$file) {
-                print_error('cannotsavefile', 'error', '', $fileinfo['filename']);
-                return false;
+                throw new moodle_exception('cannotsavefile', 'error', '', $fileinfo['filename']);
             }
 
             if (!empty($CFG->forceloginforprofileimage)) {
@@ -1237,10 +1236,8 @@ class simplecertificate {
 
             // Verify if user is a manager, if not, update issuedcert.
             if (!has_capability('mod/simplecertificate:manage',
-                $this->context, $issuecert->userid) && !$DB->update_record('simplecertificate_issues',
-                    $issuecert)) {
-                    print_error('cannotupdatemod', 'error', null, 'simplecertificate_issue');
-                    return false;
+                $this->context, $issuecert->userid) && !$DB->update_record('simplecertificate_issues', $issuecert)) {
+                throw new moodle_exception('cannotupdatemod', 'error', null, 'simplecertificate_issue');
             }
              return $file;
         }
@@ -1257,7 +1254,7 @@ class simplecertificate {
 
         $user = $DB->get_record('user', array('id' => $issuecert->userid));
         if (!$user) {
-            print_error('nousersfound', 'moodle');
+            throw new moodle_exception('nousersfound', 'moodle');
         }
 
         $info = new stdClass();
@@ -1294,7 +1291,7 @@ class simplecertificate {
 
             return $ret;
         } else {
-            print_error(get_string('filenotfound', 'simplecertificate'));
+            throw new moodle_exception(get_string('filenotfound', 'simplecertificate'));
         }
     }
 
@@ -1384,7 +1381,7 @@ class simplecertificate {
         if ($file) {
             switch ($this->get_instance()->delivery) {
                 case self::OUTPUT_FORCE_DOWNLOAD:
-                    send_stored_file($file, 10, 0, true, array('filename' => $file->get_filename(), 'dontdie' => true));
+                    send_stored_file($file, 10, 0, true, ['filename' => $file->get_filename(), 'dontdie' => true]);
                 break;
 
                 case self::OUTPUT_SEND_EMAIL:
@@ -1397,7 +1394,7 @@ class simplecertificate {
 
                 // OUTPUT_OPEN_IN_BROWSER.
                 default: // Open in browser.
-                    send_stored_file($file, 10, 0, false, array('dontdie' => true));
+                    send_stored_file($file, 10, 0, false, ['dontdie' => true]);
                 break;
             }
 
@@ -1405,7 +1402,7 @@ class simplecertificate {
                 $file->delete();
             }
         } else {
-            print_error(get_string('filenotfound', 'simplecertificate'));
+            throw new moodle_exception(get_string('filenotfound', 'simplecertificate'));
         }
     }
 
@@ -1421,7 +1418,7 @@ class simplecertificate {
 
         $user = get_complete_user_data('id', $issuecert->userid);
         if (!$user) {
-            print_error('nousersfound', 'moodle');
+            throw new moodle_exception('nousersfound', 'moodle');
         }
 
         // If no text set get firstpage text.
@@ -2435,7 +2432,7 @@ class simplecertificate {
                                 $fileforzipname = $file->get_filename();
                                 $filesforzipping[$fileforzipname] = $file;
                             } else {
-                                print_error(get_string('filenotfound', 'simplecertificate'));
+                                throw new moodle_exception(get_string('filenotfound', 'simplecertificate'));
                             }
                         }
                     }
@@ -2458,7 +2455,7 @@ class simplecertificate {
                             if ($this->get_issue_file($issuedcert)) {
                                 $this->send_certificade_email($issuedcert);
                             } else {
-                                print_error('filenotfound', 'simplecertificate');
+                                throw new moodle_exception('filenotfound', 'simplecertificate');
                             }
                         }
                     }
