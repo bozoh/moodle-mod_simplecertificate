@@ -37,7 +37,7 @@ $orderby = optional_param('orderby', 'username', PARAM_RAW);
 $issuelist = optional_param('issuelist', null, PARAM_ALPHA);
 $selectedusers = optional_param_array('selectedusers', null, PARAM_INT);
 
-$cm = get_coursemodule_from_id( 'simplecertificate', $id);
+$cm = get_coursemodule_from_id('simplecertificate', $id);
 if (!$cm) {
     throw new moodle_exception('Course Module ID was incorrect');
 }

@@ -28,7 +28,7 @@
             "certificates": [{
                 "downloadurl": "http://certificateurl...",
                 "module": "simplecertificate",
-                "name": "Certificate activity name"
+                "certificatename": "Certificate activity name"
             }]
         }
     }
@@ -42,7 +42,7 @@
             <div class="card-body">
                 <h4 class="card-title">{{{ fullname }}}</h4>
                 {{#certificates}}
-                    <p class="card-text"><a target="_blank" href="{{ downloadurl }}">{{# pix }} icon, {{{ module }}} {{/ pix }} {{{ name }}}</a></p>
+                    <p class="card-text"><a target="_blank" href="{{ downloadurl }}">{{# pix }} icon, {{{ module }}} {{/ pix }} {{{ certificatename }}}</a></p>
                 {{/certificates}}
             </div>
         </div>

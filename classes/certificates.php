@@ -101,10 +101,12 @@ class certificates {
             return [];
         }
 
-        $sql = "SELECT
+        $params = ['userid' => $this->user->id];
+        if ($this->courseid) {
+            $sql = "SELECT
                     sci.code,
                     sci.pathnamehash,
-                    sc.name,
+                    sci.certificatename,
                     c.id as courseid,
                     c.fullname,
                     c.shortname,
@@ -112,16 +114,23 @@ class certificates {
                 FROM {simplecertificate_issues} sci
                 INNER JOIN {simplecertificate} sc ON sc.id = sci.certificateid
                 INNER JOIN {course} c ON sc.course = c.id
-                WHERE sci.timedeleted IS NULL AND sci.userid = :userid";
+                WHERE sci.userid = :userid AND c.id = :courseid
+                ORDER BY c.fullname, sci.timecreated";
 
-        $params = ['userid' => $this->user->id];
-
-        if ($this->courseid) {
-            $sql .= ' AND c.id = :courseid';
             $params['courseid'] = $this->courseid;
+        } else {
+            $sql = "SELECT
+                    sci.code,
+                    sci.pathnamehash,
+                    sci.certificatename,
+                    0 courseid,
+                    sci.coursename fullname,
+                    sci.coursename shortname,
+                    'simplecertificate' module
+                FROM {simplecertificate_issues} sci
+                WHERE sci.userid = :userid
+                ORDER BY sci.coursename, sci.timecreated";
         }
-
-        $sql .= ' ORDER BY c.fullname, sci.timecreated';
 
         $certificates = $DB->get_records_sql($sql, $params);
 
@@ -142,6 +151,10 @@ class certificates {
             ]);
 
             $certificate->downloadurl = $url->out(false);
+
+            if (strpos($certificate->certificatename, $certificate->fullname) === 0) {
+                $certificate->certificatename = substr($certificate->certificatename, strlen($certificate->fullname) + 1);
+            }
 
             $returndata[] = $certificate;
         }
@@ -168,7 +181,7 @@ class certificates {
 
         $sql = "SELECT
                   ci.customcertid,
-                  cc.name,
+                  cc.name certificatename,
                   c.id as courseid,
                   c.fullname,
                   c.shortname,
@@ -218,15 +231,16 @@ class certificates {
 
         foreach ($certificates as $certificate) {
             $certs = [$certificate];
-            if (isset($returndata[$certificate->courseid])) {
-                $certs = array_merge($certs, $returndata[$certificate->courseid]['certificates']);
 
-                $returndata[$certificate->courseid]['certificates'] = $certs;
+            if (isset($returndata[$certificate->shortname])) {
+                $certs = array_merge($certs, $returndata[$certificate->shortname]['certificates']);
+
+                $returndata[$certificate->shortname]['certificates'] = $certs;
 
                 continue;
             }
 
-            $returndata[$certificate->courseid] = [
+            $returndata[$certificate->shortname] = [
                 'courseid' => $certificate->courseid,
                 'shortname' => $certificate->shortname,
                 'fullname' => $certificate->fullname,

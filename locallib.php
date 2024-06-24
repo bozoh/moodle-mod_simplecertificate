@@ -39,19 +39,51 @@ use core\message\inbound\private_files_handler;
 
 
 class simplecertificate {
+
     /**
-     *  module constats using in file storage
-     * @var CERTIFICATE_COMPONENT_NAME  base componete name
-     * @var CERTIFICATE_IMAGE_FILE_AREA image filearea
-     * @var CERTIFICATE_ISSUES_FILE_AREA issued certificates filearea
+     * Module constats using in file storage.
+     * @var string componete name
      */
     const CERTIFICATE_COMPONENT_NAME = 'mod_simplecertificate';
+
+    /**
+     * @var string filearea
+     */
     const CERTIFICATE_IMAGE_FILE_AREA = 'image';
+
+    /**
+     * @var string certificates filearea
+     */
     const CERTIFICATE_ISSUES_FILE_AREA = 'issues';
 
+    /**
+     * @var int
+     */
     const OUTPUT_OPEN_IN_BROWSER = 0;
+
+    /**
+     * @var int
+     */
     const OUTPUT_FORCE_DOWNLOAD = 1;
+
+    /**
+     * @var int
+     */
     const OUTPUT_SEND_EMAIL = 2;
+
+    /**
+     * @var array Charts not available in filename.
+     */
+    const CHARS_NOT = ["á", "é", "í", "ó", "ú", "Á", "É", "Í", "Ó", "Ú", "ñ", "À", "Ã", "Ì", "Ò", "Ù", "Ã™", "Ã ", "Ã¨", "Ã¬",
+                        "Ã²", "Ã¹", "ç", "Ç", "Ã¢", "ê", "Ã®", "Ã´", "Ã»", "Ã‚", "ÃŠ", "ÃŽ", "Ã”", "Ã›", "ü", "Ã¶", "Ã–", "Ã¯",
+                        "Ã¤", "«", "Ò", "Ã", "Ã„", "Ã‹", "ñ", "Ñ"];
+
+    /**
+     * @var array Charts to replace invalid chars in filename.
+     */
+    const CHARS_YES = ["a", "e", "i", "o", "u", "A", "E", "I", "O", "U", "n", "N", "A", "E", "I", "O", "U", "a", "e", "i", "o",
+                        "u", "c", "C", "a", "e", "i", "o", "u", "A", "E", "I", "O", "U", "u", "o", "O", "i", "a", "e", "U", "I",
+                        "A", "E", "n", "N"];
 
     // Date Options Const.
     const CERT_ISSUE_DATE = -1;
@@ -124,7 +156,7 @@ class simplecertificate {
         $this->coursemodule = $coursemodule;
         $this->course = $course;
         // Temporary cache only lives for a single request - used to reduce db lookups.
-        $this->cache = array();
+        $this->cache = [];
     }
 
     /**
@@ -203,7 +235,7 @@ class simplecertificate {
                 }
 
                 // Delete the instance.
-                return $DB->delete_records('simplecertificate', array('id' => $this->get_instance()->id));
+                return $DB->delete_records('simplecertificate', ['id' => $this->get_instance()->id]);
             }
             return true;
         } catch (moodle_exception $e) {
@@ -319,7 +351,7 @@ class simplecertificate {
         if (!isset($this->instance)) {
             $cm = $this->get_course_module();
             if ($cm) {
-                $params = array('id' => $cm->instance);
+                $params = ['id' => $cm->instance];
                 $this->instance = $DB->get_record('simplecertificate', $params, '*', MUST_EXIST);
             }
             if (!$this->instance) {
@@ -343,6 +375,15 @@ class simplecertificate {
     }
 
     /**
+     * Get issue cert.
+     *
+     * @return context
+     */
+    public function get_issuecert() {
+        return $this->issuecert;
+    }
+
+    /**
      * Get the current course.
      *
      * @return mixed stdClass|null The course
@@ -357,7 +398,7 @@ class simplecertificate {
         if (!$this->context) {
             return null;
         }
-        $params = array('id' => $this->get_course_context()->instanceid);
+        $params = ['id' => $this->get_course_context()->instanceid];
         $this->course = $DB->get_record('course', $params, '*', MUST_EXIST);
 
         return $this->course;
@@ -403,6 +444,15 @@ class simplecertificate {
      */
     public function set_instance(stdClass $data) {
         $this->instance = $data;
+    }
+
+    /**
+     * Set issue cert.
+     *
+     * @param stdClass $issuecert The issue certificate object.
+     */
+    public function set_issuecert($issuecert) {
+        $this->issuecert = $issuecert;
     }
 
     /**
@@ -520,11 +570,13 @@ class simplecertificate {
             $contextid = $context;
         }
 
-        return array('contextid' => $contextid, // ID of context
-                          'component' => self::CERTIFICATE_COMPONENT_NAME, // Usually = table name.
-                          'filearea' => self::CERTIFICATE_IMAGE_FILE_AREA, // Usually = table name.
-                          'itemid' => 1, // Usually = ID of row in table.
-                          'filepath' => '/'); // Any path beginning and ending in /.
+        return [
+                    'contextid' => $contextid, // ID of context
+                    'component' => self::CERTIFICATE_COMPONENT_NAME, // Usually = table name.
+                    'filearea' => self::CERTIFICATE_IMAGE_FILE_AREA, // Usually = table name.
+                    'itemid' => 1, // Usually = ID of row in table.
+                    'filepath' => '/'
+                ]; // Any path beginning and ending in /.
     }
 
     /**
@@ -555,11 +607,13 @@ class simplecertificate {
             $contextid = $context;
         }
 
-        return array('contextid' => $contextid,
-                            'component' => self::CERTIFICATE_COMPONENT_NAME,
-                            'filearea' => 'tmp',
-                            'itemid' => 0,
-                            'filepath' => '/');
+        return [
+                    'contextid' => $contextid,
+                    'component' => self::CERTIFICATE_COMPONENT_NAME,
+                    'filearea' => 'tmp',
+                    'itemid' => 0,
+                    'filepath' => '/'
+                ];
     }
 
     /**
@@ -597,7 +651,7 @@ class simplecertificate {
             }
             // Not in cache, trying get from database.
         } else if (!$issuedcert = $DB->get_record('simplecertificate_issues',
-                        array('userid' => $userid, 'certificateid' => $this->get_instance()->id, 'timedeleted' => null))) {
+                        ['userid' => $userid, 'certificateid' => $this->get_instance()->id, 'timedeleted' => null])) {
             // Not in cache and not in DB, create new certificate issue record.
 
             if (!$issueifempty) {
@@ -1178,7 +1232,7 @@ class simplecertificate {
      * @param stdClass $issuecert the certificate issue record
      * @return mixed return stored_file if successful, false otherwise
      */
-    protected function save_pdf(stdClass $issuecert) {
+    private function save_pdf(stdClass $issuecert) {
         global $DB, $CFG;
 
         // Check if file exist.
@@ -1195,8 +1249,7 @@ class simplecertificate {
             $this->issuecert = $issuecert;
             $pdf = $this->create_pdf($this->get_issue($issuecert->userid));
             if (!$pdf) {
-                // TODO add can't create certificate file error.
-                throw new moodle_exception('TODO');
+                throw new moodle_exception("Error: can't create certificate file to " . $issuecert->userid);
                 return false;
             }
 
@@ -1212,15 +1265,15 @@ class simplecertificate {
             // Prepare file record object.
             $context = $this->get_context();
             $filename = str_replace(' ', '_', clean_filename($issuecert->certificatename . ' ' . $issuecert->id . '.pdf'));
-            $fileinfo = array('contextid' => $context->id,
+            $fileinfo = ['contextid' => $context->id,
                     'component' => self::CERTIFICATE_COMPONENT_NAME,
                     'filearea' => self::CERTIFICATE_ISSUES_FILE_AREA,
                     'itemid' => $issuecert->id,
                     'filepath' => '/',
                     'mimetype' => 'application/pdf',
                     'userid' => $issuecert->userid,
-                    'filename' => $filename
-            );
+                    'filename' => $filename,
+            ];
 
             $fs = get_file_storage();
             $file = $fs->create_file_from_string($fileinfo, $pdf->Output('', 'S'));
@@ -1414,7 +1467,7 @@ class simplecertificate {
      * @return string Return certificate text with all substutions
      */
     protected function get_certificate_text($issuecert, $certtext = null) {
-        global $DB, $CFG;
+        global $DB;
 
         $user = get_complete_user_data('id', $issuecert->userid);
         if (!$user) {
@@ -1459,6 +1512,7 @@ class simplecertificate {
             $key = 'profile_' . $key;
             $a->$key = strip_tags($value);
         }
+
         // The course name never change form a certificate to another, useless
         // text mark and atribbute, can be removed.
         $a->coursename = strip_tags($this->get_instance()->coursename);
@@ -1479,7 +1533,7 @@ class simplecertificate {
         if (empty($teachers)) {
             $teachers = '';
         } else {
-            $t = array();
+            $t = [];
             foreach ($teachers as $teacher) {
                 $t[] = content_to_text($teacher->rolename . ': ' . $teacher->username, FORMAT_MOODLE);
             }
@@ -1515,8 +1569,8 @@ class simplecertificate {
         }
 
         $a = (array)$a;
-        $search = array();
-        $replace = array();
+        $search = [];
+        $replace = [];
         foreach ($a as $key => $value) {
             $search[] = '{' . strtoupper($key) . '}';
             // Due #148 bug, i must disable filters, because activities names {USERRESULTS}
@@ -1797,7 +1851,7 @@ class simplecertificate {
         $categories = $DB->get_records('user_info_category', null, 'sortorder ASC');
         if ($categories) {
             foreach ($categories as $category) {
-                $fields = $DB->get_records('user_info_field', array('categoryid' => $category->id), 'sortorder ASC');
+                $fields = $DB->get_records('user_info_field', ['categoryid' => $category->id], 'sortorder ASC');
                 if ($fields) {
                     foreach ($fields as $field) {
                         require_once($CFG->dirroot . '/user/profile/field/' . $field->datatype . '/field.class.php');
@@ -1818,6 +1872,7 @@ class simplecertificate {
                 }
             }
         }
+
         return $usercustomfields;
     }
 
@@ -1866,6 +1921,57 @@ class simplecertificate {
      */
     protected function check_user_can_access_certificate_instance($userid) {
         return info_module::is_user_visible($this->get_course_module(), $userid, false);
+    }
+
+    /**
+     * Get a new certificate name to file.
+     *
+     * @param stdClass $issue The issue certificate object
+     * @return string the certificate name
+     */
+    protected function get_filecert_name($issue) {
+        $name = '';
+
+        $coursename = $this->get_instance()->coursename;
+        if (!empty($coursename)) {
+            $name .= $coursename;
+        }
+        $name .=  '_';
+
+        $certificatename = $this->get_instance()->name;
+        if (!empty($certificatename)) {
+            $name .= $certificatename;
+        }
+        $name .=  '_';
+
+        if (!empty($issue->timecreated)) {
+            $name .= date('Ymd', $issue->timecreated);
+        }
+
+        $name .= '_' . $issue->id . '.pdf';
+
+        $name = str_replace(self::CHARS_NOT, self::CHARS_YES, $name);
+        $name = str_replace(" ", "_", $name);
+
+        return clean_filename($name);
+    }
+
+    /**
+     * Get the certificate name.
+     *
+     * @param stdClass $issue The issue certificate object
+     * @return string the certificate name
+     */
+    protected function get_cert_name($issue = null) {
+        $formatedcoursename = $this->get_instance()->coursename;
+        $formatedcertificatename = $this->get_instance()->name;
+        $certificatename = format_string($formatedcoursename . '-' . $formatedcertificatename, true);
+
+        if ($issue && !empty($issue->timecreated)) {
+            $certificatename .= '_' . date('Y-m-d', $issue->timecreated);
+        }
+
+        return $certificatename;
     }
 
     /**
