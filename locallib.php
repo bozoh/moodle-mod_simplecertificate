@@ -859,8 +859,14 @@ class simplecertificate {
     protected function get_mod_grade($moduleid, $userid) {
         global $DB;
 
-        $cm = $DB->get_record('course_modules', array('id' => $moduleid));
-        $module = $DB->get_record('modules', array('id' => $cm->module));
+        $cm = $DB->get_record('course_modules', ['id' => $moduleid]);
+
+        // The module may no longer exist if it was deleted.
+        if (!$cm) {
+            return false;
+        }
+
+        $module = $DB->get_record('modules', ['id' => $cm->module]);
         $gradeitem = grade_get_grades($this->get_course()->id, 'mod', $module->name, $cm->instance, $userid);
         if ($gradeitem) {
             $item = new grade_item();
@@ -869,7 +875,7 @@ class simplecertificate {
                 $item->$key = $value;
             }
             $modinfo = new stdClass();
-            $modinfo->name = utf8_decode($DB->get_field($module->name, 'name', array('id' => $cm->instance)));
+            $modinfo->name = utf8_decode($DB->get_field($module->name, 'name', ['id' => $cm->instance]));
             $grade = $item->grades[$userid]->grade;
             $item->gradetype = GRADE_TYPE_VALUE;
             $item->courseid = $this->get_course()->id;
@@ -1707,19 +1713,15 @@ class simplecertificate {
         // Set certificate issued date.
         if ($this->get_instance()->certdate == self::CERT_ISSUE_DATE) {
             $date = $issuecert->timecreated;
-        }
-
+        } else if ($this->get_instance()->certdate == self::COURSE_START_DATE) {
         // Get the course start date.
-        if ($this->get_instance()->certdate == self::COURSE_START_DATE) {
             $sql = "SELECT id, startdate FROM {course} c
               WHERE c.id = :courseid";
 
             $coursestartdate = $DB->get_record_sql($sql, array('courseid' => $this->get_course()->id));
             $date = $coursestartdate->startdate;
-        }
-
+        } else if ($this->get_instance()->certdate == self::COURSE_COMPLETATION_DATE) {
         // Get the enrolment end date.
-        if ($this->get_instance()->certdate == self::COURSE_COMPLETATION_DATE) {
             $sql = "SELECT MAX(c.timecompleted) as timecompleted FROM {course_completions} c
                  WHERE c.userid = :userid AND c.course = :courseid";
 
