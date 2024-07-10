@@ -501,6 +501,9 @@ class simplecertificate {
                 $update->secondpagetextformat = $formdata->secondpagetext['format'];
             }
             unset($formdata->secondpagetext);
+        } else if (is_array($formdata->secondpagetext)) {
+            $update->secondpagetext = '';
+            unset($formdata->secondpagetext);
         }
 
         if (isset($formdata->certificateimage)) {
