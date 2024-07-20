@@ -24,23 +24,30 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$functions = array(
-    'mod_simplecertificate_verify_code' => array(
+$functions = [
+    'mod_simplecertificate_verify_code' => [
         'classname' => 'mod_simplecertificate_external',
         'methodname' => 'verify_code',
         'classpath' => 'mod/simplecertificate/externallib.php',
         'description' => 'Returns certificate owner username if code is valid',
         'type' => 'read',
-        'capabilities' => ''
-    )
-);
+        'capabilities' => '',
+    ],
+    'mod_simplecertificate_get_issues' => [
+        'classname' => '\mod_simplecertificate\external\get_issues',
+        'classpath' => '',
+        'description' => 'Returns the user certificate issues',
+        'type' => 'read',
+        'capabilities' => 'mod/simplecertificate:view',
+    ],
+];
 
-$services = array(
-        'Simplecertificate plugin webservices' => array(
-                'functions' => array ('mod_simplecertificate_verify_code'),
+$services = [
+        'Simplecertificate plugin webservices' => [
+                'functions' => ['mod_simplecertificate_verify_code'],
                 'restrictedusers' => 0, // ...if 1, the administrator must manually select which user can use this service.
                 // ... (Administration > Plugins > Web services > Manage services > Authorised users).
                 'enabled' => 0, // ... if 0, then token linked to this service won't work.
-                'shortname' => 'mod_simplecertificate_ws'
-        )
-);
+                'shortname' => 'mod_simplecertificate_ws',
+        ],
+];

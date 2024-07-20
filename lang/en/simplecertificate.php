@@ -210,6 +210,7 @@ $string['filenotfound'] = 'File not Found';
 $string['invalidcode'] = 'Invalid certificate code';
 $string['cantdeleteissue'] = 'Error removing issued certificates';
 $string['requiredtimenotmet'] = 'You must have at least {$a->requiredtime} minutes in this course to issue this certificate';
+$string['invalidfilterfield'] = 'Invalid filter field';
 
 // Verify certificate page.
 $string['certificateverification'] = 'Certificate Verification';
