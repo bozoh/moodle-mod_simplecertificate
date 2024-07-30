@@ -2608,10 +2608,11 @@ class simplecertificate {
     private function add_to_log($action) {
         if ($action) {
                 $event = \mod_simplecertificate\event\course_module_viewed::create(
-                       array(
-                            'objectid' => $this->get_course_module()->instance,
+                       [
+                            'objectid' => $this->context->instanceid,
                             'context' => $this->get_context(),
-                            'other' => array('certificatecode' => $this->get_issue()->code)));
+                            'other' => ['certificatecode' => $this->get_issue()->code],
+                        ]);
                        $event->add_record_snapshot('course', $this->get_course());
         }
 
