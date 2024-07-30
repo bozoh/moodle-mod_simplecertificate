@@ -40,23 +40,23 @@ class certificate_verified extends \core\event\base  {
     }
 
     public function get_description() {
-        return get_string('eventcertificate_verified_description', 'simplecertificate', array(
+        return get_string('eventcertificate_verified_description', 'simplecertificate', [
             'userid' => $this->userid,
             'certificateid' => $this->objectid,
             'certiticate_userid' => $this->relateduserid
-        ));
+        ]);
     }
 
     public function get_url() {
-        return new \moodle_url('/mod/simplecertificate/verify.php', array('code' => $this->other['issuedcertcode']));
+        return new \moodle_url('/mod/simplecertificate/verify.php', ['code' => $this->other['issuedcertcode']]);
     }
 
-    public function get_legacy_logdata() {
-        return array($this->contextinstanceid, 'simplecertificate',
-            'verify',
-            $this->get_url()->out_as_local_url(false),
-            $this->objectid
-        );
-
+    /**
+     * Return mapping of object related to this event.
+     *
+     * @return array
+     */
+    public static function get_objectid_mapping() {
+        return ['db' => 'simplecertificate_issues', 'restore' => 'simplecertificate_issues'];
     }
 }

@@ -61,8 +61,6 @@ if (!$verifyform->get_data()) {
     $strcode = get_string('code', 'simplecertificate');
 
     $table = new html_table();
-    $table->width = "95%";
-    $table->tablealign = "center";
     $table->head = array(get_string('course'), $strto, $strdate, $strcode);
     $table->align = array("left", "left", "center", "center");
     $coursename = get_course_name($issuedcert);
@@ -71,12 +69,12 @@ if (!$verifyform->get_data()) {
     echo html_writer::table($table);
 
     // Add to log.
-    $event = \mod_simplecertificate\event\certificate_verified::create(array(
+    $event = \mod_simplecertificate\event\certificate_verified::create([
             'objectid' => $issuedcert->id,
             'context' => $context,
             'relateduserid' => $issuedcert->userid,
-            'other' => array( 'issuedcertcode' => $issuedcert->code)
-        )
+            'other' => ['issuedcertcode' => $issuedcert->code],
+        ]
     );
     $event->trigger();
 
