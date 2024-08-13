@@ -48,4 +48,140 @@ class observer {
         }
     }
 
+    /**
+     * Callback function triggered when an activity is completed.
+     *
+     * @param \core\event\course_module_completion_updated $event
+     */
+    public static function activity_completed(\core\event\course_module_completion_updated $event) {
+        global $DB;
+
+        $userid = $event->relateduserid;
+        $courseid = $event->courseid;
+        
+        // Check if all activities are completed.
+        if (self::are_all_activities_completed($courseid, $userid)) {
+            // Generate the certificate.
+            self::generate_certificate($courseid, $userid);
+
+            // Optionally mark the course as complete.
+            self::mark_course_complete($courseid, $userid);
+        }
+    }
+
+    /**
+     * Check if all activities in the course are completed.
+     *
+     * @param int $courseid The ID of the course.
+     * @param int $userid The ID of the user.
+     * @return bool True if all activities are completed, false otherwise.
+     */
+    private static function are_all_activities_completed($courseid, $userid) {
+        global $DB;
+        $completion = new completion_info(get_course($courseid));
+        
+        $activities = $completion->get_activities();
+        
+        foreach ($activities as $activity) {
+            // Get the module name (e.g., 'quiz', 'forum', 'simplecertificate')
+            $modname = $DB->get_field('modules', 'name', ['id' => $activity->module]);
+
+            // Skip the Simple Certificate module
+            if ($modname === 'simplecertificate') {
+                continue;
+            }
+
+            // Check completion status of the activity
+            $completiondata = $completion->get_data($activity, true, $userid);
+            
+            // Check if the activity is not complete (0 or 3) 
+            // or if completionstate is not 1 or 2
+            if (!in_array($completiondata->completionstate, [COMPLETION_COMPLETE, COMPLETION_COMPLETE_PASS])) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Generate the certificate for the user.
+     *
+     * @param int $courseid The ID of the course.
+     * @param int $userid The ID of the user.
+     */
+    private static function generate_certificate($courseid, $userid) {
+        global $DB;
+
+        // Get the course module for the Simple Certificate.
+        $cm = get_coursemodule_from_instance('simplecertificate', $courseid);
+        if (!$cm) {
+            return;
+        }
+
+        $context = context_module::instance($cm->id);
+
+        // Check if the certificate already exists for the user.
+        if (!$DB->record_exists('simplecertificate_issues', ['userid' => $userid, 'certificateid' => $cm->instance])) {
+            // Generate the certificate.
+            simplecertificate_generate_certificate($userid, $context);
+
+            // Optionally notify the user or perform other actions.
+        }
+    }
+
+    /**
+     * Mark the course as complete for the user.
+     *
+     * @param int $courseid The ID of the course.
+     * @param int $userid The ID of the user.
+     */
+    private static function mark_course_complete($courseid, $userid) {
+        global $DB;
+    
+        $completion = new \completion_info(get_course($courseid));
+    
+        // Ensure the course has completion enabled
+        if (!$completion->is_enabled()) {
+            return;
+        }
+    
+        // Check if the course is already marked as complete
+        $coursecompletion = $DB->get_record('course_completions', [
+            'course' => $courseid,
+            'userid' => $userid,
+        ]);
+    
+        if ($coursecompletion && $coursecompletion->timecompleted) {
+            return; // Course already completed, no need to proceed.
+        }
+    
+        // Get all completion criteria
+        $criteriacompletion = $completion->get_criteria_completion($userid);
+    
+        // Loop through criteria and mark them as complete if not already completed
+        foreach ($criteriacompletion as $criteria) {
+            if (!$criteria->is_complete()) {
+                $criteria->mark_complete($userid);
+            }
+        }
+    
+        // Manually update course completion status
+        if (!$coursecompletion) {
+            // Create a new course completion record if it doesn't exist
+            $coursecompletion = (object)[
+                'course' => $courseid,
+                'userid' => $userid,
+                'timecompleted' => time(),
+                'status' => COMPLETION_COMPLETE,
+            ];
+            $DB->insert_record('course_completions', $coursecompletion);
+        } else {
+            // Update the existing course completion record
+            $coursecompletion->timecompleted = time();
+            $coursecompletion->status = COMPLETION_COMPLETE;
+            $DB->update_record('course_completions', $coursecompletion);
+        }
+    }
+
 }

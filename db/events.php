@@ -26,6 +26,10 @@ defined('MOODLE_INTERNAL') || die();
 $observers = array(
 	array(
 		'eventname' => '\core\event\course_completed',
-        'callback' => '\mod_simplecertificate\observer::sendemails'
+        'callback' => '\mod_simplecertificate\observer::sendemails',
+    ),
+    array(
+		'eventname' => '\core\event\course_module_completion_updated',
+        'callback' => '\mod_simplecertificate\observer::activity_completed',
     )
 );
