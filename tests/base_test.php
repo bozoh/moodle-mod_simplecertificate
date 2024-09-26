@@ -35,7 +35,7 @@ require_once($CFG->dirroot . '/mod/simplecertificate/locallib.php');
  * @copyright  1999 onwards Martin Dougiamas  {@link http://moodle.com}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class mod_simplecertificate_base_testcase extends advanced_testcase {
+class mod_simplecertificate_base_test extends advanced_testcase {
 
     /** @const Default number of students to create */
     const DEFAULT_STUDENT_COUNT = 3;
@@ -84,7 +84,7 @@ class mod_simplecertificate_base_testcase extends advanced_testcase {
     /**
      * Setup function - we will create a course and add an simplecertificate instance to it.
      */
-    protected function setUp() {
+    protected function setUp():void {
         global $DB;
 
         $this->resetAfterTest(true);
