@@ -16,6 +16,8 @@
 
 namespace mod_simplecertificate;
 
+use completion_info;
+
 /**
  * Event observers
  *
@@ -55,10 +57,11 @@ class observer {
      */
     public static function activity_completed(\core\event\course_module_completion_updated $event) {
         global $DB;
-
+        
         $userid = $event->relateduserid;
         $courseid = $event->courseid;
         
+
         // Check if all activities are completed.
         if (self::are_all_activities_completed($courseid, $userid)) {
             // Generate the certificate.
@@ -111,21 +114,25 @@ class observer {
      * @param int $userid The ID of the user.
      */
     private static function generate_certificate($courseid, $userid) {
-        global $DB;
+        global $DB, $CFG;
+        require_once ($CFG->dirroot . '/mod/simplecertificate/locallib.php');
 
+        $instanceid = $DB->get_field('simplecertificate', 'id', ['course' => $courseid]);
         // Get the course module for the Simple Certificate.
-        $cm = get_coursemodule_from_instance('simplecertificate', $courseid);
-        if (!$cm) {
-            return;
-        }
+        $cm = get_coursemodule_from_instance('simplecertificate', $instanceid, $courseid);
+         if (!$cm) {
+             return;
+         }
 
-        $context = context_module::instance($cm->id);
+         $context = \context_module::instance($cm->id);
 
         // Check if the certificate already exists for the user.
         if (!$DB->record_exists('simplecertificate_issues', ['userid' => $userid, 'certificateid' => $cm->instance])) {
-            // Generate the certificate.
-            simplecertificate_generate_certificate($userid, $context);
 
+            $course = $DB->get_record('course', ['id' => $cm->course]);
+            $user = $DB->get_record('user', ['id' => $userid]);
+            $simplecertificate = new \simplecertificate($context, $cm, $course);
+            $issuecert = $simplecertificate->get_issue($user);
             // Optionally notify the user or perform other actions.
         }
     }
@@ -156,31 +163,46 @@ class observer {
             return; // Course already completed, no need to proceed.
         }
     
-        // Get all completion criteria
-        $criteriacompletion = $completion->get_criteria_completion($userid);
+        // Check if all criteria are complete
+        $criteria = $completion->get_criteria(COMPLETION_CRITERIA_TYPE_ACTIVITY);
+        $allcompleted = true;
     
-        // Loop through criteria and mark them as complete if not already completed
-        foreach ($criteriacompletion as $criteria) {
-            if (!$criteria->is_complete()) {
-                $criteria->mark_complete($userid);
+        foreach ($criteria as $criterion) {
+            $completiondata = $criterion->get_completion_state($userid);
+            if ($completiondata != COMPLETION_COMPLETE && $completiondata != COMPLETION_COMPLETE_PASS) {
+                $allcompleted = false;
+                break;
             }
         }
     
-        // Manually update course completion status
-        if (!$coursecompletion) {
-            // Create a new course completion record if it doesn't exist
-            $coursecompletion = (object)[
-                'course' => $courseid,
-                'userid' => $userid,
-                'timecompleted' => time(),
-                'status' => COMPLETION_COMPLETE,
-            ];
-            $DB->insert_record('course_completions', $coursecompletion);
-        } else {
-            // Update the existing course completion record
-            $coursecompletion->timecompleted = time();
-            $coursecompletion->status = COMPLETION_COMPLETE;
-            $DB->update_record('course_completions', $coursecompletion);
+        // If all criteria are completed, mark the course as complete
+        if ($allcompleted) {
+            if (!$coursecompletion) {
+                // Create a new course completion record if it doesn't exist
+                $coursecompletion = (object)[
+                    'course' => $courseid,
+                    'userid' => $userid,
+                    'timecompleted' => time(),
+                    'status' => COMPLETION_COMPLETE,
+                ];
+                $DB->insert_record('course_completions', $coursecompletion);
+            } else {
+                // Update the existing course completion record
+                $coursecompletion->timecompleted = time();
+                $coursecompletion->status = COMPLETION_COMPLETE;
+                $DB->update_record('course_completions', $coursecompletion);
+            }
+    
+            // Trigger course completion event, ensure 'relateduserid' is passed in 'other'
+            $event = \core\event\course_completed::create([
+                'objectid' => $courseid,
+                'context' => \context_course::instance($courseid),
+                'relateduserid' => $userid, // This is crucial to set
+                'other' => [
+                    'relateduserid' => $userid // Add 'relateduserid' to 'other'
+                ]
+            ]);
+            $event->trigger();
         }
     }
 
