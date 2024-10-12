@@ -899,16 +899,16 @@ class simplecertificate {
     }
 
     /**
-     * Generate a UUID
-     * you can verify the generated code in:
-     * http://www.famkruithof.net/uuid/uuidgen?typeReq=-1
+     * Generate a V4 UUID.
+     *
+     * @see https://tools.ietf.org/html/rfc4122
      *
      * @return string UUID
      */
     protected function get_issue_uuid() {
         global $CFG;
-        require_once($CFG->libdir . '/horde/framework/Horde/Support/Uuid.php');
-        return (string)new Horde_Support_Uuid();
+        require_once($CFG->libdir . '/classes/uuid.php');
+        return \core\uuid::generate();
     }
 
     /**
@@ -2490,9 +2490,7 @@ class simplecertificate {
                     'email' => get_string('sendtoemail', 'simplecertificate'));
             echo html_writer::select($selectoptions, 'type', $type);
             $table = new html_table();
-            $table->width = "95%";
-            $table->tablealign = "center";
-            $table->head = array(' ', get_string('fullname'), get_string('grade', 'grades'));
+            $table->head = array(' ', get_string('fullname'), get_string('modgrade', 'grades'));
             $table->align = array("left", "left", "center");
             $table->size = array('1%', '89%', '10%');
 
@@ -2610,10 +2608,11 @@ class simplecertificate {
     private function add_to_log($action) {
         if ($action) {
                 $event = \mod_simplecertificate\event\course_module_viewed::create(
-                       array(
-                            'objectid' => $this->get_course_module()->instance,
+                       [
+                            'objectid' => $this->context->instanceid,
                             'context' => $this->get_context(),
-                            'other' => array('certificatecode' => $this->get_issue()->code)));
+                            'other' => ['certificatecode' => $this->get_issue()->code],
+                        ]);
                        $event->add_record_snapshot('course', $this->get_course());
         }
 

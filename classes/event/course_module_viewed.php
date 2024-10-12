@@ -46,17 +46,16 @@ class course_module_viewed extends \core\event\course_module_viewed {
      * @return \moodle_url
      */
     public function get_url() {
-        return new \moodle_url('/mod/simplecertificate/view.php', array('id' => $this->objectid));
+        return new \moodle_url('/mod/simplecertificate/view.php', ['id' => $this->objectid]);
     }
 
     /**
-     * Return the legacy event log data.
+     * Return mapping of object related to this event.
      *
-     * @return array null
+     * @return array
      */
-    protected function get_legacy_logdata() {
-        return array($this->courseid, 'simplecertificate', 'view', 'view.php?id=' . $this->objectid, $this->objectid,
-                $this->contextinstanceid);
+    public static function get_objectid_mapping() {
+        return ['db' => 'simplecertificate', 'restore' => 'simplecertificate'];
     }
 
 }
