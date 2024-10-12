@@ -37,26 +37,26 @@ require_once($CFG->dirroot . '/mod/simplecertificate/tests/base_test.php');
  * @group simplecertificate_basics
  */
 
-// ...vendor/bin/phpunit mod_simplecertificate_locallib_testcase mod/simplecertificate/tests/locallib_test.php .
-class mod_simplecertificate_locallib_testcase extends mod_simplecertificate_base_testcase {
+// vendor/bin/phpunit mod/simplecertificate/tests/locallib_test.php
+class locallib_test extends mod_simplecertificate_base_testcase {
 
     public function test_create_instance() {
         global $DB;
 
         // Basic CRUD test.
-        $this->assertFalse($DB->record_exists('simplecertificate', array('course' => $this->course->id)));
+        $this->assertFalse($DB->record_exists('simplecertificate',['course' => $this->course->id]));
         $cert = $this->create_instance();
-        $this->assertEquals(1, $DB->count_records('simplecertificate', array('course' => $this->course->id)));
+        $this->assertEquals(1, $DB->count_records('simplecertificate',['course' => $this->course->id]));
         $this->assertTrue($DB->record_exists('simplecertificate',
-                          array('course' => $this->course->id, 'id' => $cert->get_instance()->id))
+                         ['course' => $this->course->id, 'id' => $cert->get_instance()->id])
         );
 
-        $params = array('course' => $this->course->id, 'name' => 'One more certificate');
+        $params =['course' => $this->course->id, 'name' => 'One more certificate'];
         $cert = $this->create_instance($params);
-        $this->assertEquals(2, $DB->count_records('simplecertificate', array('course' => $this->course->id)));
+        $this->assertEquals(2, $DB->count_records('simplecertificate',['course' => $this->course->id]));
         $this->assertEquals('One more certificate',
                             $DB->get_field_select('simplecertificate', 'name', 'id = :id',
-                            array('id' => $cert->get_instance()->id))
+                           ['id' => $cert->get_instance()->id])
         );
     }
 
@@ -70,7 +70,7 @@ class mod_simplecertificate_locallib_testcase extends mod_simplecertificate_base
         $instance->coursename = 'teste';
         $instanceoldtime = $instance->timemodified;
         $cert->update_instance($instance);
-        $instancedb = $DB->get_record('simplecertificate', array('id' => $cert->get_instance()->id));
+        $instancedb = $DB->get_record('simplecertificate',['id' => $cert->get_instance()->id]);
         $this->assertEquals('teste', $instancedb->coursename);
         $this->assertTrue($instancedb > $instanceoldtime);
     }
@@ -81,7 +81,7 @@ class mod_simplecertificate_locallib_testcase extends mod_simplecertificate_base
         // Basic CRUD test.
         $cert = $this->create_instance();
         $this->assertTrue($cert->delete_instance($cert->get_instance()));
-        $this->assertFalse($DB->record_exists('simplecertificate', array('course' => $this->course->id)));
+        $this->assertFalse($DB->record_exists('simplecertificate',['course' => $this->course->id]));
     }
 
     public function test_certificate_images() {
@@ -144,43 +144,47 @@ class mod_simplecertificate_locallib_testcase extends mod_simplecertificate_base
         $cert = $this->create_instance();
         // Verify if no certificate is issued.
         $this->assertFalse($DB->record_exists("simplecertificate_issues",
-                        array('certificateid' => $cert->get_instance()->id))
+                       ['certificateid' => $cert->get_instance()->id])
         );
 
         // Issued a student certificate as manager.
         $issuecert = $cert->get_issue($this->students[0]);
         $this->assertNotEmpty($issuecert);
-        $this->assertTrue($DB->record_exists("simplecertificate_issues", array('id' => $issuecert->id)));
+        $this->assertTrue($DB->record_exists("simplecertificate_issues", ['id' => $issuecert->id]));
         $this->assertTrue(!empty($issuecert->haschange));
         $this->assertEquals($this->students[0]->id, $issuecert->userid);
 
         // Issuing a manager certificate as manager (do not save).
         $issuecert = $cert->get_issue();
         $this->assertNotEmpty($issuecert);
-        $this->assertFalse($DB->record_exists("simplecertificate_issues", array('id' => $issuecert->id)));
+        $this->assertFalse($DB->record_exists("simplecertificate_issues", ['id' => $issuecert->id]));
         $this->assertTrue(!empty($issuecert->haschange));
 
         // Issuing as student.
         $this->setUser($this->students[1]);
         // Verify if no certificate is issued for this student.
         $this->assertFalse($DB->record_exists("simplecertificate_issues",
-                                        array('certificateid' => $cert->get_instance()->id,
-                                              'userid' => $this->students[1]->id))
+                                       [
+                                            'certificateid' => $cert->get_instance()->id,
+                                            'userid' => $this->students[1]->id,
+                                        ])
         );
         $issuecert = $cert->get_issue();
         $this->assertNotEmpty($issuecert);
-        $this->assertTrue($DB->record_exists("simplecertificate_issues", array('id' => $issuecert->id)));
+        $this->assertTrue($DB->record_exists("simplecertificate_issues", ['id' => $issuecert->id]));
         $this->assertEquals(1,
                             $DB->count_records("simplecertificate_issues",
-                                            array('certificateid' => $cert->get_instance()->id,
-                                                  'userid' => $this->students[1]->id))
+                                           [
+                                                'certificateid' => $cert->get_instance()->id,
+                                                'userid' => $this->students[1]->id,
+                                            ])
         );
         $this->assertTrue(!empty($issuecert->haschange));
         $this->assertEquals($this->students[1]->id, $issuecert->userid);
 
         // Must have 2 certificates.
         $this->assertEquals(2, $DB->count_records("simplecertificate_issues",
-                        array('certificateid' => $cert->get_instance()->id)));
+                       ['certificateid' => $cert->get_instance()->id]));
     }
 
     public function test_create_issue_code() {
@@ -194,7 +198,7 @@ class mod_simplecertificate_locallib_testcase extends mod_simplecertificate_base
         $this->assertEquals(36, strlen($issuecert->code));
         $this->assertEquals($this->students[0]->id,
                             $DB->get_field_select('simplecertificate_issues', 'userid', 'code = :code',
-                                                array('code' => $issuecert->code)));
+                                               ['code' => $issuecert->code]));
     }
 
     public function test_update_instace_update_haschange_issues() {
@@ -245,7 +249,7 @@ class mod_simplecertificate_locallib_testcase extends mod_simplecertificate_base
         $this->assertDebuggingCalled(null, DEBUG_DEVELOPER);
 
         // Verify if timedelete is not null.
-        $issuecert1 = $DB->get_record('simplecertificate_issues', array('id' => $issuecert1->id));
+        $issuecert1 = $DB->get_record('simplecertificate_issues',['id' => $issuecert1->id]);
 
         $this->assertObjectHasAttribute('timedeleted', $issuecert1);
     }
@@ -263,7 +267,7 @@ class mod_simplecertificate_locallib_testcase extends mod_simplecertificate_base
         }
 
         // Setup tem certificate instance.
-        $testemails = array('test1@test.com', 'test2@test.com', 'test3@test.com');
+        $testemails =['test1@test.com', 'test2@test.com', 'test3@test.com'];
         $emailothers = implode(',', $testemails);
         $cert = $this->create_instance(array('emailteachers' => 1, 'emailothers' => $emailothers));
 
@@ -291,83 +295,4 @@ class mod_simplecertificate_locallib_testcase extends mod_simplecertificate_base
         $this->assertNull($cert->testable_can_issue($this->students[0]));
     }
 
-    /**      Not unit test
-//     public function test_can_issue_with_grade_restrinction() {
-//         $mock_cert = $this->get_certificate_mock(array('testable_check_user_can_access_certificate_instance'));
-
-//         $mock_cert->expects($this->once())->
-//                 method('testable_check_user_can_access_certificate_instance')->
-//                 will($this->returnValue(true));
-
-//         $this->assertNull($mock_cert->testable_can_issue($this->students[0]));
-//     }
-
-    public function test_can_issue_with_completion_restrinction() {
-        $this->course = $this->getDataGenerator()->create_course(array('enablecompletion' => true));
-        $completionauto = array('completion' => COMPLETION_TRACKING_AUTOMATIC);
-        $mock_cert = $this->get_certificate_mock(
-                                                array('get_instance', 'get_course_time',
-                                                    'testable_check_user_can_access_certificate_instance'), array(), $completionauto);
-
-        $return_value = new stdClass();
-        $return_value->requiredtime = 5;
-
-        $mock_cert->expects($this->any())->method('get_instance')->will($this->returnValue($return_value));
-
-        $mock_cert->expects($this->any())->method('get_course_time')->will($this->returnValue(10));
-
-        $mock_cert->expects($this->any())->method('testable_check_user_can_access_certificate_instance')->will(
-                                                                                                            $this->returnValue(true));
-
-        $this->assertNull($mock_cert->testable_can_issue($this->students[0]));
-    }
-
-    public function test_cant_issue_with_grade_restrinction() {
-        $mock_cert = $this->get_certificate_mock(array('testable_check_user_can_access_certificate_instance'));
-
-        $mock_cert->expects($this->once())->method('testable_check_user_can_access_certificate_instance')->will(
-                                                                                                                $this->returnValue(
-                                                                                                                                false));
-
-        $this->assertEquals(get_string('cantissue', 'simplecertificate'), $mock_cert->testable_can_issue($this->students[0]));
-    }
-
-    public function test_cant_issue_with_completion_restrinction() {
-        $this->course = $this->getDataGenerator()->create_course(array('enablecompletion' => true));
-        $completionauto = array('completion' => COMPLETION_TRACKING_AUTOMATIC);
-        $mock_cert = $this->get_certificate_mock(
-                                                array('get_instance', 'get_course_time',
-                                                    'testable_check_user_can_access_certificate_instance'), array(), $completionauto);
-
-        // /Removing Avaliability checks
-        $mock_cert->expects($this->any())->method('testable_check_user_can_access_certificate_instance')->will(
-                                                                                                            $this->returnValue(true));
-
-        $return_value = new stdClass();
-        $return_value->requiredtime = 5;
-
-        $mock_cert->expects($this->any())->method('get_instance')->will($this->returnValue($return_value));
-
-        $mock_cert->expects($this->any())->method('get_course_time')->will($this->returnValue(4));
-
-        $a = new stdClass();
-        $a->requiredtime = $mock_cert->get_instance()->requiredtime;
-        $error_msg = get_string('requiredtimenotmet', 'simplecertificate', $a);
-
-        $this->assertEquals($error_msg, $mock_cert->testable_can_issue($this->students[0]));
-    }
-
-    /**
-     */
-    private function get_certificate_mock(array $methods = null, array $params = array(), array $options = null) {
-        // Only to get contexts variables.
-        $cert = $this->create_instance($params, $options);
-
-        $mockcert = $this->getMockBuilder('testable_simplecertificate')->setMethods($methods)->setConstructorArgs(array($cert->get_context(),
-                                                                    $cert->get_course_module(),
-                                                                    $cert->get_course()))->getMock();
-
-        return $mockcert;
-    }
 }
-
