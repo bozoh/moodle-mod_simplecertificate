@@ -45,5 +45,6 @@ Place this folder in your mod folder in your Moodle directory.
 
 ## In version
 
-### 2024051102:
+### 2024051103:
+- Compatibility with Moodle 4.4+
 - Fixed UnitTest by @MichaelReyesCatcan
