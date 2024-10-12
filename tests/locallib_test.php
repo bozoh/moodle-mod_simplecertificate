@@ -121,8 +121,8 @@ class mod_simplecertificate_locallib_testcase extends mod_simplecertificate_base
 
         // Test if can create certificate without any images.
         $cert = $this->create_instance(array('certificateimage' => '', 'secondimage' => ''));
-        $this->assertAttributeEmpty('certificateimage', $cert->get_instance());
-        $this->assertAttributeEmpty('secondimage', $cert->get_instance());
+        $this->assertEmpty($cert->get_instance()->certificateimage, 'certificateimage should be empty');
+        $this->assertEmpty($cert->get_instance()->secondimage, 'secondimage should be empty');
     }
 
     public function test_certificate_texts() {
@@ -134,8 +134,8 @@ class mod_simplecertificate_locallib_testcase extends mod_simplecertificate_base
         $secondpagetext = $cert->testable_get_certificate_text($cert->get_issue(), $cert->get_instance()->secondpagetext);
         // In this test first must be different than second one.
         $this->assertNotEquals($firstpagetext, $secondpagetext);
-        $this->assertNotContains("{", $firstpagetext);
-        $this->assertNotContains("{", $secondpagetext);
+        $this->assertStringNotContainsString("{", $firstpagetext, 'First page text should not contain unprocessed placeholders');
+        $this->assertStringNotContainsString("{", $secondpagetext, 'Second page text should not contain unprocessed placeholders');
     }
 
     public function test_create_issue_instance() {
