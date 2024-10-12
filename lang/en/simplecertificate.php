@@ -299,3 +299,15 @@ $string['signimage'] = 'Default image';
 $string['signimage_help'] = '';
 $string['signinfo'] = '';
 $string['signinfo_help'] = 'A property by line. Use the structure: key=value';
+
+$string['privacy:metadata:simplecertificate_issues'] = 'The simple certificate plugin stores information about issued certificates.';
+$string['privacy:metadata:simplecertificate_issues:certificateid'] = 'The ID of the certificate issued.';
+$string['privacy:metadata:simplecertificate_issues:certificatename'] = 'The name of the certificate issued.';
+$string['privacy:metadata:simplecertificate_issues:coursename'] = 'The name of the course for which the certificate was issued.';
+$string['privacy:metadata:simplecertificate_issues:code'] = 'The unique code for the issued certificate.';
+$string['privacy:metadata:simplecertificate_issues:haschange'] = 'Indicates if the certificate has been changed.';
+$string['privacy:metadata:simplecertificate_issues:pathnamehash'] = 'The hash of the certificate file.';
+$string['privacy:metadata:simplecertificate_issues:timecreated'] = 'The timestamp when the certificate was issued.';
+$string['privacy:metadata:simplecertificate_issues:timedeleted'] = 'The timestamp when the certificate was deleted.';
+$string['privacy:metadata:simplecertificate_issues:userid'] = 'The ID of the user who received the certificate.';
+$string['simplecertificateissue'] = 'Certificate Issue';
