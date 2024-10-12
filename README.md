@@ -41,4 +41,4 @@ that matches your Moodle version (eg. MOODLE_22 is for Moodle 2.2, MOODLE_23 is 
 and download the zip, uncompress this zip and extract the folder. The folder will have a name similar to moodle-mod_simplecertificate-c9fbadb, you MUST rename this to simplecertificate.
 Place this folder in your mod folder in your Moodle directory.
 
-> The reason this is not the recommended method is due to the fact you have to over-write the contents of this folder to apply any future updates to the simplecertificate module. In the above method there is a simple command to update the files.
+> The reason this is not the recommended method is due to the fact you have to over-write the contents of this folder to apply any future updates to the simplecertificate module. In the above method there is a simple command to update the files.s
