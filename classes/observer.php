@@ -61,8 +61,8 @@ class observer {
         $userid = $event->relateduserid;
         $courseid = $event->courseid;
         
-        $authogeneratecertificate = $DB->get_record('simplecertificate', ['course' => $courseid], 'autogeneratecertificate');
-        if(!$authogeneratecertificate || $authogeneratecertificate->autogeneratecertificate === 0)
+        $autoGenerateCertificate = $DB->get_record('simplecertificate', ['course' => $courseid], 'autogeneratecertificate');
+        if(!$autoGenerateCertificate || $autoGenerateCertificate->autogeneratecertificate === 0)
         {
             return;
         }
