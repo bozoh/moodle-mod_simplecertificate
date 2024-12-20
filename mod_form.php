@@ -234,6 +234,16 @@ class mod_simplecertificate_mod_form extends moodleform_mod {
         $mform->setDefault('delivery', 0);
         $mform->addHelpButton('delivery', 'delivery', 'simplecertificate');
 
+        // Auto Generate Certificate Option
+        $mform->addElement(
+            'select', 
+            'autogeneratecertificate', // Name of the field
+            get_string('autogeneratecertificate', 'simplecertificate'), // Label
+            array(0 => get_string('no'), 1 => get_string('yes')) // Options
+        );
+        $mform->setDefault('autogeneratecertificate', 0); // Default value: No
+        $mform->addHelpButton('autogeneratecertificate', 'autogeneratecertificate', 'simplecertificate'); // Add help button if required
+
         // Report Cert.
         // TODO acredito que seja para verificar o certificado pelo código, se for isto pode remover.
         $reportfile = "$CFG->dirroot/simplecertificates/index.php";

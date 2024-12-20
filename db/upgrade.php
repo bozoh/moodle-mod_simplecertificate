@@ -458,5 +458,20 @@ function xmldb_simplecertificate_upgrade($oldversion = 0) {
         // Simplecertificate savepoint reached.
         upgrade_mod_savepoint(true, 2020091500, 'simplecertificate');
     }
+
+    if ($oldversion < 2024051103) {
+        // Define field autogeneratecertificate to be added to simplecertificate.
+        $table = new xmldb_table('simplecertificate');
+        $field = new xmldb_field('autogeneratecertificate', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'timemodified');
+
+        // Add field if it doesn't already exist.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Save upgrade step.
+        upgrade_mod_savepoint(true, 2024051103, 'simplecertificate');
+    }
+    
     return true;
 }

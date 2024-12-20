@@ -61,7 +61,11 @@ class observer {
         $userid = $event->relateduserid;
         $courseid = $event->courseid;
         
-
+        $authogeneratecertificate = $DB->get_record('simplecertificate', ['course' => $courseid], 'autogeneratecertificate');
+        if(!$authogeneratecertificate || $authogeneratecertificate->autogeneratecertificate === 0)
+        {
+            return;
+        }
         // Check if all activities are completed.
         if (self::are_all_activities_completed($courseid, $userid)) {
             // Generate the certificate.
@@ -133,6 +137,10 @@ class observer {
             $user = $DB->get_record('user', ['id' => $userid]);
             $simplecertificate = new \simplecertificate($context, $cm, $course);
             $issuecert = $simplecertificate->get_issue($user);
+            $simplecertificate->get_issue_file($issuecert);
+            // Generate the certificate.
+            //simplecertificate_generate_certificate($userid, $context);
+
             // Optionally notify the user or perform other actions.
         }
     }

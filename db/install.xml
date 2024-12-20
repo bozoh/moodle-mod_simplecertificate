@@ -42,6 +42,7 @@
         <FIELD NAME="secondpagetext" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="secondpagetextformat" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="secondimage" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="autogeneratecertificate" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0"/>
         <FIELD NAME="timestartdatefmt" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>

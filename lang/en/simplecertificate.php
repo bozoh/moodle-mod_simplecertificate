@@ -299,3 +299,6 @@ $string['signimage'] = 'Default image';
 $string['signimage_help'] = '';
 $string['signinfo'] = '';
 $string['signinfo_help'] = 'A property by line. Use the structure: key=value';
+$string['autogeneratecertificate'] = 'Autogenerate Certificate';
+$string['autogeneratecertificate_desc'] = 'Automatically generate the certificate when the user completes all required activities.';
+$string['autogeneratecertificate_help'] = 'If enabled, the certificate will be automatically generated when the user completes all required activities.';
