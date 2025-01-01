@@ -2200,7 +2200,7 @@ class simplecertificate {
             // Create the table for the users.
             $table = new html_table();
 
-            $table->head = [' ', get_string('fullname'), get_string('grade', 'grades')];
+            $table->head = [' ', get_string('fullname'), get_string('grade', 'simplecertificate')];
             $table->align = ["left", "left", "center"];
             $table->size = ['1%', '89%', '10%'];
 
