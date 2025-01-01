@@ -1562,7 +1562,7 @@ class simplecertificate {
             $a->teachers = implode("<br>", $t);
         }
 
-        // Fetch user actitivy restuls.
+        // Fetch user activity restuls.
         $a->userresults = $this->get_user_results($issuecert->userid);
 
         // Get User role name in course.
@@ -1785,7 +1785,7 @@ class simplecertificate {
 
         $retval = '';
         foreach ($items as $id => $item) {
-            // Do not include grades for course itens.
+            // Do not include grades for course items.
             if ($item->itemtype != 'mod') {
                 continue;
             }
