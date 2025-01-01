@@ -291,7 +291,7 @@ $string['certificatecopy'] = 'COPY';
 $string['upgradeerror'] = 'Error while upgrading $a';
 $string['notreceived'] = 'No issued certificate';
 
-// Verify envent.
+// Verify event.
 $string['eventcertificate_verified'] = 'Certificate verified';
 $string['eventcertificate_verified_description'] = 'The user with id {$a->userid} verified the certificate with id {$a->certificateid}, issued to user with id {$a->certiticate_userid}.';
 $string['deleteall'] = "Delete All";
@@ -299,10 +299,7 @@ $string['deleteselected'] = "Delete Selected";
 
 $string['certificates'] = 'Certificates';
 $string['certificatestitle'] = 'My certificates';
-$string['subtitleallcertificates'] = 'Certificates from all courses';
-$string['subtitlecoursecertificates'] = 'Course certificates';
 $string['nohavecertificates'] = 'You don\'t have certificates yet';
-$string['coursesections'] = 'Course sections';
 
 // Secure sign.
 $string['signhead'] = 'Sign setting';

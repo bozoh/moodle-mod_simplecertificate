@@ -21,7 +21,6 @@
 
     Example context (json): {
         "title": "Certificates page",
-        "subtitle": "Course certificates",
         "hascertificates": true,
         "coursescertificates": {
             "fullname": "Course fullname",
@@ -33,8 +32,7 @@
         }
     }
 }}
-<h2 class="card-title">{{{ title }}}</h2>
-<h3 class="card-subtitle mb-2 text-muted">{{{ subtitle }}}</h3>
+<h3 class="card-title">{{{ title }}}</h3>
 
 {{#hascertificates}}
     {{#coursescertificates}}

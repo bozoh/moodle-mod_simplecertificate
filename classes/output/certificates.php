@@ -68,17 +68,11 @@ class certificates implements renderable, templatable {
         $issuedcertificates = $certificates->get_all_certificates();
 
         $title = get_string('certificatestitle', 'mod_simplecertificate');
-        $subtitle = get_string('subtitleallcertificates', 'mod_simplecertificate');
-
-        if ($this->courseid) {
-            $subtitle = get_string('subtitlecoursecertificates', 'mod_simplecertificate');
-        }
 
         return [
             'hascertificates' => (count($issuedcertificates)) ? true : false,
             'coursescertificates' => $issuedcertificates,
             'title' => $title,
-            'subtitle' => $subtitle
         ];
     }
 }
