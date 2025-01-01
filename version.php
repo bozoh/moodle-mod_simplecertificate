@@ -24,9 +24,9 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or late
  */
 
-
 defined('MOODLE_INTERNAL') || die();
-$plugin->version  = 2024051103;  // The current module version (Date: YYYYMMDDXX).
+
+$plugin->version  = 2024051103.02;  // The current module version (Date: YYYYMMDDXX).
 $plugin->requires = 2022112808;  // Requires this Moodle version (moodle 3.9.x).
 $plugin->cron     = 4 * 3600;    // Period for cron to check this module (secs).
 $plugin->component = 'mod_simplecertificate';

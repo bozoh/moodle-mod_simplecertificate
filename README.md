@@ -1,7 +1,7 @@
 # COMPATIBILITY
 ---
 
-Current version tested on Moodle 4.1.
+Current version tested on Moodle 4.3.
 
 ## ABOUT
 * **Developed by:**  Carlos Alexandre S. da Fonseca - bozoh. Currently maintained by David Herney - davidherney at gmail dot com
@@ -44,6 +44,10 @@ Place this folder in your mod folder in your Moodle directory.
 > The reason this is not the recommended method is due to the fact you have to over-write the contents of this folder to apply any future updates to the simplecertificate module. In the above method there is a simple command to update the files.
 
 ## In version
+
+### 2024051104:
+- New setting to define the name of PDF certificates
+- New site-level setting to enable use of the username field in certificates
 
 ### 2024051103:
 - Compatibility with Moodle 4.4+

@@ -120,7 +120,7 @@ class locallib_test extends mod_simplecertificate_base_testcase {
         $this->assertTrue(file_exists($filepath));
 
         // Test if can create certificate without any images.
-        $cert = $this->create_instance(array('certificateimage' => '', 'secondimage' => ''));
+        $cert = $this->create_instance(['certificateimage' => '', 'secondimage' => '']);
         $this->assertEmpty($cert->get_instance()->certificateimage, 'certificateimage should be empty');
         $this->assertEmpty($cert->get_instance()->secondimage, 'secondimage should be empty');
     }
@@ -269,7 +269,7 @@ class locallib_test extends mod_simplecertificate_base_testcase {
         // Setup tem certificate instance.
         $testemails =['test1@test.com', 'test2@test.com', 'test3@test.com'];
         $emailothers = implode(',', $testemails);
-        $cert = $this->create_instance(array('emailteachers' => 1, 'emailothers' => $emailothers));
+        $cert = $this->create_instance(['emailteachers' => 1, 'emailothers' => $emailothers]);
 
         // E-mail send to teachers and others test.
         unset_config('noemailever');

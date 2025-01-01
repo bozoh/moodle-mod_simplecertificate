@@ -66,6 +66,15 @@ if ($ADMIN->fulltree) {
     $settings->add(new admin_setting_configtext('simplecertificate/perpage', get_string('defaultperpage', 'simplecertificate'),
             get_string('defaultperpage_help', 'simplecertificate'), 30, PARAM_INT));
 
+    // PDF custom name.
+    $settings->add(new admin_setting_configtext('simplecertificate/customfilename',
+            get_string('customfilename', 'simplecertificate'),
+            get_string('customfilename_help', 'simplecertificate'), '', PARAM_TEXT));
+
+    // Enable username in certificate.
+    $settings->add(new admin_setting_configcheckbox('simplecertificate/enableidentity',
+            get_string('enableidentity', 'simplecertificate'), get_string('enableidentity_help', 'simplecertificate'), 0));
+
     // Secure sign.
     $settings->add(new admin_setting_heading('simplecertificate/signhead', null,
             format_text(get_string('signhead', 'simplecertificate'))));

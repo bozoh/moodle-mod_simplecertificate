@@ -176,9 +176,9 @@ class simplecertificate {
 
         $returnid = $DB->insert_record('simplecertificate', $update, true);
 
-        $this->course = $DB->get_record('course', array('id' => $formdata->course), '*', MUST_EXIST);
+        $this->course = $DB->get_record('course', ['id' => $formdata->course], '*', MUST_EXIST);
 
-        $this->instance = $DB->get_record('simplecertificate', array('id' => $returnid), '*', MUST_EXIST);
+        $this->instance = $DB->get_record('simplecertificate', ['id' => $returnid], '*', MUST_EXIST);
         if (!$this->instance) {
             throw new moodle_exception('certificatenot', 'simplecertificate');
         }
@@ -202,13 +202,13 @@ class simplecertificate {
 
         if (!$DB->execute(
                         'UPDATE {simplecertificate_issues} SET haschange = 1 WHERE timedeleted is NULL AND certificateid = :certid',
-                        array('certid' => $this->get_instance()->id))) {
+                        ['certid' => $this->get_instance()->id])) {
             throw new moodle_exception('cannotupdatemod', '', '', self::CERTIFICATE_COMPONENT_NAME,
                         'Error update simplecertificate, markig issues
                      with has change');
         }
 
-        $this->instance = $DB->get_record('simplecertificate', array('id' => $update->id), '*', MUST_EXIST);
+        $this->instance = $DB->get_record('simplecertificate', ['id' => $update->id], '*', MUST_EXIST);
         if (!$this->instance) {
             throw new moodle_exception('certificatenot', 'simplecertificate');
         }
@@ -257,7 +257,7 @@ class simplecertificate {
 
             if ($issues = $DB->get_records_select('simplecertificate_issues',
                                                 'certificateid = :certificateid AND timedeleted is NULL',
-                                                array('certificateid' => $certificateisntance->id))) {
+                                                ['certificateid' => $certificateisntance->id])) {
 
                 foreach ($issues as $issue) {
                     if (!$this->remove_issue($issue)) {
@@ -303,13 +303,14 @@ class simplecertificate {
             if ($movecertfile) {
                 $coursename = $issue->coursename;
 
-                $fileinfo = array(
+                $fileinfo = [
                         'contextid' => $userctx->id,
                         'component' => 'user',
                         'filearea' => 'private',
                         'itemid' => $issue->certificateid,
                         'filepath' => '/certificates/' . $coursename . '/',
-                        'filename' => $file->get_filename());
+                        'filename' => $file->get_filename(),
+                    ];
 
                 if (!$fs->file_exists($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'], $fileinfo['itemid'],
                                     $fileinfo['filepath'], $fileinfo['filename'])) {
@@ -332,7 +333,7 @@ class simplecertificate {
                 $issue->timedeleted = time();
                 return $DB->update_record('simplecertificate_issues', $issue);
             } else {
-                return $DB->delete_records('simplecertificate_issues', array('id' => $issue->id));
+                return $DB->delete_records('simplecertificate_issues', ['id' => $issue->id]);
             }
         } catch (Exception $e) {
             throw $e;
@@ -720,7 +721,7 @@ class simplecertificate {
                 WHERE certificateid = :certificateid
                 AND userid = :userid AND timedeleted IS NULL";
 
-        $issues = $DB->get_records_sql($sql, array('certificateid' => $this->get_instance()->id, 'userid' => $USER->id));
+        $issues = $DB->get_records_sql($sql, ['certificateid' => $this->get_instance()->id, 'userid' => $USER->id]);
         if ($issues) {
             return $issues;
         }
@@ -742,9 +743,9 @@ class simplecertificate {
         // Prepare table header.
         $table = new html_table();
         $table->class = 'generaltable';
-        $table->head = array(get_string('issued', 'simplecertificate'));
-        $table->align = array('left');
-        $table->attributes = array("style" => "width:20%; margin:auto");
+        $table->head = [get_string('issued', 'simplecertificate')];
+        $table->align = ['left'];
+        $table->attributes = ["style" => "width:20%; margin:auto"];
         $gradecolumn = $this->get_instance()->certgrade;
 
         if ($gradecolumn) {
@@ -754,7 +755,7 @@ class simplecertificate {
         }
         // One row for each attempt.
         foreach ($attempts as $attempt) {
-            $row = array();
+            $row = [];
 
             // Prepare strings for time taken and date completed.
             $datecompleted = userdate($attempt->timecreated);
@@ -793,7 +794,7 @@ class simplecertificate {
             case self::COURSE_GRADE: // Course grade.
                 $courseitem = grade_item::fetch_course_item($this->get_course()->id);
                 if ($courseitem) {
-                    $grade = new grade_grade(array('itemid' => $courseitem->id, 'userid' => $userid));
+                    $grade = new grade_grade(['itemid' => $courseitem->id, 'userid' => $userid]);
                     $courseitem->gradetype = GRADE_TYPE_VALUE;
                     $coursegrade = new stdClass();
                     $decimals = $courseitem->get_decimals();
@@ -919,7 +920,7 @@ class simplecertificate {
      */
     protected function get_teachers() {
         global $CFG, $DB;
-        $teachers = array();
+        $teachers = [];
 
         if (!empty($CFG->coursecontact)) {
             $coursecontactroles = explode(',', $CFG->coursecontact);
@@ -928,7 +929,7 @@ class simplecertificate {
         }
         foreach ($coursecontactroles as $roleid) {
             $roleid = (int)$roleid;
-            $role = $DB->get_record('role', array('id' => $roleid));
+            $role = $DB->get_record('role', ['id' => $roleid]);
             $users = get_role_users($roleid, $this->context, true);
             if ($users) {
                 foreach ($users as $teacher) {
@@ -950,7 +951,7 @@ class simplecertificate {
     protected function send_alert_email_teachers() {
         $teachers = $this->get_teachers();
         if (!empty($this->get_instance()->emailteachers) && $teachers) {
-                $emailteachers = array();
+                $emailteachers = [];
             foreach ($teachers as $teacher) {
                 $emailteachers[] = $teacher->user->email;
             }
@@ -983,7 +984,7 @@ class simplecertificate {
         if (!empty($emails)) {
 
             $url = new moodle_url($CFG->wwwroot . '/mod/simplecertificate/view.php',
-                                array('id' => $this->coursemodule->id, 'tab' => self::ISSUED_CERTIFCADES_VIEW));
+                                ['id' => $this->coursemodule->id, 'tab' => self::ISSUED_CERTIFCADES_VIEW]);
 
             foreach ($emails as $email) {
                 $email = trim($email);
@@ -1033,7 +1034,7 @@ class simplecertificate {
         $keywords = str_replace(",", " ", $keywords); // Replace commas with spaces.
         $keywords = str_replace("  ", " ", $keywords); // Replace two spaces with one.
 
-        $pdf = new pdf($orientation, 'mm', array($this->get_instance()->width, $this->get_instance()->height), true, 'UTF-8');
+        $pdf = new pdf($orientation, 'mm', [$this->get_instance()->width, $this->get_instance()->height], true, 'UTF-8');
         $pdf->SetTitle($this->get_instance()->name);
         $pdf->SetSubject($this->get_instance()->name . ' - ' . $this->get_instance()->coursename);
         $pdf->SetKeywords($keywords);
@@ -1141,7 +1142,7 @@ class simplecertificate {
 
             $signinfolines = explode("\n", $config->signinfo);
 
-            $info = array();
+            $info = [];
             foreach ($signinfolines as $line) {
                 $signinfo = explode('=', $line);
 
@@ -1219,11 +1220,13 @@ class simplecertificate {
      */
     protected function print_qrcode($pdf, $code) {
         global $CFG;
-        $style = array('border' => 2, 'vpadding' => 'auto', 'hpadding' => 'auto',
-                       'fgcolor' => array(0, 0, 0),  // Black.
-                       'bgcolor' => array(255, 255, 255), // White.
-                       'module_width' => 1, // Width of a single module in points.
-                       'module_height' => 1); // Height of a single module in points.
+        $style = [
+                    'border' => 2, 'vpadding' => 'auto', 'hpadding' => 'auto',
+                    'fgcolor' => [0, 0, 0],  // Black.
+                    'bgcolor' => [255, 255, 255], // White.
+                    'module_width' => 1, // Width of a single module in points.
+                    'module_height' => 1, // Height of a single module in points.
+                ];
 
         $codeurl = new moodle_url("$CFG->wwwroot/mod/simplecertificate/verify.php");
         $codeurl->param('code', $code);
@@ -1273,7 +1276,7 @@ class simplecertificate {
 
             // Prepare file record object.
             $context = $this->get_context();
-            $filename = str_replace(' ', '_', clean_filename($issuecert->certificatename . ' ' . $issuecert->id . '.pdf'));
+            $filename = $this->get_custom_filename($issuecert);
             $fileinfo = ['contextid' => $context->id,
                     'component' => self::CERTIFICATE_COMPONENT_NAME,
                     'filearea' => self::CERTIFICATE_ISSUES_FILE_AREA,
@@ -1314,7 +1317,7 @@ class simplecertificate {
     public function send_certificade_email(stdClass $issuecert) { // previously protected
         global $DB, $CFG;
 
-        $user = $DB->get_record('user', array('id' => $issuecert->userid));
+        $user = $DB->get_record('user', ['id' => $issuecert->userid]);
         if (!$user) {
             throw new moodle_exception('nousersfound', 'moodle');
         }
@@ -1406,7 +1409,7 @@ class simplecertificate {
         $sql = "action = 'viewed' AND target = 'course' AND courseid = :courseid AND userid = :userid";
 
         $logs = $reader->get_events_select(
-            $sql, array('courseid' => $this->get_course()->id, 'userid' => $userid), 'timecreated ASC', '', ''
+            $sql, ['courseid' => $this->get_course()->id, 'userid' => $userid], 'timecreated ASC', '', ''
         );
         if ($logs) {
             foreach ($logs as $log) {
@@ -1487,10 +1490,13 @@ class simplecertificate {
         if (empty($certtext)) {
             $certtext = $this->get_instance()->certificatetext;
         }
-        $certtext = format_text($certtext, FORMAT_HTML, array('noclean' => true));
+        $certtext = format_text($certtext, FORMAT_HTML, ['noclean' => true]);
 
         $a = new stdClass();
+
+        // The "username" tag will be deprecated in the future due to confusion with the field with the same name.
         $a->username = strip_tags(fullname($user));
+        $a->userfullname = $a->username;
         $a->idnumber = strip_tags($user->idnumber);
         $a->firstname = strip_tags($user->firstname);
         $a->lastname = strip_tags($user->lastname);
@@ -1501,6 +1507,13 @@ class simplecertificate {
         $a->department = strip_tags($user->department);
         $a->address = strip_tags($user->address);
         $a->city = strip_tags($user->city);
+
+        $enableidentity = get_config('simplecertificate', 'enableidentity');
+        if ($enableidentity) {
+            $a->identity = strip_tags($user->username);
+        } else {
+            $a->identity = '';
+        }
 
         // Add userimage url only if have a picture.
         if ($user->picture > 0) {
@@ -1568,7 +1581,7 @@ class simplecertificate {
               JOIN {user} u ON u.id = ue.userid
               WHERE ue.userid = :userid AND e.status = :enabled AND u.deleted = 0";
 
-        $params = array('enabled' => ENROL_INSTANCE_ENABLED, 'userid' => $user->id, 'courseid' => $this->get_course()->id);
+        $params = ['enabled' => ENROL_INSTANCE_ENABLED, 'userid' => $user->id, 'courseid' => $this->get_course()->id];
 
         $timestart = $DB->get_field_sql($sql, $params);
         if ($timestart) {
@@ -1614,8 +1627,8 @@ class simplecertificate {
         if (!file_exists($cachedir)) {
             // Purging of caches may remove the cache dir at any time,
             // luckily file_exists() results should be cached for all existing directories.
-            $purifiers = array();
-            $caches = array();
+            $purifiers = [];
+            $caches = [];
             gc_collect_cycles();
 
             make_localcache_directory('htmlpurifier', false);
@@ -1623,7 +1636,7 @@ class simplecertificate {
         }
         $config->set('Cache.SerializerPath', $cachedir);
         $config->set('Cache.SerializerPermissions', $CFG->directorypermissions);
-        $config->set('HTML.ForbiddenElements', array('script', 'style', 'applet', 'a'));
+        $config->set('HTML.ForbiddenElements', ['script', 'style', 'applet', 'a']);
         $purifier = new HTMLPurifier($config);
         return $purifier->purify($htmltext);
     }
@@ -1721,15 +1734,14 @@ class simplecertificate {
             $sql = "SELECT id, startdate FROM {course} c
               WHERE c.id = :courseid";
 
-            $coursestartdate = $DB->get_record_sql($sql, array('courseid' => $this->get_course()->id));
+            $coursestartdate = $DB->get_record_sql($sql, ['courseid' => $this->get_course()->id]);
             $date = $coursestartdate->startdate;
         } else if ($this->get_instance()->certdate == self::COURSE_COMPLETATION_DATE) {
         // Get the enrolment end date.
             $sql = "SELECT MAX(c.timecompleted) as timecompleted FROM {course_completions} c
                  WHERE c.userid = :userid AND c.course = :courseid";
 
-            $timecompleted = $DB->get_record_sql($sql, array('userid' => $issuecert->userid,
-                            'courseid' => $this->get_course()->id));
+            $timecompleted = $DB->get_record_sql($sql, ['userid' => $issuecert->userid, 'courseid' => $this->get_course()->id]);
             if ($timecompleted && !empty($timecompleted->timecompleted)) {
                 $date = $timecompleted->timecompleted;
             }
@@ -1756,7 +1768,7 @@ class simplecertificate {
             $userid = $USER->id;
         }
 
-        $items = grade_item::fetch_all(array('courseid' => $this->course->id));
+        $items = grade_item::fetch_all(['courseid' => $this->course->id]);
         if (empty($items)) {
             return '';
         }
@@ -1797,7 +1809,7 @@ class simplecertificate {
         $gradeitems = $gradeseq->items;
         if ($gradeitems) {
             // List of item for menu.
-            $printoutcome = array();
+            $printoutcome = [];
             foreach ($gradeitems as $gradeitem) {
                 if (!empty($gradeitem->outcomeid)) {
                     $itemmodule = $gradeitem->itemmodule;
@@ -1830,11 +1842,11 @@ class simplecertificate {
         }
 
         if ($this->get_instance()->outcome > 0
-            && $gradeitem = new grade_item(array('id' => $this->get_instance()->outcome))) {
+            && $gradeitem = new grade_item(['id' => $this->get_instance()->outcome])) {
 
             $outcomeinfo = new stdClass();
             $outcomeinfo->name = $gradeitem->get_name();
-            $outcome = new grade_grade(array('itemid' => $gradeitem->id, 'userid' => $userid));
+            $outcome = new grade_grade(['itemid' => $gradeitem->id, 'userid' => $userid]);
             $outcomeinfo->grade = grade_format_gradevalue($outcome->finalgrade, $gradeitem, true, GRADE_DISPLAY_TYPE_REAL);
             return $outcomeinfo->name . ': ' . $outcomeinfo->grade;
         }
@@ -1996,14 +2008,14 @@ class simplecertificate {
     protected function show_tabs(moodle_url $url) {
         global $OUTPUT, $CFG;
 
-        $tabs[] = new tabobject(self::DEFAULT_VIEW, $url->out(false, array('tab' => self::DEFAULT_VIEW)),
+        $tabs[] = new tabobject(self::DEFAULT_VIEW, $url->out(false, ['tab' => self::DEFAULT_VIEW]),
                                 get_string('standardview', 'simplecertificate'));
 
-        $tabs[] = new tabobject(self::ISSUED_CERTIFCADES_VIEW, $url->out(false, array('tab' => self::ISSUED_CERTIFCADES_VIEW)),
+        $tabs[] = new tabobject(self::ISSUED_CERTIFCADES_VIEW, $url->out(false, ['tab' => self::ISSUED_CERTIFCADES_VIEW]),
                                 get_string('issuedview', 'simplecertificate'));
 
         $tabs[] = new tabobject(self::BULK_ISSUE_CERTIFCADES_VIEW,
-                                $url->out(false, array('tab' => self::BULK_ISSUE_CERTIFCADES_VIEW)),
+                                $url->out(false, ['tab' => self::BULK_ISSUE_CERTIFCADES_VIEW]),
                                 get_string('bulkview', 'simplecertificate'));
 
         if (!$url->get_param('tab')) {
@@ -2060,16 +2072,16 @@ class simplecertificate {
                     break;
                 }
 
-                echo html_writer::tag('p', $str, array('style' => 'text-align:center'));
+                echo html_writer::tag('p', $str, ['style' => 'text-align:center']);
                 $linkname = get_string('getcertificate', 'simplecertificate');
 
                 $link = new moodle_url('/mod/simplecertificate/view.php',
-                                array('id' => $this->coursemodule->id, 'action' => 'get'));
+                                ['id' => $this->coursemodule->id, 'action' => 'get']);
                 $button = new single_button($link, $linkname);
                 $button->add_action(new popup_action('click', $link, 'view' . $this->coursemodule->id,
-                                                    array('height' => 600, 'width' => 800)));
+                                                    ['height' => 600, 'width' => 800]));
 
-                echo html_writer::tag('div', $OUTPUT->render($button), array('style' => 'text-align:center'));
+                echo html_writer::tag('div', $OUTPUT->render($button), ['style' => 'text-align:center']);
             }
             echo $OUTPUT->footer();
         } else { // Output to pdf.
@@ -2097,7 +2109,7 @@ class simplecertificate {
         $sql .= "FROM {user} u INNER JOIN {simplecertificate_issues} ci ON u.id = ci.userid ";
         $sql .= "WHERE u.deleted = 0 AND ci.certificateid = :certificateid AND timedeleted IS NULL ";
         $sql .= "ORDER BY {$sort}";
-        $issedusers = $DB->get_records_sql($sql, array('certificateid' => $this->get_instance()->id));
+        $issedusers = $DB->get_records_sql($sql, ['certificateid' => $this->get_instance()->id]);
 
         // Now exclude all the certmanagers.
         foreach ($issedusers as $id => $user) {
@@ -2117,7 +2129,7 @@ class simplecertificate {
             if ($currentgroup) {
                 $groupusers = groups_get_members($currentgroup, 'u.*');
                 if (empty($groupusers)) {
-                    return array();
+                    return [];
                 }
                 foreach ($issedusers as $id => $unused) {
                     if (empty($groupusers[$id])) {
@@ -2135,8 +2147,8 @@ class simplecertificate {
         global $OUTPUT, $CFG, $DB;
 
         // Declare some variables.
-        $strto = html_writer::link($url->out(false, array('orderby' => 'username')), get_string('awardedto', 'simplecertificate'));
-        $strdate = html_writer::link($url->out(false, array('orderby' => 'issuedate')),
+        $strto = html_writer::link($url->out(false, ['orderby' => 'username']), get_string('awardedto', 'simplecertificate'));
+        $strdate = html_writer::link($url->out(false, ['orderby' => 'issuedate']),
                                     get_string('receiveddate', 'simplecertificate'));
         $strgrade = get_string('grade', 'simplecertificate');
         $strcode = get_string('code', 'simplecertificate');
@@ -2187,19 +2199,15 @@ class simplecertificate {
 
             // Create the table for the users.
             $table = new html_table();
-            $table->width = "95%";
-            $table->tablealign = "center";
 
-            $table->head = array(' ', get_string('fullname'), get_string('grade', 'grades'));
-            $table->align = array("left", "left", "center");
-            $table->size = array('1%', '89%', '10%');
+            $table->head = [' ', get_string('fullname'), get_string('grade', 'grades')];
+            $table->align = ["left", "left", "center"];
+            $table->size = ['1%', '89%', '10%'];
 
             $table = new html_table();
-            $table->width = "95%";
-            $table->tablealign = "center";
-            $table->head = array(' ', $strto, $strdate, $strgrade, $strcode);
-            $table->align = array("left", "left", "left", "center", "center");
-            $table->size = array('1%', '54%', '10%', '5%', '30%');
+            $table->head = [' ', $strto, $strdate, $strgrade, $strcode];
+            $table->align = ["left", "left", "left", "center", "center"];
+            $table->size = ['1%', '54%', '10%', '5%', '30%'];
 
             $users = array_slice($users, intval($page * $perpage), $perpage);
 
@@ -2209,7 +2217,7 @@ class simplecertificate {
                 $chkbox = html_writer::checkbox('selectedusers[]', $user->id, false);
                 $date = userdate($usercert->timecreated) . simplecertificate_print_issue_certificate_file($usercert);
                 $code = $user->code;
-                $table->data[] = array($chkbox, $name, $date, $this->get_grade($user->id), $code);
+                $table->data[] = [$chkbox, $name, $date, $this->get_grade($user->id), $code];
             }
 
             // Create table to store buttons.
@@ -2217,32 +2225,33 @@ class simplecertificate {
             $tablebutton->attributes['class'] = 'downloadreport';
 
             $deleteselectedbutton = $OUTPUT->single_button(
-                            $url->out_as_local_url(false, array('action' => 'delete', 'type' => 'selected')),
+                            $url->out_as_local_url(false, ['action' => 'delete', 'type' => 'selected']),
                             get_string('deleteselected', 'simplecertificate'));
             $deleteallbutton = $OUTPUT->single_button(
-                            $url->out_as_local_url(false, array('action' => 'delete', 'type' => 'all')),
+                            $url->out_as_local_url(false, ['action' => 'delete', 'type' => 'all']),
                             get_string('deleteall', 'simplecertificate'));
             $btndownloadods = $OUTPUT->single_button(
-                            $url->out_as_local_url(false, array('action' => 'download', 'type' => 'ods')),
+                            $url->out_as_local_url(false, ['action' => 'download', 'type' => 'ods']),
                             get_string("downloadods"));
             $btndownloadxls = $OUTPUT->single_button(
-                            $url->out_as_local_url(false, array('action' => 'download', 'type' => 'xls')),
+                            $url->out_as_local_url(false, ['action' => 'download', 'type' => 'xls']),
                             get_string("downloadexcel"));
             $btndownloadtxt = $OUTPUT->single_button(
-                            $url->out_as_local_url(false, array('action' => 'download', 'type' => 'txt')),
+                            $url->out_as_local_url(false, ['action' => 'download', 'type' => 'txt']),
                             get_string("downloadtext"));
-            $tablebutton->data[] = array($deleteselectedbutton,
-                                   $deleteallbutton,
-                                   $btndownloadods,
-                                   $btndownloadxls,
-                                   $btndownloadtxt
-            );
+            $tablebutton->data[] = [
+                                    $deleteselectedbutton,
+                                    $deleteallbutton,
+                                    $btndownloadods,
+                                    $btndownloadxls,
+                                    $btndownloadtxt,
+            ];
 
             echo '<br />';
             echo '<form id="bulkissue" name="bulkissue" method="post" action="view.php">';
             echo html_writer::table($table);
             echo $OUTPUT->paging_bar($usercount, $page, $perpage, $url);
-            echo html_writer::tag('div', html_writer::table($tablebutton), array('style' => 'margin:auto; width:50%'));
+            echo html_writer::tag('div', html_writer::table($tablebutton), ['style' => 'margin:auto; width:50%']);
             echo '</form>';
 
         } else {
@@ -2262,7 +2271,7 @@ class simplecertificate {
                         case 'selected':
                             // No user selected, add an empty array to avoid errors.
                             if (!$selectedusers) {
-                                $users = array();
+                                $users = [];
                             }
                         break;
                     }
@@ -2474,8 +2483,10 @@ class simplecertificate {
             groups_print_activity_menu($this->coursemodule, $url);
 
             // Add to  values to constants.
-            $selectoptions = array('completed' => get_string('completedusers', 'simplecertificate'),
-                    'allusers' => get_string('allusers', 'simplecertificate'));
+            $selectoptions = [
+                    'completed' => get_string('completedusers', 'simplecertificate'),
+                    'allusers' => get_string('allusers', 'simplecertificate'),
+                ];
             $select = new single_select($url, 'issuelist', $selectoptions, $issuelist);
             $select->label = get_string('showusers', 'simplecertificate');
             echo $OUTPUT->render($select);
@@ -2485,14 +2496,16 @@ class simplecertificate {
             echo html_writer::label(get_string('bulkaction', 'simplecertificate'), 'menutype', true);
             echo '&nbsp;';
 
-            $selectoptions = array('pdf' => get_string('onepdf', 'simplecertificate'),
+            $selectoptions = [
+                    'pdf' => get_string('onepdf', 'simplecertificate'),
                     'zip' => get_string('multipdf', 'simplecertificate'),
-                    'email' => get_string('sendtoemail', 'simplecertificate'));
+                    'email' => get_string('sendtoemail', 'simplecertificate'),
+                ];
             echo html_writer::select($selectoptions, 'type', $type);
             $table = new html_table();
-            $table->head = array(' ', get_string('fullname'), get_string('modgrade', 'grades'));
-            $table->align = array("left", "left", "center");
-            $table->size = array('1%', '89%', '10%');
+            $table->head = [' ', get_string('fullname'), get_string('modgrade', 'grades')];
+            $table->align = ["left", "left", "center"];
+            $table->size = ['1%', '89%', '10%'];
 
             // BUG #157, the paging is afecting download files,
             // so only apply paging when displaying users.
@@ -2503,17 +2516,17 @@ class simplecertificate {
                 if (empty($canissue)) {
                     $chkbox = html_writer::checkbox('selectedusers[]', $user->id, false);
                     $name = $OUTPUT->user_picture($user) . fullname($user);
-                    $table->data[] = array($chkbox, $name, $this->get_grade($user->id));
+                    $table->data[] = [$chkbox, $name, $this->get_grade($user->id)];
                 }
             }
 
-            $downloadbutton = $OUTPUT->single_button($url->out_as_local_url(false, array('action' => 'download')),
+            $downloadbutton = $OUTPUT->single_button($url->out_as_local_url(false, ['action' => 'download']),
                                                     get_string('bulkbuttonlabel', 'simplecertificate'));
 
             echo $OUTPUT->paging_bar($usercount, $page, $perpage, $url);
             echo '<br />';
             echo html_writer::table($table);
-            echo html_writer::tag('div', $downloadbutton, array('style' => 'text-align: center'));
+            echo html_writer::tag('div', $downloadbutton, ['style' => 'text-align: center']);
             echo '</form>';
 
         } else if ($action == 'download') {
@@ -2531,7 +2544,7 @@ class simplecertificate {
 
                 // One zip with all certificates in separated files.
                 case 'zip':
-                    $filesforzipping = array();
+                    $filesforzipping = [];
                     foreach ($users as $user) {
                         $canissue = $this->can_issue($user, $issuelist != 'allusers');
                         if (empty($canissue)) {
@@ -2620,4 +2633,77 @@ class simplecertificate {
             $event->trigger();
         }
     }
+
+    /**
+     * Get the PDF filename.
+     *
+     * @param stdClass $issue The issue certificate object
+     * @return string The certificate name
+     */
+    private function get_custom_filename($issue) {
+        global $DB;
+
+        $name = get_config('simplecertificate', 'customfilename');
+
+        if (!empty($name)) {
+            $name = str_replace('{certificatename}', $issue->certificatename, $name);
+            $name = str_replace('{issueid}', $issue->id, $name);
+            $name = str_replace('{userid}', $issue->userid, $name);
+
+            $coursename = $this->get_instance()->coursename;
+            if (!empty($coursename)) {
+                $name = str_replace('{coursename}', $coursename, $name);
+            }
+
+            if (!empty($issue->timecreated)) {
+                $name = str_replace('{timecreated1}', date('Y_m', $issue->timecreated), $name);
+                $name = str_replace('{timecreated2}', date('Ymd', $issue->timecreated), $name);
+                $name = str_replace('{timecreated3}', date('Ymd_His', $issue->timecreated), $name);
+            }
+
+            if (strpos($name, '{user') !== false) {
+                $user = $DB->get_record('user', ['id' => $issue->userid]);
+                if ($user) {
+                    $name = str_replace('{useridnumber}', $user->idnumber, $name);
+                    $name = str_replace('{userfullname}', fullname($user), $name);
+                    $name = str_replace('{userfirstname}', $user->firstname, $name);
+                    $name = str_replace('{userlastname}', $user->lastname, $name);
+                }
+            }
+        }
+
+        if (empty($name)) {
+            $name = $issue->certificatename . ' ' . $issue->id;
+        }
+
+        $name .= '.pdf';
+
+        $not = [
+                'á', 'é', 'í', 'ó', 'ú',
+                'Á', 'É', 'Í', 'Ó', 'Ú',
+                'ñ', 'À', 'Ã', 'Ì', 'Ò',
+                'Ù', 'Ã™', 'Ã ', 'Ã¨', 'Ã¬',
+                'Ã²', 'Ã¹', 'ç', 'Ç', 'Ã¢',
+                'ê', 'Ã®', 'Ã´', 'Ã»', 'Ã‚',
+                'ÃŠ', 'ÃŽ', 'Ã”', 'Ã›', 'ü',
+                'Ã¶', 'Ã–', 'Ã¯", "Ã¤', '«',
+                'Ò', 'Ã^o', 'Ã„', 'Ã‹',
+            ];
+        $yes = [
+                'a', 'e', 'i', 'o', 'u',
+                'A', 'E', 'I', 'O', 'U',
+                'n', 'N', 'A', 'E', 'I',
+                'O', 'U', 'a', 'e', 'i',
+                'o', 'u', 'c', 'C', 'a',
+                'e', 'i', 'o', 'u', 'A',
+                'E', 'I', 'O', 'U', 'u',
+                'o', 'O', 'i', 'a', 'e',
+                'U', 'I', 'A', 'E',
+            ];
+        $name = str_replace($not, $yes, $name);
+        $name = str_replace(' ', '_', $name);
+
+        return clean_filename($name);
+    }
+
 }

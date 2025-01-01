@@ -112,7 +112,8 @@ $string['certificatename_help'] = 'Certificate Name';
 $string['certificatetext_help'] = 'This is the text that will be used in the certificate back, some special words will be replaced with variables such as course name, student\'s name, grade ...
 These are:
 <ul>
-<li>{USERNAME} -> Full user name</li>
+<li>{IDENTITY} -> User username (must be enabled at site level)</li>
+<li>{USERFULLNAME} -> Full user name</li>
 <li>{COURSENAME} -> Full course name (or a defined alternate course name)</li>
 <li>{GRADE} -> Formatted Grade</li>
 <li>{DATE} -> Formatted Date</li>
@@ -226,6 +227,28 @@ $string['verifycertificate'] = 'Verify Certificate';
 
 $string['qrcodefirstpage'] = 'Print QR Code in the first page';
 $string['qrcodefirstpage_help'] = 'Print QR Code in the first page';
+
+$string['customfilename'] = 'Custom PDF file name';
+$string['customfilename_help'] = 'This is the name of the PDF file for each certificate. If left blank, the same structure will be used as always: <i>certificatename_issueid.pdf</i>.<br>
+Special characters in names will be replaced with basic characters.<br>
+The following keywords can be used to generate dynamic names:
+<ul>
+    <li>{certificatename}: Certificate name</li>
+    <li>{issueid}: Issue id</li>
+    <li>{coursename}: Course name</li>
+    <li>{userid}: User id</li>
+    <li>{useridnumber}: User id number</li>
+    <li>{userfullname}: User name</li>
+    <li>{userfirstname}: User first name</li>
+    <li>{userlastname}: User last name</li>
+    <li>{timecreated1}: Issue time (Y_m)</li>
+    <li>{timecreated2}: Issue time (Ymd)</li>
+    <li>{timecreated3}: Issue time (Ymd_His)</li>
+</ul>
+';
+
+$string['enableidentity'] = 'Enable user identity';
+$string['enableidentity_help'] = 'Enable the use of the "username" field in certificates. By default the {USERNAME} tag prints the full name of the user so the {IDENTITY} tag is used for the "username". In the future the {USERNAME} tag will be removed to avoid confusion.';
 
 // Tabs String.
 $string['standardview'] = 'Issue a test certificate';
