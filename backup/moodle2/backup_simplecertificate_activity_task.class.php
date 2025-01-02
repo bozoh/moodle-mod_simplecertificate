@@ -52,6 +52,9 @@ class backup_simplecertificate_activity_task extends backup_activity_task {
     /**
      * Code the transformations to perform in the activity in
      * order to get transportable (encoded) links
+     *
+     * @param string $content
+     * @return string
      */
     static public function encode_content_links($content) {
         global $CFG;

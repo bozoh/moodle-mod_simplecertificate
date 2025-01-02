@@ -54,8 +54,8 @@ class restore_simplecertificate_activity_task extends restore_activity_task {
      * processed by the link decoder
      */
     static public function define_decode_contents() {
-        $contents = array();
-        $contents[] = new restore_decode_content('simplecertificate', array('intro'), 'simplecertificate');
+        $contents = [];
+        $contents[] = new restore_decode_content('simplecertificate', ['intro'], 'simplecertificate');
         return $contents;
     }
 
@@ -64,7 +64,7 @@ class restore_simplecertificate_activity_task extends restore_activity_task {
      * to the activity to be executed by the link decoder
      */
     static public function define_decode_rules() {
-        $rules = array();
+        $rules = [];
         $rules[] = new restore_decode_rule('SIMPLECERTIFICATEVIEWBYID', '/mod/simplecertificate/view.php?id=$1', 'course_module');
         $rules[] = new restore_decode_rule('SIMPLECERTIFICATEINDEX', '/mod/simplecertificate/index.php?id=$1', 'course');
         return $rules;
@@ -72,13 +72,13 @@ class restore_simplecertificate_activity_task extends restore_activity_task {
 
     /**
      * Define the restore log rules that will be applied
-     * by the {@link restore_logs_processor} when restoring
+     * by the {@see restore_logs_processor} when restoring
      * certificate logs.
      * It must return one array
-     * of {@link restore_log_rule} objects
+     * of {@see restore_log_rule} objects
      */
     static public function define_restore_log_rules() {
-        $rules = array();
+        $rules = [];
 
         $rules[] = new restore_log_rule('simplecertificate', 'add', 'view.php?id={course_module}', '{simplecertificate}');
         $rules[] = new restore_log_rule('simplecertificate', 'update', 'view.php?id={course_module}', '{simplecertificate}');
@@ -94,16 +94,16 @@ class restore_simplecertificate_activity_task extends restore_activity_task {
 
     /**
      * Define the restore log rules that will be applied
-     * by the {@link restore_logs_processor} when restoring
+     * by the {@see restore_logs_processor} when restoring
      * course logs.
      * It must return one array
-     * of {@link restore_log_rule} objects
+     * of {@see restore_log_rule} objects
      * Note this rules are applied when restoring course logs
      * by the restore final task, but are defined here at
      * activity level. All them are rules not linked to any module instance (cmid = 0)
      */
     static public function define_restore_log_rules_for_course() {
-        $rules = array();
+        $rules = [];
         // Fix old wrong uses (missing extension).
         $rules[] = new restore_log_rule('simplecertificate', 'view all', 'index.php?id={course}', null);
         return $rules;
@@ -117,7 +117,7 @@ class restore_simplecertificate_activity_task extends restore_activity_task {
     public function after_restore() {
         global $DB;
 
-        $certificate = $DB->get_record('simplecertificate', array('id' => $this->get_activityid()));
+        $certificate = $DB->get_record('simplecertificate', ['id' => $this->get_activityid()]);
         if ($certificate) {
             if ($certificate->certdate <= -1000) { // If less or equal -1000, is mark as not sucefully retored in stepslib.
                 $certificate->certdate = $certificate->certdate / -1000;
@@ -158,7 +158,7 @@ class restore_simplecertificate_activity_task extends restore_activity_task {
             }
 
             // Process issued files.
-            $issues = $DB->get_records('simplecertificate_issues', array('certificateid' => $certificate->id));
+            $issues = $DB->get_records('simplecertificate_issues', ['certificateid' => $certificate->id]);
             if ($issues) {
 
                 $fs = get_file_storage();
@@ -167,7 +167,7 @@ class restore_simplecertificate_activity_task extends restore_activity_task {
                         $context = context_module::instance($this->get_moduleid());
 
                         if ($this->get_old_moduleversion() < 2014051000 &&
-                             ($user = $DB->get_record("user", array('id' => $issued->userid)))) {
+                             ($user = $DB->get_record("user", ['id' => $issued->userid]))) {
                             $filename = str_replace(' ', '_',
                                                     clean_filename(
                                                                 $issued->certificatename . ' ' . fullname($user) . ' ' .
@@ -177,8 +177,11 @@ class restore_simplecertificate_activity_task extends restore_activity_task {
                                                   clean_filename($issued->certificatename . ' ' . $issued->pathnamehash . '.pdf'));
                         }
 
-                        $fileinfo = array('contextid' => $context->id, 'component' => 'mod_simplecertificate',
-                            'filearea' => 'issues', 'itemid' => $issued->pathnamehash, 'filepath' => '/', 'filename' => $filename);
+                        $fileinfo = [
+                            'contextid' => $context->id, 'component' => 'mod_simplecertificate',
+                            'filearea' => 'issues', 'itemid' => $issued->pathnamehash,
+                            'filepath' => '/', 'filename' => $filename,
+                        ];
 
                         if ($fs->file_exists($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'],
                                             $fileinfo['itemid'], $fileinfo['filepath'], $fileinfo['filename'])) {

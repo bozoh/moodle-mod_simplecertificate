@@ -30,9 +30,9 @@ use core_privacy\local\request\writer;
  * @copyright  2024 Karl Michael Reyes <michaelreyes@catalyst-ca.net>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class provider implements 
-    \core_privacy\local\metadata\provider, 
-    \core_privacy\local\request\data_provider, 
+class provider implements
+    \core_privacy\local\metadata\provider,
+    \core_privacy\local\request\data_provider,
     \core_privacy\local\request\user_preference_provider {
 
     /**
@@ -141,11 +141,10 @@ class provider implements
         }
     }
 
-
     /**
      * Delete all user data for the specified contexts.
      *
-     * @param approved_contextlist $contextlist The approved contexts to delete information for.
+     * @param \context $context The context to delete information for.
      */
     public static function delete_data_for_all_users_in_context(\context $context) {
         // Delete user data from the issues table related to the given context.

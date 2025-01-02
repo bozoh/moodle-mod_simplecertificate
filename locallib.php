@@ -749,7 +749,7 @@ class simplecertificate {
         $gradecolumn = $this->get_instance()->certgrade;
 
         if ($gradecolumn) {
-            $table->head[] = get_string('grade', 'grades');
+            $table->head[] = get_string('grade', 'simplecertificate');
             $table->align[] = 'center';
             $table->size[] = '';
         }
