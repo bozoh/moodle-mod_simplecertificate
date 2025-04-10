@@ -34,4 +34,4 @@ $plugin->dependencies = [];
 $plugin->release  = '4.0.5'; // Human-friendly version name.
 // MATURITY_ALPHA, MATURITY_BETA, MATURITY_RC, MATURITY_STABLE.
 $plugin->maturity = MATURITY_STABLE;
-$plugin->supported = [403, 405]; // Supported Moodle versions.
+$plugin->supported = [403, 404]; // Supported Moodle versions.
