@@ -42,6 +42,7 @@ class locallib_test extends mod_simplecertificate_base_testcase {
 
     public function test_create_instance() {
         global $DB;
+        $this->resetAfterTest(true);
 
         // Basic CRUD test.
         $this->assertFalse($DB->record_exists('simplecertificate',['course' => $this->course->id]));
@@ -242,7 +243,7 @@ class locallib_test extends mod_simplecertificate_base_testcase {
         $issuecert1 = $cert->get_issue($this->students[0]);
 
         // Verify if timedelete is really null.
-        $this->assertObjectNotHasAttribute('timedeleted', $issuecert1);
+        $this->assertObjectNotHasProperty('timedeleted', $issuecert1);
 
         // Update simplecertificate instance.
         $cert->delete_instance($cert->get_instance());
@@ -251,7 +252,7 @@ class locallib_test extends mod_simplecertificate_base_testcase {
         // Verify if timedelete is not null.
         $issuecert1 = $DB->get_record('simplecertificate_issues',['id' => $issuecert1->id]);
 
-        $this->assertObjectHasAttribute('timedeleted', $issuecert1);
+        $this->assertObjectHasProperty('timedeleted', $issuecert1);
     }
 
     // DOn't work with moodle 3.0.
