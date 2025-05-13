@@ -861,7 +861,7 @@ class simplecertificate {
      * @return stdClass bool the mod object if it exists, false otherwise
      */
     protected function get_mod_grade($moduleid, $userid) {
-        global $DB;
+        global $DB, $CFG;
 
         $cm = $DB->get_record('course_modules', ['id' => $moduleid]);
 
@@ -873,26 +873,27 @@ class simplecertificate {
         $module = $DB->get_record('modules', ['id' => $cm->module]);
         $gradeitem = grade_get_grades($this->get_course()->id, 'mod', $module->name, $cm->instance, $userid);
         if ($gradeitem) {
+            $gradeitem = reset($gradeitem->items);
             $item = new grade_item();
-            $itemproperties = reset($gradeitem->items);
-            foreach ($itemproperties as $key => $value) {
+            $deprecatedkeys = ['name', 'grades'];
+            foreach ($gradeitem as $key => $value) {
+                if (in_array($key, $deprecatedkeys)) {
+                    continue;
+                }
                 $item->$key = $value;
             }
+
             $modinfo = new stdClass();
-            $modinfo->name = utf8_decode($DB->get_field($module->name, 'name', ['id' => $cm->instance]));
-            $grade = $item->grades[$userid]->grade;
+            $modinfo->name = $gradeitem->name;
+            $grade = isset($gradeitem->grades) ? $gradeitem->grades[$userid]->grade : null;
             $item->gradetype = GRADE_TYPE_VALUE;
             $item->courseid = $this->get_course()->id;
+            $modinfo->points = grade_format_gradevalue($grade, $item, true, GRADE_DISPLAY_TYPE_REAL, $CFG->grade_decimalpoints);
+            $modinfo->percentage = grade_format_gradevalue($grade, $item, true, GRADE_DISPLAY_TYPE_PERCENTAGE, 2);
+            $modinfo->letter = grade_format_gradevalue($grade, $item, true, GRADE_DISPLAY_TYPE_LETTER, 0);
 
-            $modinfo->points = grade_format_gradevalue($grade, $item, true, GRADE_DISPLAY_TYPE_REAL, $decimals = 2);
-            $modinfo->percentage = grade_format_gradevalue($grade, $item, true, GRADE_DISPLAY_TYPE_PERCENTAGE, $decimals = 2);
-            $modinfo->letter = grade_format_gradevalue($grade, $item, true, GRADE_DISPLAY_TYPE_LETTER, $decimals = 0);
+            $modinfo->dategraded = $grade ? $gradeitem->grades[$userid]->dategraded : time();
 
-            if ($grade) {
-                $modinfo->dategraded = $item->grades[$userid]->dategraded;
-            } else {
-                $modinfo->dategraded = time();
-            }
             return $modinfo;
         }
 
@@ -1072,137 +1073,142 @@ class simplecertificate {
         // Getting certificare image.
         $fs = get_file_storage();
 
+        $instance = $this->get_instance();
+
         // Get first page image file.
-        if (!empty($this->get_instance()->certificateimage)) {
+        if (!empty($instance->certificateimage)) {
             // Prepare file record object.
             $fileinfo = self::get_certificate_image_fileinfo($this->context->id);
             $firstpageimagefile = $fs->get_file($fileinfo['contextid'], $fileinfo['component'],
                             $fileinfo['filearea'],
                             $fileinfo['itemid'], $fileinfo['filepath'],
-                            $this->get_instance()->certificateimage);
+                            $instance->certificateimage);
             // Read contents.
             if ($firstpageimagefile) {
                 $tmpfilename = $firstpageimagefile->copy_content_to_temp(self::CERTIFICATE_COMPONENT_NAME, 'first_image_');
-                $pdf->Image($tmpfilename, 0, 0, $this->get_instance()->width, $this->get_instance()->height);
+                $pdf->Image($tmpfilename, 0, 0, $instance->width, $instance->height);
                 @unlink($tmpfilename);
             } else {
-                throw new moodle_exception(get_string('filenotfound', 'simplecertificate', $this->get_instance()->certificateimage));
+                throw new moodle_exception(get_string('filenotfound', 'simplecertificate', $instance->certificateimage));
             }
         }
 
         // Writing text.
-        $pdf->SetXY($this->get_instance()->certificatetextx, $this->get_instance()->certificatetexty);
-        $pdf->writeHTMLCell(0, 0, '', '', $this->get_certificate_text($issuecert, $this->get_instance()->certificatetext), 0, 0, 0,
+        $pdf->SetXY($instance->certificatetextx, $instance->certificatetexty);
+        $pdf->writeHTMLCell(0, 0, '', '', $this->get_certificate_text($issuecert, $instance->certificatetext), 0, 0, 0,
                             true, 'C');
 
         // Print QR code in first page (if enable).
-        if (!empty($this->get_instance()->qrcodefirstpage) && !empty($this->get_instance()->printqrcode)) {
+        if (!empty($instance->qrcodefirstpage) && !empty($instance->printqrcode)) {
             $this->print_qrcode($pdf, $issuecert->code);
         }
 
-        if (!empty($this->get_instance()->enablesecondpage)) {
+        if (!empty($instance->enablesecondpage)) {
             $pdf->AddPage();
-            if (!empty($this->get_instance()->secondimage)) {
+            if (!empty($instance->secondimage)) {
                 // Prepare file record object.
                 $fileinfo = self::get_certificate_secondimage_fileinfo($this->context->id);
                 // Get file.
                 $secondimagefile = $fs->get_file($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'],
-                                                $fileinfo['itemid'], $fileinfo['filepath'], $this->get_instance()->secondimage);
+                                                $fileinfo['itemid'], $fileinfo['filepath'], $instance->secondimage);
 
                 // Read contents.
                 if (!empty($secondimagefile)) {
                     $tmpfilename = $secondimagefile->copy_content_to_temp(self::CERTIFICATE_COMPONENT_NAME, 'second_image_');
-                    $pdf->Image($tmpfilename, 0, 0, $this->get_instance()->width, $this->get_instance()->height);
+                    $pdf->Image($tmpfilename, 0, 0, $instance->width, $instance->height);
                     @unlink($tmpfilename);
                 } else {
-                    throw new moodle_exception(get_string('filenotfound', 'simplecertificate', $this->get_instance()->secondimage));
+                    throw new moodle_exception(get_string('filenotfound', 'simplecertificate', $instance->secondimage));
                 }
             }
-            if (!empty($this->get_instance()->secondpagetext)) {
-                $pdf->SetXY($this->get_instance()->secondpagex, $this->get_instance()->secondpagey);
-                $pdf->writeHTMLCell(0, 0, '', '', $this->get_certificate_text($issuecert, $this->get_instance()->secondpagetext), 0,
+            if (!empty($instance->secondpagetext)) {
+                $pdf->SetXY($instance->secondpagex, $instance->secondpagey);
+                $pdf->writeHTMLCell(0, 0, '', '', $this->get_certificate_text($issuecert, $instance->secondpagetext), 0,
                                     0, 0, true, 'C');
             }
         }
 
-        // To sign the PDF with secure certificate.
-        $config = get_config('simplecertificate');
-        $certificatepath = null;
-        $fileextension = null;
+        if (property_exists($instance, 'usesignature') && $instance->usesignature) {
 
-        if (!empty($config->certificatepath)) {
-            $certificatepath = realpath($config->certificatepath);
-        }
+            // To sign the PDF with secure certificate.
+            $config = get_config('simplecertificate');
+            $certificatepath = null;
+            $fileextension = null;
 
-        if ($certificatepath && file_exists($certificatepath)) {
-            $fileextension = pathinfo($certificatepath, PATHINFO_EXTENSION);
-        }
-
-        if ($fileextension === 'crt') {
-
-            $signinfolines = explode("\n", $config->signinfo);
-
-            $info = [];
-            foreach ($signinfolines as $line) {
-                $signinfo = explode('=', $line);
-
-                if (count($signinfo) > 1) {
-                    $info[$signinfo[0]] = $signinfo[1];
-                }
+            if (!empty($config->certificatepath)) {
+                $certificatepath = realpath($config->certificatepath);
             }
 
-            $certificatepath = 'file://' . $certificatepath;
-            // Set document signature.
-            $signname = empty($config->signname) ? 'bbcocertifica' : $config->signname;
-            $pdf->setSignature($certificatepath, $certificatepath, $signname, '', 2, $info);
+            if ($certificatepath && file_exists($certificatepath)) {
+                $fileextension = pathinfo($certificatepath, PATHINFO_EXTENSION);
+            }
 
-            if (!empty($config->signimage)) {
+            if ($fileextension === 'crt') {
 
-                // Detect sign image file.
-                $fs = get_file_storage();
-                $syscontext = context_system::instance();
-                $filepath = null;
+                $signinfolines = explode("\n", $config->signinfo);
 
-                if ($files = $fs->get_area_files($syscontext->id,
-                                                'simplecertificate',
-                                                'signimage',
-                                                0,
-                                                "filename",
-                                                false)) {
+                $info = [];
+                foreach ($signinfolines as $line) {
+                    $signinfo = explode('=', $line);
 
-                    foreach ($files as $file) {
-                        $filename = $file->get_filename();
-                        if ($filename !== '.') {
-
-                            $filesystem = $fs->get_file_system();
-                            $filepath = $filesystem->get_local_path_from_storedfile($file);
-                            break;
-                        }
+                    if (count($signinfo) > 1) {
+                        $info[$signinfo[0]] = $signinfo[1];
                     }
                 }
 
-                if ($filepath) {
-                    // Image positions.
-                    $x = empty($config->signposx) ? 0 : number_format($config->signposx);
-                    $y = empty($config->signposy) ? 0 : number_format($config->signposy);
-                    $x2 = empty($config->signwidth) ? 20 : number_format($config->signwidth);
-                    $y2 = empty($config->signheight) ? 20 : number_format($config->signheight);
+                $certificatepath = 'file://' . $certificatepath;
+                // Set document signature.
+                $signname = empty($config->signname) ? 'bbcocertifica' : $config->signname;
+                $pdf->setSignature($certificatepath, $certificatepath, $signname, '', 2, $info);
 
-                    $signext = strtoupper(substr($config->signimage, -3)) != 'JPG' ? 'PNG' : 'JPG';
+                if (!empty($config->signimage)) {
 
-                    // Create content for signature.
-                    $pdf->Image($filepath, $x, $y, $x2, $y2, $signext);
+                    // Detect sign image file.
+                    $fs = get_file_storage();
+                    $syscontext = context_system::instance();
+                    $filepath = null;
 
-                    // Define active area for signature appearance.
-                    $pdf->setSignatureAppearance($x, $y, $x2, $y2);
+                    if ($files = $fs->get_area_files($syscontext->id,
+                                                    'simplecertificate',
+                                                    'signimage',
+                                                    0,
+                                                    "filename",
+                                                    false)) {
+
+                        foreach ($files as $file) {
+                            $filename = $file->get_filename();
+                            if ($filename !== '.') {
+
+                                $filesystem = $fs->get_file_system();
+                                $filepath = $filesystem->get_local_path_from_storedfile($file);
+                                break;
+                            }
+                        }
+                    }
+
+                    if ($filepath) {
+                        // Image positions.
+                        $x = number_format(self::local_or_global($instance, 'signposx', 0));
+                        $y = number_format(self::local_or_global($instance, 'signposy', 0));
+                        $x2 = number_format(self::local_or_global($instance, 'signwidth', 20));
+                        $y2 = number_format(self::local_or_global($instance, 'signheight', 20));
+
+                        $signext = strtoupper(substr($config->signimage, -3)) != 'JPG' ? 'PNG' : 'JPG';
+
+                        // Create content for signature.
+                        $pdf->Image($filepath, $x, $y, $x2, $y2, $signext);
+
+                        // Define active area for signature appearance.
+                        $pdf->setSignatureAppearance($x, $y, $x2, $y2);
+                    }
                 }
             }
+            // End To sign the PDF with secure certificate.
         }
-        // End To sign the PDF with secure certificate.
 
-        if (!empty($this->get_instance()->printqrcode) && empty($this->get_instance()->qrcodefirstpage)) {
+        if (!empty($instance->printqrcode) && empty($instance->qrcodefirstpage)) {
             // Add certificade code using QRcode, in a new page (to print in the back).
-            if (empty($this->get_instance()->enablesecondpage)) {
+            if (empty($instance->enablesecondpage)) {
                 // If secondpage is disabled, create one.
                 $pdf->AddPage();
             }
@@ -1749,7 +1755,6 @@ class simplecertificate {
         } else if ($this->get_instance()->certdate > 0
             && $modinfo = $this->get_mod_grade($this->get_instance()->certdate, $issuecert->userid)) {
                 $date = $modinfo->dategraded;
-
         }
 
         return userdate($date, $format);
@@ -2706,4 +2711,26 @@ class simplecertificate {
         return clean_filename($name);
     }
 
+    /**
+     * Get the option value from the instance or from the global config.
+     *
+     * @param object $instance The instance object
+     * @param string $option The option name
+     * @param mixed $default The default value if not found
+     * @return mixed The option value
+     */
+    private static function local_or_global($instance, $option, $default = null) {
+
+        if (!empty($instance->$option)) {
+            return $instance->$option;
+        }
+
+        $inconfig = get_config('simplecertificate', $option);
+        if ($inconfig !== null) {
+            return $inconfig;
+        }
+
+        return $default;
+
+    }
 }
