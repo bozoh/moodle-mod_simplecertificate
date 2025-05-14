@@ -78,9 +78,10 @@ class behat_mod_simplecertificate extends behat_base {
      * @param unknown $mingrade
      */
     public function add_grade_restriction($activity, $gradeactivity, $mingrade) {
-        $this->execute('behat_general::click_link', array($this->escape($activity)));
+        $this->execute('behat_navigation::i_am_on_page_instance', [$this->escape($activity), 'simplecertificate activity']);
+
         // I navigate to "PATH" in current page administration.
-        $this->execute('behat_navigation::i_navigate_to_in_current_page_administration', array("Edit settings"));
+        $this->execute('behat_navigation::i_navigate_to_in_current_page_administration', array("Settings"));
 
         /* Add min grade restrinction step by step see:
         availability/condition/grade/tests/behat/availability_grade.feature*/

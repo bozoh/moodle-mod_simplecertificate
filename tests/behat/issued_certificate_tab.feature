@@ -28,12 +28,13 @@ Feature: List issued Certificates
       | Certificate Text | Test Simple Certificate |
 	And I log out
 
+  @javascript
   Scenario: Verify if issued certificates are displyed
     Given I log in as "student1"
     #Moodle 3.2 and below
     #And I follow "Course 1"
     And I am on "Course 1" course homepage
-    And I follow "Test Simple Certificate"
+    And I click on "Test Simple Certificate" "link" in the "#region-main" "css_element"
     And I press "Get Certificate"
     And I am on site homepage
     And I log out
@@ -41,7 +42,7 @@ Feature: List issued Certificates
     #Moodle 3.2 and below
     #And I follow "Course 1"
     And I am on "Course 1" course homepage
-    And I follow "Test Simple Certificate"
+    And I click on "Test Simple Certificate" "link" in the "#region-main" "css_element"
     And I click on "Issued certificates" "link"
     And I should see "Tumé Arandú"
     But "Arasy Guaraní" "text" should not exist in the ".generaltable" "css_element"
@@ -51,7 +52,7 @@ Feature: List issued Certificates
     #Moodle 3.2 and below
     #And I follow "Course 1"
     And I am on "Course 1" course homepage
-    And I follow "Test Simple Certificate"
+    And I click on "Test Simple Certificate" "link" in the "#region-main" "css_element"
     And I press "Get Certificate"
     And I am on site homepage
     And I log out
@@ -59,13 +60,12 @@ Feature: List issued Certificates
     #Moodle 3.2 and below
     #And I follow "Course 1"
     And I am on "Course 1" course homepage
-    And I follow "Test Simple Certificate"
+    And I click on "Test Simple Certificate" "link" in the "#region-main" "css_element"
     And I click on "Issued certificates" "link"
     Then I should see "Tumé Arandú"
     And I should see "Arasy Guaraní"
-    But "Tupã Xingú" "text" should not exist in the ".generaltable" "css_element" 
-    
+    But "Tupã Xingú" "text" should not exist in the ".generaltable" "css_element"
+
  # Test if teacher certificate is save
- #Test export as 
+ #Test export as
  # test no certificate is issued
-	

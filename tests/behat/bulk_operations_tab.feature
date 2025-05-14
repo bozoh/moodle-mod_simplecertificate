@@ -2,7 +2,7 @@
 Feature: Verify bulk operations
   In order to use bulk operations
   As a teacher
-  I need to create a certificate 
+  I need to create a certificate
 
   Background:
     Given the following "users" exist:
@@ -26,9 +26,10 @@ Feature: Verify bulk operations
       | Description | Grade this assignment to revoke restriction on restricted assignment |
       | assignsubmission_onlinetext_enabled | 0 |
       | assignsubmission_file_enabled | 0 |
-    
+
     And I log out
 
+  @javascript
   Scenario: Verify if list all user without any grading restrictions
     Given I log in as "teacher1"
     And I am on "Course Test 1" course homepage
@@ -37,13 +38,13 @@ Feature: Verify bulk operations
       | Certificate Name | Test Simple Certificate |
       | Certificate Text | Test Simple Certificate |
     And I turn editing mode off
-    And I follow "Test Simple Certificate"
+    And I click on "Test Simple Certificate" "link" in the "#region-main" "css_element"
     And I click on "Bulk operations" "link"
     And I set the field "issuelist" to "All users"
     Then "Tumé Arandú" "text" should exist in the ".generaltable" "css_element"
     And "Arasy Guaraní" "text" should exist in the ".generaltable" "css_element"
-    
-  @javascript  
+
+  @javascript
   Scenario: Verify options: list all users,  Users that met the activity conditions with grading restrictions
   	Given I log in as "teacher1"
     And I am on "Course Test 1" course homepage
@@ -59,13 +60,13 @@ Feature: Verify bulk operations
       | Certificate Text | Test Simple Certificate |
     And I setup a grade restrinction to "Test Simple Certificate" with "Grade assignment" min grade "70"
     And I am on "Course Test 1" course homepage
-    And I follow "Test Simple Certificate"
+    And I click on "Test Simple Certificate" "link" in the "#region-main" "css_element"
     And I click on "Bulk operations" "link"
     And I set the field "issuelist" to "Users that met the activity conditions"
     Then I should see "Tumé Arandú"
     And I should not see "Arasy Guaraní"
     Then I am on "Course Test 1" course homepage
-    And I follow "Test Simple Certificate"
+    And I click on "Test Simple Certificate" "link" in the "#region-main" "css_element"
     And I click on "Bulk operations" "link"
     And I set the field "issuelist" to "All users"
     Then I should see "Arasy Guaraní"
