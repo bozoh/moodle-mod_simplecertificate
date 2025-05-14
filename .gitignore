@@ -22,3 +22,5 @@ composer.lock
 # lib/yuilib/version/module/module-coverage.js
 /lib/yuilib/*/*/*-coverage.js
 .vscode
+tests/test_certificate_2.2.2.pdf
+
