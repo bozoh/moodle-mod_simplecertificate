@@ -458,5 +458,27 @@ function xmldb_simplecertificate_upgrade($oldversion = 0) {
         // Simplecertificate savepoint reached.
         upgrade_mod_savepoint(true, 2020091500, 'simplecertificate');
     }
+
+    if ($oldversion < 2024051106) {
+        $table = new xmldb_table('simplecertificate');
+
+        $fields = [];
+        // Define fields to be added to simplecertificate.
+        $fields[] = new xmldb_field('usesignature', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0');
+        $fields[] = new xmldb_field('signposx', XMLDB_TYPE_INTEGER, '4');
+        $fields[] = new xmldb_field('signposy', XMLDB_TYPE_INTEGER, '4');
+        $fields[] = new xmldb_field('signwidth', XMLDB_TYPE_INTEGER, '4');
+        $fields[] = new xmldb_field('signheight', XMLDB_TYPE_INTEGER, '4');
+
+        foreach ($fields as $field) {
+            // Conditionally launch add field.
+            if (!$dbman->field_exists($table, $field)) {
+                $dbman->add_field($table, $field);
+            }
+        }
+
+        // Simplecertificate savepoint reached.
+        upgrade_mod_savepoint(true, 2024051106, 'simplecertificate');
+    }
     return true;
 }

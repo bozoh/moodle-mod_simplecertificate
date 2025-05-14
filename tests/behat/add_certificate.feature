@@ -25,7 +25,7 @@ Feature: Add a simplecertificate
       | Print Grade | -1 |
     And I log out
 
-  @javascript 
+  @javascript
   Scenario: Add a very basic certificate and verify if a student can donwload
     When I log in as "student1"
     And I am on "Course 1" course homepage
@@ -47,9 +47,8 @@ Feature: Add a simplecertificate
     And I log out
     When I log in as "student1"
     And I am on "Course 1" course homepage
-    Then "Test Simple Certificate" activity should be dimmed
-    And "Test Simple Certificate" "link" should not exist
-    And I should see "Restricted Not available unless: You achieve a required score in Grade assignment"
+    Then I should see "Not available unless: You achieve higher than a certain score in Grade assignment" in the "[data-activityname='Test Simple Certificate']" "css_element"
+    And "Test Simple Certificate" "link" should not exist in the "#region-main" "css_element"
     And I follow "Grade assignment"
     And I press "Add submission"
     And I set the following fields to these values:
@@ -74,6 +73,5 @@ Feature: Add a simplecertificate
     And I follow "Test Simple Certificate"
     Then I press "Get Certificate"
     And I should see a pop-up window
-    
-    
-	
+
+

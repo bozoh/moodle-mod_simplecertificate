@@ -319,6 +319,9 @@ $string['signimage'] = 'Default image';
 $string['signimage_help'] = '';
 $string['signinfo'] = '';
 $string['signinfo_help'] = 'A property by line. Use the structure: key=value';
+$string['usesignature'] = 'Use signature';
+$string['usesignature_help'] = 'Use the institutional private key to sign the certificate.';
+$string['signaturenoptions'] = 'Security signing options';
 
 $string['privacy:metadata:simplecertificate_issues'] = 'The simple certificate plugin stores information about issued certificates.';
 $string['privacy:metadata:simplecertificate_issues:certificateid'] = 'The ID of the certificate issued.';

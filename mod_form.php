@@ -64,28 +64,28 @@ class mod_simplecertificate_mod_form extends moodleform_mod {
         $mform->addHelpButton('certificatetext', 'certificatetext', 'simplecertificate');
 
         // Certificate Width.
-        $mform->addElement('text', 'width', get_string('width', 'simplecertificate'), array('size' => '5'));
+        $mform->addElement('text', 'width', get_string('width', 'simplecertificate'), ['size' => '5']);
         $mform->setType('width', PARAM_INT);
         $mform->setDefault('width', get_config('simplecertificate', 'width'));
         $mform->setAdvanced('width');
         $mform->addHelpButton('width', 'size', 'simplecertificate');
 
         // Certificate Height.
-        $mform->addElement('text', 'height', get_string('height', 'simplecertificate'), array('size' => '5'));
+        $mform->addElement('text', 'height', get_string('height', 'simplecertificate'), ['size' => '5']);
         $mform->setType('height', PARAM_INT);
         $mform->setDefault('height', get_config('simplecertificate', 'height'));
         $mform->setAdvanced('height');
         $mform->addHelpButton('height', 'size', 'simplecertificate');
 
         // Certificate Position X.
-        $mform->addElement('text', 'certificatetextx', get_string('certificatetextx', 'simplecertificate'), array('size' => '5'));
+        $mform->addElement('text', 'certificatetextx', get_string('certificatetextx', 'simplecertificate'), ['size' => '5']);
         $mform->setType('certificatetextx', PARAM_INT);
         $mform->setDefault('certificatetextx', get_config('simplecertificate', 'certificatetextx'));
         $mform->setAdvanced('certificatetextx');
         $mform->addHelpButton('certificatetextx', 'textposition', 'simplecertificate');
 
         // Certificate Position Y.
-        $mform->addElement('text', 'certificatetexty', get_string('certificatetexty', 'simplecertificate'), array('size' => '5'));
+        $mform->addElement('text', 'certificatetexty', get_string('certificatetexty', 'simplecertificate'), ['size' => '5']);
         $mform->setType('certificatetexty', PARAM_INT);
         $mform->setDefault('certificatetexty', get_config('simplecertificate', 'certificatetexty'));
         $mform->setAdvanced('certificatetexty');
@@ -114,7 +114,7 @@ class mod_simplecertificate_mod_form extends moodleform_mod {
         $mform->disabledIf('secondpagetext', 'enablesecondpage', 'eq', 0);
 
         // Certificate Position X.
-        $mform->addElement('text', 'secondpagex', get_string('secondpagex', 'simplecertificate'), array('size' => '5'));
+        $mform->addElement('text', 'secondpagex', get_string('secondpagex', 'simplecertificate'), ['size' => '5']);
         $mform->setType('secondpagex', PARAM_INT);
         $mform->setDefault('secondpagex', get_config('simplecertificate', 'certificatetextx'));
         $mform->setAdvanced('secondpagex');
@@ -122,7 +122,7 @@ class mod_simplecertificate_mod_form extends moodleform_mod {
         $mform->disabledIf('secondpagex', 'enablesecondpage', 'eq', 0);
 
         // Certificate Position Y.
-        $mform->addElement('text', 'secondpagey', get_string('secondpagey', 'simplecertificate'), array('size' => '5'));
+        $mform->addElement('text', 'secondpagey', get_string('secondpagey', 'simplecertificate'), ['size' => '5']);
         $mform->setType('secondpagey', PARAM_INT);
         $mform->setDefault('secondpagey', get_config('simplecertificate', 'certificatetexty'));
         $mform->setAdvanced('secondpagey');
@@ -183,13 +183,13 @@ class mod_simplecertificate_mod_form extends moodleform_mod {
         $mform->setDefault('printqrcode', get_config('simplecertificate', 'printqrcode'));
         $mform->addHelpButton('printqrcode', 'printqrcode', 'simplecertificate');
 
-        $mform->addElement('text', 'codex', get_string('codex', 'simplecertificate'), array('size' => '5'));
+        $mform->addElement('text', 'codex', get_string('codex', 'simplecertificate'), ['size' => '5']);
         $mform->setType('codex', PARAM_INT);
         $mform->setDefault('codex', get_config('simplecertificate', 'codex'));
         $mform->setAdvanced('codex');
         $mform->addHelpButton('codex', 'qrcodeposition', 'simplecertificate');
 
-        $mform->addElement('text', 'codey', get_string('codey', 'simplecertificate'), array('size' => '5'));
+        $mform->addElement('text', 'codey', get_string('codey', 'simplecertificate'), ['size' => '5']);
         $mform->setType('codey', PARAM_INT);
         $mform->setDefault('codey', get_config('simplecertificate', 'codey'));
         $mform->setAdvanced('codey');
@@ -200,7 +200,6 @@ class mod_simplecertificate_mod_form extends moodleform_mod {
         $mform->addHelpButton('qrcodefirstpage', 'qrcodefirstpage', 'simplecertificate');
 
         // Issue options.
-
         $mform->addElement('header', 'issueoptions', get_string('issueoptions', 'simplecertificate'));
 
         // Email to teachers ?
@@ -233,6 +232,34 @@ class mod_simplecertificate_mod_form extends moodleform_mod {
         $mform->addElement('select', 'delivery', get_string('delivery', 'simplecertificate'), $deliveryoptions);
         $mform->setDefault('delivery', 0);
         $mform->addHelpButton('delivery', 'delivery', 'simplecertificate');
+
+        // Signature options.
+        $certificatepath = get_config('simplecertificate', 'certificatepath');
+
+        if (!empty($certificatepath)) {
+            $mform->addElement('header', 'signatureoptions', get_string('signaturenoptions', 'simplecertificate'));
+
+            // Use signature.
+            $mform->addElement('selectyesno', 'usesignature', get_string('usesignature', 'simplecertificate'));
+            $mform->setDefault('usesignature', 0);
+            $mform->addHelpButton('usesignature', 'usesignature', 'simplecertificate');
+
+            // Signature position X.
+            $mform->addElement('text', 'signposx', get_string('signposx', 'simplecertificate'), ['size' => '5']);
+            $mform->setType('signposx', PARAM_INT);
+
+            // Signature position Y.
+            $mform->addElement('text', 'signposy', get_string('signposy', 'simplecertificate'), ['size' => '5']);
+            $mform->setType('signposy', PARAM_INT);
+
+            // Signature width.
+            $mform->addElement('text', 'signwidth', get_string('signwidth', 'simplecertificate'), ['size' => '5']);
+            $mform->setType('signwidth', PARAM_INT);
+
+            // Signature height.
+            $mform->addElement('text', 'signheight', get_string('signheight', 'simplecertificate'), ['size' => '5']);
+            $mform->setType('signheight', PARAM_INT);
+        }
 
         // Report Cert.
         // TODO acredito que seja para verificar o certificado pelo código, se for isto pode remover.
