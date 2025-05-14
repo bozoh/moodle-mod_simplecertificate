@@ -31,7 +31,7 @@ $plugin->requires = 2022112808;
 $plugin->cron = 4 * 3600; // Period for cron to check this module (secs).
 $plugin->component = 'mod_simplecertificate';
 $plugin->dependencies = [];
-$plugin->release  = '4.0.5';
+$plugin->release  = '4.0.6';
 // MATURITY_ALPHA, MATURITY_BETA, MATURITY_RC, MATURITY_STABLE.
 $plugin->maturity = MATURITY_STABLE;
-$plugin->supported = [403, 404];
+$plugin->supported = [403, 405];
