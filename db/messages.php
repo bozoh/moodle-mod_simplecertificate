@@ -15,23 +15,20 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Code fragment to define the version of the simplecertificate module
+ * Defines message providers (types of messages being sent) for Simple Certificate
  *
- * @package    mod
- * @subpackage simplecertificate
- * @author     Carlos Alexandre S. da Fonseca
- * @copyright  2013 - Carlos Alexandre S. da Fonseca
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or late
+ * @package    mod_simplecertificate
+ * @category   message
+ * @copyright  2025 David Herney @ BambuCo
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version  = 2024051106.01;
-$plugin->requires = 2022112808;
-$plugin->cron = 4 * 3600; // Period for cron to check this module (secs).
-$plugin->component = 'mod_simplecertificate';
-$plugin->dependencies = [];
-$plugin->release  = '4.0.6';
-// MATURITY_ALPHA, MATURITY_BETA, MATURITY_RC, MATURITY_STABLE.
-$plugin->maturity = MATURITY_RC;
-$plugin->supported = [403, 405];
+$messageproviders = [
+    'receivecertificate' => [
+        'defaults' => [
+            'email' => MESSAGE_PERMITTED + MESSAGE_DEFAULT_ENABLED,
+        ],
+    ],
+];

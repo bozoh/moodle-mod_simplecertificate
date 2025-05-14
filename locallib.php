@@ -1320,8 +1320,8 @@ class simplecertificate {
      *
      * @param $issuecert The issue certificate object
      */
-    public function send_certificade_email(stdClass $issuecert) { // previously protected
-        global $DB, $CFG;
+    public function send_certificade_email(stdClass $issuecert) {
+        global $DB;
 
         $user = $DB->get_record('user', ['id' => $issuecert->userid]);
         if (!$user) {
@@ -1341,23 +1341,31 @@ class simplecertificate {
 
         // Get generated certificate file.
         $file = $this->get_issue_file($issuecert);
-        if ($file) { // Put in a tmp dir, for e-mail attachament.
-            $fullfilepath = $this->create_temp_file($file->get_filename());
-            $file->copy_content_to($fullfilepath);
-            $relativefilepath = str_replace($CFG->dataroot . DIRECTORY_SEPARATOR, "", $fullfilepath);
-
-            if (strpos($relativefilepath, DIRECTORY_SEPARATOR, 1) === 0) {
-                $relativefilepath = substr($relativefilepath, 1);
-            }
+        if ($file) {
 
             if (!empty($this->get_instance()->emailfrom)) {
                 $from = core_user::get_support_user();
                 $from->email = format_string($this->get_instance()->emailfrom, true);
             } else {
-                $from = format_string($this->get_instance()->emailfrom, true);
+                $from = \core_user::get_noreply_user();
+                $from->email = format_string($this->get_instance()->emailfrom, true);
             }
 
-            $ret = email_to_user($user, $from, $subject, $message, $messagehtml, $relativefilepath, $file->get_filename());
+            $eventdata = new \core\message\message();
+            $eventdata->component = 'mod_simplecertificate';
+            $eventdata->name = 'receivecertificate';
+            $eventdata->userfrom = $from;
+            $eventdata->userto = $user;
+            $eventdata->subject = $subject;
+            $eventdata->fullmessage = $message;
+            $eventdata->fullmessageformat = FORMAT_HTML;
+            $eventdata->fullmessagehtml = $messagehtml;
+            $eventdata->smallmessage = '';
+            $eventdata->notification = 1;
+            $eventdata->attachname = $file->get_filename();
+            $eventdata->attachment = $file;
+
+            $ret = message_send($eventdata);
             @unlink($fullfilepath);
 
             return $ret;

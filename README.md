@@ -30,20 +30,27 @@ Eg. Linux command line would be as follow -
 git clone git://github.com/bozoh/moodle-mod_simplecertificate.git simplecertificate
 
 Once cloned, checkout the branch that is specific to your Moodle version.
-eg, MOODLE_22 is for Moodle 2.2, MOODLE_23 is for 2.3
+eg, MOODLE_403_STABLE is for Moodle 4.3.
 
 Use git pull to update this branch periodically to ensure you have the latest version.
 
 ## Download the simplecertificate module.
 
 Visit https://github.com/bozoh/moodle-mod_simplecertificate, choose the branch
-that matches your Moodle version (eg. MOODLE_22 is for Moodle 2.2, MOODLE_23 is for 2.3)
-and download the zip, uncompress this zip and extract the folder. The folder will have a name similar to moodle-mod_simplecertificate-c9fbadb, you MUST rename this to simplecertificate.
+that matches your Moodle version (eg. MOODLE_403_STABLE is for Moodle 4.3)
+and download the zip, uncompress this zip and extract the folder.
+The folder will have a name similar to moodle-mod_simplecertificate-c9fbadb, you MUST rename this to simplecertificate.
 Place this folder in your mod folder in your Moodle directory.
 
 > The reason this is not the recommended method is due to the fact you have to over-write the contents of this folder to apply any future updates to the simplecertificate module. In the above method there is a simple command to update the files.
 
 ## In version
+
+### 2024051107:
+- Changed email sending functionality to the standard notification interface.
+
+### 2024051106:
+- New signature options.
 
 ### 2024051105:
 - Compatibility with Moodle 4.5+
