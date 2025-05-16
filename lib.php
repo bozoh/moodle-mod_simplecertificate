@@ -97,7 +97,7 @@ function simplecertificate_reset_userdata($data) {
     $componentstr = get_string('modulenameplural', 'simplecertificate');
     $status = array();
 
-    if (!empty($data->reset_certificate)) {
+    if (!empty($data->reset_simplecertificate)) {
         $timedeleted = time();
         $certificates = $DB->get_records('simplecertificate', array('course' => $data->courseid));
 
