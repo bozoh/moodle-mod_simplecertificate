@@ -48,6 +48,7 @@ Place this folder in your mod folder in your Moodle directory.
 
 ### 2024051107:
 - Changed email sending functionality to the standard notification interface.
+- Two new tags for formatting grades: {TABLEUSERRESULTS} and {LISTUSERRESULTS}
 
 ### 2024051106:
 - New signature options.

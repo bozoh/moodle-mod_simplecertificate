@@ -67,7 +67,9 @@ These are:
 <li>{USERROLENAME} -> User role name in course</li>
 <li>{TIMESTART} -> User Enrollment start date in course</li>
 <li>{USERIMAGE} -> User profile image</li>
-<li>{USERRESULTS} -> User results (grade) in others course activities</li>
+<li>{USERRESULTS} -> User results (grade) in others course activities or grade items</li>
+<li>{LISTUSERRESULTS} -> Same as {USERRESULTS} but in bullets</li>
+<li>{TABLEUSERRESULTS} -> Same as {USERRESULTS} but in a table</li>
 <li>{PROFILE_xxxx} -> User custom profile fields</li>
 </ul>
 In order to use custom profiles fields you must use "PORFILE_" prefix, for example: you has created a custom profile with shortname of "birthday," so the text mark used on certificate must be {PROFILE_BIRTHDAY}.

@@ -1577,7 +1577,21 @@ class simplecertificate {
         }
 
         // Fetch user activity restuls.
-        $a->userresults = $this->get_user_results($issuecert->userid);
+        $a->userresults = '';
+        $a->listuserresults = '';
+        $a->tableuserresults = '';
+
+        if (strpos($certtext, '{USERRESULTS}') !== false) {
+            $a->userresults = $this->get_user_results($issuecert->userid);
+        }
+
+        if (strpos($certtext, '{LISTUSERRESULTS}') !== false) {
+            $a->listuserresults = $this->get_user_results($issuecert->userid, 'list');
+        }
+
+        if (strpos($certtext, '{TABLEUSERRESULTS}') !== false) {
+            $a->tableuserresults = $this->get_user_results($issuecert->userid, 'table');
+        }
 
         // Get User role name in course.
         $userrolename = get_user_roles_in_course($user->id, $this->get_course()->id);
@@ -1773,8 +1787,10 @@ class simplecertificate {
      *  Grade Item Name: grade<br>
      *
      * @param int $userid the user id, if none are supplied, gets $USER->id
+     * @return string $format the format of the output, default is 'text', other options are 'table' and 'list'.
+     * @return string the list of grades
      */
-    protected function get_user_results($userid = null) {
+    protected function get_user_results($userid = null, $format = 'text') {
         global $USER;
 
         if (empty($userid)) {
@@ -1797,15 +1813,61 @@ class simplecertificate {
         });
 
         $retval = '';
-        foreach ($items as $id => $item) {
-            // Do not include grades for course items.
-            if ($item->itemtype != 'mod') {
+        switch ($format) {
+            case 'table':
+                $retval = '<table>';
+                break;
+            case 'list':
+                $retval = '<ul>';
+                break;
+        }
+
+        $availabletypes = ['manual', 'mod'];
+        foreach ($items as $item) {
+
+            if (!in_array($item->itemtype, $availabletypes)) {
                 continue;
             }
-            $cm = get_coursemodule_from_instance($item->itemmodule, $item->iteminstance);
-            $usergrade = $this->get_formated_grade($this->get_mod_grade($cm->id, $userid));
-            $retval = $item->itemname . ": $usergrade<br>" . $retval;
+
+            if (!$gradegrade = \grade_grade::fetch(['itemid' => $item->id, 'userid' => $userid])) {
+                $gradegrade = new \grade_grade();
+                $gradegrade->userid = $userid;
+                $gradegrade->itemid = $item->id;
+            }
+            $gradegrade->load_grade_item();
+
+            if ($gradegrade->is_hidden()) {
+                continue;
+            }
+
+            $usergrade = grade_format_gradevalue($gradegrade->finalgrade, $gradegrade->grade_item, true);
+
+            switch ($format) {
+                case 'table':
+                    if (strpos($usergrade, '(') !== false) {
+                        $usergrade = str_replace('(', '</td><td>', $usergrade);
+                        $usergrade = str_replace(')', '', $usergrade);
+                    }
+                    $retval .= '<tr><td>' . $item->itemname . '</td><td>' . $usergrade . '</td></tr>';
+                    break;
+                case 'list':
+                    $retval .= '<li>' . $item->itemname . ': ' . $usergrade . '</li>';
+                    break;
+                default:
+                    $retval .= $item->itemname . ": $usergrade<br>";
+            }
+
         }
+
+        switch ($format) {
+            case 'table':
+                $retval .= '</table>';
+                break;
+            case 'list':
+                $retval .= '</ul>';
+                break;
+        }
+
         return $retval;
     }
 
