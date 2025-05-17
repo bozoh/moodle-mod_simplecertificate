@@ -1602,6 +1602,18 @@ class simplecertificate {
             $a->tableuserresults = $this->get_user_results($issuecert->userid, 'table');
         }
 
+        if (strpos($certtext, '{USERGRADES}') !== false) {
+            $a->usergrades = $this->get_user_results($issuecert->userid, 'text', true);
+        }
+
+        if (strpos($certtext, '{LISTUSERGRADES}') !== false) {
+            $a->listusergrades = $this->get_user_results($issuecert->userid, 'list', true);
+        }
+
+        if (strpos($certtext, '{TABLEUSERGRADES}') !== false) {
+            $a->tableusergrades = $this->get_user_results($issuecert->userid, 'table', true);
+        }
+
         // Get User role name in course.
         $userrolename = get_user_roles_in_course($user->id, $this->get_course()->id);
         if ($userrolename) {
@@ -1796,10 +1808,11 @@ class simplecertificate {
      *  Grade Item Name: grade<br>
      *
      * @param int $userid the user id, if none are supplied, gets $USER->id
-     * @return string $format the format of the output, default is 'text', other options are 'table' and 'list'.
+     * @param string $format the format of the output, default is 'text', other options are 'table' and 'list'.
+     * @param bool $all if true, return all grades, even only mod grades.
      * @return string the list of grades
      */
-    protected function get_user_results($userid = null, $format = 'text') {
+    protected function get_user_results($userid = null, $format = 'text', $all = false) {
         global $USER;
 
         if (empty($userid)) {
@@ -1831,10 +1844,15 @@ class simplecertificate {
                 break;
         }
 
-        $availabletypes = ['manual', 'mod'];
         foreach ($items as $item) {
 
-            if (!in_array($item->itemtype, $availabletypes)) {
+            // Exclude course item.
+            if ($item->is_course_item()) {
+                continue;
+            }
+
+            // Exclude items that are not mod grades. External items = "mod".
+            if (!$all && !($item->is_external_item() || $item->is_manual_item())) {
                 continue;
             }
 
@@ -1849,6 +1867,13 @@ class simplecertificate {
                 continue;
             }
 
+            if ($item->is_category_item()) {
+                $category = $item->load_item_category();
+                $itemname = '<b style="font-size:110%">' . $category->get_name() . '</b>';
+            } else {
+                $itemname = $item->get_name();
+            }
+
             $usergrade = grade_format_gradevalue($gradegrade->finalgrade, $gradegrade->grade_item, true);
 
             switch ($format) {
@@ -1857,13 +1882,13 @@ class simplecertificate {
                         $usergrade = str_replace('(', '</td><td>', $usergrade);
                         $usergrade = str_replace(')', '', $usergrade);
                     }
-                    $retval .= '<tr><td>' . $item->itemname . '</td><td>' . $usergrade . '</td></tr>';
+                    $retval .= '<tr><td>' . $itemname . '</td><td>' . $usergrade . '</td></tr>';
                     break;
                 case 'list':
-                    $retval .= '<li>' . $item->itemname . ': ' . $usergrade . '</li>';
+                    $retval .= '<li>' . $itemname . ': ' . $usergrade . '</li>';
                     break;
                 default:
-                    $retval .= $item->itemname . ": $usergrade<br>";
+                    $retval .= $itemname . ": $usergrade<br>";
             }
 
         }

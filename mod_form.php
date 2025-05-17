@@ -289,6 +289,7 @@ class mod_simplecertificate_mod_form extends moodleform_mod {
         global $CFG;
         require_once(dirname(__FILE__) . '/locallib.php');
         parent::data_preprocessing($data);
+        $suffix = $this->get_suffix();
         if ($this->current->instance) {
             // Editing an existing certificate - let us prepare the added editor elements (intro done automatically), and files.
             // First Page.
@@ -329,38 +330,56 @@ class mod_simplecertificate_mod_form extends moodleform_mod {
         }
 
         // Completion rules.
-        $data['completiontimeenabled'] = !empty($data['requiredtime']) ? 1 : 0;
+        $data['completiontimeenabled' . $suffix] = !empty($data['requiredtime' . $suffix]) ? 1 : 0;
 
     }
 
+    /**
+     * Add custom completion rules.
+     *
+     * @return array Array of string IDs of added items, empty array if none
+     */
     public function add_completion_rules() {
-        $mform =& $this->_form;
+        $mform = $this->_form;
 
-        $group = array();
+        $suffix = $this->get_suffix();
 
-        $group[] =& $mform->createElement('checkbox', 'completiontimeenabled', ' ',
+        $group = [];
+
+        $group[] =& $mform->createElement('checkbox', 'completiontimeenabled' . $suffix, ' ',
                         get_string('coursetimereq', 'simplecertificate'));
-        $group[] =& $mform->createElement('text', 'requiredtime', '', array('size' => '3'));
-        $mform->setType('requiredtime', PARAM_INT);
-        $mform->addGroup($group, 'completiontimegroup', get_string('coursetimereq', 'simplecertificate'), array(' '), false);
+        $group[] =& $mform->createElement('text', 'requiredtime' . $suffix, '', ['size' => '3']);
+        $mform->setType('requiredtime' . $suffix, PARAM_INT);
+        $mform->addGroup($group, 'completiontimegroup' . $suffix, get_string('coursetimereq', 'simplecertificate'), [' '], false);
 
-        $mform->addHelpButton('completiontimegroup', 'coursetimereq', 'simplecertificate');
-        $mform->disabledIf('requiredtime', 'completiontimeenabled', 'notchecked');
+        $mform->addHelpButton('completiontimegroup' . $suffix, 'coursetimereq', 'simplecertificate');
+        $mform->disabledIf('requiredtime' . $suffix, 'completiontimeenabled' . $suffix, 'notchecked');
 
-        return array('completiontimegroup');
+        return ['completiontimegroup' . $suffix];
     }
 
     public function completion_rule_enabled($data) {
-        return (!empty($data['completiontimeenabled']) && $data['requiredtime'] != 0);
+        $suffix = $this->get_suffix();
+        return (!empty($data['completiontimeenabled' . $suffix]) && $data['requiredtime' . $suffix] != 0);
     }
 
+    /**
+     * Allows module to modify the data returned by form get_data().
+     * This method is also called in the bulk activity completion form.
+     *
+     * Only available on moodleform_mod.
+     *
+     * @param stdClass $data the form data to be modified.
+     */
     public function data_postprocessing($data) {
         // For Completion Rules.
         if (!empty($data->completionunlocked)) {
+            $suffix = $this->get_suffix();
             // Turn off completion settings if the checkboxes aren't ticked.
-            $autocompletion = !empty($data->completion) && $data->completion == COMPLETION_TRACKING_AUTOMATIC;
-            if (empty($data->completiontimeenabled) || !$autocompletion) {
-                $data->requiredtime = 0;
+            $autocompletion = !empty($data->{'completion' . $suffix}) &&
+                                $data->{'completion' . $suffix} == COMPLETION_TRACKING_AUTOMATIC;
+            if (empty($data->{'completiontimeenabled' . $suffix}) || !$autocompletion) {
+                $data->{'requiredtime' . $suffix} = 0;
             }
         }
         // File manager always creata a Files folder, so certimages is never empty.
