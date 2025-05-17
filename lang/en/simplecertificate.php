@@ -285,3 +285,4 @@ $string['verifycertificate'] = 'Verify Certificate';
 $string['viewcertificateviews'] = 'View {$a} issued certificates';
 $string['width'] = 'Certificate Width';
 $string['messageprovider:receivecertificate'] = 'Receive certificate';
+$string['gradelegacy'] = 'Legacy format';

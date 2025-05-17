@@ -790,13 +790,14 @@ class simplecertificate {
             return '';
         }
 
+        $coursegrade = '';
         switch ($this->get_instance()->certgrade) {
             case self::COURSE_GRADE: // Course grade.
                 $courseitem = grade_item::fetch_course_item($this->get_course()->id);
                 if ($courseitem) {
                     $grade = new grade_grade(['itemid' => $courseitem->id, 'userid' => $userid]);
                     $courseitem->gradetype = GRADE_TYPE_VALUE;
-                    $coursegrade = new stdClass();
+
                     $decimals = $courseitem->get_decimals();
 
                     // If no decimals is set get the default decimals.
@@ -804,16 +805,30 @@ class simplecertificate {
                         $decimals = 2;
                     }
 
-                    // String used.
-                    $coursegrade->points = grade_format_gradevalue(
-                        $grade->finalgrade, $courseitem, true, GRADE_DISPLAY_TYPE_REAL, $decimals
-                    );
-                    $coursegrade->percentage = grade_format_gradevalue(
-                        $grade->finalgrade, $courseitem, true, GRADE_DISPLAY_TYPE_PERCENTAGE, $decimals
-                    );
-                    $coursegrade->letter = grade_format_gradevalue(
-                        $grade->finalgrade, $courseitem, true, GRADE_DISPLAY_TYPE_LETTER, $decimals = 0
-                    );
+                    switch ($this->get_instance()->gradefmt) {
+                        case 0:
+                            $coursegrade = grade_format_gradevalue($grade->finalgrade, $courseitem, true);
+                        break;
+
+                        case 1:
+                            $coursegrade = grade_format_gradevalue(
+                                $grade->finalgrade, $courseitem, true, GRADE_DISPLAY_TYPE_PERCENTAGE, $decimals
+                            );
+                        break;
+
+                        case 3:
+                            $coursegrade = grade_format_gradevalue(
+                                $grade->finalgrade, $courseitem, true, GRADE_DISPLAY_TYPE_LETTER, 0
+                            );
+                        break;
+
+                        default:
+                            $coursegrade = grade_format_gradevalue(
+                                $grade->finalgrade, $courseitem, true, GRADE_DISPLAY_TYPE_REAL, $decimals
+                            );
+                        break;
+
+                    }
                 }
             break;
 
@@ -821,36 +836,29 @@ class simplecertificate {
                 // Get grade from a specific module, stored at certgrade.
                 $modinfo = $this->get_mod_grade($this->get_instance()->certgrade, $userid);
                 if ($modinfo) {
-                    // String used.
-                    $coursegrade = new stdClass();
-                    $coursegrade->points = $modinfo->points;
-                    $coursegrade->percentage = $modinfo->percentage;
-                    $coursegrade->letter = $modinfo->letter;
-                    break;
+
+                    switch ($this->get_instance()->gradefmt) {
+                        case 0:
+                            $coursegrade = $modinfo->legacy;
+                        break;
+
+                        case 1:
+                            $coursegrade = $modinfo->percentage;
+                        break;
+
+                        case 3:
+                            $coursegrade = $modinfo->letter;
+                        break;
+
+                        default:
+                            $coursegrade = $modinfo->points;
+                        break;
+
+                    }
                 }
         }
 
-        return $this->get_formated_grade($coursegrade);
-    }
-
-    private function get_formated_grade(stdClass $coursegrade) {
-        if (empty($coursegrade)) {
-            return '';
-        }
-
-        switch ($this->get_instance()->gradefmt) {
-            case 1:
-                return $coursegrade->percentage;
-            break;
-
-            case 3:
-                return $coursegrade->letter;
-            break;
-
-            default:
-                return $coursegrade->points;
-            break;
-        }
+        return $coursegrade;
     }
 
     /**
@@ -891,6 +899,7 @@ class simplecertificate {
             $modinfo->points = grade_format_gradevalue($grade, $item, true, GRADE_DISPLAY_TYPE_REAL, $CFG->grade_decimalpoints);
             $modinfo->percentage = grade_format_gradevalue($grade, $item, true, GRADE_DISPLAY_TYPE_PERCENTAGE, 2);
             $modinfo->letter = grade_format_gradevalue($grade, $item, true, GRADE_DISPLAY_TYPE_LETTER, 0);
+            $modinfo->legacy = grade_format_gradevalue($grade, $item, true);
 
             $modinfo->dategraded = $grade ? $gradeitem->grades[$userid]->dategraded : time();
 

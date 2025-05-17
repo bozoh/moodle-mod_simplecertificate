@@ -170,10 +170,12 @@ class mod_simplecertificate_mod_form extends moodleform_mod {
         $mform->addHelpButton('certgrade', 'printgrade', 'simplecertificate');
 
         // Certificate grade format.
-        $gradeformatoptions = array( 1 => get_string('gradepercent', 'simplecertificate'),
+        $gradeformatoptions = [
+                                0 => get_string('gradelegacy', 'simplecertificate'),
+                                1 => get_string('gradepercent', 'simplecertificate'),
                                 2 => get_string('gradepoints', 'simplecertificate'),
-                                3 => get_string('gradeletter', 'simplecertificate')
-        );
+                                3 => get_string('gradeletter', 'simplecertificate'),
+        ];
         $mform->addElement('select', 'gradefmt', get_string('gradefmt', 'simplecertificate'), $gradeformatoptions);
         $mform->setDefault('gradefmt', 0);
         $mform->addHelpButton('gradefmt', 'gradefmt', 'simplecertificate');
