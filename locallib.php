@@ -141,6 +141,11 @@ class simplecertificate {
     private $issuecert;
 
     /**
+     * @var array Variables to replace in the certificate. Use only to archived certificates.
+     */
+    private $customvariables;
+
+    /**
      * Constructor for the base simplecertificate class.
      *
      * @param mixed $coursemodulecontext context|null the course module context
@@ -472,6 +477,15 @@ class simplecertificate {
      */
     public function set_course(stdClass $course) {
         $this->course = $course;
+    }
+
+    /**
+     * Set custom variables to replace in the certificate.
+     *
+     * @param array $variables The variables to replace
+     */
+    public function set_customvariables(array $variables) {
+        $this->customvariables = $variables;
     }
 
     /**
@@ -1066,7 +1080,6 @@ class simplecertificate {
      * @return mixed PDF object or error
      */
     protected function create_pdf(stdClass $issuecert, $pdf = null, $isbulk = false) {
-        global $CFG;
 
         // Check if certificate file is already exists, if issued has changes, it will recreated.
         if (empty($issuecert->haschange) && $this->issue_file_exists($issuecert) && !$isbulk) {
@@ -1589,6 +1602,9 @@ class simplecertificate {
         $a->userresults = '';
         $a->listuserresults = '';
         $a->tableuserresults = '';
+        $a->usergrades = '';
+        $a->listusergrades = '';
+        $a->tableusergrades = '';
 
         if (strpos($certtext, '{USERRESULTS}') !== false) {
             $a->userresults = $this->get_user_results($issuecert->userid);
@@ -1616,11 +1632,7 @@ class simplecertificate {
 
         // Get User role name in course.
         $userrolename = get_user_roles_in_course($user->id, $this->get_course()->id);
-        if ($userrolename) {
-            $a->userrolename = content_to_text($userrolename, FORMAT_MOODLE);
-        } else {
-            $a->userrolename = '';
-        }
+        $a->userrolename = $userrolename ? content_to_text($userrolename, FORMAT_MOODLE) : '';
 
         // Get user enrollment start date
         // see funtion  enrol_get_enrolment_end($courseid, $userid), which get enddate, not start.
@@ -1637,6 +1649,18 @@ class simplecertificate {
             $a->timestart = userdate($timestart, $this->get_instance()->timestartdatefmt);
         } else {
             $a->timestart = '';
+        }
+
+        if (!empty($this->customvariables)) {
+            foreach ($this->customvariables as $variable) {
+                $key = strtolower(trim($variable['name']));
+                $value = trim($variable['value']);
+
+                // Only replace if property exists.
+                if (property_exists($a, $key)) {
+                    $a->$key = strip_tags($value);
+                }
+            }
         }
 
         $a = (array)$a;
@@ -2813,6 +2837,24 @@ class simplecertificate {
         $name = str_replace(' ', '_', $name);
 
         return clean_filename($name);
+    }
+
+    /**
+     * Archive (soft delete) an issued certificate.
+     *
+     * @param stdClass $issue The issue certificate object
+     * @return bool True if the issue was archived, false otherwise
+     */
+    public function archive_issue($issue) {
+        global $DB;
+
+        if ($issue && !empty($issue->id) && empty($issue->timedeleted)) {
+            $issue->certificateid = 0;
+            $issue->timedeleted = time();
+            $issue->haschange = 0;
+            return $DB->update_record('simplecertificate_issues', $issue);
+        }
+        return false;
     }
 
     /**

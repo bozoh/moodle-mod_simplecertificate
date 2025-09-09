@@ -183,6 +183,7 @@ $string['gradefmt_help'] = 'There are three available formats if you choose to p
 <li>Points Grade: Prints the point value of the grade.</li>
 <li>Letter Grade: Prints the percentage grade as a letter.</li>
 </ul>';
+$string['gradelegacy'] = 'Legacy format';
 $string['gradeletter'] = 'Letter Grade';
 $string['gradepercent'] = 'Percentage Grade';
 $string['gradepoints'] = 'Points Grade';
@@ -198,6 +199,7 @@ $string['issueddownload'] = 'Issued certificate [id: {$a}] downloaded';
 $string['issuedview'] = 'Issued certificates';
 $string['issueoptions'] = 'Issue Options';
 $string['keywords'] = 'certificate, course, pdf, moodle';
+$string['messageprovider:receivecertificate'] = 'Receive certificate';
 $string['modulename'] = 'Simple Certificate';
 $string['modulename_help'] = 'The simple certificate activity module enables the teacher to create a custom certificate that can be issued to participants who have completed the teacher’s specified requirements.';
 $string['modulenameplural'] = 'Simple Certificates';
@@ -266,6 +268,7 @@ $string['signposy_help'] = '';
 $string['signwidth'] = 'Default width';
 $string['signwidth_help'] = '';
 $string['simplecertificate:addinstance'] = "Add Simple Certificate Activity";
+$string['simplecertificate:issue'] = 'Issue certificate';
 $string['simplecertificate:manage'] = "Manage Simple Certificate Activity";
 $string['simplecertificate:view'] = "View Simple Certificate Activity";
 $string['simplecertificateissue'] = 'Certificate Issue';
@@ -287,5 +290,3 @@ $string['variablesoptions'] = 'Others Options';
 $string['verifycertificate'] = 'Verify Certificate';
 $string['viewcertificateviews'] = 'View {$a} issued certificates';
 $string['width'] = 'Certificate Width';
-$string['messageprovider:receivecertificate'] = 'Receive certificate';
-$string['gradelegacy'] = 'Legacy format';

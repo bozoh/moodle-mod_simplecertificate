@@ -50,6 +50,7 @@ Place this folder in your mod folder in your Moodle directory.
 - Changed email sending functionality to the standard notification interface.
 - New tags for formatting grades: {TABLEUSERRESULTS}, {LISTUSERRESULTS}, {USERGRADES}, {LISTUSERGRADES}, {TABLEUSERGRADES}.
 - Correction of completion conditions.
+- New web service for issuing certificates. They can be archived so they are not tied to the course.
 
 ### 2024051106:
 - New signature options.

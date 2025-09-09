@@ -40,6 +40,14 @@ $functions = [
         'type' => 'read',
         'capabilities' => 'mod/simplecertificate:view',
     ],
+
+    'mod_simplecertificate_create_issue' => [
+        'classname' => mod_simplecertificate\external\create_issue::class,
+        'description' => 'Create a new certificate issue for a user',
+        'type' => 'write',
+        'services' => [MOODLE_OFFICIAL_MOBILE_SERVICE],
+        'capabilities' => 'mod/simplecertificate:issue',
+    ],
 ];
 
 $services = [
