@@ -46,6 +46,9 @@ Place this folder in your mod folder in your Moodle directory.
 
 ## In version
 
+### 2025111900:
+- Compatibility with Moodle 5.0+
+
 ### 2024051107:
 - Changed email sending functionality to the standard notification interface.
 - New tags for formatting grades: {TABLEUSERRESULTS}, {LISTUSERRESULTS}, {USERGRADES}, {LISTUSERGRADES}, {TABLEUSERGRADES}.

@@ -22,12 +22,11 @@
  * @copyright 2014 © Carlos Alexandre Soares da Fonseca
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-use setasign\Fpdi\TcpdfFpdi;
-
 require_once(dirname(dirname(dirname(__FILE__))) . '/config.php');
+
 $code = required_param('code', PARAM_TEXT); // Issued Code.
 
-$issuedcert = $DB->get_record("simplecertificate_issues", array('code' => $code));
+$issuedcert = $DB->get_record("simplecertificate_issues", ['code' => $code]);
 if (!$issuedcert) {
     throw new moodle_exception(get_string('issuedcertificatenotfound', 'simplecertificate'));
 } else {
@@ -93,27 +92,22 @@ function send_certificate_file(stdClass $issuedcert) {
 }
 
 /**
- * @param file
- * @param rotangle
- * @param bodersytle
- * @param bodersytle
+ * Put watermark on each page of the file.
+ *
+ * @param stored_file $file The file to put watermark.
+ * @return string The path to the tmp file with watermark.
  */
-
 function put_watermark($file) {
-
     global $CFG;
 
     require_once($CFG->libdir.'/pdflib.php');
-    require_once($CFG->dirroot.'/mod/assign/feedback/editpdf/fpdi/autoload.php');
-    // require_once($CFG->dirroot.'/mod/assign/feedback/editpdf/fpdi/FpdfTpl.php');
-    // require_once($CFG->dirroot.'/mod/assign/feedback/editpdf/fpdi/Fpdi.php');
-
+    require_once($CFG->dirroot.'/mod/assign/feedback/editpdf/fpdi/src/autoload.php');
 
     // Copy to a tmp file.
     $tmpfile = $file->copy_content_to_temp();
 
     // TCPF doesn't import files yet, so i must use FPDI.
-    $pdf = new TcpdfFpdi();
+    $pdf = new \setasign\Fpdi\Tcpdf\Fpdi();
     $pagecount = $pdf->setSourceFile($tmpfile);
 
     for ($pgnum = 1; $pgnum <= $pagecount; $pgnum++) {
@@ -124,11 +118,11 @@ function put_watermark($file) {
 
         // Create a page (landscape or portrait depending on the imported page size).
         if ($size['width'] > $size['height']) {
-            $pdf->AddPage('L', array($size['width'], $size['height']));
+            $pdf->AddPage('L', [$size['width'], $size['height']]);
             // Font size 1/3 Height if it landscape.
             $fontsize = $size['height'] / 3;
         } else {
-            $pdf->AddPage('P', array($size['width'], $size['height']));
+            $pdf->AddPage('P', [$size['width'], $size['height']]);
             // Font size 1/3 Width if it portrait.
             $fontsize = $size['width'] / 3;
         }
@@ -150,36 +144,47 @@ function put_watermark($file) {
         $pdf->SetFont("freesans", "B", $fontsize);
 
         $pdf->SetXY(0, $mdly);
-        $bodersytle = array('LTRB' => array('width' => 2, 'dash' => $fontsize / 5,
-                                    'cap' => 'round',
-                                    'join' => 'round',
-                                    'phase' => $fontsize / $mdlx)
-        );
+        $bodersytle = [
+            'LTRB' => ['width' => 2, 'dash' => $fontsize / 5, 'cap' => 'round', 'join' => 'round', 'phase' => $fontsize / $mdlx],
+        ];
 
-        $pdf->Cell($size['width'], $fontsize, get_string('certificatecopy', 'simplecertificate'), $bodersytle, 0, 'C', false, '',
-                4, true, 'C', 'C');
+        $pdf->Cell(
+            $size['width'],
+            $fontsize,
+            get_string('certificatecopy', 'simplecertificate'),
+            $bodersytle,
+            0,
+            'C',
+            false,
+            '',
+            4,
+            true,
+            'C',
+            'C'
+        );
         $pdf->StopTransform();
 
         // Reset the transparency to default.
         $pdf->SetAlpha(1);
-
     }
+
     // Set protection seems not work, but don't hurt.
-    $pdf->SetProtection(array('print', 'modify',
-                              'copy', 'annot-forms',
-                              'fill-forms', 'extract',
-                              'assemble', 'print-high'),
-                        null,
-                        random_string(5),
-                        1,
-                        null
+    $pdf->SetProtection([
+            'print', 'modify',
+            'copy', 'annot-forms',
+            'fill-forms', 'extract',
+            'assemble', 'print-high',
+        ],
+        null,
+        random_string(5),
+        1,
+        null
     );
 
-    // For DEBUG
-    // $pdf->Output($file->get_filename(), 'I');.
+    // For DEBUG use in a new line: $pdf->Output($file->get_filename(), 'I');.
 
     // Save and send tmpfiles.
     $pdf->Output($tmpfile, 'F');
-    return $tmpfile;
 
+    return $tmpfile;
 }
