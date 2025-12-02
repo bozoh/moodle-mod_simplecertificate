@@ -2276,7 +2276,7 @@ class simplecertificate {
     }
 
     // Issued certificates view.
-    public function view_issued_certificates(moodle_url $url, array $selectedusers = null) {
+    public function view_issued_certificates(moodle_url $url, ?array $selectedusers = null) {
         global $OUTPUT, $CFG, $DB;
 
         // Declare some variables.
