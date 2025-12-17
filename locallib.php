@@ -2570,7 +2570,7 @@ class simplecertificate {
         echo $OUTPUT->footer();
     }
 
-    public function view_bulk_certificates(moodle_url $url, array $selectedusers = null) {
+    public function view_bulk_certificates(moodle_url $url, ?array $selectedusers = null) {
         global $OUTPUT, $CFG, $DB;
 
         $coursectx = context_course::instance($this->get_course()->id);
