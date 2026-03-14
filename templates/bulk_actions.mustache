@@ -1,0 +1,57 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template mod_simplecertificate/bulk_actions
+
+    Bulk actions with a report builder table
+
+    Each option in the select carries a data-action and data-type attribute
+    so the JS module can submit the right action/type pair.
+
+    Example context (json): {
+        "actionurl": "view.php",
+        "cmid": 123,
+        "tab": 2,
+        "sesskey": "abc123",
+        "reporthtml": "<div>...report builder output...</div>",
+        "actionoptions": [
+            {"action": "download", "type": "pdf", "label": "Download as PDF"},
+            {"action": "download", "type": "zip", "label": "Download as ZIP"}
+        ]
+    }
+}}
+<div data-region="bulk-certificates-wrapper"
+     data-actionurl="{{actionurl}}"
+     data-cmid="{{cmid}}"
+     data-tab="{{tab}}"
+     data-sesskey="{{sesskey}}">
+
+    {{{reporthtml}}}
+
+    <div class="bulk_controls">
+        <label for="bulk-type-select">{{#str}}bulkaction, simplecertificate{{/str}}</label>
+        <select id="bulk-type-select" class="form-select custom-select w-auto">
+            {{#actionoptions}}
+                <option data-action="{{action}}" data-type="{{type}}" {{#noselection}}data-no-selection{{/noselection}} value="{{action}}_{{type}}">{{label}}</option>
+            {{/actionoptions}}
+        </select>
+
+        <button type="button" class="btn btn-primary" id="bulk-submit-btn" disabled>
+            {{#str}}bulkbuttonlabel, simplecertificate{{/str}}
+        </button>
+    </div>
+</div>

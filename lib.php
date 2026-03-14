@@ -495,3 +495,25 @@ function simplecertificate_print_issue_certificate_file(stdClass $issuecert) {
     return '<div class="files">' . $output . '<br /> </div>';
 
 }
+
+/**
+ * Adds 'My certificates' node to the user profile navigation tree.
+ *
+ * @param \core_user\output\myprofile\tree $tree
+ * @param stdClass $user
+ * @param bool $iscurrentuser
+ * @param stdClass $course
+ * @return bool
+ */
+function simplecertificate_myprofile_navigation(\core_user\output\myprofile\tree $tree, $user, $iscurrentuser, $course) {
+    if (isguestuser($user)) {
+        return false;
+    }
+
+    $url = new moodle_url('/mod/simplecertificate/certificates.php');
+    $node = new core_user\output\myprofile\node('miscellaneous', 'simplecertificates',
+        get_string('mycertificates', 'simplecertificate'), null, $url);
+    $tree->add_node($node);
+
+    return true;
+}

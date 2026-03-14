@@ -2030,6 +2030,7 @@ class simplecertificate {
      * Verify if user meet issue conditions
      *
      * @param int $userid User id
+     * @param bool $chkcompletation if true, check completation conditions, otherwise only check availability conditions.
      * @return string null if user meet issued conditions, or an text with erro
      */
     protected function can_issue($user = null, $chkcompletation = true) {
@@ -2055,17 +2056,20 @@ class simplecertificate {
                 $completion->update_state($this->coursemodule, COMPLETION_COMPLETE, $user->id);
             }
 
-            if ($CFG->enableavailability
-                && !$this->check_user_can_access_certificate_instance($user->id)) {
-                    return get_string('cantissue', 'simplecertificate');
+            if (
+                $CFG->enableavailability
+                && !$this->check_user_can_access_certificate_instance($user->id)
+            ) {
+                return get_string('cantissue', 'simplecertificate');
 
             }
-            return null;
         }
+
+        return null;
     }
 
     /**
-     * get full user status of on certificate instance (if it can view/access)
+     * Get full user status of on certificate instance (if it can view/access)
      * this method helps the unit test (easy to mock)
      * @param int $userid
      */
@@ -2275,8 +2279,8 @@ class simplecertificate {
         return $issedusers;
     }
 
-    // Issued certificates view.
-    public function view_issued_certificates(moodle_url $url, array $selectedusers = null) {
+    // Issued certificates view (old).
+    public function view_issued_certificates_old(moodle_url $url, ?array $selectedusers = null) {
         global $OUTPUT, $CFG, $DB;
 
         // Declare some variables.
@@ -2570,7 +2574,97 @@ class simplecertificate {
         echo $OUTPUT->footer();
     }
 
-    public function view_bulk_certificates(moodle_url $url, array $selectedusers = null) {
+
+    /**
+     * Display the issued certificates view using Report Builder.
+     *
+     * @param moodle_url $url The current page URL
+     */
+    public function view_issued_certificates(moodle_url $url) {
+        global $OUTPUT, $PAGE, $DB;
+
+        $action = $url->get_param('action');
+
+        if (!$action) {
+            echo $OUTPUT->header();
+            $this->show_tabs($url);
+
+            // Build the report.
+            $report = \core_reportbuilder\system_report_factory::create(
+                \mod_simplecertificate\reportbuilder\local\systemreports\issued_users::class,
+                $this->get_context(),
+                parameters: [
+                    'certificateid' => $this->get_instance()->id,
+                    'cmid' => $this->get_course_module()->id,
+                    'withcheckboxes' => true,
+                ]
+            );
+
+            // Render the bulk actions template.
+            $templatecontext = [
+                'actionurl' => new moodle_url('/mod/simplecertificate/view.php'),
+                'cmid' => $this->get_course_module()->id,
+                'tab' => self::ISSUED_CERTIFCADES_VIEW,
+                'sesskey' => sesskey(),
+                'reporthtml' => $report->output(),
+                'actionoptions' => [
+                    ['action' => 'delete', 'type' => 'selected', 'label' => get_string('deleteselected', 'simplecertificate')],
+                    [
+                        'action' => 'delete',
+                        'type' => 'all',
+                        'label' => get_string('deleteall', 'simplecertificate'),
+                        'noselection' => true,
+                    ],
+                ],
+            ];
+            echo $OUTPUT->render_from_template('mod_simplecertificate/bulk_actions', $templatecontext);
+
+            $PAGE->requires->js_call_amd('mod_simplecertificate/bulk_certificate_actions', 'init');
+
+            echo $OUTPUT->footer();
+        } else if ($action === 'delete') {
+            require_sesskey();
+            $type = $url->get_param('type');
+            $useridsraw = optional_param('userids', '', PARAM_TEXT);
+
+            switch ($type) {
+                case 'all':
+                    $groupmode = groups_get_activity_groupmode($this->get_course_module());
+                    $users = $this->get_issued_certificate_users('username', $groupmode);
+                    foreach ($users as $user) {
+                        $issuedcert = $this->get_issue($user);
+                        if ($issuedcert) {
+                            $this->remove_issue($issuedcert, false);
+                        }
+                    }
+                    break;
+
+                case 'selected':
+                    if (!empty($useridsraw)) {
+                        $userids = array_map('intval', explode(',', $useridsraw));
+                        list($sqluserids, $params) = $DB->get_in_or_equal($userids);
+                        $users = $DB->get_records_sql("SELECT * FROM {user} WHERE id {$sqluserids}", $params);
+                        foreach ($users as $user) {
+                            $issuedcert = $this->get_issue($user);
+                            if ($issuedcert) {
+                                $this->remove_issue($issuedcert, false);
+                            }
+                        }
+                    }
+                    break;
+            }
+            $url->remove_params('action', 'type');
+            redirect($url);
+        }
+    }
+
+    /**
+     * Display the bulk certificates view using Old view.
+     *
+     * @param moodle_url $url The current page URL
+     * @param array|null $selectedusers The list of selected user IDs, or null if no users are selected
+     */
+    public function view_bulk_certificates_old(moodle_url $url, ?array $selectedusers) {
         global $OUTPUT, $CFG, $DB;
 
         $coursectx = context_course::instance($this->get_course()->id);
@@ -2744,6 +2838,163 @@ class simplecertificate {
             exit();
         }
         echo $OUTPUT->footer();
+    }
+
+    /**
+     * Display the bulk certificates view using Report Builder.
+     *
+     * @param moodle_url $url The current page URL
+     */
+    public function view_bulk_certificates(moodle_url $url) {
+        global $OUTPUT, $PAGE, $DB;
+
+        $action = $url->get_param('action');
+
+        if (!$action) {
+            echo $OUTPUT->header();
+            $this->show_tabs($url);
+
+            $infoonlycompleted = get_string('onlycompletedusers', 'simplecertificate');
+            echo $OUTPUT->notification($infoonlycompleted, \core\output\notification::NOTIFY_INFO);
+
+            $coursectx = context_course::instance($this->get_course()->id);
+
+            // Pre-compute eligible user IDs when filtering for completed users.
+            $cache = cache::make('mod_simplecertificate', 'eligibleusers');
+            $cachekey = $this->get_course_module()->id . '_completed';
+            $eligibleuserids = $cache->get($cachekey);
+
+            if ($eligibleuserids === false) {
+                $enrolledusers = get_enrolled_users($coursectx);
+                $eligible = [];
+                foreach ($enrolledusers as $user) {
+                    $canissue = $this->can_issue($user, true);
+                    if (empty($canissue)) {
+                        $eligible[] = $user->id;
+                    }
+                }
+                $eligibleuserids = implode(',', $eligible);
+                $cache->set($cachekey, $eligibleuserids);
+            }
+
+            // Build the report.
+            $report = \core_reportbuilder\system_report_factory::create(
+                \mod_simplecertificate\reportbuilder\local\systemreports\bulk_users::class,
+                $this->get_context(),
+                parameters: [
+                    'courseid' => $this->get_course()->id,
+                    'cmid' => $this->get_course_module()->id,
+                    'withcheckboxes' => true,
+                    'eligibleuserids' => $eligibleuserids,
+                ]
+            );
+
+            // Render the bulk actions template.
+            $templatecontext = [
+                'actionurl' => new moodle_url('/mod/simplecertificate/view.php'),
+                'cmid' => $this->get_course_module()->id,
+                'tab' => self::BULK_ISSUE_CERTIFCADES_VIEW,
+                'sesskey' => sesskey(),
+                'reporthtml' => $report->output(),
+                'actionoptions' => [
+                    ['action' => 'download', 'type' => 'pdf', 'label' => get_string('onepdf', 'simplecertificate')],
+                    ['action' => 'download', 'type' => 'zip', 'label' => get_string('multipdf', 'simplecertificate')],
+                    ['action' => 'download', 'type' => 'email', 'label' => get_string('sendtoemail', 'simplecertificate')],
+                ],
+            ];
+            echo $OUTPUT->render_from_template('mod_simplecertificate/bulk_actions', $templatecontext);
+
+            $PAGE->requires->js_call_amd('mod_simplecertificate/bulk_certificate_actions', 'init');
+
+            echo $OUTPUT->footer();
+        } else if ($action === 'download') {
+            require_sesskey();
+            $type = $url->get_param('type');
+            $useridsraw = optional_param('userids', '', PARAM_TEXT);
+
+            if (empty($useridsraw)) {
+                redirect(
+                    $url->out(false, ['action' => '', 'type' => '']),
+                    get_string('nousersfound', 'moodle'), null,
+                    \core\output\notification::NOTIFY_WARNING
+                );
+            }
+
+            $userids = array_map('intval', explode(',', $useridsraw));
+            list($sqluserids, $params) = $DB->get_in_or_equal($userids);
+            $users = $DB->get_records_sql("SELECT * FROM {user} WHERE id {$sqluserids}", $params);
+
+            // Calculate file name.
+            $filename = str_replace(
+                ' ',
+                '_',
+                clean_filename(
+                    $this->get_instance()->coursename . ' ' .
+                    get_string('modulenameplural', 'simplecertificate') . ' ' .
+                    strip_tags(format_string($this->get_instance()->name, true)) . '.' .
+                    strip_tags(format_string($type, true))
+                )
+            );
+
+            switch ($type) {
+                case 'zip':
+                    $filesforzipping = [];
+                    foreach ($users as $user) {
+                        $canissue = $this->can_issue($user);
+                        if (empty($canissue)) {
+                            $issuedcert = $this->get_issue($user);
+                            $file = $this->get_issue_file($issuedcert);
+                            if ($file) {
+                                $fileforzipname = $file->get_filename();
+                                $filesforzipping[$fileforzipname] = $file;
+                            } else {
+                                throw new moodle_exception(get_string('filenotfound', 'simplecertificate'));
+                            }
+                        }
+                    }
+
+                    $tempzip = $this->create_temp_file('issuedcertificate_');
+
+                    $zipper = new zip_packer();
+                    if ($zipper->archive_to_pathname($filesforzipping, $tempzip)) {
+                        send_temp_file($tempzip, $filename);
+                    }
+                    break;
+                case 'email':
+                    foreach ($users as $user) {
+                        $canissue = $this->can_issue($user);
+                        if (empty($canissue)) {
+                            $issuedcert = $this->get_issue($user);
+                            if ($this->get_issue_file($issuedcert)) {
+                                $this->send_certificade_email($issuedcert);
+                            } else {
+                                throw new moodle_exception('filenotfound', 'simplecertificate');
+                            }
+                        }
+                    }
+                    $url->remove_params('action', 'type');
+                    redirect($url, get_string('emailsent', 'simplecertificate'), 5);
+                    break;
+                default:
+                    $pdf = $this->create_pdf_object();
+
+                    foreach ($users as $user) {
+                        $canissue = $this->can_issue($user);
+                        if (empty($canissue)) {
+                            $issuedcert = $this->get_issue($user);
+                            $this->create_pdf($issuedcert, $pdf, true);
+
+                            if (!$this->issue_file_exists($issuedcert)) {
+                                $issuedcert->haschage = true;
+                                $this->get_issue_file($issuedcert);
+                            }
+                        }
+                    }
+                    $pdf->Output($filename, 'D');
+                    break;
+            }
+            exit();
+        }
     }
 
     /**

@@ -34,8 +34,6 @@ $type = optional_param('type', '', PARAM_ALPHA);
 $page = optional_param('page', 0, PARAM_INT);
 $perpage = optional_param('perpage', get_config('simplecertificate', 'perpage'), PARAM_INT);
 $orderby = optional_param('orderby', 'username', PARAM_RAW);
-$issuelist = optional_param('issuelist', null, PARAM_ALPHA);
-$selectedusers = optional_param_array('selectedusers', null, PARAM_INT);
 
 $cm = get_coursemodule_from_id('simplecertificate', $id);
 if (!$cm) {
@@ -72,10 +70,6 @@ if ($action) {
     $url->param ('action', $action);
 }
 
-if ($issuelist) {
-    $url->param ('issuelist', $issuelist);
-}
-
 // Initialize $PAGE, compute blocks.
 $PAGE->set_url($url);
 $PAGE->set_context($context);
@@ -84,8 +78,6 @@ $PAGE->set_cm($cm);
 require_login( $course->id, false, $cm);
 require_capability('mod/simplecertificate:view', $context);
 $canmanage = has_capability('mod/simplecertificate:manage', $context);
-
-
 
 // Log update.
 $simplecertificate = new simplecertificate($context, $cm, $course);
@@ -99,20 +91,16 @@ $PAGE->set_heading(format_string($course->fullname));
 
 switch ($tab) {
     case $simplecertificate::ISSUED_CERTIFCADES_VIEW :
-        // Verify if user can access this page
-        // avoid the access by adding tab=1 in post/get.
         if ($canmanage) {
-            $simplecertificate->view_issued_certificates($url, $selectedusers);
+            $simplecertificate->view_issued_certificates($url);
         } else {
             throw new moodle_exception('nopermissiontoviewpage');
         }
     break;
 
     case $simplecertificate::BULK_ISSUE_CERTIFCADES_VIEW :
-        // Verify if user can access this page
-        // avoid the access by adding tab=1 in post/get.
         if ($canmanage) {
-            $simplecertificate->view_bulk_certificates($url, $selectedusers);
+            $simplecertificate->view_bulk_certificates($url);
         } else {
             throw new moodle_exception('nopermissiontoviewpage');
         }
