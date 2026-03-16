@@ -49,6 +49,7 @@ Place this folder in your mod folder in your Moodle directory.
 ### 2024051108:
 - New Issued certificates and Bulk operations page based in Report Builder API.
 - Added My certificates in the user profile navigation tree.
+- Site-level report to show all issued certificates.
 
 ### 2024051107:
 - Changed email sending functionality to the standard notification interface.

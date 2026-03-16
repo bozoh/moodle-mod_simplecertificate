@@ -97,6 +97,49 @@ class issued_certificate extends base {
             ->set_is_sortable(true)
             ->set_callback([format::class, 'userdate']);
 
+        // Certificate name column.
+        $columns[] = (new column(
+            'certificatename',
+            new lang_string('certificatename', 'simplecertificate'),
+            $this->get_entity_name()
+        ))
+            ->add_joins($this->get_joins())
+            ->set_type(column::TYPE_TEXT)
+            ->add_fields("{$tablealias}.certificatename")
+            ->set_is_sortable(true);
+
+        // Certificate name with link to the module column.
+        $columns[] = (new column(
+            'certificatelink',
+            new lang_string('certificatename', 'simplecertificate'),
+            $this->get_entity_name()
+        ))
+            ->add_joins($this->get_joins())
+            ->set_type(column::TYPE_TEXT)
+            ->add_fields("{$tablealias}.certificatename, {$tablealias}.certificateid")
+            ->set_is_sortable(true)
+            ->add_callback(static function(?string $certificatename, \stdClass $row): string {
+                if (empty($certificatename)) {
+                    return '';
+                }
+                if (empty($row->certificateid)) {
+                    return $certificatename;
+                }
+                $url = new \moodle_url('/mod/simplecertificate/view.php', ['a' => $row->certificateid, 'tab' => 1]);
+                return \html_writer::link($url, $certificatename, ['target' => '_blank']);
+            });
+
+        // Course name column.
+        $columns[] = (new column(
+            'coursename',
+            new lang_string('coursename', 'simplecertificate'),
+            $this->get_entity_name()
+        ))
+            ->add_joins($this->get_joins())
+            ->set_type(column::TYPE_TEXT)
+            ->add_fields("{$tablealias}.coursename")
+            ->set_is_sortable(true);
+
         // Code column with certificate file (download link) column.
         $columns[] = (new column(
             'code',
@@ -133,6 +176,26 @@ class issued_certificate extends base {
             new lang_string('issueddate', 'simplecertificate'),
             $this->get_entity_name(),
             "{$tablealias}.timecreated"
+        ))
+            ->add_joins($this->get_joins());
+
+        // Certificate name filter.
+        $filters[] = (new filter(
+            text::class,
+            'certificatename',
+            new lang_string('certificatename', 'simplecertificate'),
+            $this->get_entity_name(),
+            "{$tablealias}.certificatename"
+        ))
+            ->add_joins($this->get_joins());
+
+        // Course name filter.
+        $filters[] = (new filter(
+            text::class,
+            'coursename',
+            new lang_string('coursename', 'simplecertificate'),
+            $this->get_entity_name(),
+            "{$tablealias}.coursename"
         ))
             ->add_joins($this->get_joins());
 

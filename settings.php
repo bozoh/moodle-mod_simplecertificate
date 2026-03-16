@@ -25,6 +25,13 @@
 
 defined('MOODLE_INTERNAL') || die;
 
+// Site-level report of all issued certificates.
+$ADMIN->add('reports', new admin_externalpage(
+    'simplecertificate_issuedcertificates',
+    get_string('issuedview', 'simplecertificate'),
+    "$CFG->wwwroot/mod/simplecertificate/report.php"
+));
+
 if ($ADMIN->fulltree) {
     require_once("$CFG->dirroot/mod/simplecertificate/lib.php");
 

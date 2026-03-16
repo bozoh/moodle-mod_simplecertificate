@@ -15,40 +15,25 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Handles viewing the report
+ * Site-level report of all issued certificates.
  *
- * @package    mod
- * @subpackage simplecertificate
- * @copyright  Carlos Alexandre S. da Fonseca
+ * @package    mod_simplecertificate
+ * @copyright  2026 David Herney - BambuCo
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require_once(dirname(dirname(dirname(__FILE__))) . '/config.php');
-require_once(dirname(__FILE__) . '/locallib.php');
+use core_reportbuilder\system_report_factory;
+use mod_simplecertificate\reportbuilder\local\systemreports\issued_certificates;
 
-$id = required_param('id', PARAM_INT); // Course module ID.
+require_once(__DIR__ . '/../../config.php');
+require_once($CFG->libdir . '/adminlib.php');
 
-$cm = get_coursemodule_from_id('simplecertificate', $id);
-if (!$cm) {
-    throw new moodle_exception('Course Module ID was incorrect');
-}
+admin_externalpage_setup('simplecertificate_issuedcertificates', '', null, '', ['pagelayout' => 'report']);
 
-$course = $DB->get_record('course', ['id' => $cm->course]);
-if (!$course) {
-    throw new moodle_exception('Course is misconfigured');
-}
+echo $OUTPUT->header();
+echo $OUTPUT->heading(get_string('issuedview', 'simplecertificate'));
 
-$certificate = $DB->get_record('simplecertificate', ['id' => $cm->instance]);
-if (!$certificate) {
-    throw new moodle_exception('Certificate ID was incorrect');
-}
+$report = system_report_factory::create(issued_certificates::class, context_system::instance());
+echo $report->output();
 
-// Requires a course login.
-require_course_login($course->id, false, $cm);
-
-// Check capabilities.
-$context = context_module::instance($cm->id);
-require_capability('mod/simplecertificate:manage', $context);
-$url = new moodle_url('/mod/simplecertificate/view.php', array('id' => $id, 'tab' => simplecertificate::ISSUED_CERTIFCADES_VIEW));
-redirect($url);
-die;
+echo $OUTPUT->footer();

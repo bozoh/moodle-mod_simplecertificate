@@ -27,7 +27,8 @@ require_once("$CFG->dirroot/mod/simplecertificate/lib.php");
 require_once("$CFG->libdir/pdflib.php");
 require_once("$CFG->dirroot/mod/simplecertificate/locallib.php");
 
-$id = required_param('id', PARAM_INT); // Course Module ID.
+$id = optional_param('id', 0, PARAM_INT); // Course Module ID.
+$a = optional_param('a', 0, PARAM_INT); // Certificate instance ID.
 $action = optional_param('action', '', PARAM_ALPHA);
 $tab = optional_param('tab', simplecertificate::DEFAULT_VIEW, PARAM_INT);
 $type = optional_param('type', '', PARAM_ALPHA);
@@ -35,9 +36,12 @@ $page = optional_param('page', 0, PARAM_INT);
 $perpage = optional_param('perpage', get_config('simplecertificate', 'perpage'), PARAM_INT);
 $orderby = optional_param('orderby', 'username', PARAM_RAW);
 
-$cm = get_coursemodule_from_id('simplecertificate', $id);
-if (!$cm) {
-    throw new moodle_exception('Course Module ID was incorrect');
+if ($id) {
+    $cm = get_coursemodule_from_id('simplecertificate', $id, 0, false, MUST_EXIST);
+} else if ($a) {
+    $cm = get_coursemodule_from_instance('simplecertificate', $a, 0, false, MUST_EXIST);
+} else {
+    throw new moodle_exception('missingparameter');
 }
 
 $course = $DB->get_record('course', ['id' => $cm->course]);
