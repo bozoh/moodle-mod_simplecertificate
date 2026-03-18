@@ -28,7 +28,12 @@ use mod_simplecertificate\reportbuilder\local\systemreports\issued_certificates;
 require_once(__DIR__ . '/../../config.php');
 require_once($CFG->libdir . '/adminlib.php');
 
-admin_externalpage_setup('simplecertificate_issuedcertificates', '', null, '', ['pagelayout' => 'report']);
+$systemcontext = context_system::instance();
+require_login();
+require_capability('moodle/site:viewreports', $systemcontext);
+
+$PAGE->set_url('/mod/simplecertificate/report.php');
+$PAGE->set_context($systemcontext);
 
 echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('issuedview', 'simplecertificate'));

@@ -29,7 +29,8 @@ defined('MOODLE_INTERNAL') || die;
 $ADMIN->add('reports', new admin_externalpage(
     'simplecertificate_issuedcertificates',
     get_string('issuedview', 'simplecertificate'),
-    "$CFG->wwwroot/mod/simplecertificate/report.php"
+    "$CFG->wwwroot/mod/simplecertificate/report.php",
+    'moodle/site:viewreports'
 ));
 
 if ($ADMIN->fulltree) {
