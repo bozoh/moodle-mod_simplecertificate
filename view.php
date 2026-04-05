@@ -32,9 +32,6 @@ $a = optional_param('a', 0, PARAM_INT); // Certificate instance ID.
 $action = optional_param('action', '', PARAM_ALPHA);
 $tab = optional_param('tab', simplecertificate::DEFAULT_VIEW, PARAM_INT);
 $type = optional_param('type', '', PARAM_ALPHA);
-$page = optional_param('page', 0, PARAM_INT);
-$perpage = optional_param('perpage', get_config('simplecertificate', 'perpage'), PARAM_INT);
-$orderby = optional_param('orderby', 'username', PARAM_RAW);
 
 if ($id) {
     $cm = get_coursemodule_from_id('simplecertificate', $id, 0, false, MUST_EXIST);
@@ -58,16 +55,10 @@ $context = context_module::instance ($cm->id);
 $url = new moodle_url('/mod/simplecertificate/view.php', [
         'id' => $cm->id,
         'tab' => $tab,
-        'page' => $page,
-        'perpage' => $perpage,
 ]);
 
 if ($type) {
     $url->param('type', $type);
-}
-
-if ($orderby) {
-    $url->param ('orderby', $orderby);
 }
 
 if ($action) {

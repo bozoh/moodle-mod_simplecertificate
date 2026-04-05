@@ -82,13 +82,20 @@ class issued_certificates extends system_report {
      * unique identifier
      */
     protected function add_columns(): void {
-        $this->add_columns_from_entities([
+        $enableidentity = get_config('simplecertificate', 'enableidentity');
+        $columns = [
             'user:fullnamewithpicturelink',
             'issued_certificate:certificatelink',
             'issued_certificate:coursename',
             'issued_certificate:timecreated',
             'issued_certificate:code',
-        ]);
+        ];
+
+        if ($enableidentity) {
+            array_unshift($columns, 'user:username');
+        }
+
+        $this->add_columns_from_entities($columns);
 
         $this->set_initial_sort_column('issued_certificate:timecreated', SORT_DESC);
         $this->set_default_no_results_notice(new lang_string('nocertificatesissued', 'simplecertificate'));
@@ -101,6 +108,7 @@ class issued_certificates extends system_report {
      * unique identifier
      */
     protected function add_filters(): void {
+        $enableidentity = get_config('simplecertificate', 'enableidentity');
         $filters = [
             'user:fullname',
             'user:email',
@@ -109,6 +117,11 @@ class issued_certificates extends system_report {
             'issued_certificate:timecreated',
             'issued_certificate:code',
         ];
+
+        if ($enableidentity) {
+            array_unshift($filters, 'user:username');
+        }
+
         $this->add_filters_from_entities($filters);
     }
 }
