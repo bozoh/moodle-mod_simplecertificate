@@ -26,7 +26,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version  = 2024051107;
+$plugin->version  = 2024051107.06;
 $plugin->requires = 2024100707;
 $plugin->cron = 4 * 3600; // Period for cron to check this module (secs).
 $plugin->component = 'mod_simplecertificate';

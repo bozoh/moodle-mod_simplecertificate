@@ -27,19 +27,18 @@ require_once("$CFG->dirroot/mod/simplecertificate/lib.php");
 require_once("$CFG->libdir/pdflib.php");
 require_once("$CFG->dirroot/mod/simplecertificate/locallib.php");
 
-$id = required_param('id', PARAM_INT); // Course Module ID.
+$id = optional_param('id', 0, PARAM_INT); // Course Module ID.
+$a = optional_param('a', 0, PARAM_INT); // Certificate instance ID.
 $action = optional_param('action', '', PARAM_ALPHA);
 $tab = optional_param('tab', simplecertificate::DEFAULT_VIEW, PARAM_INT);
 $type = optional_param('type', '', PARAM_ALPHA);
-$page = optional_param('page', 0, PARAM_INT);
-$perpage = optional_param('perpage', get_config('simplecertificate', 'perpage'), PARAM_INT);
-$orderby = optional_param('orderby', 'username', PARAM_RAW);
-$issuelist = optional_param('issuelist', null, PARAM_ALPHA);
-$selectedusers = optional_param_array('selectedusers', null, PARAM_INT);
 
-$cm = get_coursemodule_from_id('simplecertificate', $id);
-if (!$cm) {
-    throw new moodle_exception('Course Module ID was incorrect');
+if ($id) {
+    $cm = get_coursemodule_from_id('simplecertificate', $id, 0, false, MUST_EXIST);
+} else if ($a) {
+    $cm = get_coursemodule_from_instance('simplecertificate', $a, 0, false, MUST_EXIST);
+} else {
+    throw new moodle_exception('missingparameter');
 }
 
 $course = $DB->get_record('course', ['id' => $cm->course]);
@@ -56,24 +55,14 @@ $context = context_module::instance ($cm->id);
 $url = new moodle_url('/mod/simplecertificate/view.php', [
         'id' => $cm->id,
         'tab' => $tab,
-        'page' => $page,
-        'perpage' => $perpage,
 ]);
 
 if ($type) {
     $url->param('type', $type);
 }
 
-if ($orderby) {
-    $url->param ('orderby', $orderby);
-}
-
 if ($action) {
     $url->param ('action', $action);
-}
-
-if ($issuelist) {
-    $url->param ('issuelist', $issuelist);
 }
 
 // Initialize $PAGE, compute blocks.
@@ -84,8 +73,6 @@ $PAGE->set_cm($cm);
 require_login( $course->id, false, $cm);
 require_capability('mod/simplecertificate:view', $context);
 $canmanage = has_capability('mod/simplecertificate:manage', $context);
-
-
 
 // Log update.
 $simplecertificate = new simplecertificate($context, $cm, $course);
@@ -99,20 +86,16 @@ $PAGE->set_heading(format_string($course->fullname));
 
 switch ($tab) {
     case $simplecertificate::ISSUED_CERTIFCADES_VIEW :
-        // Verify if user can access this page
-        // avoid the access by adding tab=1 in post/get.
         if ($canmanage) {
-            $simplecertificate->view_issued_certificates($url, $selectedusers);
+            $simplecertificate->view_issued_certificates($url);
         } else {
             throw new moodle_exception('nopermissiontoviewpage');
         }
     break;
 
     case $simplecertificate::BULK_ISSUE_CERTIFCADES_VIEW :
-        // Verify if user can access this page
-        // avoid the access by adding tab=1 in post/get.
         if ($canmanage) {
-            $simplecertificate->view_bulk_certificates($url, $selectedusers);
+            $simplecertificate->view_bulk_certificates($url);
         } else {
             throw new moodle_exception('nopermissiontoviewpage');
         }

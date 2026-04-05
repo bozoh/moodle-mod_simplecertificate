@@ -15,30 +15,20 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Site-level report of all issued certificates.
+ * Cache definitions for mod_simplecertificate.
  *
  * @package    mod_simplecertificate
  * @copyright  2026 David Herney - BambuCo
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use core_reportbuilder\system_report_factory;
-use mod_simplecertificate\reportbuilder\local\systemreports\issued_certificates;
+defined('MOODLE_INTERNAL') || die();
 
-require_once(__DIR__ . '/../../config.php');
-require_once($CFG->libdir . '/adminlib.php');
-
-$systemcontext = context_system::instance();
-require_login();
-require_capability('moodle/site:viewreports', $systemcontext);
-
-$PAGE->set_url('/mod/simplecertificate/report.php');
-$PAGE->set_context($systemcontext);
-
-echo $OUTPUT->header();
-echo $OUTPUT->heading(get_string('issuedview', 'simplecertificate'));
-
-$report = system_report_factory::create(issued_certificates::class, context_system::instance());
-echo $report->output();
-
-echo $OUTPUT->footer();
+$definitions = [
+    'eligibleusers' => [
+        'mode' => cache_store::MODE_SESSION,
+        'simplekeys' => true,
+        'simpledata' => true,
+        'ttl' => 300,
+    ],
+];

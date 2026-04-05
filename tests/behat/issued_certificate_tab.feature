@@ -23,10 +23,10 @@ Feature: List issued Certificates
     #And I follow "Course 1"
     And I am on "Course 1" course homepage
     And I turn editing mode on
-    And I add a "Simple Certificate" to section "1" and I fill the form with:
+    And I add a "simplecertificate" activity to course "Course 1" section "1" and I fill the form with:
       | Certificate Name | Test Simple Certificate |
       | Certificate Text | Test Simple Certificate |
-	And I log out
+    And I log out
 
   @javascript
   Scenario: Verify if issued certificates are displyed
