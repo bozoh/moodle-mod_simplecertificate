@@ -470,7 +470,7 @@ function simplecertificate_get_grade_options() {
  * @return string file link url
  */
 function simplecertificate_print_issue_certificate_file(stdClass $issuecert) {
-    global $CFG, $OUTPUT;
+    global $OUTPUT;
     require_once(dirname(__FILE__) . '/locallib.php');
 
     // Trying to cath course module context.
@@ -487,13 +487,11 @@ function simplecertificate_print_issue_certificate_file(stdClass $issuecert) {
         $url->param('code', $issuecert->code);
 
         $output .= '<a href="' . $url->out(true) . '" target="_blank" >' . s($file->get_filename()) . '</a>';
-
     } catch (Exception $e) {
         $output = get_string('filenotfound', 'simplecertificate', '');
     }
 
     return '<div class="files">' . $output . '<br /> </div>';
-
 }
 
 /**
@@ -511,8 +509,13 @@ function simplecertificate_myprofile_navigation(\core_user\output\myprofile\tree
     }
 
     $url = new moodle_url('/mod/simplecertificate/certificates.php');
-    $node = new core_user\output\myprofile\node('miscellaneous', 'simplecertificates',
-        get_string('mycertificates', 'simplecertificate'), null, $url);
+    $node = new core_user\output\myprofile\node(
+        'miscellaneous',
+        'simplecertificates',
+        get_string('mycertificates', 'simplecertificate'),
+        null,
+        $url
+    );
     $tree->add_node($node);
 
     return true;

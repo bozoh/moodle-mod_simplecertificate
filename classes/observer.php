@@ -23,7 +23,6 @@ namespace mod_simplecertificate;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class observer {
-
     /**
      * Triggered when user completes a course.
      *
@@ -41,6 +40,7 @@ class observer {
                 $user = $DB->get_record('user', ['id' => $event->relateduserid]);
                 $simplecertificate = new \simplecertificate($context, $cm, $course);
                 $issuecert = $simplecertificate->get_issue($user);
+
                 if ($simplecertificate->get_issue_file($issuecert)) {
                     $simplecertificate->send_certificade_email($issuecert);
                 }

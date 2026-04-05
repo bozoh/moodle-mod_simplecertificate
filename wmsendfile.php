@@ -25,9 +25,10 @@
 use setasign\Fpdi\TcpdfFpdi;
 
 require_once(dirname(dirname(dirname(__FILE__))) . '/config.php');
+
 $code = required_param('code', PARAM_TEXT); // Issued Code.
 
-$issuedcert = $DB->get_record("simplecertificate_issues", array('code' => $code));
+$issuedcert = $DB->get_record("simplecertificate_issues", ['code' => $code]);
 if (!$issuedcert) {
     throw new moodle_exception(get_string('issuedcertificatenotfound', 'simplecertificate'));
 } else {
@@ -93,14 +94,12 @@ function send_certificate_file(stdClass $issuedcert) {
 }
 
 /**
- * @param file
- * @param rotangle
- * @param bodersytle
- * @param bodersytle
+ * Put watermark on each page of the file.
+ *
+ * @param stored_file $file The file to put watermark.
+ * @return string The path to the tmp file with watermark.
  */
-
 function put_watermark($file) {
-
     global $CFG;
 
     require_once($CFG->libdir.'/pdflib.php');
@@ -124,11 +123,11 @@ function put_watermark($file) {
 
         // Create a page (landscape or portrait depending on the imported page size).
         if ($size['width'] > $size['height']) {
-            $pdf->AddPage('L', array($size['width'], $size['height']));
+            $pdf->AddPage('L', [$size['width'], $size['height']]);
             // Font size 1/3 Height if it landscape.
             $fontsize = $size['height'] / 3;
         } else {
-            $pdf->AddPage('P', array($size['width'], $size['height']));
+            $pdf->AddPage('P', [$size['width'], $size['height']]);
             // Font size 1/3 Width if it portrait.
             $fontsize = $size['width'] / 3;
         }
