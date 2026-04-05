@@ -26,12 +26,12 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version  = 2024051107.06;
+$plugin->version  = 2024051108;
 $plugin->requires = 2024100707;
 $plugin->cron = 4 * 3600; // Period for cron to check this module (secs).
 $plugin->component = 'mod_simplecertificate';
 $plugin->dependencies = [];
-$plugin->release  = '4.0.7';
+$plugin->release  = '4.0.8';
 // MATURITY_ALPHA, MATURITY_BETA, MATURITY_RC, MATURITY_STABLE.
 $plugin->maturity = MATURITY_STABLE;
 $plugin->supported = [405, 405];
