@@ -29,7 +29,7 @@ defined('MOODLE_INTERNAL') || die();
  * Issued users system report for showing users who have been issued a certificate.
  *
  * @package    mod_simplecertificate
- * @copyright  2024 onwards SimpleCertificate contributors
+ * @copyright  2026 David Herney - BambuCo
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class issued_users extends system_report {
