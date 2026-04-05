@@ -19,7 +19,7 @@ Feature: Add a simplecertificate
     And I log in as "teacher1"
     And I am on "Course 1" course homepage
     And I turn editing mode on
-    And I add a "Simple Certificate" to section "2" and I fill the form with:
+    And I add a "simplecertificate" activity to course "Course 1" section "2" and I fill the form with:
       | Certificate Name | Test Simple Certificate |
       | Certificate Text | Test Simple Certificate |
       | Print Grade | -1 |
@@ -38,7 +38,7 @@ Feature: Add a simplecertificate
     Given  I log in as "teacher1"
     And I am on "Course 1" course homepage
     And I turn editing mode on
-    And I add a "Assignment" to section "1" and I fill the form with:
+    And I add a "assign" activity to course "Course 1" section "1" and I fill the form with:
       | Assignment name | Grade assignment |
       | Description | Grade this assignment |
       | assignsubmission_onlinetext_enabled | 1 |
@@ -73,5 +73,3 @@ Feature: Add a simplecertificate
     And I follow "Test Simple Certificate"
     Then I press "Get Certificate"
     And I should see a pop-up window
-
-

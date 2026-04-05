@@ -27,48 +27,34 @@ Feature: Remove an issued certificate
     And I am on "Course 1" course homepage
     And I click on "Test Simple Certificate" "link" in the "#region-main" "css_element"
     And I click on "Bulk operations" "link"
-    And I select "All users" from the "issuelist" singleselect
-    And I click on "Send" "button"
+    And I set the field "bulk-type-select" to "Download certificates in a zip file"
+    And I check 'Tumé Arandú' on list
+    And I check 'Arasy Guaraní' on list
+    And I press "Send"
     And I am on "Course 1" course homepage
     And I click on "Test Simple Certificate" "link" in the "#region-main" "css_element"
-#	And I am on site homepage
-#   And I log out
 
+  @javascript
   Scenario: Verify if list all user is listed
-  	Given I click on "Issued certificates" "link"
-#    Given I log in as "teacher1"
-#    And I am on "Course 1" course homepage
-#    And I click on "Test Simple Certificate" "link" in the "#region-main" "css_element"
-#    And I click on "Issued certificates" "link"
+    Given I click on "Issued certificates" "link"
     Then "Tumé Arandú" "text" should exist in the ".generaltable" "css_element"
     And "Arasy Guaraní" "text" should exist in the ".generaltable" "css_element"
 
-
   @javascript
   Scenario: Delete selected certificates
-#    Given I log in as "teacher1"
-#    And I am on "Course 1" course homepage
-#    And I click on "Test Simple Certificate" "link" in the "#region-main" "css_element"
     Given I click on "Issued certificates" "link"
-    # Advanced checkbox requires real browser to allow uncheck to work. MDL-58681. MDL-55386.
     And I check 'Arasy Guaraní' on list
-    And I click on "Delete Selected" "button"
-    Then "Tumé Arandú" "text" should exist
-    And "Arasy Guaraní" "text" should not exist
+    And I set the field "bulk-type-select" to "Delete Selected"
+    And I press "Send"
+    And I click on "Delete" "button" in the ".modal-dialog" "css_element"
+    Then I should see "Tumé Arandú"
+    And I should not see "Arasy Guaraní"
 
- Scenario: Delete All certificates
-# 	Given I log in as "teacher1"
-#    And I am on "Course 1" course homepage
-#    And I click on "Test Simple Certificate" "link" in the "#region-main" "css_element"
-    And I click on "Issued certificates" "link"
-    And I click on "Delete All" "button"
-    Then "Tumé Arandú" "text" should not exist
-    And "Arasy Guaraní" "text" should not exist
-
-
-
-
-
-
-
-
+  @javascript
+  Scenario: Delete All certificates
+    Given I click on "Issued certificates" "link"
+    And I set the field "bulk-type-select" to "Delete All"
+    And I press "Send"
+    And I click on "Delete" "button" in the ".modal-dialog" "css_element"
+    Then I should not see "Tumé Arandú"
+    And I should not see "Arasy Guaraní"

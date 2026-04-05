@@ -21,7 +21,7 @@ Feature: Verify bulk operations
     And I log in as "teacher1"
     And I am on "Course Test 1" course homepage
     And I turn editing mode on
-    And I add a "Assignment" to section "1" and I fill the form with:
+    And I add a "assign" activity to course "Course Test 1" section "1" and I fill the form with:
       | Assignment name | Grade assignment |
       | Description | Grade this assignment to revoke restriction on restricted assignment |
       | assignsubmission_onlinetext_enabled | 0 |
@@ -34,19 +34,18 @@ Feature: Verify bulk operations
     Given I log in as "teacher1"
     And I am on "Course Test 1" course homepage
     And I turn editing mode on
-    And I add a "Simple Certificate" to section "2" and I fill the form with:
+    And I add a "simplecertificate" activity to course "Course Test 1" section "2" and I fill the form with:
       | Certificate Name | Test Simple Certificate |
       | Certificate Text | Test Simple Certificate |
     And I turn editing mode off
     And I click on "Test Simple Certificate" "link" in the "#region-main" "css_element"
     And I click on "Bulk operations" "link"
-    And I set the field "issuelist" to "All users"
     Then "Tumé Arandú" "text" should exist in the ".generaltable" "css_element"
     And "Arasy Guaraní" "text" should exist in the ".generaltable" "css_element"
 
   @javascript
-  Scenario: Verify options: list all users,  Users that met the activity conditions with grading restrictions
-  	Given I log in as "teacher1"
+  Scenario: Verify options: Users that met the activity conditions with grading restrictions
+    Given I log in as "teacher1"
     And I am on "Course Test 1" course homepage
     And I navigate to "View > Grader report" in the course gradebook
     And I turn editing mode on
@@ -55,19 +54,12 @@ Feature: Verify bulk operations
     And I press "Save changes"
     And I am on "Course Test 1" course homepage
     And I turn editing mode on
-    And I add a "Simple Certificate" to section "2" and I fill the form with:
+    And I add a "simplecertificate" activity to course "Course Test 1" section "2" and I fill the form with:
       | Certificate Name | Test Simple Certificate |
       | Certificate Text | Test Simple Certificate |
     And I setup a grade restrinction to "Test Simple Certificate" with "Grade assignment" min grade "70"
     And I am on "Course Test 1" course homepage
     And I click on "Test Simple Certificate" "link" in the "#region-main" "css_element"
     And I click on "Bulk operations" "link"
-    And I set the field "issuelist" to "Users that met the activity conditions"
     Then I should see "Tumé Arandú"
     And I should not see "Arasy Guaraní"
-    Then I am on "Course Test 1" course homepage
-    And I click on "Test Simple Certificate" "link" in the "#region-main" "css_element"
-    And I click on "Bulk operations" "link"
-    And I set the field "issuelist" to "All users"
-    Then I should see "Arasy Guaraní"
-    And I should see "Tumé Arandú"

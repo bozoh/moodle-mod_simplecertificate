@@ -1,7 +1,7 @@
 # COMPATIBILITY
 ---
 
-Current version tested on Moodle 4.3, 4.4 and 4.5.
+Current version tested on Moodle 5.0 - 5.1.
 
 ## ABOUT
 * **Developed by:**  Carlos Alexandre S. da Fonseca - bozoh. Currently maintained by David Herney - davidherney at gmail dot com
@@ -46,8 +46,16 @@ Place this folder in your mod folder in your Moodle directory.
 
 ## In version
 
+### 2026032400:
+- Compatibility with Moodle 5.1+
+
 ### 2025111900:
 - Compatibility with Moodle 5.0+
+
+### 2024051108:
+- New Issued certificates and Bulk operations page based in Report Builder API.
+- Added My certificates in the user profile navigation tree.
+- Site-level report to show all issued certificates.
 
 ### 2024051107:
 - Changed email sending functionality to the standard notification interface.

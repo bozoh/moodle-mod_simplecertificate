@@ -15,23 +15,20 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Code fragment to define the version of the simplecertificate module
+ * Cache definitions for mod_simplecertificate.
  *
- * @package    mod
- * @subpackage simplecertificate
- * @author     Carlos Alexandre S. da Fonseca
- * @copyright  2013 - Carlos Alexandre S. da Fonseca
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or late
+ * @package    mod_simplecertificate
+ * @copyright  2026 David Herney - BambuCo
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version  = 2025111900.01;
-$plugin->requires = 2025041403;
-$plugin->cron = 4 * 3600; // Period for cron to check this module (secs).
-$plugin->component = 'mod_simplecertificate';
-$plugin->dependencies = [];
-$plugin->release  = '5.1.0';
-// MATURITY_ALPHA, MATURITY_BETA, MATURITY_RC, MATURITY_STABLE.
-$plugin->maturity = MATURITY_STABLE;
-$plugin->supported = [500, 501];
+$definitions = [
+    'eligibleusers' => [
+        'mode' => cache_store::MODE_SESSION,
+        'simplekeys' => true,
+        'simpledata' => true,
+        'ttl' => 300,
+    ],
+];

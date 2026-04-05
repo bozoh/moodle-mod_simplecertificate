@@ -22,8 +22,8 @@ Feature: Verify certificate  authenticity by code, in verification page
     And I am on site homepage
     And I follow "Course Verify"
     And I turn editing mode on
-	And I issue a "Test Simple Certificate" to "student1"
-	And I log out
+    And I issue a "Test Simple Certificate" to "student1"
+    And I log out
 
   Scenario: Verify certificate authenticity by code
     Given I am on "certificate verification page"
