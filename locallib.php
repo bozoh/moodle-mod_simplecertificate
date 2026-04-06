@@ -32,12 +32,6 @@ require_once($CFG->dirroot . '/grade/querylib.php');
 require_once($CFG->libdir . '/pdflib.php');
 require_once($CFG->dirroot . '/user/profile/lib.php');
 
-
-use core_availability\info;
-use core_availability\info_module;
-use core\message\inbound\private_files_handler;
-
-
 class simplecertificate {
 
     /**
@@ -2074,7 +2068,7 @@ class simplecertificate {
      * @param int $userid
      */
     protected function check_user_can_access_certificate_instance($userid) {
-        return info_module::is_user_visible($this->get_course_module(), $userid, false);
+        return \core_availability\info_module::is_user_visible($this->get_course_module(), $userid, false);
     }
 
     /**

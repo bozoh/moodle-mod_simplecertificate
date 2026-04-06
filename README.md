@@ -1,7 +1,7 @@
 # COMPATIBILITY
 ---
 
-Current version tested on Moodle 5.0 - 5.1.
+Current version tested on Moodle 5.1.
 
 ## ABOUT
 * **Developed by:**  Carlos Alexandre S. da Fonseca - bozoh. Currently maintained by David Herney - davidherney at gmail dot com

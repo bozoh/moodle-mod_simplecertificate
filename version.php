@@ -34,4 +34,4 @@ $plugin->dependencies = [];
 $plugin->release  = '5.1.1';
 // MATURITY_ALPHA, MATURITY_BETA, MATURITY_RC, MATURITY_STABLE.
 $plugin->maturity = MATURITY_STABLE;
-$plugin->supported = [500, 501];
+$plugin->supported = [501, 501];

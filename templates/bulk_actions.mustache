@@ -44,7 +44,7 @@
 
     <div class="bulk_controls">
         <label for="bulk-type-select">{{#str}}bulkaction, simplecertificate{{/str}}</label>
-        <select id="bulk-type-select" class="form-select custom-select w-auto">
+        <select id="bulk-type-select" class="form-select w-auto">
             {{#actionoptions}}
                 <option data-action="{{action}}" data-type="{{type}}" {{#noselection}}data-no-selection{{/noselection}} value="{{action}}_{{type}}">{{label}}</option>
             {{/actionoptions}}
