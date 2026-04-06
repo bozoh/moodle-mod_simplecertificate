@@ -81,7 +81,9 @@ $string['certificatetextx'] = 'Certificate Text Horizontal Position';
 $string['certificatetexty'] = 'Certificate Text Vertical Position';
 $string['certificateverification'] = 'Certificate Verification';
 $string['certlifetime'] = 'Keep issued certificates for: (in Months)';
-$string['certlifetime_help'] = 'This specifies the length of time you want to keep issued certificates. Issued certificates that are older than this age are automatically deleted.';
+$string['certlifetime_help'] = 'This specifies the length of time you want to keep issued certificates. Issued certificates that are older than this age are automatically deleted. <br>
+<b>Important: Only issued certificates that are no longer associated with courses are deleted.</b>';
+$string['taskcleanup'] = 'Remove old issued certificates';
 $string['code'] = 'Code';
 $string['codex'] = 'Certificate QR Code Horizontal Position';
 $string['codey'] = 'Certificate QR Code Vertical Position';

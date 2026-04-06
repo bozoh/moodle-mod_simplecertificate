@@ -247,29 +247,6 @@ function simplecertificate_get_completion_state($course, $cm, $userid, $type) {
     return $type;
 }
 
-/**
- * Function to be run periodically according to the moodle cron
- */
-function simplecertificate_cron() {
-    global $CFG, $DB;
-    mtrace('Removing old issed certificates... ');
-    $lifetime = get_config('simplecertificate', 'certlifetime');
-
-    if ($lifetime <= 0) {
-        return true;
-    }
-
-    $month = 2629744;
-    $timenow = time();
-    $delta = $lifetime * $month;
-    $timedeleted = $timenow - $delta;
-
-    if (!$DB->delete_records_select('simplecertificate_issues', 'timedeleted <= ?', array($timedeleted))) {
-        return false;
-    }
-    mtrace('done');
-    return true;
-}
 
 /**
  * Serves certificate issues files, only in admin page.

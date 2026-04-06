@@ -46,6 +46,9 @@ Place this folder in your mod folder in your Moodle directory.
 
 ## In version
 
+### 2026040501:
+- Update the certificate cleaning cron to the new task API.
+
 ### 2026032400:
 - Compatibility with Moodle 5.1+
 

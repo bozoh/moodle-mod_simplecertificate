@@ -53,8 +53,15 @@ if ($ADMIN->fulltree) {
         get_string('printdate_help', 'simplecertificate'), -2, simplecertificate_get_date_options()));
 
 
-    $settings->add(new admin_setting_configtext('simplecertificate/certlifetime', get_string('certlifetime', 'simplecertificate'),
-        get_string('certlifetime_help', 'simplecertificate'), 60, PARAM_INT));
+    $settings->add(
+        new admin_setting_configtext(
+                'simplecertificate/certlifetime',
+                get_string('certlifetime', 'simplecertificate'),
+                get_string('certlifetime_help', 'simplecertificate'),
+                0,
+                PARAM_INT
+        )
+    );
 
     // QR CODE.
     $settings->add(new admin_setting_configcheckbox('simplecertificate/printqrcode',

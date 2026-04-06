@@ -15,22 +15,23 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Code fragment to define the version of the simplecertificate module
+ * Capability definition(s) for the simple certificate plugin.
  *
- * @package    mod
- * @subpackage simplecertificate
- * @author     Carlos Alexandre S. da Fonseca
- * @copyright  2013 - Carlos Alexandre S. da Fonseca
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or late
+ * @package    mod_simplecertificate
+ * @copyright  2026 David Herney - BambuCo
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version  = 2026040501;
-$plugin->requires = 2025041403;
-$plugin->component = 'mod_simplecertificate';
-$plugin->dependencies = [];
-$plugin->release  = '5.1.2';
-// MATURITY_ALPHA, MATURITY_BETA, MATURITY_RC, MATURITY_STABLE.
-$plugin->maturity = MATURITY_BETA;
-$plugin->supported = [501, 501];
+$tasks = [
+    [
+        'classname' => 'mod_simplecertificate\task\cleanup_task',
+        'blocking' => 0,
+        'minute' => 'R',
+        'hour' => '3',
+        'day' => '*',
+        'month' => '*',
+        'dayofweek' => '*',
+    ],
+];
