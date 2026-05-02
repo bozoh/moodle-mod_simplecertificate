@@ -1861,7 +1861,7 @@ class simplecertificate {
         $retval = '';
         switch ($format) {
             case 'table':
-                $retval = '<table>';
+                $retval = '<table border="1" cellpadding="4">';
                 break;
             case 'list':
                 $retval = '<ul>';
@@ -1903,10 +1903,10 @@ class simplecertificate {
             switch ($format) {
                 case 'table':
                     if (strpos($usergrade, '(') !== false) {
-                        $usergrade = str_replace('(', '</td><td>', $usergrade);
+                        $usergrade = str_replace('(', '</td><td align="center">', $usergrade);
                         $usergrade = str_replace(')', '', $usergrade);
                     }
-                    $retval .= '<tr><td>' . $itemname . '</td><td>' . $usergrade . '</td></tr>';
+                    $retval .= '<tr><td align="left">' . $itemname . '</td><td align="center">' . $usergrade . '</td></tr>';
                     break;
                 case 'list':
                     $retval .= '<li>' . $itemname . ': ' . $usergrade . '</li>';
@@ -2462,7 +2462,7 @@ class simplecertificate {
                     $filesforzipping = [];
                     foreach ($users as $user) {
                         $canissue = $this->can_issue($user);
-                        if (empty($canissue)) {
+                        if (!empty($canissue)) {
                             $issuedcert = $this->get_issue($user);
                             $file = $this->get_issue_file($issuedcert);
                             if ($file) {
@@ -2484,7 +2484,7 @@ class simplecertificate {
                 case 'email':
                     foreach ($users as $user) {
                         $canissue = $this->can_issue($user);
-                        if (empty($canissue)) {
+                        if (!empty($canissue)) {
                             $issuedcert = $this->get_issue($user);
                             if ($this->get_issue_file($issuedcert)) {
                                 $this->send_certificade_email($issuedcert);
@@ -2499,9 +2499,10 @@ class simplecertificate {
                 default:
                     $pdf = $this->create_pdf_object();
 
+                    $issuedcert = null;
                     foreach ($users as $user) {
                         $canissue = $this->can_issue($user);
-                        if (empty($canissue)) {
+                        if (!empty($canissue)) {
                             $issuedcert = $this->get_issue($user);
                             $this->create_pdf($issuedcert, $pdf, true);
 
@@ -2511,6 +2512,11 @@ class simplecertificate {
                             }
                         }
                     }
+
+                    if (count($users) == 1 && $issuedcert) {
+                        $filename = $this->get_custom_filename($issuedcert);
+                    }
+
                     $pdf->Output($filename, 'D');
                     break;
             }
