@@ -74,6 +74,7 @@
       </KEYS>
       <INDEXES>
         <INDEX NAME="certificate_user" UNIQUE="false" FIELDS="certificateid, userid"/>
+        <INDEX NAME="code" UNIQUE="true" FIELDS="code"/>
       </INDEXES>
     </TABLE>
   </TABLES>
