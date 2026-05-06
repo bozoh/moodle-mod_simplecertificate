@@ -139,6 +139,46 @@ class locallib_test extends mod_simplecertificate_base_testcase {
         $this->assertStringNotContainsString("{", $secondpagetext, 'Second page text should not contain unprocessed placeholders');
     }
 
+    public function test_certificate_text_removes_unavailable_remote_images() {
+        $cert = $this->create_instance();
+        $cert->testable_set_remote_image_availability([
+            'https://example.test/missing.png' => false,
+        ]);
+
+        $html = 'Before <img src="https://example.test/missing.png" alt="Unavailable badge"> After';
+        $cleanhtml = $cert->testable_prepare_certificate_html_for_pdf($html);
+
+        $this->assertStringContainsString('Before', $cleanhtml);
+        $this->assertStringContainsString('Unavailable badge', $cleanhtml);
+        $this->assertStringContainsString('After', $cleanhtml);
+        $this->assertStringNotContainsString('<img', $cleanhtml);
+        $this->assertStringNotContainsString('missing.png', $cleanhtml);
+    }
+
+    public function test_certificate_text_keeps_available_remote_images() {
+        $cert = $this->create_instance();
+        $cert->testable_set_remote_image_availability([
+            'https://example.test/available.png' => true,
+        ]);
+
+        $html = 'Before <img src="https://example.test/available.png" alt="Available badge"> After';
+        $cleanhtml = $cert->testable_prepare_certificate_html_for_pdf($html);
+
+        $this->assertStringContainsString('<img', $cleanhtml);
+        $this->assertStringContainsString('available.png', $cleanhtml);
+        $this->assertStringContainsString('After', $cleanhtml);
+    }
+
+    public function test_certificate_text_keeps_local_images() {
+        $cert = $this->create_instance();
+
+        $html = 'Before <img src="@@PLUGINFILE@@/badge.png" alt="Local badge"> After';
+        $cleanhtml = $cert->testable_prepare_certificate_html_for_pdf($html);
+
+        $this->assertStringContainsString('<img', $cleanhtml);
+        $this->assertStringContainsString('@@PLUGINFILE@@/badge.png', $cleanhtml);
+    }
+
     public function test_create_issue_instance() {
         global $DB;
 
