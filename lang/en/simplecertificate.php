@@ -173,6 +173,7 @@ $string['enableidentity'] = 'Enable user identity';
 $string['enableidentity_help'] = 'Enable the use of the "username" field in certificates. By default the {USERNAME} tag prints the full name of the user so the {IDENTITY} tag is used for the "username". In the future the {USERNAME} tag will be removed to avoid confusion.';
 $string['enablesecondpage'] = 'Enable Certificate Back page';
 $string['enablesecondpage_help'] = 'Enable Certificate Back page edition, if is disabled, only certificate QR code will be printed in back page (if the QR code is enabled)';
+$string['errorgeneratingcertificatecode'] = 'A unique certificate code could not be generated. Please try again.';
 $string['eventcertificate_verified'] = 'Certificate verified';
 $string['eventcertificate_verified_description'] = 'The user with id {$a->userid} verified the certificate with id {$a->certificateid}, issued to user with id {$a->certiticate_userid}.';
 $string['filenotfound'] = 'File not Found';

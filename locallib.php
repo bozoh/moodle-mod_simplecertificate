@@ -682,7 +682,7 @@ class simplecertificate {
             $formatedcertificatename = str_replace('-', '_', $this->get_instance()->name);
             $issuedcert->certificatename = format_string($formatedcoursename . '-' . $formatedcertificatename, true);
             $issuedcert->timecreated = time();
-            $issuedcert->code = $this->get_issue_uuid();
+            $issuedcert->code = $this->get_unique_issue_code();
             // Avoiding not null restriction.
             $issuedcert->pathnamehash = '';
 
@@ -928,6 +928,29 @@ class simplecertificate {
         global $CFG;
         require_once($CFG->libdir . '/classes/uuid.php');
         return \core\uuid::generate();
+    }
+
+    /**
+     * Generate an issued certificate code that is not already in use.
+     *
+     * Certificate codes are used for public verification and web service lookups,
+     * so new codes must not collide with any existing issued certificate record.
+     *
+     * @return string Unique certificate code
+     * @throws moodle_exception If a unique code cannot be generated
+     */
+    protected function get_unique_issue_code() {
+        global $DB;
+
+        for ($attempt = 0; $attempt < 10; $attempt++) {
+            $code = $this->get_issue_uuid();
+
+            if (!$DB->record_exists('simplecertificate_issues', ['code' => $code])) {
+                return $code;
+            }
+        }
+
+        throw new moodle_exception('errorgeneratingcertificatecode', 'simplecertificate');
     }
 
     /**

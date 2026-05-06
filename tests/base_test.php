@@ -226,6 +226,9 @@ class testable_simplecertificate extends simplecertificate {
 
     const PLUGIN_VERSION = '2.2.2';
 
+    /** @var array $issueuuidqueue UUID values to return during tests */
+    private $issueuuidqueue = [];
+
     /**
      * Overwrites parents to format $formdata
      * @see simplecertificate::update_instance()
@@ -365,6 +368,28 @@ class testable_simplecertificate extends simplecertificate {
      */
     public function testable_get_date($certissue, $userid = null) {
         return parent::get_date($certissue, $userid);
+    }
+
+    /**
+     * Set deterministic UUID values for code generation tests.
+     *
+     * @param array $issueuuidqueue UUID values to return from get_issue_uuid()
+     */
+    public function testable_set_issue_uuid_queue(array $issueuuidqueue) {
+        $this->issueuuidqueue = $issueuuidqueue;
+    }
+
+    /**
+     * Generate a UUID from the deterministic test queue when available.
+     *
+     * @return string UUID
+     */
+    protected function get_issue_uuid() {
+        if (!empty($this->issueuuidqueue)) {
+            return array_shift($this->issueuuidqueue);
+        }
+
+        return parent::get_issue_uuid();
     }
 
     /**
