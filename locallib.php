@@ -1675,7 +1675,9 @@ class simplecertificate {
 
         // Clear not setted  textmark.
         $certtext = preg_replace('[\{(.*)\}]', "", $certtext);
-        return $this->remove_links(format_text($certtext, FORMAT_MOODLE));
+        $certtext = $this->remove_links(format_text($certtext, FORMAT_MOODLE));
+
+        return $this->prepare_certificate_html_for_pdf($certtext);
     }
 
     // Auto link filter puts links in the certificate text,
@@ -1706,6 +1708,172 @@ class simplecertificate {
         $config->set('HTML.ForbiddenElements', ['script', 'style', 'applet', 'a']);
         $purifier = new HTMLPurifier($config);
         return $purifier->purify($htmltext);
+    }
+
+    /**
+     * Prepares certificate HTML for TCPDF rendering.
+     *
+     * Broken remote images can stop TCPDF from rendering the remainder of the HTML cell. Keep local and data images
+     * untouched, but remove unavailable HTTP(S) images before the HTML is passed to TCPDF.
+     *
+     * @param string $htmltext Certificate HTML
+     * @return string Certificate HTML safe for TCPDF rendering
+     */
+    protected function prepare_certificate_html_for_pdf($htmltext) {
+        if (stripos($htmltext, '<img') === false) {
+            return $htmltext;
+        }
+
+        return preg_replace_callback('/<img\b(?=[^>]*\bsrc\s*=)[^>]*>/i', function($matches) {
+            $tag = $matches[0];
+            $src = $this->get_img_tag_attribute($tag, 'src');
+
+            if ($src === null || !$this->is_remote_certificate_image($src)) {
+                return $tag;
+            }
+
+            if ($this->remote_certificate_image_exists($src)) {
+                return $tag;
+            }
+
+            return $this->get_img_tag_fallback_text($tag);
+        }, $htmltext);
+    }
+
+    /**
+     * Gets an attribute value from an HTML img tag.
+     *
+     * @param string $tag HTML img tag
+     * @param string $attribute Attribute name
+     * @return string|null Attribute value, or null if missing
+     */
+    protected function get_img_tag_attribute($tag, $attribute) {
+        $pattern = '/\b' . preg_quote($attribute, '/') . '\s*=\s*(["\'])(.*?)\1/i';
+        if (preg_match($pattern, $tag, $matches)) {
+            return trim(html_entity_decode($matches[2], ENT_QUOTES | ENT_HTML5, 'UTF-8'));
+        }
+
+        $pattern = '/\b' . preg_quote($attribute, '/') . '\s*=\s*([^\s>]+)/i';
+        if (preg_match($pattern, $tag, $matches)) {
+            return trim(html_entity_decode($matches[1], ENT_QUOTES | ENT_HTML5, 'UTF-8'), "\"' \t\r\n");
+        }
+
+        return null;
+    }
+
+    /**
+     * Checks whether an image URL points to a remote HTTP(S) resource.
+     *
+     * @param string $src Image source
+     * @return bool
+     */
+    protected function is_remote_certificate_image($src) {
+        return preg_match('/^https?:\/\//i', $src) === 1;
+    }
+
+    /**
+     * Checks whether a remote certificate image appears available.
+     *
+     * @param string $url Image URL
+     * @return bool
+     */
+    protected function remote_certificate_image_exists($url) {
+        if (!function_exists('curl_init')) {
+            return true;
+        }
+
+        $response = $this->get_remote_certificate_image_response($url, true);
+        if ($this->is_successful_remote_certificate_image_response($response)) {
+            return true;
+        }
+
+        if (!empty($response['httpcode']) && $response['httpcode'] < 400) {
+            return false;
+        }
+
+        $response = $this->get_remote_certificate_image_response($url, false);
+        return $this->is_successful_remote_certificate_image_response($response);
+    }
+
+    /**
+     * Performs a short remote image availability request.
+     *
+     * @param string $url Image URL
+     * @param bool $headonly Whether to use a HEAD request
+     * @return array Response metadata
+     */
+    protected function get_remote_certificate_image_response($url, $headonly) {
+        $curl = curl_init($url);
+        if (!$curl) {
+            return [
+                'httpcode' => 0,
+                'contenttype' => '',
+            ];
+        }
+
+        $options = [
+            CURLOPT_CONNECTTIMEOUT => 2,
+            CURLOPT_TIMEOUT => 5,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_MAXREDIRS => 3,
+            CURLOPT_NOBODY => $headonly,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_SSL_VERIFYHOST => 2,
+            CURLOPT_SSL_VERIFYPEER => true,
+            CURLOPT_USERAGENT => 'Moodle SimpleCertificate',
+        ];
+
+        if (!$headonly) {
+            $options[CURLOPT_RANGE] = '0-0';
+        }
+
+        if (defined('CURLOPT_PROTOCOLS')) {
+            $options[CURLOPT_PROTOCOLS] = CURLPROTO_HTTP | CURLPROTO_HTTPS;
+        }
+
+        if (defined('CURLOPT_REDIR_PROTOCOLS')) {
+            $options[CURLOPT_REDIR_PROTOCOLS] = CURLPROTO_HTTP | CURLPROTO_HTTPS;
+        }
+
+        curl_setopt_array($curl, $options);
+        curl_exec($curl);
+        $response = [
+            'httpcode' => (int)curl_getinfo($curl, CURLINFO_RESPONSE_CODE),
+            'contenttype' => (string)curl_getinfo($curl, CURLINFO_CONTENT_TYPE),
+        ];
+        curl_close($curl);
+
+        return $response;
+    }
+
+    /**
+     * Checks whether remote image response metadata is usable by TCPDF.
+     *
+     * @param array $response Response metadata
+     * @return bool
+     */
+    protected function is_successful_remote_certificate_image_response(array $response) {
+        if (empty($response['httpcode']) || $response['httpcode'] < 200 || $response['httpcode'] >= 400) {
+            return false;
+        }
+
+        if (empty($response['contenttype'])) {
+            return true;
+        }
+
+        return preg_match('/^image\//i', $response['contenttype']) === 1;
+    }
+
+    /**
+     * Gets replacement text for an unavailable image tag.
+     *
+     * @param string $tag HTML img tag
+     * @return string Escaped alt text or an empty string
+     */
+    protected function get_img_tag_fallback_text($tag) {
+        $alt = $this->get_img_tag_attribute($tag, 'alt');
+
+        return empty($alt) ? '' : s($alt);
     }
 
     protected function remove_user_image($userid) {
