@@ -98,7 +98,7 @@ class bulk_users extends system_report {
     protected function can_view(): bool {
         $cmid = $this->get_parameter('cmid', 0, PARAM_INT);
         $context = \context_module::instance($cmid);
-        return has_capability('mod/simplecertificate:manage', $context);
+        return has_capability('mod/simplecertificate:issue', $context);
     }
 
     /**

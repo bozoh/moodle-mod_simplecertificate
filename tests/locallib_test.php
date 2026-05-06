@@ -202,6 +202,23 @@ class locallib_test extends mod_simplecertificate_base_testcase {
                                                ['code' => $issuecert->code]));
     }
 
+    public function test_certificate_action_capabilities_are_granular() {
+        $cert = $this->create_instance();
+        $context = $cert->get_context();
+
+        $this->assertTrue(has_capability('mod/simplecertificate:viewissued', $context, $this->teachers[0]));
+        $this->assertFalse(has_capability('mod/simplecertificate:issue', $context, $this->teachers[0]));
+        $this->assertFalse(has_capability('mod/simplecertificate:deleteissued', $context, $this->teachers[0]));
+
+        $this->assertTrue(has_capability('mod/simplecertificate:viewissued', $context, $this->editingteachers[0]));
+        $this->assertTrue(has_capability('mod/simplecertificate:issue', $context, $this->editingteachers[0]));
+        $this->assertTrue(has_capability('mod/simplecertificate:deleteissued', $context, $this->editingteachers[0]));
+
+        $this->assertFalse(has_capability('mod/simplecertificate:viewissued', $context, $this->students[0]));
+        $this->assertFalse(has_capability('mod/simplecertificate:issue', $context, $this->students[0]));
+        $this->assertFalse(has_capability('mod/simplecertificate:deleteissued', $context, $this->students[0]));
+    }
+
     public function test_update_instace_update_haschange_issues() {
         global $DB;
 
