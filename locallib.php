@@ -2507,7 +2507,7 @@ class simplecertificate {
                             $this->create_pdf($issuedcert, $pdf, true);
 
                             if (!$this->issue_file_exists($issuedcert)) {
-                                $issuedcert->haschage = true;
+                                $issuedcert->haschange = true;
                                 $this->get_issue_file($issuedcert);
                             }
                         }
