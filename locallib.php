@@ -2461,8 +2461,8 @@ class simplecertificate {
                 case 'zip':
                     $filesforzipping = [];
                     foreach ($users as $user) {
-                        $canissue = $this->can_issue($user);
-                        if (!empty($canissue)) {
+                        $canissue = empty($this->can_issue($user));
+                        if ($canissue) {
                             $issuedcert = $this->get_issue($user);
                             $file = $this->get_issue_file($issuedcert);
                             if ($file) {
@@ -2483,8 +2483,8 @@ class simplecertificate {
                     break;
                 case 'email':
                     foreach ($users as $user) {
-                        $canissue = $this->can_issue($user);
-                        if (!empty($canissue)) {
+                        $canissue = empty($this->can_issue($user));
+                        if ($canissue) {
                             $issuedcert = $this->get_issue($user);
                             if ($this->get_issue_file($issuedcert)) {
                                 $this->send_certificade_email($issuedcert);
@@ -2501,8 +2501,8 @@ class simplecertificate {
 
                     $issuedcert = null;
                     foreach ($users as $user) {
-                        $canissue = $this->can_issue($user);
-                        if (!empty($canissue)) {
+                        $canissue = empty($this->can_issue($user));
+                        if ($canissue) {
                             $issuedcert = $this->get_issue($user);
                             $this->create_pdf($issuedcert, $pdf, true);
 
