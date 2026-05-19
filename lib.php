@@ -470,7 +470,7 @@ function simplecertificate_get_grade_options() {
  * @return string file link url
  */
 function simplecertificate_print_issue_certificate_file(stdClass $issuecert) {
-    global $OUTPUT;
+    global $OUTPUT, $CFG;
     require_once(dirname(__FILE__) . '/locallib.php');
 
     // Trying to cath course module context.

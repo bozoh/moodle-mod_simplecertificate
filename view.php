@@ -91,17 +91,15 @@ switch ($tab) {
         } else {
             throw new moodle_exception('nopermissiontoviewpage');
         }
-    break;
-
+        break;
     case $simplecertificate::BULK_ISSUE_CERTIFCADES_VIEW :
         if ($canmanage) {
             $simplecertificate->view_bulk_certificates($url);
         } else {
             throw new moodle_exception('nopermissiontoviewpage');
         }
-    break;
-
+        break;
     default :
         $simplecertificate->view_default($url, $canmanage);
-    break;
+        break;
 }

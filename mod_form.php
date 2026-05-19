@@ -346,10 +346,20 @@ class mod_simplecertificate_mod_form extends moodleform_mod {
 
         $group = [];
 
-        $group[] =& $mform->createElement('checkbox', 'completiontimeenabled' . $suffix, ' ',
-                        get_string('coursetimereq', 'simplecertificate'));
-        $group[] =& $mform->createElement('text', 'requiredtime' . $suffix, '', ['size' => '3']);
+        $group[] =& $mform->createElement(
+            'checkbox',
+            'completiontimeenabled' . $suffix,
+            ' ',
+            get_string('coursetimereq', 'simplecertificate')
+        );
+        $group[] =& $mform->createElement(
+            'text',
+            'requiredtime' . $suffix,
+            '',
+            ['size' => '3']
+        );
         $mform->setType('requiredtime' . $suffix, PARAM_INT);
+
         $mform->addGroup($group, 'completiontimegroup' . $suffix, get_string('coursetimereq', 'simplecertificate'), [' '], false);
 
         $mform->addHelpButton('completiontimegroup' . $suffix, 'coursetimereq', 'simplecertificate');

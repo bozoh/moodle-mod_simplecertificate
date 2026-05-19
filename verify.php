@@ -64,8 +64,12 @@ if (!$verifyform->get_data()) {
     $table->head = array(get_string('course'), $strto, $strdate, $strcode);
     $table->align = array("left", "left", "center", "center");
     $coursename = get_course_name($issuedcert);
-    $table->data[] = array($coursename, $username,
-            userdate($issuedcert->timecreated) . simplecertificate_print_issue_certificate_file($issuedcert), $issuedcert->code);
+    $table->data[] = [
+        $coursename,
+        $username,
+        userdate($issuedcert->timecreated) . simplecertificate_print_issue_certificate_file($issuedcert),
+        $issuedcert->code,
+    ];
     echo html_writer::table($table);
 
     // Add to log.

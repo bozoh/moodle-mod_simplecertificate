@@ -1424,6 +1424,8 @@ class simplecertificate {
     public function get_course_time($user = null) {
         global $CFG, $USER;
 
+        static $usertimes = [];
+
         if (empty($user)) {
             $userid = $USER->id;
         } else {
@@ -1433,6 +1435,11 @@ class simplecertificate {
                 $userid = $user;
             }
         }
+
+        if (isset($usertimes[$userid])) {
+            return $usertimes[$userid];
+        }
+
         $manager = get_log_manager();
         $selectreaders = $manager->get_readers('\core\log\sql_reader');
         $reader = reset($selectreaders);
@@ -1445,8 +1452,13 @@ class simplecertificate {
         $sql = "action = 'viewed' AND target = 'course' AND courseid = :courseid AND userid = :userid";
 
         $logs = $reader->get_events_select(
-            $sql, ['courseid' => $this->get_course()->id, 'userid' => $userid], 'timecreated ASC', '', ''
+            $sql,
+            ['courseid' => $this->get_course()->id, 'userid' => $userid],
+            'timecreated ASC',
+            '',
+            ''
         );
+
         if ($logs) {
             foreach ($logs as $log) {
                 if (empty($login)) {
@@ -1466,8 +1478,9 @@ class simplecertificate {
                 $lasthit = $log->timecreated;
             }
         }
-        return $totaltime / 60;
 
+        $usertimes[$userid] = $totaltime / 60;
+        return $usertimes[$userid];
     }
 
     /**
@@ -2029,43 +2042,49 @@ class simplecertificate {
     /**
      * Verify if user meet issue conditions
      *
-     * @param int $userid User id
-     * @param bool $chkcompletation if true, check completation conditions, otherwise only check availability conditions.
-     * @return string null if user meet issued conditions, or an text with erro
+     * @param int|object $user User objecto or user id
+     * @return bool True if user meet issued conditions, or false if not.
      */
-    protected function can_issue($user = null, $chkcompletation = true) {
+    protected function can_issued($user = null): bool {
         global $USER, $CFG;
 
-        if (empty($user)) {
-            $user = $USER;
-        }
+        static $isenabled = null;
+        static $completion = null;
+        static $requiredtime = null;
 
-        if (has_capability('mod/simplecertificate:manage', $this->context, $user)) {
-            return 'Manager user';
-        }
-
-        if ($chkcompletation) {
+        if ($isenabled === null) {
             $completion = new completion_info($this->course);
-            if ($completion->is_enabled($this->coursemodule) && $this->get_instance()->requiredtime) {
-                if ($this->get_course_time($user) < $this->get_instance()->requiredtime) {
-                    $a = new stdClass();
-                    $a->requiredtime = $this->get_instance()->requiredtime;
-                    return get_string('requiredtimenotmet', 'simplecertificate', $a);
-                }
-                // Mark as complete.
-                $completion->update_state($this->coursemodule, COMPLETION_COMPLETE, $user->id);
-            }
-
-            if (
-                $CFG->enableavailability
-                && !$this->check_user_can_access_certificate_instance($user->id)
-            ) {
-                return get_string('cantissue', 'simplecertificate');
-
-            }
+            $isenabled = $completion->is_enabled($this->coursemodule);
+            $requiredtime = $this->get_instance()->requiredtime;
         }
 
-        return null;
+        $userid = null;
+        if (empty($user)) {
+            $userid = $USER->id;
+        } else if (is_number($user)) {
+            $userid = (int) $user;
+        } else if (is_object($user)) {
+            $userid = $user->id;
+        } else {
+            return false;
+        }
+
+        if ($isenabled && $requiredtime) {
+            if ($this->get_course_time($userid) < $requiredtime) {
+                return false;
+            }
+            // Mark as complete.
+            $completion->update_state($this->coursemodule, COMPLETION_COMPLETE, $userid);
+        }
+
+        if (
+            $CFG->enableavailability
+            && !$this->check_user_can_access_certificate_instance($userid)
+        ) {
+            return false;
+        }
+
+        return true;
     }
 
     /**
@@ -2165,8 +2184,13 @@ class simplecertificate {
 
     }
 
-    // Default view.
-    public function view_default(moodle_url $url, $canmanage) {
+    /**
+     * Display the default view of the certificate
+     *
+     * @param moodle_url $url The current page URL
+     * @param bool $canmanage If the user can manage the certificate instance
+     */
+    public function view_default(moodle_url $url, bool $canmanage) {
         global $CFG, $OUTPUT, $USER;
 
         if (!$url->get_param('action')) {
@@ -2178,8 +2202,9 @@ class simplecertificate {
             }
 
             // Check if the user can view the certificate.
-            $msg = $this->can_issue($USER);
-            if (!$canmanage && $msg) {
+            $canview = $this->can_issued($USER);
+            if (!$canmanage && !$canview) {
+                $msg = get_string('cantissue', 'simplecertificate');
                 notice($msg, $CFG->wwwroot . '/course/view.php?id=' . $this->get_course()->id, $this->get_course());
                 die();
             }
@@ -2389,12 +2414,16 @@ class simplecertificate {
                 $enrolledusers = get_enrolled_users($coursectx);
                 $eligible = [];
                 foreach ($enrolledusers as $user) {
-                    $canissue = $this->can_issue($user, true);
-                    if (empty($canissue)) {
+                    $canissued = $this->can_issued($user->id);
+                    if ($canissued) {
                         $eligible[] = $user->id;
                     }
                 }
-                $eligibleuserids = implode(',', $eligible);
+                if (count($eligible) == 0) {
+                    $eligibleuserids = '0';
+                } else {
+                    $eligibleuserids = implode(',', $eligible);
+                }
                 $cache->set($cachekey, $eligibleuserids);
             }
 
@@ -2430,6 +2459,8 @@ class simplecertificate {
             echo $OUTPUT->footer();
         } else if ($action === 'download') {
             require_sesskey();
+            require_capability('mod/simplecertificate:manage', $this->context);
+
             $type = $url->get_param('type');
             $useridsraw = optional_param('userids', '', PARAM_TEXT);
 
@@ -2461,8 +2492,8 @@ class simplecertificate {
                 case 'zip':
                     $filesforzipping = [];
                     foreach ($users as $user) {
-                        $canissue = empty($this->can_issue($user));
-                        if ($canissue) {
+                        $canissued = $this->can_issued($user);
+                        if ($canissued) {
                             $issuedcert = $this->get_issue($user);
                             $file = $this->get_issue_file($issuedcert);
                             if ($file) {
@@ -2483,8 +2514,8 @@ class simplecertificate {
                     break;
                 case 'email':
                     foreach ($users as $user) {
-                        $canissue = empty($this->can_issue($user));
-                        if ($canissue) {
+                        $canissued = $this->can_issued($user);
+                        if ($canissued) {
                             $issuedcert = $this->get_issue($user);
                             if ($this->get_issue_file($issuedcert)) {
                                 $this->send_certificade_email($issuedcert);
@@ -2501,8 +2532,8 @@ class simplecertificate {
 
                     $issuedcert = null;
                     foreach ($users as $user) {
-                        $canissue = empty($this->can_issue($user));
-                        if ($canissue) {
+                        $canissued = $this->can_issued($user);
+                        if ($canissued) {
                             $issuedcert = $this->get_issue($user);
                             $this->create_pdf($issuedcert, $pdf, true);
 
@@ -2513,11 +2544,14 @@ class simplecertificate {
                         }
                     }
 
-                    if (count($users) == 1 && $issuedcert) {
-                        $filename = $this->get_custom_filename($issuedcert);
+                    if ($issuedcert) {
+                        if (count($users) == 1) {
+                            $filename = $this->get_custom_filename($issuedcert);
+                        }
+
+                        $pdf->Output($filename, 'D');
                     }
 
-                    $pdf->Output($filename, 'D');
                     break;
             }
             exit();
