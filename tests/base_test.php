@@ -390,10 +390,10 @@ class testable_simplecertificate extends simplecertificate {
      * Verify if user meet issue conditions
      *
      * @param int $userid User id
-     * @return string null if user meet issued conditions, or an text with erro
+     * @return bool true if user meet conditions, false otherwise
      */
-    public function testable_can_issue($user = null, $chkcompletation = true) {
-        return parent::can_issue($user, $chkcompletation);
+    public function testable_can_issued($user = null) {
+        return parent::can_issued($user);
     }
 
     /**

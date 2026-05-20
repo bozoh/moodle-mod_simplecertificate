@@ -2069,12 +2069,20 @@ class simplecertificate {
             return false;
         }
 
+        if (has_capability('mod/simplecertificate:manage', $this->context, $userid)) {
+            return false;
+        }
+
         if ($isenabled && $requiredtime) {
-            if ($this->get_course_time($userid) >= $requiredtime) {
-                // Mark as complete.
-                $completion->update_state($this->coursemodule, COMPLETION_COMPLETE, $userid);
-            } else {
-                return false;
+            $data = $completion->get_data($this->coursemodule, false, $userid);
+            $completed = ($data->completionstate != COMPLETION_INCOMPLETE);
+            if (!$completed) {
+                if ($this->get_course_time($userid) >= $requiredtime) {
+                    // Mark as complete.
+                    $completion->update_state($this->coursemodule, COMPLETION_COMPLETE, $userid);
+                } else {
+                    return false;
+                }
             }
         }
 
@@ -2414,7 +2422,19 @@ class simplecertificate {
             if ($eligibleuserids === false) {
                 $enrolledusers = get_enrolled_users($coursectx);
                 $eligible = [];
+                $hasissue = $DB->get_records(
+                    'simplecertificate_issues',
+                    ['certificateid' => $this->get_instance()->id],
+                    '',
+                    'userid'
+                );
+
                 foreach ($enrolledusers as $user) {
+                    if (!empty($hasissue[$user->id])) {
+                        // User already has an issued certificate, skip it.
+                        continue;
+                    }
+
                     $canissued = $this->can_issued($user->id);
                     if ($canissued) {
                         $eligible[] = $user->id;

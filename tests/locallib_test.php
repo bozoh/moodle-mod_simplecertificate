@@ -290,10 +290,10 @@ class locallib_test extends mod_simplecertificate_base_testcase {
         }
     }
 
-    public function test_can_issue_user_without_grade_restrinction() {
+    public function test_can_issued_user_without_grade_restrinction() {
         $cert = $this->create_instance();
 
-        $this->assertNull($cert->testable_can_issue($this->students[0]));
+        $this->assertEquals(1, $cert->testable_can_issued($this->students[0]));
     }
 
 }
