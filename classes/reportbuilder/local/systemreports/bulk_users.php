@@ -21,6 +21,7 @@ use core_reportbuilder\local\helpers\database;
 use core_reportbuilder\system_report;
 use core_user\fields;
 use lang_string;
+use mod_simplecertificate\reportbuilder\local\entities\issued_certificate;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -44,6 +45,9 @@ class bulk_users extends system_report {
         // Our main entity, it contains all of the column definitions that we need.
         $entityuser = new user();
         $entityuseralias = $entityuser->get_table_alias('user');
+
+        $entityissues = new issued_certificate();
+        $entityissuesalias = $entityissues->get_table_alias('simplecertificate_issues');
 
         $this->set_main_table('user', $entityuseralias);
         $this->add_entity($entityuser);
@@ -73,6 +77,16 @@ class bulk_users extends system_report {
             $rbenrolledparams[$newname] = $value;
         }
         $this->add_base_condition_sql("{$entityuseralias}.id IN ({$enrolledsql})", $rbenrolledparams);
+
+        // Exclude users who already have an active issued certificate for this instance.
+        $instanceid = $this->get_parameter('instanceid', 0, PARAM_INT);
+        $paraminstanceid = database::generate_param_name();
+        $this->add_join("LEFT JOIN {simplecertificate_issues} {$entityissuesalias}
+            ON {$entityissuesalias}.userid = {$entityuseralias}.id
+            AND {$entityissuesalias}.certificateid = :{$paraminstanceid}
+            AND {$entityissuesalias}.timedeleted IS NULL",
+            [$paraminstanceid => $instanceid]);
+        $this->add_base_condition_sql("{$entityissuesalias}.id IS NULL");
 
         // Optionally restrict to a pre-computed set of eligible user IDs.
         $eligibleuserids = $this->get_parameter('eligibleuserids', '', PARAM_TEXT);

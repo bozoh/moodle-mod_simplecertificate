@@ -2070,11 +2070,12 @@ class simplecertificate {
         }
 
         if ($isenabled && $requiredtime) {
-            if ($this->get_course_time($userid) < $requiredtime) {
+            if ($this->get_course_time($userid) >= $requiredtime) {
+                // Mark as complete.
+                $completion->update_state($this->coursemodule, COMPLETION_COMPLETE, $userid);
+            } else {
                 return false;
             }
-            // Mark as complete.
-            $completion->update_state($this->coursemodule, COMPLETION_COMPLETE, $userid);
         }
 
         if (
@@ -2436,6 +2437,7 @@ class simplecertificate {
                     'cmid' => $this->get_course_module()->id,
                     'withcheckboxes' => true,
                     'eligibleuserids' => $eligibleuserids,
+                    'instanceid' => $this->get_instance()->id,
                 ]
             );
 
