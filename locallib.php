@@ -2020,7 +2020,7 @@ class simplecertificate {
                         require_once($CFG->dirroot . '/user/profile/field/' . $field->datatype . '/field.class.php');
                         $newfield = 'profile_field_' . $field->datatype;
                         $formfield = new $newfield($field->id, $userid);
-                        if ($formfield->is_visible() && !$formfield->is_empty()) {
+                        if ($formfield->is_visible($this->context) && !$formfield->is_empty()) {
                             if ($field->datatype == 'checkbox') {
                                 $usercustomfields->{$field->shortname} = (
                                     $formfield->data == 1 ? get_string('yes') : get_string('no')
