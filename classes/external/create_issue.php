@@ -72,7 +72,7 @@ class create_issue extends external_api {
                                     bool $archive = false,
                                     ?array $variables = []
                                 ): string {
-        global $DB;
+        global $DB, $PAGE;
 
         // Parameter validation.
         [
@@ -113,6 +113,7 @@ class create_issue extends external_api {
 
         // From web services we don't call require_login(), but rather validate_context.
         $context = \context_module::instance($cm->id);
+        $PAGE->set_context($context);
 
         $instance = $DB->get_record('simplecertificate', ['id' => $certificateid], '*', MUST_EXIST);
         $course = $DB->get_record('course', ['id' => $instance->course], '*', MUST_EXIST);
