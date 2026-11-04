@@ -259,5 +259,30 @@ function xmldb_simplecertificate_upgrade($oldversion = 0) {
         set_config('certlifetime', 0, 'simplecertificate');
     }
 
+    if ($oldversion < 2026040502) {
+        // Define unique index code to be added to simplecertificate_issues.
+        $table = new xmldb_table('simplecertificate_issues');
+        $index = new xmldb_index('code', XMLDB_INDEX_UNIQUE, ['code']);
+
+        if (!$dbman->index_exists($table, $index)) {
+            $duplicates = $DB->get_records_sql(
+                "SELECT code, COUNT(id) AS duplicatecount
+                   FROM {simplecertificate_issues}
+                  GROUP BY code
+                 HAVING COUNT(id) > 1",
+                null,
+                0,
+                1
+            );
+
+            if (empty($duplicates)) {
+                $dbman->add_index($table, $index);
+            }
+        }
+
+        // Simplecertificate savepoint reached.
+        upgrade_mod_savepoint(true, 2026040502, 'simplecertificate');
+    }
+
     return true;
 }

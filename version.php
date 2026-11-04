@@ -26,11 +26,11 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version  = 2026040501;
+$plugin->version  = 2026040502;
 $plugin->requires = 2025041403;
 $plugin->component = 'mod_simplecertificate';
 $plugin->dependencies = [];
-$plugin->release  = '5.1.2';
+$plugin->release  = '5.1.3';
 // MATURITY_ALPHA, MATURITY_BETA, MATURITY_RC, MATURITY_STABLE.
 $plugin->maturity = MATURITY_BETA;
 $plugin->supported = [501, 501];

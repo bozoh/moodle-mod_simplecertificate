@@ -46,6 +46,9 @@ Place this folder in your mod folder in your Moodle directory.
 
 ## In version
 
+### 2026040502:
+- Added uniqueness checks for issued certificate codes and a unique database index for new installations.
+
 ### 2026040501:
 - Update the certificate cleaning cron to the new task API.
 

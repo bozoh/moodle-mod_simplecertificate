@@ -202,6 +202,35 @@ class locallib_test extends mod_simplecertificate_base_testcase {
                                                ['code' => $issuecert->code]));
     }
 
+    public function test_create_issue_code_skips_existing_code() {
+        global $DB;
+
+        $cert = $this->create_instance();
+        $collisioncode = '00000000-0000-4000-8000-000000000001';
+        $uniquecode = '00000000-0000-4000-8000-000000000002';
+
+        $existingissue = (object)[
+            'certificateid' => $cert->get_instance()->id,
+            'userid' => $this->students[0]->id,
+            'certificatename' => 'Existing certificate',
+            'code' => $collisioncode,
+            'timecreated' => time(),
+            'timedeleted' => null,
+            'haschange' => 0,
+            'pathnamehash' => '',
+            'coursename' => $cert->get_instance()->coursename,
+        ];
+        $DB->insert_record('simplecertificate_issues', $existingissue);
+
+        $cert->testable_set_issue_uuid_queue([$collisioncode, $uniquecode]);
+        $issuecert = $cert->get_issue($this->students[1]);
+
+        $this->assertEquals($uniquecode, $issuecert->code);
+        $this->assertEquals(1, $DB->count_records('simplecertificate_issues', ['code' => $collisioncode]));
+        $this->assertEquals($this->students[1]->id,
+                            $DB->get_field('simplecertificate_issues', 'userid', ['code' => $uniquecode]));
+    }
+
     public function test_update_instace_update_haschange_issues() {
         global $DB;
 
