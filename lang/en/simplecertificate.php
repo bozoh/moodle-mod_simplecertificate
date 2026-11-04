@@ -75,7 +75,7 @@ These are:
 <li>{TABLEUSERGRADES} -> Same as {USERGRADES} but in a table</li>
 <li>{PROFILE_xxxx} -> User custom profile fields</li>
 </ul>
-In order to use custom profiles fields you must use "PORFILE_" prefix, for example: you has created a custom profile with shortname of "birthday," so the text mark used on certificate must be {PROFILE_BIRTHDAY}.
+In order to use custom profile fields you must use "PROFILE_" prefix, for example: you has created a custom profile with shortname of "birthday," so the text mark used on certificate must be {PROFILE_BIRTHDAY}.
 The text can use basic html, basic fonts, tables,  but avoid any position definition.';
 $string['certificatetextx'] = 'Certificate Text Horizontal Position';
 $string['certificatetexty'] = 'Certificate Text Vertical Position';
