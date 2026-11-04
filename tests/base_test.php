@@ -226,6 +226,9 @@ class testable_simplecertificate extends simplecertificate {
 
     const PLUGIN_VERSION = '2.2.2';
 
+    /** @var array Remote image availability map for certificate HTML tests. */
+    private $remoteimageavailability = [];
+
     /**
      * Overwrites parents to format $formdata
      * @see simplecertificate::update_instance()
@@ -352,6 +355,22 @@ class testable_simplecertificate extends simplecertificate {
 
     public function testable_get_certificate_text($issuecert, $certtext = null) {
         return parent::get_certificate_text($issuecert, $certtext);
+    }
+
+    public function testable_set_remote_image_availability(array $availability) {
+        $this->remoteimageavailability = $availability;
+    }
+
+    public function testable_prepare_certificate_html_for_pdf($htmltext) {
+        return parent::prepare_certificate_html_for_pdf($htmltext);
+    }
+
+    protected function remote_certificate_image_exists($url) {
+        if (array_key_exists($url, $this->remoteimageavailability)) {
+            return $this->remoteimageavailability[$url];
+        }
+
+        return parent::remote_certificate_image_exists($url);
     }
 
     /**
