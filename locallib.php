@@ -1564,6 +1564,20 @@ class simplecertificate {
             $key = 'profile_' . $key;
             $a->$key = strip_tags($value);
         }
+        //Add custom fields to groups of courses
+        $groups = groups_get_all_groups($this->get_course()->id, $user->id);
+        if (!empty($groups)) {
+            $handler = \core_group\customfield\group_handler::create();
+            $instancesdata = $handler->get_instances_data(array_keys($groups), true);
+            foreach ($instancesdata as $groupdata) {
+                foreach ($groupdata as $fielddata) {
+                    $key = 'group_' . $fielddata->get_field()->get('shortname');
+                    if (!isset($a->$key)) {  // primer grupo que tenga el campo
+                        $a->$key = strip_tags((string)$fielddata->export_value());
+                    }
+                }
+            }
+        }
 
         // The course name never change form a certificate to another, useless
         // text mark and atribbute, can be removed.
