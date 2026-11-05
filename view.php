@@ -73,6 +73,10 @@ $PAGE->set_cm($cm);
 require_login( $course->id, false, $cm);
 require_capability('mod/simplecertificate:view', $context);
 $canmanage = has_capability('mod/simplecertificate:manage', $context);
+$canviewissued = $canmanage || has_capability('mod/simplecertificate:viewissued', $context) ||
+    has_capability('mod/simplecertificate:deleteissued', $context);
+$canissue = has_capability('mod/simplecertificate:issue', $context);
+$showtabs = $canmanage || $canviewissued || $canissue;
 
 // Log update.
 $simplecertificate = new simplecertificate($context, $cm, $course);
@@ -86,7 +90,7 @@ $PAGE->set_heading(format_string($course->fullname));
 
 switch ($tab) {
     case $simplecertificate::ISSUED_CERTIFCADES_VIEW :
-        if ($canmanage) {
+        if ($canviewissued) {
             $simplecertificate->view_issued_certificates($url);
         } else {
             throw new moodle_exception('nopermissiontoviewpage');
@@ -94,7 +98,7 @@ switch ($tab) {
     break;
 
     case $simplecertificate::BULK_ISSUE_CERTIFCADES_VIEW :
-        if ($canmanage) {
+        if ($canissue) {
             $simplecertificate->view_bulk_certificates($url);
         } else {
             throw new moodle_exception('nopermissiontoviewpage');
@@ -102,6 +106,6 @@ switch ($tab) {
     break;
 
     default :
-        $simplecertificate->view_default($url, $canmanage);
+        $simplecertificate->view_default($url, $canmanage, $showtabs);
     break;
 }

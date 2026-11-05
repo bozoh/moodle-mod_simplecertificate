@@ -46,6 +46,9 @@ Place this folder in your mod folder in your Moodle directory.
 
 ## In version
 
+### 2026040503:
+- Added granular capabilities for viewing issued certificates, issuing certificates in bulk, and deleting issued certificate records.
+
 ### 2026040501:
 - Update the certificate cleaning cron to the new task API.
 

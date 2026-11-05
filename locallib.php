@@ -2139,15 +2139,25 @@ class simplecertificate {
     protected function show_tabs(moodle_url $url) {
         global $OUTPUT, $CFG;
 
+        $canmanage = has_capability('mod/simplecertificate:manage', $this->context);
+        $canviewissued = $canmanage || has_capability('mod/simplecertificate:viewissued', $this->context) ||
+            has_capability('mod/simplecertificate:deleteissued', $this->context);
+        $canissue = has_capability('mod/simplecertificate:issue', $this->context);
+
         $tabs[] = new tabobject(self::DEFAULT_VIEW, $url->out(false, ['tab' => self::DEFAULT_VIEW]),
                                 get_string('standardview', 'simplecertificate'));
 
-        $tabs[] = new tabobject(self::ISSUED_CERTIFCADES_VIEW, $url->out(false, ['tab' => self::ISSUED_CERTIFCADES_VIEW]),
-                                get_string('issuedview', 'simplecertificate'));
+        if ($canviewissued) {
+            $tabs[] = new tabobject(self::ISSUED_CERTIFCADES_VIEW,
+                                    $url->out(false, ['tab' => self::ISSUED_CERTIFCADES_VIEW]),
+                                    get_string('issuedview', 'simplecertificate'));
+        }
 
-        $tabs[] = new tabobject(self::BULK_ISSUE_CERTIFCADES_VIEW,
-                                $url->out(false, ['tab' => self::BULK_ISSUE_CERTIFCADES_VIEW]),
-                                get_string('bulkview', 'simplecertificate'));
+        if ($canissue) {
+            $tabs[] = new tabobject(self::BULK_ISSUE_CERTIFCADES_VIEW,
+                                    $url->out(false, ['tab' => self::BULK_ISSUE_CERTIFCADES_VIEW]),
+                                    get_string('bulkview', 'simplecertificate'));
+        }
 
         if (!$url->get_param('tab')) {
             $tab = self::DEFAULT_VIEW;
@@ -2160,14 +2170,16 @@ class simplecertificate {
     }
 
     // Default view.
-    public function view_default(moodle_url $url, $canmanage) {
+    public function view_default(moodle_url $url, $canmanage, $showtabs = null) {
         global $CFG, $OUTPUT, $USER;
+
+        $showtabs = $showtabs ?? $canmanage;
 
         if (!$url->get_param('action')) {
 
             echo $OUTPUT->header();
 
-            if ($canmanage) {
+            if ($showtabs) {
                 $this->show_tabs($url);
             }
 
@@ -2282,6 +2294,13 @@ class simplecertificate {
         global $OUTPUT, $PAGE, $DB;
 
         $action = $url->get_param('action');
+        $canviewissued = has_capability('mod/simplecertificate:manage', $this->context) ||
+            has_capability('mod/simplecertificate:viewissued', $this->context);
+        $candeleteissued = has_capability('mod/simplecertificate:deleteissued', $this->context);
+
+        if (!$canviewissued && !$candeleteissued) {
+            throw new moodle_exception('nopermissiontoviewpage');
+        }
 
         if (!$action) {
             echo $OUTPUT->header();
@@ -2294,33 +2313,38 @@ class simplecertificate {
                 parameters: [
                     'certificateid' => $this->get_instance()->id,
                     'cmid' => $this->get_course_module()->id,
-                    'withcheckboxes' => true,
+                    'withcheckboxes' => $candeleteissued,
                 ]
             );
 
-            // Render the bulk actions template.
-            $templatecontext = [
-                'actionurl' => new moodle_url('/mod/simplecertificate/view.php'),
-                'cmid' => $this->get_course_module()->id,
-                'tab' => self::ISSUED_CERTIFCADES_VIEW,
-                'sesskey' => sesskey(),
-                'reporthtml' => $report->output(),
-                'actionoptions' => [
-                    ['action' => 'delete', 'type' => 'selected', 'label' => get_string('deleteselected', 'simplecertificate')],
-                    [
-                        'action' => 'delete',
-                        'type' => 'all',
-                        'label' => get_string('deleteall', 'simplecertificate'),
-                        'noselection' => true,
+            if ($candeleteissued) {
+                // Render the bulk actions template.
+                $templatecontext = [
+                    'actionurl' => new moodle_url('/mod/simplecertificate/view.php'),
+                    'cmid' => $this->get_course_module()->id,
+                    'tab' => self::ISSUED_CERTIFCADES_VIEW,
+                    'sesskey' => sesskey(),
+                    'reporthtml' => $report->output(),
+                    'actionoptions' => [
+                        ['action' => 'delete', 'type' => 'selected', 'label' => get_string('deleteselected', 'simplecertificate')],
+                        [
+                            'action' => 'delete',
+                            'type' => 'all',
+                            'label' => get_string('deleteall', 'simplecertificate'),
+                            'noselection' => true,
+                        ],
                     ],
-                ],
-            ];
-            echo $OUTPUT->render_from_template('mod_simplecertificate/bulk_actions', $templatecontext);
+                ];
+                echo $OUTPUT->render_from_template('mod_simplecertificate/bulk_actions', $templatecontext);
 
-            $PAGE->requires->js_call_amd('mod_simplecertificate/bulk_certificate_actions', 'init');
+                $PAGE->requires->js_call_amd('mod_simplecertificate/bulk_certificate_actions', 'init');
+            } else {
+                echo $report->output();
+            }
 
             echo $OUTPUT->footer();
         } else if ($action === 'delete') {
+            require_capability('mod/simplecertificate:deleteissued', $this->context);
             require_sesskey();
             $type = $url->get_param('type');
             $useridsraw = optional_param('userids', '', PARAM_TEXT);
@@ -2362,6 +2386,8 @@ class simplecertificate {
      */
     public function view_bulk_certificates(moodle_url $url) {
         global $OUTPUT, $PAGE, $DB;
+
+        require_capability('mod/simplecertificate:issue', $this->context);
 
         $action = $url->get_param('action');
 
